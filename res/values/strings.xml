@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Muses User Interface</string>
+    <string name="action_settings">Settings</string>
+    <string name="username_txt">User ID:</string>
+    <string name="password_txt">Password:</string>
+    <string name="login_button_txt">Login</string>
+    <string name="login_list_button_txt">L o g i n</string>
+    <string name="logout_button_txt">Logout</string>
+    <string name="security_info_button_txt">Security information</string>
+    <string name="privacy_policy_view_txt">Privacy Policy</string>
+    <string name="policy_info_button_txt">MUSES policy information</string>
+    <string name="settings_button_txt">Settings</string>
+    <string name="remember_my_login_txt">Remember my login</string>
+    <string name="hint_txt_userid">Enter your id here &#8230;</string>
+    <string name="hint_txt_password">Enter your password  &#8230;</string>
+    <string name="login_detail_view_txt">MUSES allows you to access digital assets from your company in secure way.</string>
+    <string name="logged_in_info_txt">You are now logged in as: </string>
+    <string name="agree_term_condition_txt">I agree to terms and condition</string>
+    <string name="make_sure_privacy_policy_read_txt">Make sure you have read and understood the privacy policy before logging in.</string>
+    <string name="terms_and_condition_description_text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
+    <string name="test_string">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
+    
+    <!-- Toast msgs -->
+    <string name="login_success_msg">Login Successful..</string>
+    <string name="login_fail_msg">Login Falied..</string>
+    <string name="empty_login_fields_msg">You can\'t leave UserID or Password fields empty ..</string>
+    <string name="no_internet_connection_msg">You don\'t have any Internet connection on your device, Please check your Wi-Fi settigns ..</string>
+    <string name="logout_successfully_msg">Logged out successfully ..</string>
+    	
+
+    
+    
+    
+    
+    <!-- Copied strings -->
+    <string name="decent_protection"> Descent protection</string>
+    <string name="ok_level_btn">OK (Level X)</string>
+    <string name="cancel_tft_btn">Cancel</string>
+    <string name="level_x">LEVEL X</string>
+    <string name="low_tft">Low</string>
+    <string name="high_tft">High</string>
+    <string name="sec_det">Security Details</string>
+
+</resources>
