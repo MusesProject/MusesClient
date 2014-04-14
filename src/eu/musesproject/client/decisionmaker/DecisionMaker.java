@@ -7,6 +7,7 @@ package eu.musesproject.client.decisionmaker;
 import java.util.List;
 
 import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -49,13 +50,13 @@ public class DecisionMaker {
 		
 		Decision decision = new Decision();
 		
-		if (request.getAction().getDescription().equals(Action.ACCESS)){
+		if (request.getAction().getType().equals(ActionType.ACCESS)){
 			decision.setName(Decision.GRANTED_ACCESS);			
-		}else if (request.getAction().getDescription().equals(Action.OPEN)){
+		}else if (request.getAction().getType().equals(ActionType.OPEN)){
 			decision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);			
-		}else if (request.getAction().getDescription().equals(Action.RUN)){
+		}else if (request.getAction().getType().equals(ActionType.RUN)){
 			decision.setName(Decision.STRONG_DENY_ACCESS);			
-		}else if (request.getAction().getDescription().equals(Action.INSTALL)){
+		}else if (request.getAction().getType().equals(ActionType.INSTALL)){
 			decision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);			
 		}
 				
