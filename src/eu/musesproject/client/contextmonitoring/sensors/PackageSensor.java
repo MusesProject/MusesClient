@@ -15,7 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by christophstanik on 3/26/14.
+ * @author christophstanik
+ *
+ * Class to collect information about app installation status of the device.
+ * The class collects information about:
+ *  - new app installed
+ *  - already installed app updated
+ *  - app deleted
+ *  - list of all installed apps
  */
 public class PackageSensor implements ISensor {
     private static final String TAG = PackageSensor.class.getSimpleName();
@@ -37,7 +44,7 @@ public class PackageSensor implements ISensor {
     private Context context;
     private ContextListener listener;
 
-    // stores all fired context events of this sensor
+    // stores the context events before the latest at position 0 and the latest at position 1
     private List<ContextEvent> contextEventHistory;
 
     // broadcast receiver fields
@@ -56,7 +63,7 @@ public class PackageSensor implements ISensor {
 
     private void init() {
         sensorEnabled = false;
-        contextEventHistory = new ArrayList<ContextEvent>();
+        contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
     }
 
     @Override
@@ -83,6 +90,11 @@ public class PackageSensor implements ISensor {
     }
 
     @Override
+    public void removeContextListener(ContextListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
     public ContextEvent getLastFiredContextEvent() {
         if(contextEventHistory.size() > 0) {
             return contextEventHistory.get(contextEventHistory.size() - 1);
@@ -101,10 +113,13 @@ public class PackageSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_PACKAGE_NAME, "");
         contextEvent.addProperty(PROPERTY_KEY_APP_NAME, "");
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, "");
-        contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps().toString());
+        contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps());
 
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
+        if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
+            contextEventHistory.remove(0);
+        }
 
         if(listener != null) {
             listener.onEvent(contextEvent);
@@ -121,16 +136,19 @@ public class PackageSensor implements ISensor {
         context.registerReceiver(packageReceiver, packageUpdatedIntentFilter);
     }
 
-    private List<String[]> getInstalledApps() {
-        List<String[]> installedAppsFormatted = new ArrayList<String[]>();
+    private String getInstalledApps() {
+        String installedAppsFormatted = "";
 
         PackageManager packageManager = context.getPackageManager();
         List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
         for(ApplicationInfo appInfo : installedApps) {
             String appName = appInfo.loadLabel(packageManager).toString();
             String packageName = appInfo.packageName;
-            installedAppsFormatted.add(new String[]{appName, packageName});
+            installedAppsFormatted += appName + "," + packageName;
+            installedAppsFormatted += ";";
         }
+        // remove last separation item
+        installedAppsFormatted = installedAppsFormatted.subSequence(0, installedAppsFormatted.length() - 1).toString();
 
         return installedAppsFormatted;
     }
