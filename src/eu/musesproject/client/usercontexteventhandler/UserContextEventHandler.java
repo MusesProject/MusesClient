@@ -7,6 +7,7 @@ package eu.musesproject.client.usercontexteventhandler;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Intent;
 import android.util.Log;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.db.handler.DBManager;
@@ -116,6 +117,13 @@ public class UserContextEventHandler {
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
         if(decision != null) {
             // perform decision / send decision to actuator manager
+             //TODO This is just Dummy code for the purpose of testing test
+            // send to broadcast
+            Intent messageIntent = new Intent();
+            messageIntent.setAction("eu.musesproject.client.intent.muses.feedback");
+            messageIntent.putExtra("message", decision.getName());
+            context.sendBroadcast(messageIntent);
+
         }
         else { // if there is no local decision, send a request to the server
             if((context != null) && (serverStatus != Statuses.OFFLINE)) { // if the server is online
