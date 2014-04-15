@@ -51,6 +51,16 @@ public class UserContextMonitoringControllerTest extends AndroidTestCase {
                 assertEquals("risk text:", "text", riskTreatment.getRiskTreatmentText());
                 assertEquals("risk answer alternatives:", 2, riskTreatment.getAnswerAlternatives());
             }
+
+            @Override
+            public void onMaybe(RiskTreatment riskTreatment) {
+
+            }
+
+            @Override
+            public void onUpToUser(RiskTreatment riskTreatment) {
+
+            }
         };
 
         callback.onAccept(riskTreatment);

@@ -4,13 +4,14 @@
  */
 package eu.musesproject.client.usercontexteventhandler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import android.util.Log;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
+import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
 import org.json.JSONObject;
 
@@ -19,7 +20,6 @@ import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
-import eu.musesproject.client.contextmonitoring.service.aidl.Action;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.actuators.RiskTreatment;
@@ -32,21 +32,20 @@ import eu.musesproject.contextmodel.ContextEvent;
  * @version 28 feb 2014
  */
 public class UserContextEventHandler {
-	private static UserContextEventHandler userContextEventHandler = null;
+    private static final String TAG = UserContextEventHandler.class.getSimpleName();
+
+    private static UserContextEventHandler userContextEventHandler = null;
 	
-	private static final String URL = "http://192.168.44.101:8888/server-0.0.1-SNAPSHOT/commain";
+	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/server-0.0.1-SNAPSHOT/commain";
 	
 	private Context context;
 	
-	private List<ContextEvent> contextEventHistory;
-
     private ConnectionManager connectionManager;
     private IConnectionCallbacks connectionCallback;
 	private int serverStatus;
 	private int serverDetailedStatus;
 	
 	private UserContextEventHandler() {
-		contextEventHistory = new ArrayList<ContextEvent>();
         connectionManager = new ConnectionManager();
         connectionCallback = new ConnectionCallback();
 
@@ -99,16 +98,6 @@ public class UserContextEventHandler {
 	 */
 	public void serverDelegatedDecision(Request request){
 	}
-	
-	/**
-	 * Method that will be called whenever a {@link ContextEvent} is fired to collect a history
-	 * of {@link ContextEvent} data.
-	 * 
-	 * @param contextEvent {@link ContextEvent}
-	 */
-	public void addContextEvent(ContextEvent contextEvent) {
-		contextEventHistory.add(contextEvent);
-	}
 
 	/**
 	 *  Method to first check the local decision maker for a decision to the corresponding
@@ -118,43 +107,66 @@ public class UserContextEventHandler {
      *      perform default procedure if the server is not reachable
 	 *
 	 * @param action {@link Action}
-	 * @param properties {@link Map<String,String>}
+	 * @param properties {@link Map}<String, String>
 	 * @param contextEvents {@link ContextEvent}
 	 */
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents){
-        // TODO two different action objects?
-        Request request = new Request(null, null);
+        Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
+        Request request = new Request(action, null);
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
         if(decision != null) {
             // perform decision / send decision to actuator manager
         }
         else { // if there is no local decision, send a request to the server
-            if((context != null) && (serverStatus != Statuses.OFFLINE)) {
+            if((context != null) && (serverStatus != Statuses.OFFLINE)) { // if the server is online
                 JSONObject requestObject = JSONManager.createJSON(action, properties, contextEvents);
                 sendRequestToServer(requestObject);
+            }
+            else if((context != null) && (serverStatus == Statuses.OFFLINE)) { // save request to the database
+                storeContextEvent(action, properties, contextEvents);
             }
         }
 	}
 	
 	public void login(String userName, String password) {
+        Log.d(TAG, "called: login(String userName, String password)");
 		// dummy response
 		UserContextMonitoringController.getInstance(context).sendLoginResponseToUI(true);
 	}
 
     /**
+     * Method to store a context event in the database if
+     * there is no connection to the server
+     *
+     * @param action {@link Action}
+     * @param properties {@link Map}<String, String>
+     * @param contextEvents {@link ContextEvent}
+     */
+    public void storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+        if((action == null) && (properties == null) && (contextEvents != null)) {
+            DBManager dbManager = new DBManager(context);
+            dbManager.openDB();
+            for(ContextEvent contextEvent : contextEvents){
+                //dbManager.addContextEvent(contextEvent);
+            }
+            dbManager.closeDB();
+        }
+    }
+
+    /**
      * Method to send locally stored data to the server
      */
     public void sendOfflineStoredContextEventsToServer() {
+        Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
+        // load contet events from the database
         DBManager dbManager = new DBManager(context);
+        dbManager.openDB();
         // TODO finish when db methods are implemented
-        int numberOfStoredContextEvents = dbManager.getNoOfContextEventsStored();
-        if(numberOfStoredContextEvents > 0) {
-            for(int i = 1; i <= numberOfStoredContextEvents; i++) {
-                dbManager.getStoredContextEvent(String.valueOf(i));
-            }
-        }
-        // transform to JSOn
-        JSONObject requestObject = JSONManager.createJSON(null, null, null );
+        List<ContextEvent> storedContextEvents = null; //dbManager.getAllStoredContextEvents();
+        dbManager.closeDB();
+
+        // transform to JSON
+        JSONObject requestObject = JSONManager.createJSON(null, null, storedContextEvents);
         // send to server
         sendRequestToServer(requestObject);
     }
@@ -167,10 +179,11 @@ public class UserContextEventHandler {
      * @param requestJSON {@link org.json.JSONObject}
      */
     public void sendRequestToServer(JSONObject requestJSON) {
+        Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
         if (requestJSON != null) {
             String sendData = requestJSON.toString();
             connectionManager.connect(
-                    URL,
+                    MUSES_SERVER_URL,
                     AlarmReceiver.DEFAULT_POLL_INTERVAL,
                     AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
                     connectionCallback,
@@ -193,6 +206,7 @@ public class UserContextEventHandler {
 
 		@Override
 		public int receiveCb(String receiveData) {
+            Log.d(TAG, "called: receiveCb(String receiveData)");
 			//TODO workflow to send the result back to Muses UI / aware app
 			// dummy data
 			ResponseInfoAP infoAP = ResponseInfoAP.DENY;
@@ -204,6 +218,7 @@ public class UserContextEventHandler {
 
 		@Override
 		public int statusCb(int status, int detailedStatus) {
+            Log.d(TAG, "called: statusCb(int status, int detailedStatus)");
             // detect if server is back online after an offline status
             if(status == Statuses.ONLINE ) {
                 if(serverStatus == Statuses.OFFLINE) {

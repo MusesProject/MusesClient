@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.util.Log;
+import eu.musesproject.client.contextmonitoring.UserActionGenerator;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 
@@ -39,8 +40,10 @@ public class MusesServiceProvider extends Service {
 		@Override
 		public void sendUserAction(Action action, Map properties)
 				throws RemoteException {
+            Log.d(TAG, "called: sendUserAction(Action action, Map properties)");
 			ServiceModel.getInstance().setServiceObject(MusesServiceProvider.this);
-			UserContextMonitoringController.getInstance(MusesServiceProvider.this).sendUserAction(action, properties);
+            eu.musesproject.client.model.decisiontable.Action userAction = UserActionGenerator.transformUserAction(action);
+			UserContextMonitoringController.getInstance(MusesServiceProvider.this).sendUserAction(userAction, properties);
 		}
 		
 

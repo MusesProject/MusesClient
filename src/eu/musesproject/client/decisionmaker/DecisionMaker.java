@@ -6,7 +6,7 @@ package eu.musesproject.client.decisionmaker;
 
 import java.util.List;
 
-import eu.musesproject.client.model.decisiontable.Action;
+import android.util.Log;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
@@ -19,8 +19,10 @@ import eu.musesproject.contextmodel.ContextEvent;
  * @version 26 sep 2013
  */
 public class DecisionMaker {
-	
-	/**
+
+    private static final String TAG = DecisionMaker.class.getSimpleName();
+
+    /**
 	 * Info DC
 	 * 
 	 *  Method to notify the decision maker about an incoming request
@@ -47,18 +49,24 @@ public class DecisionMaker {
 	 */
 	
 	public Decision makeDecision(Request request, List<ContextEvent> eventList){
-		
-		Decision decision = new Decision();
-		
-		if (request.getAction().getType().equals(ActionType.ACCESS)){
-			decision.setName(Decision.GRANTED_ACCESS);			
-		}else if (request.getAction().getType().equals(ActionType.OPEN)){
-			decision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);			
-		}else if (request.getAction().getType().equals(ActionType.RUN)){
-			decision.setName(Decision.STRONG_DENY_ACCESS);			
-		}else if (request.getAction().getType().equals(ActionType.INSTALL)){
-			decision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);			
-		} else {
+        Log.d(TAG, "called: makeDecision(Request request, List<ContextEvent> eventList)");
+
+        Decision decision = new Decision();
+
+        if(request.getAction() != null) {
+            if (request.getAction().getActionType().equals(ActionType.ACCESS)){
+                decision.setName(Decision.GRANTED_ACCESS);
+            }else if (request.getAction().getActionType().equals(ActionType.OPEN)){
+                decision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+            }else if (request.getAction().getActionType().equals(ActionType.RUN)){
+                decision.setName(Decision.STRONG_DENY_ACCESS);
+            }else if (request.getAction().getActionType().equals(ActionType.INSTALL)){
+                decision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+            } else {
+                return null;
+            }
+        }
+        else {
             return null;
         }
 				

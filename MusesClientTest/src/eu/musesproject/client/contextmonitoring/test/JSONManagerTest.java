@@ -1,8 +1,9 @@
 package eu.musesproject.client.contextmonitoring.test;
 
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
-import eu.musesproject.client.contextmonitoring.service.aidl.Action;
 import eu.musesproject.client.model.JSONIdentifiers;
+import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.JSONManager;
 import eu.musesproject.contextmodel.ContextEvent;
 import junit.framework.TestCase;
@@ -31,9 +32,9 @@ public class JSONManagerTest extends TestCase {
 
         // create dummy data
         actionTimestamp = System.currentTimeMillis();
-        actionType = "ACTION_REMOTE_FILE_ACCESS";
+        actionType = ActionType.ACCESS;
         action = new Action();
-        action.setType(actionType);
+        action.setActionType(actionType);
         action.setTimestamp(actionTimestamp);
 
         actionProperties = new HashMap<String, String>();

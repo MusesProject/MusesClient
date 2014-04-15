@@ -78,6 +78,6 @@ public class MusesUICallbacksHandler implements IUserContextMonitoringController
 		bundle.putString("message",riskTreatment.toString());
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
-	}
-	
+    }
+
 }
