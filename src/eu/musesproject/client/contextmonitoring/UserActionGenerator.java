@@ -64,6 +64,12 @@ public class UserActionGenerator {
         else if(type.equals(ActionType.SEND)) {
             return ActionType.SEND;
         }
+        else if(type.equals(ActionType.OK)) {
+            return ActionType.OK;
+        }
+        else if(type.equals(ActionType.CANCEL)) {
+            return ActionType.CANCEL;
+        }
         else {
             return null;
         }
