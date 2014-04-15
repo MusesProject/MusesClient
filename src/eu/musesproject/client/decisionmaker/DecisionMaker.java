@@ -58,7 +58,9 @@ public class DecisionMaker {
 			decision.setName(Decision.STRONG_DENY_ACCESS);			
 		}else if (request.getAction().getType().equals(ActionType.INSTALL)){
 			decision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);			
-		}
+		} else {
+            return null;
+        }
 				
 		return decision;
 
