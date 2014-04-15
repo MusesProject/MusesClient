@@ -6,4 +6,6 @@ public interface IUserContextMonitoringControllerCallback {
 	void onLogin(boolean result);
     void onAccept(RiskTreatment riskTreatment );
     void onDeny(RiskTreatment riskTreatment );
+    void onMaybe(RiskTreatment riskTreatment);
+    void onUpToUser(RiskTreatment riskTreatment);
 }
