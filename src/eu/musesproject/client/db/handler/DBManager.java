@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import eu.musesproject.client.db.entity.ContextEvent;
+import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.model.decisiontable.DecisionTable;
 
 public class DBManager {
@@ -443,10 +445,10 @@ public class DBManager {
     
     // Context Event related queries
     
-    public void addContextEvent(/*ContextEvent event*/) {
+    public void addContextEvent(ContextEvent event) {
     	ContentValues values = new ContentValues();
-    	values.put(TYPE, "type1");
-    	values.put(TIME_STAMP, System.currentTimeMillis());
+    	values.put(TYPE, event.getType());
+    	values.put(TIME_STAMP, event.getTimestamp());
     	sqLiteDatabase.insert(TABLE_CONTEXT_EVENT, null	, values);    
     }
     
@@ -487,15 +489,32 @@ public class DBManager {
     			new String[] {String.valueOf(id)});
     }
     
-    public void addProperty(/*Property property	*/) {
+    public void addProperty(Property property) {
     	ContentValues values = new ContentValues();
-    	values.put(CONTEXT_EVENT_ID, "1");
-    	values.put(KEY, "protocol");
-    	values.put(VALUE, "https");
+    	values.put(CONTEXT_EVENT_ID, property.getContextevent_id());
+    	values.put(KEY, property.getKey());
+    	values.put(VALUE, property.getValue());
     	sqLiteDatabase.insert(TABLE_PROPERTY, null	, values);    
     }
     
-    
+    public List<ContextEvent> getAllStoredContextEvents() {
+    	List<ContextEvent> contextEventsList = new ArrayList<ContextEvent>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_CONTEXT_EVENT;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        // loop through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                ContextEvent contextEvent = new ContextEvent();
+                contextEvent.setId(Integer.parseInt(cursor.getString(0)));
+                contextEvent.setType(cursor.getString(1));
+                contextEvent.setTimestamp(cursor.getString(2));
+                contextEventsList.add(contextEvent);
+            } while (cursor.moveToNext());
+        }
+
+        return contextEventsList;
+    }
     
     
     // Server and Client Certificates related query

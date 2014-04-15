@@ -6,6 +6,8 @@ public class ContextEvent {
 	private String type;
 	private String timestamp;
 
+	public ContextEvent() {
+	}
 	public ContextEvent(int id, String type, String timestamp) {
 		this.id = id;
 		this.type = type;
