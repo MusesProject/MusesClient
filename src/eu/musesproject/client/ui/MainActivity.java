@@ -68,6 +68,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         // starts the background service of MUSES
         startService(new Intent(this, MUSESBackgroundService.class));
         Log.v(TAG, "muses service started ..");
+        
+		userContextMonitoringController = UserContextMonitoringController.getInstance(context);
+		registerCallbacks();
 	}
 
 	@Override
@@ -199,6 +202,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}	
 
 	/**
+	 * Registers for callbacks using MusesUICallbacksHandler
+	 * in UserContextMonitoringImplementation. 
+	 */
+	private void registerCallbacks(){
+		MusesUICallbacksHandler musesUICallbacksHandler = new MusesUICallbacksHandler(context, callbackHandler);
+		ActuatorController.getInstance().registerCallback(musesUICallbacksHandler);
+	}
+	
+	/**
 	 * Toast messages to UI
 	 * @param message
 	 */
@@ -208,14 +220,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 		
 	/**
-	 * Check the login fields and registers for callbacks using MusesUICallbacksHandler
-	 * in UserContextMonitoringImplementation. Then tries login to the server
+	 * Check the login fields and Then tries login to the server
 	 */
 	
-	public void registerCallbacksAndLogin(String userName, String password) {
+	public void doLogin(String userName, String password) {
 		if (checkLoginInputFields(userName, password)){
-			MusesUICallbacksHandler musesUICallbacksHandler = new MusesUICallbacksHandler(context, callbackHandler);
-			ActuatorController.getInstance().registerCallback(musesUICallbacksHandler);
 			userContextMonitoringController.login(userName, password);
 		}else {
 			toastMessage(getResources().getString(R.string.empty_login_fields_msg));
@@ -270,7 +279,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginBtn.setOnClickListener(this);
 			logoutBtn = (Button)findViewById(R.id.logout_button);
 			logoutBtn.setOnClickListener(this);
-			userContextMonitoringController = UserContextMonitoringController.getInstance(context);
 			populateLoggedInView();
 		}
 		
@@ -304,7 +312,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			case R.id.login_button:
 				userName = userNameTxt.getText().toString();
 				password = passwordTxt.getText().toString();
-				registerCallbacksAndLogin(userName, password);
+				doLogin(userName, password);
 				break;
 			case R.id.logout_button:
 				logoutBtn.setVisibility(View.GONE);
@@ -326,6 +334,42 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 
 	
+	/**
+	 * PrivacyPolicyView class shows privacy details on the main GUI
+	 * 
+	 * @author Yasir Ali
+	 * @version Jan 27, 2014
+	 */
+
+	private class PrivacyPolicyView extends LinearLayout {
+
+		public PrivacyPolicyView(Context context) {
+			super(context);
+			inflate(context, R.layout.privacy_policy_view, this);
+		}
+
+	}
+
 	
+	/**
+	 * SecurityInformationView class shows security information on the main GUI
+	 * 
+	 * @author Yasir Ali
+	 * @version Jan 27, 2014
+	 */
+
+	public class SecurityInformationView extends LinearLayout {
+
+		public SecurityInformationView(Context context) {
+			super(context);
+			inflate(context, R.layout.security_information_view, this);
+			setSecurityInformationViewAttiributesHere();
+		}
+
+		private void setSecurityInformationViewAttiributesHere() {
+			//TBD 
+		}
+
+	}
 	
 }
