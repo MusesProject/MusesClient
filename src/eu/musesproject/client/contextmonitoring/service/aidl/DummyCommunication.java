@@ -20,11 +20,6 @@ public class DummyCommunication {
 	}
 
 	public void sendResponse(ResponseInfoAP infoAP, RiskTreatment riskTreatment) {
-		// send to broadcast
-		Intent messageIntent = new Intent();
-		messageIntent.setAction("eu.musesproject.client.intent.muses.feedback");
-		messageIntent.putExtra("message", riskTreatment.getTextualDescription());
-		context.sendBroadcast(messageIntent);
 
 		// send to muses aware app
 		try {
