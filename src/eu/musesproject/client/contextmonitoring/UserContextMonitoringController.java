@@ -64,7 +64,7 @@ public class UserContextMonitoringController implements
         // TODO dummy reponse to a MUSES aware app
         if(action.getActionType() == ActionType.OK) {
             // dummy data
-            ResponseInfoAP infoAP = ResponseInfoAP.DENY;
+            ResponseInfoAP infoAP = ResponseInfoAP.ACCEPT;
             RiskTreatment riskTreatment = new RiskTreatment("action denied because of...");
             new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
         }
