@@ -4,6 +4,7 @@
 package eu.musesproject.client.actuators;
 
 
+import android.util.Log;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
@@ -13,6 +14,8 @@ import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
  * Class that manages the lifecycle of the actuators
  */
 public class ActuatorController implements IActuatorController {
+    private static final String TAG = ActuatorController.class.getSimpleName();
+
     private static ActuatorController actuatorController = null;
     private IUICallback callback;
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
@@ -31,10 +34,12 @@ public class ActuatorController implements IActuatorController {
     }
 
     public void showFeedback(Decision decision) {
+        Log.d(TAG, "called: showFeedback(Decision decision)");
         feedbackActuator.showFeedback(decision);
     }
 
     public void sendLoginResponse(boolean loginResponse) {
+        Log.d(TAG, "called: sendLoginResponse(boolean loginResponse)");
         feedbackActuator.sendLoginResponseToUI(loginResponse);
     }
 

@@ -1,5 +1,6 @@
 package eu.musesproject.client.actuators;
 
+import android.util.Log;
 import eu.musesproject.client.model.actuators.ActuatorInstruction;
 import eu.musesproject.client.model.decisiontable.Decision;
 
@@ -13,10 +14,13 @@ import eu.musesproject.client.model.decisiontable.Decision;
  *  - show feedback based on a {@link eu.musesproject.client.model.decisiontable.Decision}
  */
 public class FeedbackActuator implements IFeedbackActuator {
+    private static final String TAG = FeedbackActuator.class.getSimpleName();
+
     private IUICallback callback;
 
     @Override
     public void showFeedback(Decision decision) {
+        Log.d(TAG, "called: showFeedback(Decision decision)");
         if(callback != null) {
             if(decision.getName().equals(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
@@ -39,7 +43,8 @@ public class FeedbackActuator implements IFeedbackActuator {
     }
 
     public void sendLoginResponseToUI(boolean result) {
-        callback.onLogin(result);
+        Log.d(TAG, "called: sendLoginResponseToUI(boolean result)");
+        this.callback.onLogin(result);
     }
 
     public void registerCallback(IUICallback callback) {

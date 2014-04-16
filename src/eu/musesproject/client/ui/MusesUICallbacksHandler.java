@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import eu.musesproject.client.actuators.IUICallback;
-import eu.musesproject.client.model.actuators.RiskTreatment;
 import eu.musesproject.client.model.decisiontable.Decision;
 
 public class MusesUICallbacksHandler implements IUICallback {

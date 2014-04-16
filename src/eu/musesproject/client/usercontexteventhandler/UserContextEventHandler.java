@@ -47,7 +47,6 @@ public class UserContextEventHandler {
 	private int serverStatus;
 	private int serverDetailedStatus;
 
-    private ActuatorController actuatorController;
     // ui callback
     private MusesUICallbacksHandler uiCallback;
 
@@ -57,8 +56,6 @@ public class UserContextEventHandler {
 
         serverStatus = Statuses.OFFLINE;
         serverDetailedStatus = Statuses.OFFLINE;
-
-        actuatorController = new ActuatorController();
 	}
 	
 	public static UserContextEventHandler getInstance() {
@@ -124,7 +121,7 @@ public class UserContextEventHandler {
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
         if(decision != null) {
             // why risktreatment and decision object
-            actuatorController.showFeedback(decision);
+            ActuatorController.getInstance().showFeedback(decision);
         }
         else { // if there is no local decision, send a request to the server
             if((context != null) && (serverStatus != Statuses.OFFLINE)) { // if the server is online
