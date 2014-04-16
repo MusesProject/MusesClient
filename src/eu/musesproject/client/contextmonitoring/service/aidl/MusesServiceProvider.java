@@ -11,6 +11,7 @@ import android.util.Log;
 import eu.musesproject.client.contextmonitoring.UserActionGenerator;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
+import eu.musesproject.client.model.decisiontable.ActionType;
 
 public class MusesServiceProvider extends Service {
 	private static final String TAG = MusesServiceProvider.class.getSimpleName();

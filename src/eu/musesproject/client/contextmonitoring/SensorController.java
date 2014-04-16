@@ -168,7 +168,7 @@ public class SensorController {
 
             // 4. send action to the UserContextMonitoringController
             if(userAction != null) {
-                UserContextMonitoringController.getInstance(context).sendUserAction(userAction, null);
+                //UserContextMonitoringController.getInstance(context).sendUserAction(userAction, null);
             }
         }
     }
