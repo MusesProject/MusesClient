@@ -5,9 +5,13 @@ import java.util.Map;
 
 import android.content.Context;
 import eu.musesproject.client.actuators.IUICallback;
+import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
+import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
+import eu.musesproject.server.risktrust.RiskTreatment;
 
 /**
  * @author Christoph
@@ -57,7 +61,22 @@ public class UserContextMonitoringController implements
 
     @Override
     public void sendUserAction(Action action, Map<String, String> properties) {
-        uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
+        // TODO dummy reponse to a MUSES aware app
+        if(action.getActionType() == ActionType.OK) {
+            // dummy data
+            ResponseInfoAP infoAP = ResponseInfoAP.DENY;
+            RiskTreatment riskTreatment = new RiskTreatment("action denied because of...");
+            new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+        }
+        else if(action.getActionType() == ActionType.CANCEL) {
+            // dummy data
+            ResponseInfoAP infoAP = ResponseInfoAP.DENY;
+            RiskTreatment riskTreatment = new RiskTreatment("action denied because of...");
+            new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+        }
+        else {
+            uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
+        }
     }
 
     @Override

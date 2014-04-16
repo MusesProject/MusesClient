@@ -20,7 +20,7 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     @Override
     public void showFeedback(Decision decision) {
-        Log.d(TAG, "called: showFeedback(Decision decision)");
+        Log.e(TAG, "called: showFeedback(Decision decision)");
         if(callback != null) {
             if(decision.getName().equals(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
