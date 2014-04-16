@@ -6,6 +6,8 @@
 
 package eu.musesproject.client.ui;
 
+import java.util.Map;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,7 +32,7 @@ import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
-import eu.musesproject.client.contextmonitoring.service.aidl.Action;
+import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 
 /**
@@ -67,7 +69,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         // starts the background service of MUSES
         startService(new Intent(this, MUSESBackgroundService.class));
-        Log.v(TAG, "muses service started ..");
+        Log.v(TAG, "muses service started ...");
         
 		userContextMonitoringController = UserContextMonitoringController.getInstance(context);
 		registerCallbacks();
@@ -157,7 +159,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 */
 	
 	private void sendUserDecisionToMusDM(Action action){
-		//userContextMonitoringController.sendUserAction(action,null);
+		userContextMonitoringController.sendUserAction(action, null);;
 	}
 	
 	/**
@@ -176,7 +178,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				Action action = new Action();
-				action.setType(ActionType.OK);
+				action.setActionType(ActionType.OK);
 				action.setTimestamp(System.currentTimeMillis());
 				Log.e(TAG, "user pressed ok..");
 				sendUserDecisionToMusDM(action); 
@@ -187,7 +189,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				Action action = new Action();
-				action.setType(ActionType.CANCEL);
+				action.setActionType(ActionType.CANCEL);
 				action.setTimestamp(System.currentTimeMillis());
 				Log.e(TAG, "user pressed cancel..");
 				sendUserDecisionToMusDM(action); 
