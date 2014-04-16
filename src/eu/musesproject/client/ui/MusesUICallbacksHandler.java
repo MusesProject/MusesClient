@@ -5,10 +5,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import eu.musesproject.client.contextmonitoring.IUserContextMonitoringControllerCallback;
+import eu.musesproject.client.actuators.IUICallback;
 import eu.musesproject.client.model.actuators.RiskTreatment;
+import eu.musesproject.client.model.decisiontable.Decision;
 
-public class MusesUICallbacksHandler implements IUserContextMonitoringControllerCallback {
+public class MusesUICallbacksHandler implements IUICallback {
 
 
 	private static final String TAG = MusesUICallbacksHandler.class.getSimpleName();
@@ -39,45 +40,42 @@ public class MusesUICallbacksHandler implements IUserContextMonitoringController
 			mHandler.sendMessage(msg);	
 		}
 	}
-	
+
 	@Override
-	public void onAccept(RiskTreatment riskTreatment) {
-		Log.d(TAG, "onAccept: " + riskTreatment.toString());
+	public void onAccept() {
+		Log.d(TAG, "onAccept: " );
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_ACCEPTED);
-		Bundle bundle = new Bundle();
-		bundle.putString("message",riskTreatment.toString());
-		msg.setData(bundle);
-		mHandler.sendMessage(msg);
+		mHandler.sendMessage(msg);		
 	}
 
 	@Override
-	public void onDeny(RiskTreatment riskTreatment) {
-		Log.d(TAG, "onDeny: " + riskTreatment.toString());
+	public void onDeny(Decision decision) {
+		Log.d(TAG, "onDeny: " + decision.toString());
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_DENIED);
 		Bundle bundle = new Bundle();
-		bundle.putString("message",riskTreatment.toString());
+		bundle.putString("message",decision.getName());
 		msg.setData(bundle);
-		mHandler.sendMessage(msg);
+		mHandler.sendMessage(msg);		
 	}
 
 	@Override
-	public void onMaybe(RiskTreatment riskTreatment) {
-		Log.d(TAG, "onMaybe: " + riskTreatment.toString());
+	public void onMaybe(Decision decision) {
+		Log.d(TAG, "onMaybe: " + decision.toString());
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_MAY_BE);
 		Bundle bundle = new Bundle();
-		bundle.putString("message",riskTreatment.toString());
+		bundle.putString("message",decision.getName());
 		msg.setData(bundle);
-		mHandler.sendMessage(msg);
+		mHandler.sendMessage(msg);		
 	}
 
 	@Override
-	public void onUpToUser(RiskTreatment riskTreatment) {
-		Log.d(TAG, "onUpToUser: " + riskTreatment.toString());
+	public void onUpToUser(Decision decision) {
+		Log.d(TAG, "onUpToUser: " + decision.toString());
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_UP_TO_USER);
 		Bundle bundle = new Bundle();
-		bundle.putString("message",riskTreatment.toString());
+		bundle.putString("message",decision.getName());
 		msg.setData(bundle);
-		mHandler.sendMessage(msg);
-    }
+		mHandler.sendMessage(msg);		
+	}
 
 }

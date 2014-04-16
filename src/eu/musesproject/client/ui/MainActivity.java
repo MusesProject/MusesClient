@@ -28,6 +28,7 @@ import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
+import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
@@ -66,6 +67,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         // starts the background service of MUSES
         startService(new Intent(this, MUSESBackgroundService.class));
+        Log.v(TAG, "muses service started ..");
 	}
 
 	@Override
@@ -173,6 +175,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				Action action = new Action();
 				action.setType(ActionType.OK);
 				action.setTimestamp(System.currentTimeMillis());
+				Log.e(TAG, "user pressed ok..");
 				sendUserDecisionToMusDM(action); 
 			}
 		})
@@ -183,6 +186,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				Action action = new Action();
 				action.setType(ActionType.CANCEL);
 				action.setTimestamp(System.currentTimeMillis());
+				Log.e(TAG, "user pressed cancel..");
 				sendUserDecisionToMusDM(action); 
 			}
 		});
@@ -211,7 +215,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public void registerCallbacksAndLogin(String userName, String password) {
 		if (checkLoginInputFields(userName, password)){
 			MusesUICallbacksHandler musesUICallbacksHandler = new MusesUICallbacksHandler(context, callbackHandler);
-			userContextMonitoringController.registerCallback(musesUICallbacksHandler);
+			ActuatorController.getInstance().registerCallback(musesUICallbacksHandler);
 			userContextMonitoringController.login(userName, password);
 		}else {
 			toastMessage(getResources().getString(R.string.empty_login_fields_msg));
@@ -226,7 +230,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 */
 	
 	private boolean checkLoginInputFields(String userName, String password) {
-		if (userName.equals("") || password.equals("")) { // FIXME need some moew checking in future
+		if (userName.equals("") || password.equals("")) { // FIXME need some new checking in future
 			return false;
 		}	
 		return true;
