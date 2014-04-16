@@ -14,7 +14,5 @@ import eu.musesproject.client.model.actuators.ActuatorInstruction;
  * @version 2 avr. 2013
  */
 public interface Actuator {
-	
 	void perform(ActuatorInstruction instruction);
-
 }
