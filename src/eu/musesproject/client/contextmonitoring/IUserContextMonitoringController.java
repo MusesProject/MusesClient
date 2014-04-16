@@ -3,9 +3,9 @@ package eu.musesproject.client.contextmonitoring;
 import java.util.List;
 import java.util.Map;
 
+import eu.musesproject.client.actuators.IUICallback;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.actuators.Setting;
-import eu.musesproject.contextmodel.ContextEvent;
 
 public interface IUserContextMonitoringController {
     /**
@@ -30,7 +30,4 @@ public interface IUserContextMonitoringController {
      * @param password String. password
      */
     void login(String userName, String password);
-
-    void registerCallback(IUserContextMonitoringControllerCallback callback);
-    void unregisterCallback(IUserContextMonitoringControllerCallback callback);
 }

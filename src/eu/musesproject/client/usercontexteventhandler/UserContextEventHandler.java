@@ -7,23 +7,23 @@ package eu.musesproject.client.usercontexteventhandler;
 import java.util.List;
 import java.util.Map;
 
-import android.content.Intent;
 import android.util.Log;
+import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.client.ui.MusesUICallbacksHandler;
+import eu.musesproject.server.risktrust.RiskTreatment;
 import org.json.JSONObject;
 
 import android.content.Context;
 import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
-import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
-import eu.musesproject.client.model.actuators.RiskTreatment;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -40,18 +40,25 @@ public class UserContextEventHandler {
 	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/server-0.0.1-SNAPSHOT/commain";
 	
 	private Context context;
-	
+
+    // connection fields
     private ConnectionManager connectionManager;
     private IConnectionCallbacks connectionCallback;
 	private int serverStatus;
 	private int serverDetailedStatus;
-	
+
+    private ActuatorController actuatorController;
+    // ui callback
+    private MusesUICallbacksHandler uiCallback;
+
 	private UserContextEventHandler() {
         connectionManager = new ConnectionManager();
         connectionCallback = new ConnectionCallback();
 
         serverStatus = Statuses.OFFLINE;
         serverDetailedStatus = Statuses.OFFLINE;
+
+        actuatorController = new ActuatorController();
 	}
 	
 	public static UserContextEventHandler getInstance() {
@@ -116,14 +123,8 @@ public class UserContextEventHandler {
         Request request = new Request(action, null);
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
         if(decision != null) {
-            // perform decision / send decision to actuator manager
-             //TODO This is just Dummy code for the purpose of testing test
-            // send to broadcast
-            Intent messageIntent = new Intent();
-            messageIntent.setAction("eu.musesproject.client.intent.muses.feedback");
-            messageIntent.putExtra("message", decision.getName());
-            context.sendBroadcast(messageIntent);
-
+            // why risktreatment and decision object
+            actuatorController.showFeedback(decision);
         }
         else { // if there is no local decision, send a request to the server
             if((context != null) && (serverStatus != Statuses.OFFLINE)) { // if the server is online
@@ -138,8 +139,7 @@ public class UserContextEventHandler {
 	
 	public void login(String userName, String password) {
         Log.d(TAG, "called: login(String userName, String password)");
-		// dummy response
-		UserContextMonitoringController.getInstance(context).sendLoginResponseToUI(true);
+		ActuatorController.getInstance().sendLoginResponse(true);
 	}
 
     /**
@@ -218,8 +218,7 @@ public class UserContextEventHandler {
 			//TODO workflow to send the result back to Muses UI / aware app
 			// dummy data
 			ResponseInfoAP infoAP = ResponseInfoAP.DENY;
-			RiskTreatment riskTreatment = new RiskTreatment(10,
-					"The requested action was denied because of a low trustvalue", 2);
+			RiskTreatment riskTreatment = new RiskTreatment("action denied because of...");
 			new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
 			return 0;
 		}

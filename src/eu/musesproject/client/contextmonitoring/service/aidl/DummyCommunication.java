@@ -8,7 +8,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
-import eu.musesproject.client.model.actuators.RiskTreatment;
+import eu.musesproject.server.risktrust.RiskTreatment;
 
 public class DummyCommunication {
 	private Context context;
@@ -23,13 +23,13 @@ public class DummyCommunication {
 		// send to broadcast
 		Intent messageIntent = new Intent();
 		messageIntent.setAction("eu.musesproject.client.intent.muses.feedback");
-		messageIntent.putExtra("message", riskTreatment.getRiskTreatmentText());
+		messageIntent.putExtra("message", riskTreatment.getTextualDescription());
 		context.sendBroadcast(messageIntent);
 
 		// send to muses aware app
 		try {
 			musesService = ServiceModel.getInstance().getService();
-			musesService.sendResponseToMusesAwareApp(infoAP, riskTreatment.getRiskTreatmentText());
+			musesService.sendResponseToMusesAwareApp(infoAP, riskTreatment.getTextualDescription());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}

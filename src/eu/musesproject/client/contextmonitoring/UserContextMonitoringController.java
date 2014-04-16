@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import eu.musesproject.client.actuators.IUICallback;
 import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
@@ -23,14 +24,13 @@ import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 public class UserContextMonitoringController implements
         IUserContextMonitoringController {
     private static UserContextMonitoringController ucmController = null;
-    private IUserContextMonitoringControllerCallback callback;
-    private final UserContextEventHandler handler = UserContextEventHandler.getInstance();
+    private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
     private Context context;
 
     private UserContextMonitoringController(Context context) {
         this.context = context;
-        handler.setContext(context);
+        uceHandler.setContext(context);
     }
 
     public static UserContextMonitoringController getInstance(Context context) {
@@ -57,7 +57,7 @@ public class UserContextMonitoringController implements
 
     @Override
     public void sendUserAction(Action action, Map<String, String> properties) {
-        handler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
+        uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
     }
 
     @Override
@@ -69,22 +69,6 @@ public class UserContextMonitoringController implements
 
     @Override
     public void login(String userName, String password) {
-        handler.login(userName, password);
-    }
-
-    @Override
-    public void registerCallback(
-            IUserContextMonitoringControllerCallback callback) {
-        this.callback = callback;
-    }
-
-    @Override
-    public void unregisterCallback(
-            IUserContextMonitoringControllerCallback callback) {
-        this.callback = callback;
-    }
-
-    public void sendLoginResponseToUI(boolean result) {
-        callback.onLogin(result);
+        uceHandler.login(userName, password);
     }
 }
