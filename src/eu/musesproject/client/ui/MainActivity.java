@@ -124,8 +124,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				view.updateLoginView();
 				isLoggedIn=true;
 				toastMessage(getResources().getString(R.string.login_success_msg));
-				showResultDialog(msg.getData().getString("message"), MusesUICallbacksHandler.LOGIN_SUCCESSFUL);
-
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
 				toastMessage(getResources().getString(R.string.login_fail_msg));
