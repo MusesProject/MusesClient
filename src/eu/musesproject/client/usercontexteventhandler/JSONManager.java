@@ -1,6 +1,7 @@
 package eu.musesproject.client.usercontexteventhandler;
 
 import eu.musesproject.client.model.JSONIdentifiers;
+import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.contextmodel.ContextEvent;
 import org.json.JSONException;
@@ -18,14 +19,24 @@ import java.util.Map.Entry;
 public class JSONManager {
 	/**
 	 * creates the JSON object that will be sent to the server via the {@link eu.musesproject.client.connectionmanager.ConnectionManager}
-	 * @param action {@link eu.musesproject.client.model.decisiontable.Action}
+	 * @param requestType {@link eu.musesproject.client.model.RequestType}
+     * @param action {@link eu.musesproject.client.model.decisiontable.Action}
 	 * @param properties {@link java.util.Map} < String ,  String >
 	 * @param contextEvents {@link eu.musesproject.contextmodel.ContextEvent}
 	 * @return {@link org.json.JSONObject}
 	 */
-	public static JSONObject createJSON(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+	public static JSONObject createJSON(String requestType, Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
 		JSONObject root = new JSONObject();
 		try {
+            /*
+             * request type
+             */
+            // add request type to root
+            root.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, requestType);
+
+            /*
+             * action
+             */
             // create action
             JSONObject actionJSON = new JSONObject();
             if(action != null) {
@@ -40,7 +51,7 @@ public class JSONManager {
                 actionJSON.put(JSONIdentifiers.ACTION_TIMESTAMP, System.currentTimeMillis());
             }
 
-			// create properties
+			// create action properties
 			JSONObject actionPropertiesJSON = createPropertiesJSONObject(properties);
 			// add properties to action
 			actionJSON.put(JSONIdentifiers.PROPERTIES_IDENTIFIER, actionPropertiesJSON);
@@ -48,6 +59,9 @@ public class JSONManager {
 			// add action to root
 			root.put(JSONIdentifiers.ACTION_IDENTIFIER, actionJSON);
 
+            /*
+             * sensor
+             */
 			// create a JSON object for every sensor
 			JSONObject sensorRootJSON = new JSONObject();
 			for (ContextEvent contextEvent : contextEvents) {
@@ -95,4 +109,22 @@ public class JSONManager {
 		
 		return sensorJSONObject;
 	}
+
+    /**
+     * Method to get a String that contains the {@link eu.musesproject.client.model.RequestType} from the server
+     * @param jsonString String. JSON string from the server
+     * @return String that contains a {@link eu.musesproject.client.model.RequestType}
+     */
+    public static String getRequestType(String jsonString) {
+        String requestType = null;
+
+        try {
+            JSONObject requestJSON = new JSONObject(jsonString);
+            requestType = requestJSON.getString(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return requestType;
+    }
 }

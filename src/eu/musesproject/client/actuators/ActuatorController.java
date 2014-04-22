@@ -43,6 +43,10 @@ public class ActuatorController implements IActuatorController {
         feedbackActuator.sendLoginResponseToUI(loginResponse);
     }
 
+    public void sendResponseToMusesAwareApp() {
+
+    }
+
     @Override
     public void registerCallback(IUICallback callback) {
         this.callback = callback;
