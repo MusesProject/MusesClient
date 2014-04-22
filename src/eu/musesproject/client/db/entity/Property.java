@@ -7,6 +7,9 @@ public class Property {
 	private String key;
 	private String value;
 	
+	public Property() {
+
+	}
 	public Property(int id, int contextevent_id, String key, String value) {
 		this.id = id;
 		this.contextevent_id = contextevent_id;

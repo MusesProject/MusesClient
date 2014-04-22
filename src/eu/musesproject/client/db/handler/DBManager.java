@@ -517,6 +517,27 @@ public class DBManager {
     }
     
     
+    public List<Property> getAllProperties() {
+    	List<Property> propertyList = new ArrayList<Property>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_PROPERTY;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        // loop through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+            	Property property = new Property();
+                property.setId(Integer.parseInt(cursor.getString(0)));
+                property.setContextevent_id(Integer.parseInt(cursor.getString(1)));
+                property.setKey(cursor.getString(2));
+                property.setValue(cursor.getString(3));
+                propertyList.add(property);
+            } while (cursor.moveToNext());
+        }
+
+        return propertyList;
+    }
+    
+    
     // Server and Client Certificates related query
     
     public boolean setServerCert(ServerCertificate serverCertificate ){
