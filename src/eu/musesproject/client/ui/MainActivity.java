@@ -6,7 +6,9 @@
 
 package eu.musesproject.client.ui;
 
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -23,11 +25,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
@@ -72,6 +74,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
         Log.v(TAG, "muses service started ...");
         
 		userContextMonitoringController = UserContextMonitoringController.getInstance(context);
+		try {
+			Runtime.getRuntime().exec("logcat -c");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		registerCallbacks();
 	}
 
@@ -130,7 +139,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
 				Log.d(TAG, "Action response accepted ..");
-				showResultDialog(msg.getData().getString("message"), MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED);
+				// FIXME This action should not be sent here, if action is granted then it should be sent directly from MusDM
+				Action action = new Action();
+				action.setActionType(ActionType.OK);
+				action.setTimestamp(System.currentTimeMillis());
+				Log.e(TAG, "user pressed ok..");
+				sendUserDecisionToMusDM(action); 
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_DENIED:
 				Log.d(TAG, "Action response denied ..");

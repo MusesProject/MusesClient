@@ -177,20 +177,25 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
 	
 	public void testResponseReceivedFromServerAtConnectionManager() throws Exception {
 		// FIXME commented for Alpha release
-//		boolean found = false;
-//		Process proc = Runtime.getRuntime().exec("adb -d logcat MainActivity:d *:s");
-//		BufferedReader reader = new BufferedReader(new 
-//				InputStreamReader(proc.getInputStream()));
-//		while (reader.readLine() != null) {
-//			String logMessage = reader.readLine();
-//			if (logMessage.equalsIgnoreCase("muses service started ..")){
-//				assertTrue(true);
-//				found = true;
-//			} 
-//		}
-//		if (!found){
-//			assertTrue(true);
-//		}
+		boolean found = false;
+		Process proc = Runtime.getRuntime().exec("logcat MainActivity:v *:s");
+		BufferedReader reader = new BufferedReader(new 
+				InputStreamReader(proc.getInputStream()));
+		while (!found) {
+			if ( reader.readLine() != null) {
+				String logMessage = reader.readLine();
+				System.out.println(logMessage);
+				if (logMessage.contains("muses service started ..")){
+					assertTrue(true);
+					found = true;
+					break;
+				} 
+			} else break;
+			
+		}
+		if (!found){
+			assertTrue(true);
+		}
 	}
 
 }

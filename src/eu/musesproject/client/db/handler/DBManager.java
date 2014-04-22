@@ -445,11 +445,11 @@ public class DBManager {
     
     // Context Event related queries
     
-    public void addContextEvent(ContextEvent event) {
+    public long addContextEvent(ContextEvent event) {
     	ContentValues values = new ContentValues();
     	values.put(TYPE, event.getType());
     	values.put(TIME_STAMP, event.getTimestamp());
-    	sqLiteDatabase.insert(TABLE_CONTEXT_EVENT, null	, values);    
+    	return sqLiteDatabase.insert(TABLE_CONTEXT_EVENT, null	, values);    
     }
     
     public int getNoOfContextEventsStored() {
@@ -461,7 +461,7 @@ public class DBManager {
     }
     
     
-    public void /*ContextEvent*/ getStoredContextEvent(String id) {
+    public ContextEvent getStoredContextEvent(String id) {
     	Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String [] {
     			ID, 
     			TYPE, 
@@ -473,12 +473,15 @@ public class DBManager {
 				null, 
 				null);
 
+    	ContextEvent contextEvent = new ContextEvent();
 		if (cursor != null) {
 			cursor.moveToFirst();
 			// Now create the decision table object from the cursor
-			Log.e(TAG, "timestamp" + cursor.getString(2));
+            contextEvent.setId(Integer.parseInt(cursor.getString(0)));
+            contextEvent.setType(cursor.getString(1));
+            contextEvent.setTimestamp(cursor.getString(2));
 		}
-		
+		return contextEvent;
 
     }
     
