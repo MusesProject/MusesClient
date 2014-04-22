@@ -4,12 +4,14 @@
  */
 package eu.musesproject.client.usercontexteventhandler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import android.util.Log;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.Statuses;
+import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
 import eu.musesproject.client.model.RequestType;
@@ -159,11 +161,15 @@ public class UserContextEventHandler {
      * @param contextEvents {@link ContextEvent}
      */
     public void storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+        Log.d(TAG, "called: storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
         if((action == null) && (properties == null) && (contextEvents != null)) {
             DBManager dbManager = new DBManager(context);
             dbManager.openDB();
             for(ContextEvent contextEvent : contextEvents){
-                //dbManager.addContextEvent(contextEvent);
+                long contextEventId = dbManager.addContextEvent(DBEntityParser.transformContextEvent(contextEvent));
+                for(Property property : DBEntityParser.transformProperty(contextEventId, contextEvent)) {
+                    dbManager.addProperty(property);
+                }
             }
             dbManager.closeDB();
         }
@@ -174,15 +180,29 @@ public class UserContextEventHandler {
      */
     public void sendOfflineStoredContextEventsToServer() {
         Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
-        // load contet events from the database
+        // load context events from the database
         DBManager dbManager = new DBManager(context);
         dbManager.openDB();
-        // TODO finish when db methods are implemented
-        List<ContextEvent> storedContextEvents = null; //dbManager.getAllStoredContextEvents();
+
+        List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
+        // get all db entity ContextEvents and Properties from the related tables and
+        // transform those tables to proper objects
+        for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent : dbManager.getAllStoredContextEvents()) {
+            ContextEvent contextEvent = new ContextEvent();
+            contextEvent.setType(dbContextEvent.getType());
+            contextEvent.setTimestamp(Long.valueOf(dbContextEvent.getTimestamp()));
+
+            List<Property> properties = dbManager.getAllProperties();
+            for(Property property: properties) {
+                contextEvent.addProperty(property.getKey(), property.getValue());
+            }
+
+            contextEvents.add(contextEvent);
+        }
         dbManager.closeDB();
 
         // transform to JSON
-        JSONObject requestObject = JSONManager.createJSON(RequestType.UPDATE_CONTEXT_EVENTS, null, null, storedContextEvents);
+        JSONObject requestObject = JSONManager.createJSON(RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
         // send to server
         sendRequestToServer(requestObject);
     }
@@ -232,7 +252,7 @@ public class UserContextEventHandler {
                     // dummy data
                     Decision decision = new Decision();
                     decision.setName(Decision.GRANTED_ACCESS);
-                    ActuatorController.getInstance().showFeedback(null);
+                    ActuatorController.getInstance().showFeedback(decision);
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
                     // TODO update policies
