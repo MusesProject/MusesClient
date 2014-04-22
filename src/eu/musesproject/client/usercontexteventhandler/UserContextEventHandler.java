@@ -12,6 +12,7 @@ import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
+import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.ui.MusesUICallbacksHandler;
@@ -115,22 +116,32 @@ public class UserContextEventHandler {
 	 * @param properties {@link Map}<String, String>
 	 * @param contextEvents {@link ContextEvent}
 	 */
-	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents){
+	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
         Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
+
+        boolean onlineDecisionRequested = false;
+
+        // check for a locally stored decision
         Request request = new Request(action, null);
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
-        if(decision != null) {
-            // why risktreatment and decision object
+        if(decision != null) { // local decision found
             ActuatorController.getInstance().showFeedback(decision);
         }
         else { // if there is no local decision, send a request to the server
-            if((context != null) && (serverStatus != Statuses.OFFLINE)) { // if the server is online
-                JSONObject requestObject = JSONManager.createJSON(action, properties, contextEvents);
+            if(serverStatus != Statuses.OFFLINE) { // if the server is online, request a decision
+                onlineDecisionRequested = true;
+                JSONObject requestObject = JSONManager.createJSON(RequestType.ONLINE_DECISION, action, properties, contextEvents);
                 sendRequestToServer(requestObject);
             }
-            else if((context != null) && (serverStatus == Statuses.OFFLINE)) { // save request to the database
+            else if(serverStatus == Statuses.OFFLINE) { // save request to the database
                 storeContextEvent(action, properties, contextEvents);
             }
+        }
+        // update context events even if a local decision was found.
+        // Prevent sending context events again if they are already sent for a online decision
+        if((!onlineDecisionRequested) && (serverStatus == Statuses.OFFLINE)) {
+            JSONObject requestObject = JSONManager.createJSON(RequestType.LOCAL_DECISION, action, properties, contextEvents);
+            sendRequestToServer(requestObject);
         }
 	}
 	
@@ -171,7 +182,7 @@ public class UserContextEventHandler {
         dbManager.closeDB();
 
         // transform to JSON
-        JSONObject requestObject = JSONManager.createJSON(null, null, storedContextEvents);
+        JSONObject requestObject = JSONManager.createJSON(RequestType.UPDATE_CONTEXT_EVENTS, null, null, storedContextEvents);
         // send to server
         sendRequestToServer(requestObject);
     }
@@ -212,11 +223,21 @@ public class UserContextEventHandler {
 		@Override
 		public int receiveCb(String receiveData) {
             Log.d(TAG, "called: receiveCb(String receiveData)");
-			//TODO workflow to send the result back to Muses UI / aware app
-			// dummy data
-			ResponseInfoAP infoAP = ResponseInfoAP.DENY;
-			RiskTreatment riskTreatment = new RiskTreatment("action denied because of...");
-			new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+            if((receiveData != null) && (!receiveData.equals(""))) {
+                String requestType = JSONManager.getRequestType(receiveData);
+
+                if(requestType.equals(RequestType.ONLINE_DECISION)) {
+                    // TODO get decision from the json
+                    // send decision to the actuator controller
+                    // dummy data
+                    Decision decision = new Decision();
+                    decision.setName(Decision.GRANTED_ACCESS);
+                    ActuatorController.getInstance().showFeedback(null);
+                }
+                else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
+                    // TODO update policies
+                }
+            }
 			return 0;
 		}
 

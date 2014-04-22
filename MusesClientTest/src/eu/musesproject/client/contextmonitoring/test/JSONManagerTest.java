@@ -2,6 +2,7 @@ package eu.musesproject.client.contextmonitoring.test;
 
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.model.JSONIdentifiers;
+import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.JSONManager;
@@ -23,6 +24,7 @@ public class JSONManagerTest extends TestCase {
     private Map<String, String> actionProperties;
     private List<ContextEvent> contextEvents;
 
+    private String requestType;
     private long actionTimestamp;
     private String actionType;
 
@@ -31,6 +33,8 @@ public class JSONManagerTest extends TestCase {
         super.setUp();
 
         // create dummy data
+        requestType = RequestType.UPDATE_CONTEXT_EVENTS;
+
         actionTimestamp = System.currentTimeMillis();
         actionType = ActionType.ACCESS;
         action = new Action();
@@ -55,8 +59,10 @@ public class JSONManagerTest extends TestCase {
     }
 
     public void testCreateJSON() throws JSONException {
-        JSONObject resultJSON = JSONManager.createJSON(action, actionProperties, contextEvents);
+        JSONObject resultJSON = JSONManager.createJSON(requestType, action, actionProperties, contextEvents);
         assertNotNull(resultJSON);
+
+        assertEquals("request type", "update_context_events", resultJSON.getString(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER));
 
         JSONObject actionJSON = resultJSON.getJSONObject(JSONIdentifiers.ACTION_IDENTIFIER);
         assertEquals("action identifier in JSON :", actionType, actionJSON.getString(JSONIdentifiers.ACTION_TYPE));
