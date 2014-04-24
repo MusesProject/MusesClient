@@ -17,16 +17,12 @@ import eu.musesproject.client.decisionmaker.DecisionMaker;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
-import eu.musesproject.client.ui.MusesUICallbacksHandler;
-import eu.musesproject.server.risktrust.RiskTreatment;
 import org.json.JSONObject;
 
 import android.content.Context;
 import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
-import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
-import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -50,9 +46,6 @@ public class UserContextEventHandler {
 	private int serverStatus;
 	private int serverDetailedStatus;
 
-    // ui callback
-    private MusesUICallbacksHandler uiCallback;
-
 	private UserContextEventHandler() {
         connectionManager = new ConnectionManager();
         connectionCallback = new ConnectionCallback();
@@ -66,45 +59,6 @@ public class UserContextEventHandler {
 			userContextEventHandler = new UserContextEventHandler();
 		}
 		return userContextEventHandler;
-	}
-	
-	/**
-	 * Info DC
-	 * 
-	 * Method to provide additional context associated to a request
-	 * 
-	 * @param request
-	 * 
-	 * @return 
-	 */
-	public ContextEvent[] provideAdditionalContext(Request request){
-		return new ContextEvent[0];
-	}
-	
-	/**
-	 * Info DC
-	 * 
-	 * Method to retrieve basic context information associated to a request
-	 * 
-	 * @param request
-	 * 
-	 * @return 
-	 */
-	public ContextEvent[] retrieveContextAssociatedToRequest(Request request){
-		return new ContextEvent[0];
-	}
-	
-	/**
-	 * Info DC
-	 * 
-	 * Method called by the decision maker, in order to specify that the local decision information is not enough to
-	 * take a decision, hence the decision is delegated to the server
-	 * 
-	 * @param request
-	 * 
-	 * @return 
-	 */
-	public void serverDelegatedDecision(Request request){
 	}
 
 	/**
@@ -192,7 +146,7 @@ public class UserContextEventHandler {
             contextEvent.setType(dbContextEvent.getType());
             contextEvent.setTimestamp(Long.valueOf(dbContextEvent.getTimestamp()));
 
-            List<Property> properties = dbManager.getAllProperties();
+            List<Property> properties = dbManager.getAllProperties(/*ID as param*/);
             for(Property property: properties) {
                 contextEvent.addProperty(property.getKey(), property.getValue());
             }

@@ -42,6 +42,13 @@ public class JSONManager {
             if(action != null) {
                 actionJSON.put(JSONIdentifiers.ACTION_TYPE, action.getActionType());
                 actionJSON.put(JSONIdentifiers.ACTION_TIMESTAMP, action.getTimestamp());
+
+                if(properties != null) {
+                    // create action properties
+                    JSONObject actionPropertiesJSON = createPropertiesJSONObject(properties);
+                    // add properties to action
+                    actionJSON.put(JSONIdentifiers.PROPERTIES_IDENTIFIER, actionPropertiesJSON);
+                }
             }
             else {
                 // if action is null, create the JSON as an update for the server.
@@ -50,11 +57,6 @@ public class JSONManager {
                 actionJSON.put(JSONIdentifiers.ACTION_TYPE, "update"); // hard coded at this moment
                 actionJSON.put(JSONIdentifiers.ACTION_TIMESTAMP, System.currentTimeMillis());
             }
-
-			// create action properties
-			JSONObject actionPropertiesJSON = createPropertiesJSONObject(properties);
-			// add properties to action
-			actionJSON.put(JSONIdentifiers.PROPERTIES_IDENTIFIER, actionPropertiesJSON);
 
 			// add action to root
 			root.put(JSONIdentifiers.ACTION_IDENTIFIER, actionJSON);
