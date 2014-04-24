@@ -35,6 +35,7 @@ public class UserContextMonitoringController implements
     private UserContextMonitoringController(Context context) {
         this.context = context;
         uceHandler.setContext(context);
+        uceHandler.connectToServer();
     }
 
     public static UserContextMonitoringController getInstance(Context context) {

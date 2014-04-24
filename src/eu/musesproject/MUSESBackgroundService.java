@@ -41,7 +41,7 @@ public class MUSESBackgroundService extends Service {
 			UserContextMonitoringController.getInstance(this).startContextObservation();
 		}
 		startService(new Intent(this, MusesServiceProvider.class));
-		
+
 		return Service.START_STICKY;
 	}
 	

@@ -61,6 +61,19 @@ public class UserContextEventHandler {
 		return userContextEventHandler;
 	}
 
+    /**
+     * connects to the MUSES server
+     */
+    public void connectToServer() {
+        connectionManager.connect(
+                MUSES_SERVER_URL,
+                AlarmReceiver.DEFAULT_POLL_INTERVAL,
+                AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
+                connectionCallback,
+                context
+        );
+    }
+
 	/**
 	 *  Method to first check the local decision maker for a decision to the corresponding
      *      {@link eu.musesproject.client.contextmonitoring.service.aidl.Action}
@@ -171,16 +184,10 @@ public class UserContextEventHandler {
     public void sendRequestToServer(JSONObject requestJSON) {
         Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
         if (requestJSON != null) {
-            String sendData = requestJSON.toString();
-            connectionManager.connect(
-                    MUSES_SERVER_URL,
-                    AlarmReceiver.DEFAULT_POLL_INTERVAL,
-                    AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
-                    connectionCallback,
-                    context
-            );
-            connectionManager.sendData(sendData);
-            connectionManager.disconnect();
+            if(serverStatus == Statuses.ONLINE) {
+                String sendData  = requestJSON.toString();
+                connectionManager.sendData(sendData);
+            }
         }
     }
 
