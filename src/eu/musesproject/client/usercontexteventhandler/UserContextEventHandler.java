@@ -108,7 +108,7 @@ public class UserContextEventHandler {
         }
         // update context events even if a local decision was found.
         // Prevent sending context events again if they are already sent for a online decision
-        if((!onlineDecisionRequested) && (serverStatus == Statuses.OFFLINE)) {
+        if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE)) {
             JSONObject requestObject = JSONManager.createJSON(RequestType.LOCAL_DECISION, action, properties, contextEvents);
             sendRequestToServer(requestObject);
         }
