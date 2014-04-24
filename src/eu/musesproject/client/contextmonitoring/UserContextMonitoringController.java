@@ -7,6 +7,7 @@ import android.content.Context;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.actuators.Setting;
+import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
@@ -59,21 +60,25 @@ public class UserContextMonitoringController implements
     }
 
     @Override
-    public void sendUserAction(Action action, Map<String, String> properties) {
+    public void sendUserAction(UISource src, Action action, Map<String, String> properties) {
         // TODO dummy reponse to a MUSES aware app
-        if(action.getActionType() == ActionType.OK) {
-            // dummy data
-            ResponseInfoAP infoAP = ResponseInfoAP.ACCEPT;
-            RiskTreatment riskTreatment = new RiskTreatment("action denied because of...");
+        if(src == UISource.MUSES_UI) {
+            ResponseInfoAP infoAP = null;
+            RiskTreatment riskTreatment = null;
+            if(action.getActionType() == ActionType.OK) {
+                // dummy data
+                infoAP = ResponseInfoAP.ACCEPT;
+                riskTreatment = new RiskTreatment("action denied because of...");
+            }
+            else if(action.getActionType() == ActionType.CANCEL) {
+                // dummy data
+                infoAP = ResponseInfoAP.DENY;
+                riskTreatment = new RiskTreatment("action denied because of...");
+            }
             new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+
         }
-        else if(action.getActionType() == ActionType.CANCEL) {
-            // dummy data
-            ResponseInfoAP infoAP = ResponseInfoAP.DENY;
-            RiskTreatment riskTreatment = new RiskTreatment("action denied because of...");
-            new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
-        }
-        else {
+        else if(src == UISource.MUSES_AWARE_APP_UI){
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
     }

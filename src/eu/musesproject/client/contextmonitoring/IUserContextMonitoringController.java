@@ -3,7 +3,7 @@ package eu.musesproject.client.contextmonitoring;
 import java.util.List;
 import java.util.Map;
 
-import eu.musesproject.client.actuators.IUICallback;
+import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.actuators.Setting;
 
@@ -15,7 +15,7 @@ public interface IUserContextMonitoringController {
      * @param action {@link eu.musesproject.client.model.decisiontable.Action}. action received from a MUSES aware app
      * @param properties {@link java.util.Map}. properties related to the action
      */
-    void sendUserAction(Action action, Map<String, String> properties);
+    void sendUserAction(UISource src, Action action, Map<String, String> properties);
 
     /**
      * Method to change the settings / configuration of the sensors

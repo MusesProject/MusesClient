@@ -34,6 +34,7 @@ import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
+import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 
@@ -171,7 +172,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 */
 	
 	private void sendUserDecisionToMusDM(Action action){
-		userContextMonitoringController.sendUserAction(action, null);;
+		userContextMonitoringController.sendUserAction(UISource.MUSES_UI, action, null);;
 	}
 	
 	/**
