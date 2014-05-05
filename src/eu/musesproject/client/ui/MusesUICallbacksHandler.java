@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 import eu.musesproject.client.actuators.IUICallback;
 import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.server.risktrust.RiskTreatment;
 
 public class MusesUICallbacksHandler implements IUICallback {
 
@@ -50,9 +51,15 @@ public class MusesUICallbacksHandler implements IUICallback {
 	@Override
 	public void onDeny(Decision decision) {
 		Log.d(TAG, "onDeny: " + decision.toString());
+		String textualDecp = "this is a test risk treatment ...";
+		RiskTreatment[] r = decision.getRiskCommunication().getRiskTreatment();
+//		if (r[0].getTextualDescription() != null) {
+//			textualDecp = r[0].getTextualDescription();
+//		}
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_DENIED);
 		Bundle bundle = new Bundle();
-		bundle.putString("message",decision.getName());
+		bundle.putString("name",decision.getName());
+		bundle.putString("rist_textual_decp", textualDecp);
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);		
 	}
@@ -60,9 +67,15 @@ public class MusesUICallbacksHandler implements IUICallback {
 	@Override
 	public void onMaybe(Decision decision) {
 		Log.d(TAG, "onMaybe: " + decision.toString());
+		String textualDecp = "this is a test risk treatment ...";
+		RiskTreatment[] r = decision.getRiskCommunication().getRiskTreatment();
+//		if (r[0].getTextualDescription() != null) {
+//			textualDecp = r[0].getTextualDescription();
+//		}
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_MAY_BE);
 		Bundle bundle = new Bundle();
-		bundle.putString("message",decision.getName());
+		bundle.putString("name",decision.getName());
+		bundle.putString("risk_textual_decp",textualDecp);
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);		
 	}
@@ -70,9 +83,15 @@ public class MusesUICallbacksHandler implements IUICallback {
 	@Override
 	public void onUpToUser(Decision decision) {
 		Log.d(TAG, "onUpToUser: " + decision.toString());
-    	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_UP_TO_USER);
+		String textualDecp = "this is a test risk treatment ...";
+		RiskTreatment[] r = decision.getRiskCommunication().getRiskTreatment();
+//		if (r[0].getTextualDescription() != null) {
+//			textualDecp = r[0].getTextualDescription();
+//		}    	
+		Message msg = mHandler.obtainMessage(ACTION_RESPONSE_UP_TO_USER);
 		Bundle bundle = new Bundle();
-		bundle.putString("message",decision.getName());
+		bundle.putString("name",decision.getName());
+		bundle.putString("risk_textual_decp",textualDecp);
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);		
 	}

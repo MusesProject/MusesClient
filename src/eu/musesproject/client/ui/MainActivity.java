@@ -126,6 +126,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@SuppressLint("HandlerLeak")
 	private Handler callbackHandler = new Handler() {
 
+		private String decisionName;
+		private String riskTextualDecp;
+
 		@Override
 		public void handleMessage(Message msg) {
 			switch(msg.what){
@@ -149,15 +152,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_DENIED:
 				Log.d(TAG, "Action response denied ..");
-				showResultDialog(msg.getData().getString("message"), MusesUICallbacksHandler.ACTION_RESPONSE_DENIED);
+				decisionName = msg.getData().getString("name");
+				riskTextualDecp = msg.getData().getString("risk_textual_decp");
+				showResultDialog(riskTextualDecp, MusesUICallbacksHandler.ACTION_RESPONSE_DENIED);
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_MAY_BE:
 				Log.d(TAG, "Action response maybe ..");
-				showResultDialog(msg.getData().getString("message"), MusesUICallbacksHandler.ACTION_RESPONSE_MAY_BE);
+				decisionName = msg.getData().getString("name");
+				riskTextualDecp = msg.getData().getString("risk_textual_decp");
+				showResultDialog(riskTextualDecp, MusesUICallbacksHandler.ACTION_RESPONSE_MAY_BE);
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_UP_TO_USER:
 				Log.d(TAG, "Action response upToUser ..");
-				showResultDialog(msg.getData().getString("message"), MusesUICallbacksHandler.ACTION_RESPONSE_UP_TO_USER);
+				decisionName = msg.getData().getString("name");
+				riskTextualDecp = msg.getData().getString("risk_textual_decp");
+				showResultDialog(riskTextualDecp, MusesUICallbacksHandler.ACTION_RESPONSE_UP_TO_USER);
 				break;
 
 			}
