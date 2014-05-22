@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="11"
         android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -18,9 +18,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.READ_LOGS"/>
-    
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -29,28 +30,36 @@
         <activity android:name="eu.musesproject.client.ui.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="eu.musesproject.client.ui.DialogActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+            <category android:name="android.intent.category.LAUNCHER"/>
+             </intent-filter>
+        </activity>
 
-        <service android:name="eu.musesproject.MUSESBackgroundService">
-            
+        <service android:name="eu.musesproject.MUSESBackgroundService" >
         </service>
         <service android:name="eu.musesproject.client.contextmonitoring.service.aidl.MusesServiceProvider" >
             <intent-filter>
                 <action android:name="eu.musesproject.client.contextmonitoring.service.aidl.IMusesService" />
             </intent-filter>
         </service>
-        <receiver android:name="eu.musesproject.client.ui.MusesEventBroadcastReceiver">
+
+        <receiver android:name="eu.musesproject.client.ui.MusesEventBroadcastReceiver" >
             <intent-filter>
-                <action android:name="eu.musesproject.client.intent.muses.feedback"/>
-            </intent-filter>   
+                <action android:name="eu.musesproject.client.intent.muses.feedback" />
+            </intent-filter>
         </receiver>
         <receiver android:name="eu.musesproject.BootCompletedReceiver" >
-    		<intent-filter>
-        		<action android:name="android.intent.action.BOOT_COMPLETED" />
-    		</intent-filter>
-		</receiver>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -27,7 +27,7 @@ public class HttpResponseHandler {
 	private String requestType;
 
 	/**
-	 * Constructor initialize with httpResponse and request type (connect,data,poll etc)
+	 * Constructor initialise with httpResponse and request type (connect,data,poll etc)
 	 * @param httpResponse
 	 * @param requestType
 	 * @return void

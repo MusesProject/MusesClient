@@ -16,6 +16,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -37,6 +40,7 @@ public abstract class HttpConnectionsHelper {
 	public static final String DISCONNECT = "disconnect";
 	private static Date lastDate = new Date();
 	private HttpResponse httpResponse = null;
+	private static final int TIMEOUT = 5000; 
 	
 	/**
 	 * Http get implementation               // Not Used for Muses
@@ -109,8 +113,10 @@ public abstract class HttpConnectionsHelper {
 	 */
 	
 	public synchronized HttpResponse doPost(String type ,String url, String data) throws ClientProtocolException, IOException {
-		DefaultHttpClient httpclient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(url);
+		HttpPost httpPost = new HttpPost(url);
+		HttpParams httpParameters = new BasicHttpParams();  
+	    HttpConnectionParams.setConnectionTimeout(httpParameters, TIMEOUT);
+	    DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
         StringEntity s = new StringEntity(data.toString());
         s.setContentEncoding("UTF-8");
         s.setContentType("application/xml");
@@ -133,7 +139,7 @@ public abstract class HttpConnectionsHelper {
 		 	    }
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		    
@@ -144,7 +150,7 @@ public abstract class HttpConnectionsHelper {
 	        	httpResponse = httpclient.execute(httpPost);
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 	    }
@@ -169,6 +175,8 @@ public abstract class HttpConnectionsHelper {
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
 
 		if (httpclient !=null) {
+			HttpParams httpParameters = new BasicHttpParams();  
+		    HttpConnectionParams.setConnectionTimeout(httpParameters, TIMEOUT);
 			httpPost = new HttpPost(request.getUrl());
 	        StringEntity s = new StringEntity(request.getData().toString());
 	        s.setContentEncoding("UTF-8");

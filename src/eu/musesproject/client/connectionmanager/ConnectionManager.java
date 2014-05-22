@@ -57,23 +57,19 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		AlarmReceiver.LAST_SENT_POLL_INTERVAL = pollInterval;
 		callBacks = callbacks;
 		this.context = context;
-		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
-				 URL, Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL),"");
-		/** Commented for Alpha
 		NetworkChecker networkChecker = new NetworkChecker(context);
 		PhoneModeReceiver phoneModeReceiver = new PhoneModeReceiver(context);
 		phoneModeReceiver.register();
 		if (D) Log.v(TAG, "Connecting ..");
 		if (networkChecker.isInternetConnected()) {
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-			httpClientAsyncThread.execute(CONNECT, 
-					 URL, Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL),"");
-		} else callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
+					URL, Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL),"");
+		} else callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
 		
 		alarmReceiver = new AlarmReceiver();
 		alarmReceiver.setAlarm(context);
-		*/
+		
 	}
 
 	/**
@@ -85,17 +81,11 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	@Override
 	public void sendData(String data) {
 		
-		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DATA, URL, 
-				Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), data);
-
-		/** Commented for Alpha
 		if (NetworkChecker.isInternetConnected) {
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-			httpClientAsyncThread.execute(DATA, URL, 
+			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DATA, URL, 
 					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), data);
 		} else callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
-		*/
 	}
 	
 	/**
