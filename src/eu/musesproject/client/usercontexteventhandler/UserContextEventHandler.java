@@ -17,6 +17,7 @@ import eu.musesproject.client.decisionmaker.DecisionMaker;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
+
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -24,6 +25,7 @@ import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
 import eu.musesproject.client.model.decisiontable.Request;
+import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -216,7 +218,7 @@ public class UserContextEventHandler {
                     ActuatorController.getInstance().showFeedback(decision);
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
-                    // TODO update policies
+                    RemotePolicyReceiver.getInstance().updateJSONPolicy(receiveData, context);
                 }
             }
 			return 0;

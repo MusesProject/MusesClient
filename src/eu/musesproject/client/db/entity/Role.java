@@ -6,6 +6,10 @@ public class Role {
 	private String description;
 	private String timestamp;
 	
+	public Role(){
+		super();
+	}
+	
 	public Role(int id, String description, String timestamp) {
 		super();
 		this.id = id;

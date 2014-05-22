@@ -9,9 +9,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.ContextEvent;
+import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.db.entity.Property;
-import eu.musesproject.client.model.decisiontable.DecisionTable;
+import eu.musesproject.client.db.entity.Resource;
+import eu.musesproject.client.db.entity.ResourceType;
+import eu.musesproject.client.db.entity.RiskCommunication;
+import eu.musesproject.client.db.entity.RiskTreatment;
+import eu.musesproject.client.db.entity.Role;
+import eu.musesproject.client.db.entity.Subject;
 
 public class DBManager {
 
@@ -212,16 +219,16 @@ public class DBManager {
      * @param decisionTable
      */
     
-    public void addDecisionTable(DecisionTable decisionTable){
+    public long addDecisionTable(DecisionTable decisionTable){
     	
     	ContentValues values = new ContentValues();
-    	values.put(ACTION_ID, "101");
-    	values.put(RESOURCE_ID, "101");
-    	values.put(DECISION_ID, "101");
-    	values.put(SUBJECT_ID, "101");
-    	values.put(RISKCOMMUNICATION_ID, "101");
+    	values.put(ACTION_ID, decisionTable.getAction_id());
+    	values.put(RESOURCE_ID, decisionTable.getResource_id());
+    	values.put(DECISION_ID, decisionTable.getDecision_id());
+    	values.put(SUBJECT_ID, decisionTable.getSubject_id());
+    	values.put(RISKCOMMUNICATION_ID, decisionTable.getRiskcommunication_id());
     	values.put(MODIFICATION, "03-09-2011");
-    	sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
+    	return sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
     }
     
     /**
@@ -394,15 +401,108 @@ public class DBManager {
     }
     
     
-    public void addAction(/*Action action*/){
+    public long addAction(Action action){
+    	//TODO Manage the insertion or update, avoiding duplicated entries
     	
     	ContentValues values = new ContentValues();
-    	values.put(DESCRIPTION, "fake descrtion ....");
+    	values.put(DESCRIPTION, action.getDescription());
     	values.put(MODIFICATION, "09-08-2012");
-    	sqLiteDatabase.insert(TABLE_ACTION, null, values);
+    	return sqLiteDatabase.insert(TABLE_ACTION, null, values);
 
     }
+    
+    
+    /**
+     * Inserts into riskTreatment table in the DB
+     * @param riskTreatment
+     */
+    
+    public long addRiskTreatment(RiskTreatment riskTreatment){
+    	//TODO Manage the insertion or update, avoiding duplicated entries
+    	
+    	ContentValues values = new ContentValues();
+    	values.put(TEXTUAL_DESCRIPTION, riskTreatment.getTextualdescription());
+    	values.put(MODIFICATION, "03-09-2011");
+    	return sqLiteDatabase.insert(TABLE_RISK_TREATMENT, null	, values);
+    }
+    
+    
+    /**
+     * Inserts into resourceType table in the DB
+     * @param resourceType
+     */
+    
+    public long addResourceType(ResourceType resourceType){
+    	//TODO Manage the insertion or update, avoiding duplicated entries
+    	
+    	ContentValues values = new ContentValues();
+    	values.put(NAME, resourceType.getName());
+    	values.put(MODIFICATION, "03-09-2011");
+    	return sqLiteDatabase.insert(TABLE_RESOURCE_TYPE, null	, values);
+    }
+    
+    /**
+     * Inserts into resource table in the DB
+     * @param resource
+     */
+    
+    public long addResource(Resource resource){
+    	//TODO Manage the insertion or update, avoiding duplicated entries
+    	
+    	ContentValues values = new ContentValues();
+    	values.put(DESCRIPTION, resource.getDescription());
+    	values.put(PATH, resource.getPath());
+    	values.put(RESOURCE_TYPE, resource.getResourcetype());
+    	values.put(MODIFICATION, "03-09-2011");
+    	return sqLiteDatabase.insert(TABLE_RESOURCE, null, values);
+    }
+    
+    
+    /**
+     * Inserts into riskCommunication table in the DB
+     * @param riskCommunication
+     */
+    
+    public long addRiskCommunication(RiskCommunication riskCommunication){
+    	//TODO Manage the insertion or update, avoiding duplicated entries
+    	
+    	ContentValues values = new ContentValues();
+    	values.put(COMMUNICATION_SEQUENCE, riskCommunication.getCommunication_sequence());
+    	values.put(RISKTREATMENT_ID, riskCommunication.getRisktreatment_id());
+    	values.put(MODIFICATION, "03-09-2011");
+    	return sqLiteDatabase.insert(TABLE_RISK_COMMUNICATION, null	, values);
+    }
 
+    /**
+     * Inserts into role table in the DB
+     * @param role
+     */
+    
+    public long addRole(Role role){
+    	//TODO Manage the insertion or update, avoiding duplicated entries
+    	
+    	
+    	ContentValues values = new ContentValues();
+    	values.put(DESCRIPTION, role.getDescription());
+    	values.put(TIME_STAMP, role.getTimestamp());
+    	values.put(MODIFICATION, "03-09-2011");
+    	return sqLiteDatabase.insert(TABLE_ROLE, null	, values);
+    }
+    
+    /**
+     * Inserts into subject table in the DB
+     * @param role
+     */
+    
+    public long addSubject(Subject subject){
+    	//TODO Manage the insertion or update, avoiding duplicated entries
+    	
+    	ContentValues values = new ContentValues();
+    	values.put(DESCRIPTION, subject.getDescription());
+    	values.put(ROLE_ID, subject.getRoleID());
+    	values.put(MODIFICATION, "03-09-2011");
+    	return sqLiteDatabase.insert(TABLE_SUBJECT, null	, values);
+    }
     
     
     // Policy related queries
@@ -560,6 +660,9 @@ public class DBManager {
     public UserDeviceCertificate getUserDeviceCert(){
     	return new UserDeviceCertificate();
     }
+    
+    
+    
     
 	
 	

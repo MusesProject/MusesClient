@@ -7,6 +7,10 @@ public class Subject {
 	private int roleID;
 	private String timestamp;
 	
+	public Subject(){
+		super();
+	}
+	
 	public Subject(int id, String description, int roleID, String timestamp) {
 		super();
 		this.id = id;
