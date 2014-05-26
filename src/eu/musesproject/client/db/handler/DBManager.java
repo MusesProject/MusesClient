@@ -233,7 +233,7 @@ public class DBManager {
     	values.put(DEVICE_ID, DeviceInfo.getIMEINumberFromPhone(context));
     	values.put(USERNAME, "muses");
     	values.put(PASSWORD, "muses");
-    	sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
+    	sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null	, values);
     	
     }
     
@@ -241,11 +241,12 @@ public class DBManager {
     	String device_id = "";
         String selectQuery = "select  * from " + TABLE_USER_CREADENTIALS;
         Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
-        device_id = cursor.getString(0);
-//        if (cursor.moveToFirst()) {
-//            do {
-//            } while (cursor.moveToNext());
-//        }
+        if (cursor.moveToFirst()) {
+            do {
+            	if (cursor != null)
+            		device_id = cursor.getString(1);
+            } while (cursor.moveToNext());
+        }
 		return device_id;
     }
     
@@ -595,7 +596,36 @@ public class DBManager {
         return cursor.getCount();
 
     }
-    
+    public List<Property> getPropertiesOfContextEvent(int contextevent_id) {
+    	List<Property> propertyList = new ArrayList<Property>();
+
+    	Cursor cursor = sqLiteDatabase.query(TABLE_PROPERTY, new String [] {
+    			ID, 
+    			CONTEXT_EVENT_ID, 
+    			KEY,
+    			VALUE}, 
+    			
+				CONTEXT_EVENT_ID + " like " + contextevent_id,
+				null,			
+				null, 
+				null, 
+				null);
+
+    	// loop through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Property property = new Property();
+                property.setId(Integer.parseInt(cursor.getString(0)));
+                property.setContextevent_id(Integer.parseInt(cursor.getString(1)));
+                property.setKey(cursor.getString(2));
+                property.setValue(cursor.getString(3));
+                propertyList.add(property);
+                
+            } while (cursor.moveToNext());
+        }
+
+        return propertyList;    	
+    }
     
     public ContextEvent getStoredContextEvent(String id) {
     	Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String [] {
