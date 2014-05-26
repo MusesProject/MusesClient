@@ -31,7 +31,11 @@ public class DialogActivity extends Activity {
 							@Override
 							public void onClick(DialogInterface dialog,
 									int which) {
-								sendOK();
+								Intent restartMainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+								extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_OK);
+								restartMainActivityIntent.putExtras(extras);
+								startActivity(restartMainActivityIntent);
+								finish();
 							}
 
 						})
@@ -56,17 +60,6 @@ public class DialogActivity extends Activity {
 					.setEnabled(false);
 		}
 
-		
-	}
-
-	
-	private void sendOK() {
-		Intent restartMainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-		extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_OK);
-		restartMainActivityIntent.putExtras(extras);
-		startActivity(restartMainActivityIntent);
-		finish();
-		// TODO Auto-generated method stub
 		
 	}
 

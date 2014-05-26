@@ -53,15 +53,19 @@ public class NetworkChecker extends BroadcastReceiver{
 			    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 	    NetworkInfo mobile =
 	    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-	    if( wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED){
-	    	isInternetConnected = true;
-	    	return true;
+	    if (wifi != null){
+		    if( wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED){
+		    	isInternetConnected = true;
+		    	return true;
+		    }
 	    }
-	    else if( mobile.isAvailable() && mobile.getDetailedState() == DetailedState.CONNECTED ){
-	    	isInternetConnected = true;
-	        return true;
+	    else if (mobile != null) {
+	    	if( mobile.isAvailable() && mobile.getDetailedState() == DetailedState.CONNECTED ){
+	    		isInternetConnected = true;
+	    		return true;
+	    	}  
 	    }
+	    
 	    isInternetConnected = false;
 	    return false;
 			    

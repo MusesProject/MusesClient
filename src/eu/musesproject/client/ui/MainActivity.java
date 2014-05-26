@@ -30,6 +30,7 @@ import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
+import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
@@ -84,9 +85,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 		
 	}
-
+	
 	private boolean sendDecisionIfComingFromShowFeedbackDialog(Bundle bundle) {
 		if(bundle!= null){
+			moveTaskToBack(true); // Forcing activity to go in background
 			String userDecision = bundle.getString(DECISION_KEY);
 			if (userDecision != null) {
 				if (userDecision.equals(DECISION_OK)){

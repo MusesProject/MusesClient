@@ -30,8 +30,8 @@ public class AlarmReceiver extends BroadcastReceiver {
 	public static int POLL_INTERVAL = 10000; // Default value
 	public static int SLEEP_POLL_INTERVAL = 60000; // Default value
 	public static int exponentialCounter = 4;
-	public static int DEFAULT_POLL_INTERVAL;
-	public static int DEFAULT_SLEEP_POLL_INTERVAL;
+	public static int DEFAULT_POLL_INTERVAL = 10000;
+	public static int DEFAULT_SLEEP_POLL_INTERVAL = 60000;
 	public static int LAST_SENT_POLL_INTERVAL;
 	@SuppressLint("Wakelock")
 	@Override

@@ -32,7 +32,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public static final String DATA = "data";
 	public static final String DISCONNECT = "disconnect";
 	public static final String ACK = "ack";
-	private static final String TAG = null;
+	private static final String TAG = ConnectionManager.class.getSimpleName();
 	
 	private AlarmReceiver alarmReceiver;
 	private Context context;

@@ -19,6 +19,7 @@ import eu.musesproject.client.db.entity.RiskCommunication;
 import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.entity.Role;
 import eu.musesproject.client.db.entity.Subject;
+import eu.musesproject.client.utils.DeviceInfo;
 
 public class DBManager {
 
@@ -81,11 +82,16 @@ public class DBManager {
 																	  + "contextevent_id INT NOT NULL,"
 																	  + "key VARCHAR(45) NOT NULL,"
 																	  + "value VARCHAR(45) NOT NULL);";
-	private static final String CREATE_SERVER_CERT_TABLE_QUERY =  "CREATE TABLE property	 ( "
+	private static final String CREATE_SERVER_CERT_TABLE_QUERY =  "CREATE TABLE server_certificate	 ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "contextevent_id INT NOT NULL,"
 																	  + "key VARCHAR(45) NOT NULL,"
 																	  + "value VARCHAR(45) NOT NULL);";
+	private static final String CREATE_USER_CREDENTIALS_TABLE_QUERY =  "CREATE TABLE user_credentials	 ( "
+																	  + "id INTEGER PRIMARY KEY," 
+																	  + "device_id VARCHAR(45) NOT NULL,"
+																	  + "username VARCHAR(45) NOT NULL,"
+																	  + "password VARCHAR(45) NOT NULL);";
 	
 	// Tables name 
 	public static final String TABLE_POLICES = "polices";
@@ -100,6 +106,8 @@ public class DBManager {
 	public static final String TABLE_RISK_COMMUNICATION = "riskcommunication";
 	public static final String TABLE_CONTEXT_EVENT = "contextevent";
 	public static final String TABLE_PROPERTY = "property";
+	public static final String TABLE_USER_CREADENTIALS = "user_credentials";
+	
 
 	// Columns name
 	private static final String ID = "id";
@@ -108,6 +116,7 @@ public class DBManager {
 	private static final String DECISION_ID = "decision_id";
 	private static final String SUBJECT_ID = "subject_id";
 	private static final String RISKCOMMUNICATION_ID = "riskcommunication_id";
+	private static final String DEVICE_ID = "device_id";
 	private static final String MODIFICATION = "modification";
 	private static final String DESCRIPTION = "decription";
 	private static final String PATH = "path";
@@ -122,6 +131,9 @@ public class DBManager {
 	private static final String TIME_STAMP = "timestamp";
 	private static final String KEY = "key";
 	private static final String VALUE = "value";
+	private static final String USERNAME = "username";
+	private static final String PASSWORD = "password";
+	
 	
 	
 	private Context context;
@@ -184,6 +196,7 @@ public class DBManager {
         	db.execSQL(CREATE_RISK_TREATMENT_TABLE_QUERY);
         	db.execSQL(CREATE_CONTEXT_EVENTS_TABLE_QUERY);
         	db.execSQL(CREATE_PROPERTY_TABLE_QUERY);
+        	db.execSQL(CREATE_USER_CREDENTIALS_TABLE_QUERY);
         }
 
         @Override
@@ -202,8 +215,10 @@ public class DBManager {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_RISK_TREATMENT);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTEXT_EVENT);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROPERTY);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_CREADENTIALS);
             
             onCreate(db);
+            
         }
         
         
@@ -212,6 +227,27 @@ public class DBManager {
     
     
     // All CRUD (Create, retrieve, update and delete ) operations here
+    
+    public void insertCredentials(){
+    	ContentValues values = new ContentValues();
+    	values.put(DEVICE_ID, DeviceInfo.getIMEINumberFromPhone(context));
+    	values.put(USERNAME, "muses");
+    	values.put(PASSWORD, "muses");
+    	sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
+    	
+    }
+    
+    public String getDevId(){
+    	String device_id = "";
+        String selectQuery = "select  * from " + TABLE_USER_CREADENTIALS;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        device_id = cursor.getString(0);
+//        if (cursor.moveToFirst()) {
+//            do {
+//            } while (cursor.moveToNext());
+//        }
+		return device_id;
+    }
     
     // Decision Maker related queries
     /**

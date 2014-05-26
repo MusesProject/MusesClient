@@ -6,6 +6,10 @@
 
 package eu.musesproject.client.connectionmanager;	
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
@@ -21,7 +25,7 @@ import android.util.Log;
 public class HttpResponseHandler {
 	
 	private static final boolean D = false;
-	private static final String TAG = null;
+	private static final String TAG = HttpResponseHandler.class.getSimpleName();
 	private String receivedHttpResponseData = null;
 	private HttpResponse httpResponse;
 	private String requestType;
@@ -80,11 +84,12 @@ public class HttpResponseHandler {
 				break;
 			}
 		} else {
-			if (D) Log.e(TAG, "Exception occured during communication with the server .. check the stacktrace to fix it!");
+			if (D) Log.v(TAG, "Exception occured during communication with the server .. check the stacktrace to fix it!");
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
 		}
 	}
 	
+
 	/**
 	 * Send data to functional module 
 	 * @return void

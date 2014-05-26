@@ -60,6 +60,14 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        
+        <receiver android:name="eu.musesproject.client.connectionmanager.AlarmReceiver"/>
+        <receiver android:name="eu.musesproject.client.connectionmanager.NetworkChecker">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
