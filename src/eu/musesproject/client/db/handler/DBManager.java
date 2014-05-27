@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.ContextEvent;
+import eu.musesproject.client.db.entity.Decision;
 import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.entity.Resource;
@@ -298,6 +299,7 @@ public class DBManager {
         return decisionTableList;
     }
     
+   
     /**
      * Retrieve decision table from action_id
      * @param action_id
@@ -704,6 +706,112 @@ public class DBManager {
         }
 
         return propertyList;
+    }
+    
+    /**
+     * Retrieve decision from id
+     * @param decision_id
+     * @return Decision
+     */
+    
+    public Decision getDecisionFromID(String decision_id) {
+
+    	Decision decision = new Decision();
+    	Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
+						ID, 
+						NAME,
+						MODIFICATION},
+						
+    					ID + "=?",
+    					new String[] {String.valueOf(decision_id)}, 
+    					null, 
+    					null, 
+    					null);
+        
+    	if (cursor != null) {
+    		cursor.moveToFirst();
+    		
+    		// Now create the decision object from the cursor
+    		Log.e(TAG, "id" + cursor.getString(0));
+    		decision.setId(Integer.valueOf(cursor.getString(0)));
+    		Log.e(TAG, "name" + cursor.getString(1));
+    		decision.setName(cursor.getString(1));
+    		Log.e(TAG, "modification" + cursor.getString(2));
+    		decision.setModification(Long.valueOf(cursor.getString(2)));
+    		
+    	}
+    	
+    	return decision;
+    }
+    
+    /**
+     * Retrieve risk_communication from id
+     * @param risk_communication_id
+     * @return RiskCommunication
+     */
+    
+    public RiskCommunication getRiskCommunicationFromID(String risk_communication_id) {
+
+    	RiskCommunication comm = new RiskCommunication();
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION, new String [] {
+						ID, 
+						COMMUNICATION_SEQUENCE,
+						RISKTREATMENT_ID,
+						MODIFICATION},
+						
+    					ID + "=?",
+    					new String[] {String.valueOf(risk_communication_id)}, 
+    					null, 
+    					null, 
+    					null);
+        
+    	if (cursor != null) {
+    		cursor.moveToFirst();
+    		
+    		// Now create the decision object from the cursor
+    		Log.e(TAG, "id" + cursor.getString(0));
+    		comm.setId(Integer.valueOf(cursor.getString(0)));
+    		Log.e(TAG, "comm_sequence" + cursor.getString(1));
+    		comm.setCommunication_sequence(Integer.valueOf(cursor.getString(1)));
+    		Log.e(TAG, "risk_treatment_id" + cursor.getString(2));
+    		comm.setRisktreatment_id(Integer.valueOf(cursor.getString(2)));
+    		
+    	}
+    	
+    	return comm;
+    }
+    
+    /**
+     * Retrieve risk_treatment from id
+     * @param risk_treatment_id
+     * @return RiskTreatment
+     */
+    
+    public RiskTreatment getRiskTreatmentFromID(String risk_treatment_id) {
+
+    	RiskTreatment treatment = new RiskTreatment();
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RISK_TREATMENT, new String [] {
+						ID, 
+						TEXTUAL_DESCRIPTION},
+						
+    					ID + "=?",
+    					new String[] {String.valueOf(risk_treatment_id)}, 
+    					null, 
+    					null, 
+    					null);
+        
+    	if (cursor != null) {
+    		cursor.moveToFirst();
+    		
+    		// Now create the decision object from the cursor
+    		Log.e(TAG, "id" + cursor.getString(0));
+    		treatment.setId(Integer.valueOf(cursor.getString(0)));
+    		Log.e(TAG, "textual_description" + cursor.getString(1));
+    		treatment.setTextualdescription(cursor.getString(1));
+    		
+    	}
+    	
+    	return treatment;
     }
     
     
