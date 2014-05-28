@@ -200,6 +200,10 @@ public class UserContextEventHandler {
 		this.context = context;
 	}
 	
+	public Context getContext(){
+		return this.context;
+	}
+	
 	private class ConnectionCallback implements IConnectionCallbacks {
 
 		@Override

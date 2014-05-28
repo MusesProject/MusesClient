@@ -72,7 +72,9 @@ public class RemotePolicyReceiver {
     			
     		} catch (JSONException je) {
     	           je.printStackTrace();
-    	    }    		
+    	           Log.d(TAG, "[receiveJSONPolicy]: Exception while parsing JSON Policy:" + je.getMessage());
+    	           return FAILED_RECEPTION;
+    	    }
         }
         
         //Database insertion
@@ -81,11 +83,18 @@ public class RemotePolicyReceiver {
         long index = dbManager.addDecisionTable(decisionTableElement);
         dbManager.closeDB();
         
-        decisionTableElement.setId((int)index);
-        
-        if (decisionTableElement.getId()>0){
-    		return SUCCESSFUL_RECEPTION;
+        if (decisionTableElement != null){
+            decisionTableElement.setId((int)index);
+            
+            if (decisionTableElement.getId()>0){
+            	Log.d(TAG, "[receiveJSONPolicy]: Decision table element has been correctly added");
+        		return SUCCESSFUL_RECEPTION;
+            }else{
+            	Log.d(TAG, "[receiveJSONPolicy]: Decision table element id is negative:" + decisionTableElement.getId());
+            	return FAILED_RECEPTION;
+            }
         }else{
+        	Log.d(TAG, "[receiveJSONPolicy]: Decision table element not found");
         	return FAILED_RECEPTION;
         }
 		
