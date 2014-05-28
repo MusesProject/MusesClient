@@ -6,10 +6,6 @@
 
 package eu.musesproject.client.connectionmanager;	
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
@@ -55,6 +51,9 @@ public class HttpResponseHandler {
 						sendDataToFunctionalLayer();
 						sendAcktoServer();
 					}
+					if (isMorePackets(httpResponse)){
+						doPollForAnExtraPacket();
+					}
 				}
 				if (isSendDataRequest(requestType)){
 					if (isPayloadInData(httpResponse)) {
@@ -89,7 +88,26 @@ public class HttpResponseHandler {
 		}
 	}
 	
+	private boolean isMorePackets(HttpResponse httpResponse) {
+		Header [] dataReceived = httpResponse.getAllHeaders();
+		for (Header responseHedar : dataReceived){
+			if (responseHedar.getName().equals("more-packets")){
+				if (responseHedar.getValue().equalsIgnoreCase("YES")){
+					return true;
+				}
+			}
+			
+		}
+		return false;
+	}
 
+	private void doPollForAnExtraPacket(){
+		if (NetworkChecker.isInternetConnected){
+			ConnectionManager connectionManager = new ConnectionManager();
+			connectionManager.poll();
+		}
+	}
+	
 	/**
 	 * Send data to functional module 
 	 * @return void

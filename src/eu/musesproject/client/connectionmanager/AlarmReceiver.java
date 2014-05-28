@@ -11,7 +11,6 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -27,10 +26,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 	
 	private static final String TAG = "AlarmReceiver";
 	private static final boolean D = false;
-	public static int POLL_INTERVAL = 10000; // Default value
+	public static int POLL_INTERVAL = 60000; // Default value
 	public static int SLEEP_POLL_INTERVAL = 60000; // Default value
 	public static int exponentialCounter = 4;
-	public static int DEFAULT_POLL_INTERVAL = 10000;
+	public static int DEFAULT_POLL_INTERVAL = 60000;
 	public static int DEFAULT_SLEEP_POLL_INTERVAL = 60000;
 	public static int LAST_SENT_POLL_INTERVAL;
 	@SuppressLint("Wakelock")
@@ -39,11 +38,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
-        if (NetworkChecker.isInternetConnected) {
-        	// start poll
-        	Polling pollingBackgroundThread = new Polling();
-        	pollingBackgroundThread.execute();
-        }
+        
+        ConnectionManager connectionManager = new ConnectionManager();
+        connectionManager.poll();
         
         if (D) Log.e(TAG, "Alarm..");
         wl.release();
@@ -100,6 +97,7 @@ public class AlarmReceiver extends BroadcastReceiver {
      * @param context
      * @return void
      */
+    
     public void cancelAlarm(Context context) {
         Intent wakeUpAlarmIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, wakeUpAlarmIntent, 0);
@@ -107,23 +105,5 @@ public class AlarmReceiver extends BroadcastReceiver {
         alarmManager.cancel(pendingIntent);
     }
     
-    /**
-     * Asynk class to poll in a seperate thread
-     * @author yasir
-     * @version Jan 27, 2014
-     */
-    
-    private class Polling extends AsyncTask<String, Void, String> {
-
-    	@Override
-    	protected String doInBackground(String... params) {
-            ConnectionManager connectionManager = new ConnectionManager();
-            connectionManager.poll();
-    		return null;
-    	}
-
-    }
-
-    
-    
+   
 }
