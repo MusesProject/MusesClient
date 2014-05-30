@@ -68,10 +68,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
 		loginListBtn = (Button) findViewById(R.id.login_list_button);
 		securityInformationListbtn = (Button) findViewById(R.id.security_info_list_button);
-		privacyPolicyListBtn = (Button) findViewById(R.id.policy_info_list_button);
 		loginListBtn.setOnClickListener(this);
 		securityInformationListbtn.setOnClickListener(this);
-		privacyPolicyListBtn.setOnClickListener(this);
 
 		userContextMonitoringController = UserContextMonitoringController
 				.getInstance(context);
@@ -131,13 +129,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				topLayout.removeAllViews();
 				securityInformationView = new SecurityInformationView(context);
 				topLayout.addView(securityInformationView);
-			}
-			break;
-		case R.id.policy_info_list_button:
-			if (isLoggedIn) {
-				topLayout.removeAllViews();
-				privacyPolicyView = new PrivacyPolicyView(context);
-				topLayout.addView(privacyPolicyView);
 			}
 			break;
 		}
@@ -333,7 +324,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			rememberCheckBox.setOnCheckedChangeListener(this);
 			agreeTermsCheckBox = (CheckBox) findViewById(R.id.agree_terms_checkbox);
 			agreeTermsCheckBox.setOnCheckedChangeListener(this);
-			loginLayout1 = (LinearLayout) findViewById(R.id.login_layout_1);
+			//loginLayout1 = (LinearLayout) findViewById(R.id.login_layout_1);
 			loginLayout2 = (LinearLayout) findViewById(R.id.login_layout_2);
 			loginBtn = (Button) findViewById(R.id.login_button);
 			loginBtn.setOnClickListener(this);
@@ -408,7 +399,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		public PrivacyPolicyView(Context context) {
 			super(context);
-			inflate(context, R.layout.privacy_policy_view, this);
+			//inflate(context, R.layout.privacy_policy_view, this);
 		}
 
 	}
@@ -424,7 +415,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		public SecurityInformationView(Context context) {
 			super(context);
-			inflate(context, R.layout.security_information_view, this);
+			//inflate(context, R.layout.security_information_view, this);
 			setSecurityInformationViewAttiributesHere();
 		}
 

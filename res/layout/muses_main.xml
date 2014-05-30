@@ -64,17 +64,18 @@
                     android:textColor="#ffffff"
                    
                     android:textSize="25sp" />
-
+                
                 <Button
-                    android:id="@+id/policy_info_list_button"
+                    android:id="@+id/security_points_list_button"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
                     android:background="#544E56"
                     android:gravity="center_vertical"
                     android:paddingLeft="14dp"
                     android:paddingRight="7dp"
-                    android:text="@string/policy_info_button_txt"
+                    android:text="@string/security_points_button_txt"
                     android:textColor="#ffffff"
+                   
                     android:textSize="25sp" />
 
             </LinearLayout>

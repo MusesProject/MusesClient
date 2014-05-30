@@ -8,7 +8,8 @@
     <string name="login_button_txt">Login</string>
     <string name="login_list_button_txt">L o g i n</string>
     <string name="logout_button_txt">Logout</string>
-    <string name="security_info_button_txt">Security information</string>
+    <string name="security_info_button_txt">My Security Policies</string>
+    <string name="security_points_button_txt">Security Points</string>
     <string name="privacy_policy_view_txt">Privacy Policy</string>
     <string name="policy_info_button_txt">MUSES policy information</string>
     <string name="settings_button_txt">Settings</string>
@@ -21,19 +22,14 @@
     <string name="make_sure_privacy_policy_read_txt">Make sure you have read and understood the privacy policy before logging in.</string>
     <string name="terms_and_condition_description_text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
     <string name="test_string">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
-    
+
     <!-- Toast msgs -->
     <string name="login_success_msg">Login Successful..</string>
     <string name="login_fail_msg">Login Falied..</string>
     <string name="empty_login_fields_msg">You can\'t leave UserID or Password fields empty ..</string>
     <string name="no_internet_connection_msg">You don\'t have any Internet connection on your device, Please check your Wi-Fi settigns ..</string>
     <string name="logout_successfully_msg">Logged out successfully ..</string>
-    	
 
-    
-    
-    
-    
     <!-- Copied strings -->
     <string name="decent_protection"> Descent protection</string>
     <string name="ok_level_btn">OK (Level X)</string>
@@ -43,13 +39,8 @@
     <string name="high_tft">High</string>
     <string name="sec_det">Security Details</string>
 
-    
-    
-    
     <!-- Extra long strings -->
-    <string name="privacy_policy_detail_txt">
-
-This privacy policy describes the privacy considerations made by MUSES for those whose mobile devices are monitored (further referred to individuals/you). With this policy we want to make sure you understand how MUSES works, and how we use your personal information gathered through our software and by our services. We want you to feel secure that your privacy interests are being respected within the bounds of this policy. This privacy policy applies to all our software and services.
+    <string name="privacy_policy_detail_txt">This privacy policy describes the privacy considerations made by MUSES for those whose mobile devices are monitored (further referred to individuals/you). With this policy we want to make sure you understand how MUSES works, and how we use your personal information gathered through our software and by our services. We want you to feel secure that your privacy interests are being respected within the bounds of this policy. This privacy policy applies to all our software and services.
 
  
 
@@ -135,10 +126,6 @@ Contacting us for more information
 
 If you have any questions regarding this Privacy Policy, you can contact us by e-mail at:
 
-info@muses.com
-</string>
-    
-    
-    
-    
+info@muses.com</string>
+
 </resources>
