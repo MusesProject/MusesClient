@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="horizontal" 
-    android:background="#ffffff">
+    android:background="#ffffff"
+    android:orientation="horizontal" >
 
     <LinearLayout
         android:id="@+id/main_login_layout"
@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="17dp"
+            android:paddingBottom="5dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp" >
 
@@ -24,7 +24,7 @@
                 android:id="@+id/login_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:text="@string/login_button_txt"
@@ -36,7 +36,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="5dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:text="@string/login_detail_view_txt"
@@ -50,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="40sp"
                 android:layout_marginRight="40sp"
-                android:layout_marginTop="20sp"
+                android:layout_marginTop="5sp"
                 android:layout_weight="1"
                 android:background="@drawable/button_selector"
                 android:text="@string/logout_button_txt"
@@ -64,34 +64,37 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="17dp"
+            android:paddingBottom="5dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp" >
 
             <TextView
                 android:id="@+id/username_txt_view"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="5dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
+                android:fontFamily="arial"
                 android:text="@string/username_txt"
                 android:textColor="#000000"
                 android:textSize="15sp"
-                android:textStyle="normal" />
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/username_text"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:cursorVisible="false"
                 android:hint="@string/hint_txt_userid"
-                android:inputType="textPersonName"
+                android:maxLines="8"
+                android:scrollbars="vertical"
+                android:singleLine="false"
                 android:textColor="#000000"
-                android:textSize="15sp" >
-
-                <requestFocus />
-            </EditText>
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/password_txt_view"
@@ -104,19 +107,20 @@
                 android:text="@string/password_txt"
                 android:textColor="#000000"
                 android:textSize="15sp"
-                android:textStyle="normal" />
+                android:textStyle="bold" />
 
             <EditText
                 android:id="@+id/pass_text"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:ems="10"
+                android:background="@null"
                 android:hint="@string/hint_txt_password"
-                android:inputType="textPassword"
+                android:scrollbars="vertical"
+                android:singleLine="false"
                 android:textColor="#000000"
-                android:textSize="15sp" >
-            </EditText>
+                android:textSize="15sp" />
+
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -124,17 +128,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="left"
-                android:orientation="horizontal" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:paddingLeft="3dp"
-                    android:paddingTop="5dp"
-                    android:singleLine="false"
-                    android:text="@string/remember_my_login_txt"
-                    android:textColor="#000000" />
+                android:orientation="horizontal"
+                android:paddingTop="10sp" >
 
                 <CheckBox
                     android:id="@+id/remember_checkbox"
@@ -142,19 +137,38 @@
                     android:layout_height="wrap_content"
                     android:clickable="false"
                     android:focusable="false"
-                    android:text="" />
+                    android:text="@string/remember_my_login_txt" 
+                    android:textColor="#000000"/>
             </LinearLayout>
 
             <TextView
-                android:id="@+id/make_sure_privacy_policy_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
+                android:layout_weight="1"
                 android:paddingLeft="3dp"
-                android:text="@string/make_sure_privacy_policy_read_txt"
-                android:textColor="#000000" />
+                android:paddingTop="5dp"
+                android:singleLine="false"
+                android:text="@string/privacy_policy_view_txt"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/privacy_policy_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:cursorVisible="false"
+                android:editable="false"
+                android:maxLines="8"
+                android:paddingLeft="3dp"
+                android:paddingTop="5dp"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:text="@string/privacy_policy_detail_txt"
+                android:textColor="#000000"
+                android:textSize="15sp" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -162,17 +176,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="left"
-                android:orientation="horizontal" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:paddingLeft="3dp"
-                    android:paddingTop="5dp"
-                    android:singleLine="false"
-                    android:text="@string/agree_term_condition_txt"
-                    android:textColor="#000000" />
+                android:orientation="horizontal"
+                android:paddingTop="10sp" >
 
                 <CheckBox
                     android:id="@+id/agree_terms_checkbox"
@@ -180,7 +185,8 @@
                     android:layout_height="wrap_content"
                     android:clickable="false"
                     android:focusable="false"
-                    android:text="" />
+                    android:text="@string/agree_term_condition_txt"
+                    android:textColor="#000000" />
             </LinearLayout>
 
             <Button
@@ -190,7 +196,7 @@
                 android:layout_marginLeft="40sp"
                 android:layout_marginRight="40sp"
                 android:layout_marginTop="20sp"
-                android:background="@drawable/button_selector"
+                android:background="#544E56"
                 android:text="@string/login_button_txt"
                 android:textColor="#ffffff"
                 android:textSize="35sp" />

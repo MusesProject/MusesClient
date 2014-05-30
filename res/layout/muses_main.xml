@@ -2,18 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="horizontal" >
+    android:orientation="horizontal" 
+    android:background="#ffffff">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:orientation="vertical" >
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="106dp"
-            android:background="@drawable/banner_bg"
+            android:layout_height="70dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:gravity="center_horizontal"
@@ -31,83 +31,83 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="#fff1f1f1"
             android:orientation="vertical" >
 
             <LinearLayout
                 android:id="@+id/main_menu_buttons_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"
                 android:orientation="vertical" >
 
                 <Button
                     android:id="@+id/login_list_button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="5sp"
-                    android:background="#808080"
-                    android:drawableLeft="@drawable/temp_image"
-                    android:drawablePadding="15dp"
+                    android:layout_height="70dp"
+                    android:background="#544E56"
                     android:gravity="center_vertical"
-                    android:paddingLeft="7dp"
+                    android:paddingLeft="14dp"
                     android:paddingRight="7dp"
                     android:text="@string/login_list_button_txt"
                     android:textColor="#ffffff"
-                    android:textSize="25sp"
-                    android:textStyle="bold" />
+                    android:textSize="25sp" />
 
                 <Button
                     android:id="@+id/security_info_list_button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="5sp"
-                    android:background="#808080"
-                    android:drawableLeft="@drawable/temp_image"
-                    android:drawablePadding="15dp"
+                    android:layout_height="70dp"
+                    android:background="#544E56"
                     android:gravity="center_vertical"
-                    android:paddingLeft="7dp"
+                    android:paddingLeft="14dp"
                     android:paddingRight="7dp"
                     android:text="@string/security_info_button_txt"
                     android:textColor="#ffffff"
-                    android:textSize="25sp"
-                    android:textStyle="bold" />
+                   
+                    android:textSize="25sp" />
 
                 <Button
                     android:id="@+id/policy_info_list_button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="5sp"
-                    android:background="#808080"
-                    android:drawableLeft="@drawable/temp_image"
-                    android:drawablePadding="15dp"
+                    android:layout_height="70dp"
+                    android:background="#544E56"
                     android:gravity="center_vertical"
-                    android:paddingLeft="7dp"
+                    android:paddingLeft="14dp"
                     android:paddingRight="7dp"
                     android:text="@string/policy_info_button_txt"
                     android:textColor="#ffffff"
-                    android:textSize="25sp"
-                    android:textStyle="bold" />
+                    android:textSize="25sp" />
 
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
+        <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.5"
+        android:orientation="vertical" >
+            <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" >
+
+            
+        </LinearLayout>
+    
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:background="#ffffff"
         android:orientation="vertical" >
 
         <ScrollView
             android:id="@+id/login_scrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp" >
+            android:layout_marginBottom="20dp" >
 
             <LinearLayout
                 android:id="@+id/top_layout"
@@ -118,5 +118,6 @@
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
-
+	
+    </LinearLayout>
 </LinearLayout>
