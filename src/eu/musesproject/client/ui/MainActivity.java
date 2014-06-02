@@ -6,8 +6,6 @@
 
 package eu.musesproject.client.ui;
 
-import java.io.IOException;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -30,7 +28,6 @@ import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
-import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
@@ -50,12 +47,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String DECISION_KEY = "decision";
 	private static String TAG = MainActivity.class.getSimpleName();
 	private LinearLayout topLayout;
-	private Button loginListBtn, securityInformationListbtn,
-			privacyPolicyListBtn;
+	private Button loginListBtn, securityInformationListbtn;
 	private Context context;
 	private LoginView loginView;
-	private SecurityInformationView securityInformationView;
-	private PrivacyPolicyView privacyPolicyView;
 	private UserContextMonitoringController userContextMonitoringController;
 	public static boolean isLoggedIn = false;
 
@@ -127,8 +121,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		case R.id.security_info_list_button:
 			if (isLoggedIn) {
 				topLayout.removeAllViews();
-				securityInformationView = new SecurityInformationView(context);
-				topLayout.addView(securityInformationView);
 			}
 			break;
 		}
