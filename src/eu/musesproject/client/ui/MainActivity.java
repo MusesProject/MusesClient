@@ -196,7 +196,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	private void showResultDialog(String message, int type) {
 		Intent showFeedbackIntent = new Intent(
-				getApplicationContext(), DialogActivity.class);
+				getApplicationContext(), FeedbackActivity.class);
 		showFeedbackIntent.putExtra("message", message);
 		showFeedbackIntent.putExtra("type", type);
 		showFeedbackIntent

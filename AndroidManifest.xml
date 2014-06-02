@@ -24,7 +24,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/muses_logo"
         android:label="@string/app_name"
         android:theme="@style/AppBaseTheme" >
         <activity android:name="eu.musesproject.client.ui.MainActivity" >
@@ -34,7 +34,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="eu.musesproject.client.ui.DialogActivity"
+        <activity android:name="eu.musesproject.client.ui.FeedbackActivity"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Dialog" >
             <intent-filter>

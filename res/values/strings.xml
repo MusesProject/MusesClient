@@ -28,11 +28,15 @@
 	<!-- Feedback dialog strings -->
 	<string name="feedback_title_txt">Muses Policy Warning</string>
 	<string name="details_btn_txt">Details</string>
+	<string name="what_can_i_do_btn_txt">What can i do?</string>
+	<string name="continue_btn_txt">Continue</string>
 	<string name="cancel_btn_txt">Cancel</string>
 	<string name="resolve_auto_btn_txt">Resolve conflicts automatically</string>
 	<string name="feedback_txt_1">You just want to </string>
 	<string name="feedback_txt_2">\n PERSUASIVE STRATEGIES: </string>
-				
+	<string name="current_com_status_1">You are</string>
+	<string name="current_com_status_2">Online</string>
+    <string name="current_com_status_3">Offline</string>
     
     <!-- Toast msgs -->
     <string name="login_success_msg">Login Successful..</string>
