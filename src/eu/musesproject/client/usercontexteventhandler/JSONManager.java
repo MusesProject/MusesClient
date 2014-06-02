@@ -1,7 +1,6 @@
 package eu.musesproject.client.usercontexteventhandler;
 
 import eu.musesproject.client.model.JSONIdentifiers;
-import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.contextmodel.ContextEvent;
 import org.json.JSONException;

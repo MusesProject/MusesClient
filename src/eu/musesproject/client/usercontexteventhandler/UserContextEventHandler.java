@@ -55,6 +55,14 @@ public class UserContextEventHandler {
         serverDetailedStatus = Statuses.OFFLINE;
 	}
 	
+	/**
+	 * Method to get the current server status (online, offline)
+	 * @return int. {@link Statuses} online: 1; offline:0
+	 */
+	public int getServerStatus() {
+		return serverStatus;
+	}
+
 	public static UserContextEventHandler getInstance() {
 		if (userContextEventHandler == null) {
 			userContextEventHandler = new UserContextEventHandler();
