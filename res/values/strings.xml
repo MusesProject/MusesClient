@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Muses User Interface</string>
+
+    <string name="login_list_button_txt">L o g i n</string>
+    <string name="security_info_button_txt">My Security Policies</string>
+    <string name="security_points_button_txt">Security Points</string>
     <string name="action_settings">Settings</string>
+
+  	<!--  Login view strings -->  
     <string name="username_txt">User ID:</string>
     <string name="password_txt">Password:</string>
     <string name="login_button_txt">Login</string>
-    <string name="login_list_button_txt">L o g i n</string>
     <string name="logout_button_txt">Logout</string>
-    <string name="security_info_button_txt">My Security Policies</string>
-    <string name="security_points_button_txt">Security Points</string>
     <string name="privacy_policy_view_txt">Privacy Policy</string>
     <string name="policy_info_button_txt">MUSES policy information</string>
     <string name="settings_button_txt">Settings</string>
@@ -22,7 +24,16 @@
     <string name="make_sure_privacy_policy_read_txt">Make sure you have read and understood the privacy policy before logging in.</string>
     <string name="terms_and_condition_description_text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
     <string name="test_string">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
-
+	
+	<!-- Feedback dialog strings -->
+	<string name="feedback_title_txt">Muses Policy Warning</string>
+	<string name="details_btn_txt">Details</string>
+	<string name="cancel_btn_txt">Cancel</string>
+	<string name="resolve_auto_btn_txt">Resolve conflicts automatically</string>
+	<string name="feedback_txt_1">You just want to </string>
+	<string name="feedback_txt_2">\n PERSUASIVE STRATEGIES: </string>
+				
+    
     <!-- Toast msgs -->
     <string name="login_success_msg">Login Successful..</string>
     <string name="login_fail_msg">Login Falied..</string>
