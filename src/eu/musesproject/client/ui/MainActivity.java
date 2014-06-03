@@ -32,6 +32,7 @@ import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
+import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 /**
  * MainActivity class handles List buttons on the main GUI

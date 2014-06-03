@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import eu.musesproject.client.R;
+import eu.musesproject.client.connectionmanager.Statuses;
+import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 public class FeedbackActivity extends Activity implements View.OnClickListener {
 	private static final String TAG = FeedbackActivity.class.getSimpleName();
@@ -60,8 +62,9 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			resolveConflictAutoBtn.setVisibility(View.GONE);
 			
 			// show current status
-			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1), 
-															 getResources().getString(R.string.current_com_status_2)));
+			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
+															 (UserContextEventHandler.serverStatus == Statuses.ONLINE) ? 
+															 getResources().getString(R.string.current_com_status_2): getResources().getString(R.string.current_com_status_3) ));
 			break;
 		case MusesUICallbacksHandler.ACTION_RESPONSE_MAY_BE:
 			Log.v(TAG, "acion maybe in feedback shown..");
@@ -73,8 +76,9 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			resolveConflictAutoBtn.setVisibility(View.GONE);
 			okBtn.setText(getResources().getString(R.string.what_can_i_do_btn_txt));
 			// show current status
-			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1), 
-															 getResources().getString(R.string.current_com_status_2)));
+			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
+															 (UserContextEventHandler.serverStatus == Statuses.ONLINE) ? 
+															 getResources().getString(R.string.current_com_status_2): getResources().getString(R.string.current_com_status_3) ));
 			
 			break;
 		case MusesUICallbacksHandler.ACTION_RESPONSE_UP_TO_USER:
@@ -87,8 +91,9 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			okBtn.setText(getResources().getString(R.string.continue_btn_txt));
 			
 			// show current status
-			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1), 
-															 getResources().getString(R.string.current_com_status_2)));
+			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
+															 (UserContextEventHandler.serverStatus == Statuses.ONLINE) ? 
+															 getResources().getString(R.string.current_com_status_2): getResources().getString(R.string.current_com_status_3) ));
 			
 			break;
 
