@@ -135,8 +135,13 @@ public class UserContextEventHandler {
         deviceId = dbManager.getDevId();
         dbManager.closeDB();
         
-        JSONObject requestObject = JSONManager.createLoginJSON(userName, password, deviceId);
-        sendRequestToServer(requestObject);
+        if(serverStatus == Statuses.ONLINE) {
+        	JSONObject requestObject = JSONManager.createLoginJSON(userName, password, deviceId);
+        	sendRequestToServer(requestObject);
+        }
+        else {
+        	ActuatorController.getInstance().sendLoginResponse(false);
+        }
 	}
 
     /**
