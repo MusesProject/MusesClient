@@ -172,31 +172,33 @@ public class UserContextEventHandler {
      */
     public void sendOfflineStoredContextEventsToServer() {
         Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
-        // load context events from the database
-        DBManager dbManager = new DBManager(context);
-        dbManager.openDB();
-
-        List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
-        // get all db entity ContextEvents and Properties from the related tables and
-        // transform those tables to proper objects
-        for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent : dbManager.getAllStoredContextEvents()) {
-            ContextEvent contextEvent = new ContextEvent();
-            contextEvent.setType(dbContextEvent.getType());
-            contextEvent.setTimestamp(Long.valueOf(dbContextEvent.getTimestamp()));
-
-            List<Property> properties = dbManager.getAllProperties(/*ID as param*/);
-            for(Property property: properties) {
-                contextEvent.addProperty(property.getKey(), property.getValue());
-            }
-
-            contextEvents.add(contextEvent);
+        if(isUserAuthenticated) {
+        	// load context events from the database
+        	DBManager dbManager = new DBManager(context);
+        	dbManager.openDB();
+        	
+        	List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
+        	// get all db entity ContextEvents and Properties from the related tables and
+        	// transform those tables to proper objects
+        	for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent : dbManager.getAllStoredContextEvents()) {
+        		ContextEvent contextEvent = new ContextEvent();
+        		contextEvent.setType(dbContextEvent.getType());
+        		contextEvent.setTimestamp(Long.valueOf(dbContextEvent.getTimestamp()));
+        		
+        		List<Property> properties = dbManager.getAllProperties(/*ID as param*/);
+        		for(Property property: properties) {
+        			contextEvent.addProperty(property.getKey(), property.getValue());
+        		}
+        		
+        		contextEvents.add(contextEvent);
+        	}
+        	dbManager.closeDB();
+        	
+        	// transform to JSON
+        	JSONObject requestObject = JSONManager.createJSON(RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
+        	// send to server
+        	sendRequestToServer(requestObject);
         }
-        dbManager.closeDB();
-
-        // transform to JSON
-        JSONObject requestObject = JSONManager.createJSON(RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
-        // send to server
-        sendRequestToServer(requestObject);
     }
 
     /**
@@ -251,6 +253,7 @@ public class UserContextEventHandler {
                 	isUserAuthenticated = JSONManager.getAuthResult(receiveData);
                 	if(isUserAuthenticated) {
                 		serverStatus = Statuses.ONLINE;
+                		sendOfflineStoredContextEventsToServer();
                 	}
             		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
                 }
