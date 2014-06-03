@@ -45,6 +45,7 @@ public class UserContextEventHandler {
     private IConnectionCallbacks connectionCallback;
 	private int serverStatus;
 	private int serverDetailedStatus;
+	private boolean isUserAuthenticated;
 
 	private UserContextEventHandler() {
         connectionManager = new ConnectionManager();
@@ -52,6 +53,7 @@ public class UserContextEventHandler {
 
         serverStatus = Statuses.OFFLINE;
         serverDetailedStatus = Statuses.OFFLINE;
+        isUserAuthenticated = false;
 	}
 	
 	/**
@@ -125,7 +127,16 @@ public class UserContextEventHandler {
 	
 	public void login(String userName, String password) {
         Log.d(TAG, "called: login(String userName, String password)");
-		ActuatorController.getInstance().sendLoginResponse(true);
+        String deviceId = "";
+        
+        DBManager dbManager = new DBManager(context);
+        dbManager.openDB();
+        dbManager.insertCredentials();
+        deviceId = dbManager.getDevId();
+        dbManager.closeDB();
+        
+        JSONObject requestObject = JSONManager.createLoginJSON(userName, password, deviceId);
+        sendRequestToServer(requestObject);
 	}
 
     /**
@@ -230,6 +241,13 @@ public class UserContextEventHandler {
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
                     RemotePolicyReceiver.getInstance().updateJSONPolicy(receiveData, context);
+                }
+                else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
+                	isUserAuthenticated = JSONManager.getAuthResult(receiveData);
+                	if(isUserAuthenticated) {
+                		serverStatus = Statuses.ONLINE;
+                	}
+            		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
                 }
             }
 			return 0;

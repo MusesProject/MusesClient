@@ -1,8 +1,10 @@
 package eu.musesproject.client.usercontexteventhandler;
 
 import eu.musesproject.client.model.JSONIdentifiers;
+import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.contextmodel.ContextEvent;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -110,6 +112,48 @@ public class JSONManager {
 		
 		return sensorJSONObject;
 	}
+	
+	/**
+	 * Method to create a login request to the server
+	 * @param userName login user name credential
+	 * @param password login user password credential
+	 * @param deviceId deviceId (IMEI)
+	 * @return {@link JSONObject}
+	 */
+	public static JSONObject createLoginJSON(String userName, String password,
+			String deviceId) {
+		JSONObject loginJSONObject = new JSONObject();
+		try {
+			loginJSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.LOGIN);
+			loginJSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
+			loginJSONObject.put(JSONIdentifiers.AUTH_PASSWORD, password);
+			loginJSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return loginJSONObject;
+	}
+
+    /**
+     * Method to get true or false, whether the login was successful
+     * @return boolean. login successful
+     */
+    public static boolean getAuthResult(String jsonString) {
+    	boolean isLoginSuccessful = false;
+
+        try {
+            JSONObject requestJSON = new JSONObject(jsonString);
+            String authResult = requestJSON.getString(JSONIdentifiers.AUTH_RESULT);
+            if(authResult.equalsIgnoreCase("SUCCESS")) {
+            	isLoginSuccessful = true;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        
+		return isLoginSuccessful;
+    }
 
     /**
      * Method to get a String that contains the {@link eu.musesproject.client.model.RequestType} from the server
