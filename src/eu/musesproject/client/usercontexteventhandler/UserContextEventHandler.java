@@ -43,7 +43,7 @@ public class UserContextEventHandler {
     // connection fields
     private ConnectionManager connectionManager;
     private IConnectionCallbacks connectionCallback;
-	private int serverStatus;
+	public static int serverStatus;
 	private int serverDetailedStatus;
 	private boolean isUserAuthenticated;
 
@@ -63,7 +63,7 @@ public class UserContextEventHandler {
 	public int getServerStatus() {
 		return serverStatus;
 	}
-
+	
 	public static UserContextEventHandler getInstance() {
 		if (userContextEventHandler == null) {
 			userContextEventHandler = new UserContextEventHandler();
