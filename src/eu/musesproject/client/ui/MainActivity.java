@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -45,6 +46,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String DECISION_OK = "ok";
 	public static final String DECISION_CANCEL = "cancel";
 	public static final String DECISION_KEY = "decision";
+	private static final String USERNAME = "username";
+	private static final String PASSWORD = "password";
+	private static final String PREFERENCES_KEY = "eu.musesproject.client";
 	private static String TAG = MainActivity.class.getSimpleName();
 	private LinearLayout topLayout;
 	private Button loginListBtn, securityInformationListbtn;
@@ -52,7 +56,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private LoginView loginView;
 	private UserContextMonitoringController userContextMonitoringController;
 	public static boolean isLoggedIn = false;
-
+	private SharedPreferences prefs;
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,7 +73,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		userContextMonitoringController = UserContextMonitoringController
 				.getInstance(context);
 		
-			registerCallbacks();
+		registerCallbacks();
+		prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+				Context.MODE_PRIVATE);
 		
 		if (!sendDecisionIfComingFromShowFeedbackDialog(super.getIntent().getExtras())) {
 			// starts the background service of MUSES
@@ -76,7 +83,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			Log.v(TAG, "muses service started ...");
 		}
 		
+		loginView = new LoginView(context);
+		topLayout.addView(loginView);
+		
 	}
+	
+	
 	
 	private boolean sendDecisionIfComingFromShowFeedbackDialog(Bundle bundle) {
 		if(bundle!= null){
@@ -114,13 +126,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.login_list_button:
-			topLayout.removeAllViews();
-			loginView = new LoginView(context);
 			topLayout.addView(loginView);
 			break;
 		case R.id.security_info_list_button:
 			if (isLoggedIn) {
-				topLayout.removeAllViews();
+				//topLayout.removeAllViews();
 			}
 			break;
 		}
@@ -196,7 +206,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	private void showResultDialog(String message, int type) {
 		Intent showFeedbackIntent = new Intent(
-				getApplicationContext(), DialogActivity.class);
+				getApplicationContext(), FeedbackActivity.class);
 		showFeedbackIntent.putExtra("message", message);
 		showFeedbackIntent.putExtra("type", type);
 		showFeedbackIntent
@@ -204,11 +214,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 						| Intent.FLAG_ACTIVITY_CLEAR_TOP
 						| Intent.FLAG_ACTIVITY_NEW_TASK);
 		
-		Bundle extras = new Bundle();//restartMainActivityIntent.getExtras();
+		Bundle extras = new Bundle();
 		extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_OK);
 		showFeedbackIntent.putExtras(extras);
 		startActivity(showFeedbackIntent);
-//		startActivityForResult(showFeedbackIntent, REQUEST_USER_DECISION);
 	}
 
 	@Override
@@ -280,11 +289,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 */
 
 	private boolean checkLoginInputFields(String userName, String password) {
-		if (userName.equals("") || password.equals("")) { // FIXME need some new
-															// checking in
-															// future
-			return false;
-		}
+		if (userName != null || password != null) { 
+			if (userName.equals("") || password.equals("") )
+				return false;								// FIXME need some new checking in future
+		} else return false;
 		return true;
 	}
 
@@ -305,12 +313,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		private TextView loginDetailTextView;
 		private CheckBox rememberCheckBox, agreeTermsCheckBox;
 		private String userName, password;
-
+		boolean isPrivacyPolicyAgreementChecked = false;
+		
 		public LoginView(Context context) {
 			super(context);
 			inflate(context, R.layout.login_view, this);
 			userNameTxt = (EditText) findViewById(R.id.username_text);
 			passwordTxt = (EditText) findViewById(R.id.pass_text);
+			
+			userName = userNameTxt.getText().toString();
+			password = passwordTxt.getText().toString();
+			
 			loginDetailTextView = (TextView) findViewById(R.id.login_detail_text_view);
 			rememberCheckBox = (CheckBox) findViewById(R.id.remember_checkbox);
 			rememberCheckBox.setOnCheckedChangeListener(this);
@@ -322,6 +335,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginBtn.setOnClickListener(this);
 			logoutBtn = (Button) findViewById(R.id.logout_button);
 			logoutBtn.setOnClickListener(this);
+			setUsernamePasswordIfSaved();
 			populateLoggedInView();
 		}
 
@@ -339,7 +353,29 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		@Override
 		public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
-
+			switch (arg0.getId()) {
+			case R.id.remember_checkbox:
+				userName = userNameTxt.getText().toString();
+				password = passwordTxt.getText().toString();
+				SharedPreferences.Editor prefEditor = prefs.edit();	
+				if (isChecked){
+					if (checkLoginInputFields(userName, password)){
+						prefEditor.putString(USERNAME, userName);
+						prefEditor.putString(PASSWORD, password);
+						prefEditor.commit();
+						rememberCheckBox.setEnabled(true);
+					}
+				} else { 
+					prefEditor.clear();prefEditor.commit();
+					rememberCheckBox.setEnabled(false);
+				}
+				break;
+			case R.id.agree_terms_checkbox:
+				if (isChecked){
+					isPrivacyPolicyAgreementChecked = true;
+				} else isPrivacyPolicyAgreementChecked = false;
+				break;
+			}
 		}
 
 		/**
@@ -354,9 +390,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void onClick(View v) {
 			switch (v.getId()) {
 			case R.id.login_button:
-				userName = userNameTxt.getText().toString();
-				password = passwordTxt.getText().toString();
-				doLogin(userName, password);
+				if (isPrivacyPolicyAgreementChecked){
+					doLogin(userName, password);
+				} else toastMessage(getResources().getString(R.string.make_sure_privacy_policy_read_txt));
 				break;
 			case R.id.logout_button:
 				logoutBtn.setVisibility(View.GONE);
@@ -366,6 +402,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				toastMessage(getResources().getString(
 						R.string.logout_successfully_msg));
 				isLoggedIn = false;
+				setUsernamePasswordIfSaved();
 				break;
 			}
 
@@ -376,8 +413,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			logoutBtn.setVisibility(View.VISIBLE);
 			loginDetailTextView.setText(String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userName));
+			setUsernamePasswordIfSaved();
 		}
 
+		
+		public void setUsernamePasswordIfSaved(){
+			if (prefs.contains(USERNAME)) {
+				userName = prefs.getString(USERNAME, "");
+				password = prefs.getString(PASSWORD, "");
+				userNameTxt.setText(userName);
+				passwordTxt.setText(password);
+			} else {
+				Log.d(TAG, "No username-pass found in preferences");
+			}
+		}
+		
+		
+		
 	}
 
 	/**

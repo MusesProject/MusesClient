@@ -135,8 +135,8 @@
                     android:id="@+id/remember_checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:focusable="false"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:text="@string/remember_my_login_txt" 
                     android:textColor="#000000"/>
             </LinearLayout>
@@ -183,8 +183,8 @@
                     android:id="@+id/agree_terms_checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:focusable="false"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:text="@string/agree_term_condition_txt"
                     android:textColor="#000000" />
             </LinearLayout>
