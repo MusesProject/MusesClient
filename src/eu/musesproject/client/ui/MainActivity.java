@@ -84,8 +84,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 		
 		loginView = new LoginView(context);
+		topLayout.removeAllViews();
 		topLayout.addView(loginView);
-		
 	}
 	
 	
@@ -126,6 +126,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.login_list_button:
+			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			break;
 		case R.id.security_info_list_button:
@@ -151,8 +152,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
-				LoginView view = new LoginView(context);
-				view.updateLoginView();
+				loginView.updateLoginView();
 				isLoggedIn = true;
 				toastMessage(getResources().getString(
 						R.string.login_success_msg));
@@ -274,6 +274,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public void doLogin(String userName, String password) {
 		if (checkLoginInputFields(userName, password)) {
 			userContextMonitoringController.login(userName, password);
+			loginView.setUsernamePasswordIfSaved();
 		} else {
 			toastMessage(getResources().getString(
 					R.string.empty_login_fields_msg));
@@ -363,11 +364,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 						prefEditor.putString(USERNAME, userName);
 						prefEditor.putString(PASSWORD, password);
 						prefEditor.commit();
-						rememberCheckBox.setEnabled(true);
 					}
 				} else { 
 					prefEditor.clear();prefEditor.commit();
-					rememberCheckBox.setEnabled(false);
 				}
 				break;
 			case R.id.agree_terms_checkbox:
@@ -391,6 +390,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			switch (v.getId()) {
 			case R.id.login_button:
 				if (isPrivacyPolicyAgreementChecked){
+					userName = userNameTxt.getText().toString();
+					password = passwordTxt.getText().toString();
 					doLogin(userName, password);
 				} else toastMessage(getResources().getString(R.string.make_sure_privacy_policy_read_txt));
 				break;

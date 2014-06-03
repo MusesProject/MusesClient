@@ -231,7 +231,7 @@ public class HttpResponseHandler {
 		for (Header responseHedar : dataReceived){
 			if (responseHedar.getName().equals("data")){
 				receivedHttpResponseData = responseHedar.getValue();
-				Log.e(TAG, "Server responded with JSON");
+				Log.v(TAG, "Server responded with JSON " + receivedHttpResponseData);
 				break;
 			}
 			
