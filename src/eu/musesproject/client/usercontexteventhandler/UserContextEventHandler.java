@@ -108,18 +108,18 @@ public class UserContextEventHandler {
             ActuatorController.getInstance().showFeedback(decision);
         }
         else { // if there is no local decision, send a request to the server
-            if(serverStatus != Statuses.OFFLINE) { // if the server is online, request a decision
+            if(serverStatus == Statuses.ONLINE && isUserAuthenticated) { // if the server is online, request a decision
                 onlineDecisionRequested = true;
                 JSONObject requestObject = JSONManager.createJSON(RequestType.ONLINE_DECISION, action, properties, contextEvents);
                 sendRequestToServer(requestObject);
             }
-            else if(serverStatus == Statuses.OFFLINE) { // save request to the database
+            else if(serverStatus == Statuses.OFFLINE || !isUserAuthenticated) { // save request to the database
                 storeContextEvent(action, properties, contextEvents);
             }
         }
         // update context events even if a local decision was found.
         // Prevent sending context events again if they are already sent for a online decision
-        if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE)) {
+        if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE) && isUserAuthenticated) {
             JSONObject requestObject = JSONManager.createJSON(RequestType.LOCAL_DECISION, action, properties, contextEvents);
             sendRequestToServer(requestObject);
         }
