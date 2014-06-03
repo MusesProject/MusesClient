@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -30,7 +29,6 @@ import eu.musesproject.contextmodel.ContextEvent;
  * the device
  */
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class ConnectivitySensor implements ISensor {
     private static final String TAG = ConnectivitySensor.class.getSimpleName();
 
@@ -133,7 +131,8 @@ public class ConnectivitySensor implements ISensor {
     /**
      * Observes the smartphone's connectivity status. Creates a context event whenever a the connectivity status changes.
      */
-    public class ConnectivityObserver extends AsyncTask<Void, Void, Void> {
+    @SuppressLint("NewApi")
+	public class ConnectivityObserver extends AsyncTask<Void, Void, Void> {
         @SuppressLint("InlinedApi")
         @Override
         protected Void doInBackground(Void... params) {
@@ -186,8 +185,14 @@ public class ConnectivitySensor implements ISensor {
                 contextEvent.addProperty(PROPERTY_KEY_BLUETOOTH_CONNECTED,String.valueOf(bluetoothState));
 
                 // Airplane mode
-                boolean airplaneMode = Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
-
+                boolean airplaneMode = false;
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                	airplaneMode = Settings.System.getInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+                }
+                else {
+                	airplaneMode = Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+                }
+                
                 contextEvent.addProperty(PROPERTY_KEY_AIRPLANE_MODE, String.valueOf(airplaneMode));
 
                 // check if something has changed. If something changed fire a context event, do nothing otherwise.
