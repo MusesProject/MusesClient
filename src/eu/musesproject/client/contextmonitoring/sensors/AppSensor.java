@@ -74,7 +74,7 @@ public class AppSensor implements ISensor {
      * @param appName name of the currently active application
      */
     private void createContextEvent(String appName, List<RunningServiceInfo> runningServices) {
-        Log.d(TAG, "APP - context event created: " +appName);
+        //Log.d(TAG, "APP - context event created: " +appName);
 
         // get the running services
         List<String> runningServicesNames = new ArrayList<String>();
@@ -97,16 +97,16 @@ public class AppSensor implements ISensor {
         }
 
         if(listener != null) {
-            Log.d(TAG, "called: listener.onEvent(contextEvent);");
+            //Log.d(TAG, "called: listener.onEvent(contextEvent);");
             listener.onEvent(contextEvent);
         }
     }
 
     @Override
     public void enable() {
-        Log.d(TAG, "app sensor enable");
+        //Log.d(TAG, "app sensor enable");
         if (!sensorEnabled) {
-            Log.d(TAG, "start app tracking");
+            //Log.d(TAG, "start app tracking");
             sensorEnabled = true;
             new AppObserver().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -115,7 +115,7 @@ public class AppSensor implements ISensor {
     @Override
     public void disable() {
         if(sensorEnabled) {
-            Log.d(TAG, "stop app tracking");
+            //Log.d(TAG, "stop app tracking");
             sensorEnabled = false;
         }
     }
@@ -152,7 +152,7 @@ public class AppSensor implements ISensor {
 
                     // if the foreground application changed, create a context event
                     if(!foregroundTaskAppName.equals(previousApp)) {
-                        Log.d(TAG, "previous: " +previousApp + " now: " +foregroundTaskAppName);
+                        //Log.d(TAG, "previous: " +previousApp + " now: " +foregroundTaskAppName);
                         createContextEvent(foregroundTaskAppName, runningServices);
                         previousApp = foregroundTaskAppName;
                     }
