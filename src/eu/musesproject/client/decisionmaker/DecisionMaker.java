@@ -5,6 +5,8 @@
 package eu.musesproject.client.decisionmaker;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import android.util.Log;
 import eu.musesproject.client.db.entity.DecisionTable;
@@ -93,7 +95,17 @@ public class DecisionMaker {
 		RiskTreatment riskTreatment = null;
 		RiskTreatment[] arrayTreatment = null;
 		
-		resultDecision.setName(decision.getName());
+		if (decision != null){
+			if (decision.getName() != null){
+				resultDecision.setName(decision.getName());
+			}else{
+				Logger.getLogger(TAG).log(Level.WARNING, "No decision is found. Hence, MUSES sets default decision");
+				resultDecision.setName(Decision.STRONG_DENY_ACCESS);//Default decision is deny
+			}
+		}else {
+			Logger.getLogger(TAG).log(Level.WARNING, "No decision is found. Hence, MUSES sets default decision");
+			resultDecision.setName(Decision.STRONG_DENY_ACCESS);//Default decision is deny
+		}
 		riskTreatment = new RiskTreatment(treatment.getTextualdescription());
 		arrayTreatment = new RiskTreatment[]{riskTreatment};
 		riskCommunication.setRiskTreatment(arrayTreatment);
