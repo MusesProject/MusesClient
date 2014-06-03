@@ -144,7 +144,7 @@ public class SensorController {
 
         @Override
         public void onEvent(ContextEvent contextEvent) {
-            Log.d(TAG, "onEvent(ContextEvent contextEvent)");
+            //Log.d(TAG, "onEvent(ContextEvent contextEvent)");
             /*
              * Workflow of creating an action and sending it to the server
              *
