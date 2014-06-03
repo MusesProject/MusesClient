@@ -129,8 +129,12 @@ public class SensorController {
 
         return contextEvents;
     }
+    
+    public Map<String, ISensor> getActiveSensors() {
+		return activeSensors;
+	}
 
-    /**
+	/**
      * Inner class that gets notified when a new {@link ContextEvent}
      * is fired by a {@link ISensor}
      *
