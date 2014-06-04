@@ -6,8 +6,11 @@
 
 package eu.musesproject.client.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,11 +31,11 @@ import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
+import eu.musesproject.client.connectionmanager.NetworkChecker;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
-import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 /**
  * MainActivity class handles List buttons on the main GUI
@@ -43,7 +46,6 @@ import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
-	private static final int REQUEST_USER_DECISION = 0;
 	public static final String DECISION_OK = "ok";
 	public static final String DECISION_CANCEL = "cancel";
 	public static final String DECISION_KEY = "decision";
@@ -59,6 +61,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static boolean isLoggedIn = false;
 	private SharedPreferences prefs;
 		
+	private static final int NOTIFICATION_EX = 1;
+	private NotificationManager notificationManager;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -87,10 +92,50 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		loginView = new LoginView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
+		setAppIconOnStatusBar();
 	}
 	
 	
 	
+	private void setAppIconOnStatusBar() {
+		Notification.Builder mBuilder =
+		        new Notification.Builder(this)
+		        .setSmallIcon(R.drawable.muses_logo)
+		        .setContentTitle("My notification")
+		        .setContentText("Hello World!");
+		// Creates an explicit intent for an Activity in your app
+		Intent resultIntent = new Intent(this, MainActivity.class);
+
+		// The stack builder object will contain an artificial back stack for the
+		// started Activity.
+		// This ensures that navigating backward from the Activity leads out of
+		// your application to the Home screen.
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		// Adds the back stack for the Intent (but not the Intent itself)
+		stackBuilder.addParentStack(MainActivity.class);
+		// Adds the Intent that starts the Activity to the top of the stack
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent =
+		        stackBuilder.getPendingIntent(
+		            0,
+		            PendingIntent.FLAG_UPDATE_CURRENT
+		        );
+		mBuilder.setContentIntent(resultPendingIntent);
+		NotificationManager mNotificationManager =
+		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		// mId allows you to update the notification later on.
+		mNotificationManager.notify(1, mBuilder.build());
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (isFinishing()){
+	        notificationManager.cancel(NOTIFICATION_EX);
+		}
+	}
+
+
 	private boolean sendDecisionIfComingFromShowFeedbackDialog(Bundle bundle) {
 		if(bundle!= null){
 			moveTaskToBack(true); // Forcing activity to go in background
@@ -143,7 +188,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		super.onResume();
 	}
 
-	@SuppressLint("HandlerLeak")
 	private Handler callbackHandler = new Handler() {
 
 		private String decisionName;
@@ -221,19 +265,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		startActivity(showFeedbackIntent);
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		
-	    if (requestCode == REQUEST_USER_DECISION) {
-	    	switch (resultCode) {
-			case RESULT_OK:
-				break;
-			case RESULT_CANCELED:
-				break;
-			}
-	    }
-	}
-	
 	/**
 	 * Send user's decision back to MusDM which will either allow MusesAwareApp
 	 * or not
@@ -393,7 +424,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				if (isPrivacyPolicyAgreementChecked){
 					userName = userNameTxt.getText().toString();
 					password = passwordTxt.getText().toString();
-					doLogin(userName, password);
+					if (NetworkChecker.isInternetConnected){
+							doLogin(userName, password);
+					} else toastMessage(getResources().getString(R.string.no_internet_connection_msg));
+				
 				} else toastMessage(getResources().getString(R.string.make_sure_privacy_policy_read_txt));
 				break;
 			case R.id.logout_button:

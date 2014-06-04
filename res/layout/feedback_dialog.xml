@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/feedback_txt"
         android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:text="@string/resolve_auto_btn_txt"
         android:textStyle="bold" />
 

@@ -82,12 +82,14 @@ public class NetworkChecker extends BroadcastReceiver{
 	    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 	    if( wifi.isAvailable() && wifi.isConnectedOrConnecting()){
 	    	isInternetConnected = true;
-	    	if (D) Log.d(TAG, "Device has Internet connection (Wi-Fi)");
-	    }  else if( mobile.isAvailable() && mobile.isConnectedOrConnecting() ){
-	    	isInternetConnected = true;
-	    	if (D) Log.d(TAG, "Device has Internet connection (3G)");
+	    	Log.d(TAG, "Device has Internet connection (Wi-Fi)");
+	    }  else if (mobile != null) {
+	    	if( mobile.isAvailable() && mobile.isConnectedOrConnecting() ){
+	    		isInternetConnected = true;
+	    		Log.d(TAG, "Device has Internet connection (3G)");
+	    	} 
 	    } else {
-	    	if (D) Log.d(TAG, "Device has No Internet connection....");
+	    	Log.d(TAG, "Device has No Internet connection....");
 	    	isInternetConnected = false;
 	    }
 

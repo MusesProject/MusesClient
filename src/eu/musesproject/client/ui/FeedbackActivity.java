@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import eu.musesproject.client.R;
@@ -33,6 +34,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 
 		// Dialog
 		feedBackDialog = new Dialog(this);
+		feedBackDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		feedBackDialog.setContentView(R.layout.feedback_dialog);
 		
 		// Views
