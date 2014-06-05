@@ -85,19 +85,19 @@ public class DecisionMaker {
         dbManager.openDB();
         
         
-        //if ((request.getAction()!=null)&&(request.getResource()!=null)){
+        //if ((request.getAction()!=null)&&(request.getResource()!=null)){// TODO Use resource whenever it is available from sensors
         if (request.getAction()!=null){
-        	resourceInPolicy = dbManager.getResourceFromPath("null");
+        	resourceInPolicy = dbManager.getResourceFromPath("null");// TODO Use resource whenever it is available from sensors
         	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());
         	Log.d(TAG, "Resource in table:" + resourceInPolicy.getPath() + " Id:" +  resourceInPolicy.getId());
         	Log.d(TAG, "Action in table:" + actionInPolicy.getDescription() + " Id:" +  actionInPolicy.getId());
-        	//decisionTable = dbManager.getDecisionTableFromActionAndResource(String.valueOf(request.getAction().getId()), String.valueOf(request.getResource().getId()));
-        	decisionTable = dbManager.getDecisionTableFromActionAndResource(String.valueOf(actionInPolicy.getId()), String.valueOf(resourceInPolicy.getId()));
+        	decisionTable = dbManager.getDecisionTableFromResourceId(String.valueOf(resourceInPolicy.getId()),String.valueOf(actionInPolicy.getId()));
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
         }
         
         if (decisionTable != null){
         	decision = dbManager.getDecisionFromID(String.valueOf(decisionTable.getDecision_id()));
+        	//decision = dbManager.getDecisionFromID("1");
         	comm= dbManager.getRiskCommunicationFromID(String.valueOf(decisionTable.getRiskcommunication_id()));
         	if (comm != null){
         		treatment = dbManager.getRiskTreatmentFromID(String.valueOf(comm.getRisktreatment_id()));
@@ -123,6 +123,7 @@ public class DecisionMaker {
 		if (decision != null){
 			if (decision.getName() != null){
 				resultDecision.setName(decision.getName());
+				Logger.getLogger(TAG).log(Level.WARNING, "Policy Device Decision: " + decision.getName());
 			}else{
 				Logger.getLogger(TAG).log(Level.WARNING, "No decision is found. Hence, MUSES sets default decision");
 				resultDecision.setName(Decision.STRONG_DENY_ACCESS);//Default decision is deny
