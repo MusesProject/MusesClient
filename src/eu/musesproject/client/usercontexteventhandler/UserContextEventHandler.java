@@ -108,7 +108,7 @@ public class UserContextEventHandler {
 
         // check for a locally stored decision
         Resource resource = ResourceCreator.create(action, properties);
-        Request request = new Request(action, null);
+        Request request = new Request(action, resource);
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
 //        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
         if(decision != null) { // local decision found
