@@ -6,10 +6,12 @@ package eu.musesproject.client.decisionmaker;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import android.util.Log;
+import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.db.entity.Resource;
@@ -97,6 +99,51 @@ public class DecisionMaker {
         
         if (decisionTable != null){
         	decision = dbManager.getDecisionFromID(String.valueOf(decisionTable.getDecision_id()));
+        	
+        	String condition = decision.getCondition();
+        	if ((condition!=null)&&(!condition.equals(""))){
+        		if (decision.getName().equals("deny")){
+        			if (condition.contains("wifiencryption")){// TODO This should be managed by a ConditionHelper, to be implemented
+        				for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
+							ContextEvent contextEvent = (ContextEvent) iterator.next();
+							if (contextEvent.getType().equals(ConnectivitySensor.TYPE)){
+								if (contextEvent.getProperties()!=null){
+									Map<String,String> map = contextEvent.getProperties();
+									for(Map.Entry<String, String> entry : map.entrySet()){
+										if (entry.getKey().contains("wifiencryption")){
+											Logger.getLogger(TAG).log(Level.WARNING, "Condition with wifiencryption");
+											condition = condition.substring(("wifiencryption").length());
+											Logger.getLogger(TAG).log(Level.WARNING, "" + condition);
+											if (condition.startsWith("!=")){
+												String comparisonValue = condition.substring(2);
+												Log.d(TAG, "comparisonValue:"+comparisonValue);
+												if (!entry.getValue().equals(comparisonValue)){
+													//Deny
+													Logger.getLogger(TAG).log(Level.WARNING, "Condition satisfied: MUSES should deny");
+													resultDecision.setName(Decision.STRONG_DENY_ACCESS);
+													RiskTreatment [] riskTreatments = new RiskTreatment[1];//TODO Take this treatment from device policy
+													RiskTreatment riskTreatment = new RiskTreatment("Action not allowed. Please, change WIFI encryption to WPA2");
+													RiskCommunication riskCommunication = new RiskCommunication();
+													riskTreatments[0] = riskTreatment;	
+													riskCommunication.setRiskTreatment(riskTreatments);
+													resultDecision.setRiskCommunication(riskCommunication); 
+													return resultDecision;
+												}else{
+													//Allow
+													Logger.getLogger(TAG).log(Level.WARNING, "Condition not satisfied: "+comparisonValue+".MUSES should allow");
+													resultDecision.setName(Decision.GRANTED_ACCESS);
+													return resultDecision;
+												}
+											}
+										}
+									}
+									
+								}
+							}
+						}
+        			}
+        		}
+        	}
         	//decision = dbManager.getDecisionFromID("1");
         	comm= dbManager.getRiskCommunicationFromID(String.valueOf(decisionTable.getRiskcommunication_id()));
         	if (comm != null){
