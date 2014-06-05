@@ -28,11 +28,11 @@ public class UserActionGenerator {
      */
     public static Action createUserAction(ContextEvent contextEventTrigger, Map<String, ContextEvent> lastFiredContextEvents) {
         Action action = new Action();
-        if(contextEventTrigger.getType() == AppSensor.TYPE) {
+        if(contextEventTrigger.getType().equals(AppSensor.TYPE)) {
         	action.setTimestamp(System.currentTimeMillis());
         	action.setActionType(ActionType.OPEN_APPLICATION);
         }
-        else if(contextEventTrigger.getType() == FileSensor.TYPE) {
+        else if(contextEventTrigger.getType().equals(FileSensor.TYPE)) {
         	if(contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
             	action.setTimestamp(System.currentTimeMillis());
             	action.setActionType(ActionType.OPEN_APPLICATION);
@@ -44,12 +44,12 @@ public class UserActionGenerator {
 
 	public static Map<String, String> createUserActionProperties(ContextEvent contextEventTrigger) {
 		Map<String, String> properties = new HashMap<String, String>();
-        if(contextEventTrigger.getType() == AppSensor.TYPE) {
+        if(contextEventTrigger.getType().equals(AppSensor.TYPE)) {
         	properties.put("name", contextEventTrigger.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME));
         	properties.put("package", "");
         	properties.put("version", "");
         }
-        else if(contextEventTrigger.getType() == FileSensor.TYPE) {
+        else if(contextEventTrigger.getType().equals(FileSensor.TYPE)) {
         	if(contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
             	properties.put("resourceName", "");
             	properties.put("resourceType", "");

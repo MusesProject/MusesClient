@@ -17,14 +17,15 @@ import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
 import eu.musesproject.client.connectionmanager.Statuses;
-import eu.musesproject.client.contextmonitoring.UserActionGenerator;
 import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.handler.DBManager;
+import eu.musesproject.client.db.handler.ResourceCreator;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
+import eu.musesproject.client.model.decisiontable.Resource;
 import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -106,7 +107,8 @@ public class UserContextEventHandler {
         boolean onlineDecisionRequested = false;
 
         // check for a locally stored decision
-        Request request = new Request(action, null);
+        Resource resource = ResourceCreator.create(action, properties);
+        Request request = new Request(action, resource);
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
 //        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
         if(decision != null) { // local decision found
