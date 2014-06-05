@@ -84,10 +84,10 @@
 
             <EditText
                 android:id="@+id/username_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@null"
+                android:background="@drawable/edit_text_shape"
                 android:cursorVisible="false"
                 android:hint="@string/hint_txt_userid"
                 android:maxLines="8"
@@ -111,10 +111,10 @@
 
             <EditText
                 android:id="@+id/pass_text"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@null"
+                android:background="@drawable/edit_text_shape"
                 android:hint="@string/hint_txt_password"
                 android:scrollbars="vertical"
                 android:singleLine="false"

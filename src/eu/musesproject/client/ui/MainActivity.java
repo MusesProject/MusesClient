@@ -130,9 +130,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (isFinishing()){
-	        notificationManager.cancel(NOTIFICATION_EX);
-		}
 	}
 
 
