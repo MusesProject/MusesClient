@@ -87,9 +87,8 @@ public class DecisionMaker {
         dbManager.openDB();
         
         
-        //if ((request.getAction()!=null)&&(request.getResource()!=null)){// TODO Use resource whenever it is available from sensors
-        if (request.getAction()!=null){
-        	resourceInPolicy = dbManager.getResourceFromPath("null");// TODO Use resource whenever it is available from sensors
+        if ((request.getAction()!=null)&&(request.getResource()!=null)){// TODO Use resource whenever it is available from sensors
+        	resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getPath());
         	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());
         	Log.d(TAG, "Resource in table:" + resourceInPolicy.getPath() + " Id:" +  resourceInPolicy.getId());
         	Log.d(TAG, "Action in table:" + actionInPolicy.getDescription() + " Id:" +  actionInPolicy.getId());
@@ -101,7 +100,7 @@ public class DecisionMaker {
         	decision = dbManager.getDecisionFromID(String.valueOf(decisionTable.getDecision_id()));
         	
         	String condition = decision.getCondition();
-        	if ((condition!=null)&&(!condition.equals(""))){
+        	if ((condition!=null)&&(!condition.equals("any"))){
         		if (decision.getName().equals("deny")){
         			if (condition.contains("wifiencryption")){// TODO This should be managed by a ConditionHelper, to be implemented
         				for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {

@@ -160,7 +160,7 @@ public class DevicePolicyHelper {
 		DBManager dbManager = new DBManager(context);
 	    dbManager.openDB();
 		try {
-			if (actionJSON.toString().contains(JSONIdentifiers.POLICY_PROPERTY_ALLOW)){
+			if (actionJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_ALLOW+"\"")){
 				String allowAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_ALLOW);
 				JSONObject allowActionJSON = new JSONObject(allowAction);
 				String idResourceAllowed = allowActionJSON.getString("id");//TODO Include in JSONIdentifiers
@@ -238,7 +238,7 @@ public class DevicePolicyHelper {
 		DBManager dbManager = new DBManager(context);
 	    dbManager.openDB();
 		try {
-			if (actionJSON.toString().contains(JSONIdentifiers.POLICY_PROPERTY_ALLOW)){
+			if (actionJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_ALLOW+"\"")){
 				String allowAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_ALLOW);
 				JSONObject allowActionJSON = new JSONObject(allowAction);
 				String idResourceAllowed = allowActionJSON.getString("path");//TODO Include in JSONIdentifiers
