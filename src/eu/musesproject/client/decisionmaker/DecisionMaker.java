@@ -4,12 +4,15 @@
  */
 package eu.musesproject.client.decisionmaker;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import android.util.Log;
+import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.DecisionTable;
+import eu.musesproject.client.db.entity.Resource;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
@@ -61,14 +64,36 @@ public class DecisionMaker {
         eu.musesproject.client.db.entity.Decision decision = new eu.musesproject.client.db.entity.Decision();
         eu.musesproject.client.db.entity.RiskCommunication comm = new eu.musesproject.client.db.entity.RiskCommunication();
         eu.musesproject.client.db.entity.RiskTreatment treatment = new eu.musesproject.client.db.entity.RiskTreatment();
+        Resource resourceInPolicy = new Resource();
+        Action actionInPolicy = new Action();
         Decision resultDecision = new Decision();
         DecisionTable decisionTable = null;
+        
+        Log.d(TAG, "Action:"+request.getAction().getActionType());
+        Log.d(TAG, "Action:"+request.getAction().getDescription());
+        Log.d(TAG, "Action:"+request.getAction().getId());
+        Log.d(TAG, "Action:"+request.getAction().getTimestamp());
+        
+        for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
+			ContextEvent contextEvent = (ContextEvent) iterator.next();
+			Log.d(TAG, "Event list:"+contextEvent.getType());
+		}
+        
+        Log.d(TAG, "Resource:"+request.getResource());
         
         DBManager dbManager = new DBManager(UserContextEventHandler.getInstance().getContext());
         dbManager.openDB();
         
-        if ((request.getAction()!=null)&&(request.getResource()!=null)){
-        	decisionTable = dbManager.getDecisionTableFromActionAndResource(String.valueOf(request.getAction().getId()), String.valueOf(request.getResource().getId()));	
+        
+        //if ((request.getAction()!=null)&&(request.getResource()!=null)){
+        if (request.getAction()!=null){
+        	resourceInPolicy = dbManager.getResourceFromPath("null");
+        	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());
+        	Log.d(TAG, "Resource in table:" + resourceInPolicy.getPath() + " Id:" +  resourceInPolicy.getId());
+        	Log.d(TAG, "Action in table:" + actionInPolicy.getDescription() + " Id:" +  actionInPolicy.getId());
+        	//decisionTable = dbManager.getDecisionTableFromActionAndResource(String.valueOf(request.getAction().getId()), String.valueOf(request.getResource().getId()));
+        	decisionTable = dbManager.getDecisionTableFromActionAndResource(String.valueOf(actionInPolicy.getId()), String.valueOf(resourceInPolicy.getId()));
+        	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
         }
         
         if (decisionTable != null){

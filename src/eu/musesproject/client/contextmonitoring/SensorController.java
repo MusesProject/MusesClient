@@ -15,6 +15,7 @@ import eu.musesproject.client.contextmonitoring.sensors.OSSensor;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.actuators.Setting.SettingType;
+import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -157,11 +158,13 @@ public class SensorController {
              */
 
             Action userAction = null;
+            Map<String, String> properties = null;
             // 1. if lastFiredContextEvents.size() is 0 than it is the initial context event and no further processing
             // have to be done
             if(lastFiredContextEvents.size() > 0) {
                 // 2. create an user action
                 userAction = UserActionGenerator.createUserAction(contextEvent, lastFiredContextEvents);
+                properties = UserActionGenerator.createUserActionProperties(contextEvent);
             }
 
             // 3. update Map with the new context event
@@ -171,8 +174,8 @@ public class SensorController {
             lastFiredContextEvents.put(contextEvent.getType(), contextEvent);
 
             // 4. send action to the UserContextMonitoringController
-            if(userAction != null) {
-                //UserContextMonitoringController.getInstance(context).sendUserAction(userAction, null);
+            if(userAction != null && properties!= null) {
+                UserContextMonitoringController.getInstance(context).sendUserAction(UISource.INTERNAL, userAction, properties);
             }
         }
     }

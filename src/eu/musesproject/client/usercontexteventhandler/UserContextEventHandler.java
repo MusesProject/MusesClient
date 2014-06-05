@@ -17,6 +17,7 @@ import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
 import eu.musesproject.client.connectionmanager.Statuses;
+import eu.musesproject.client.contextmonitoring.UserActionGenerator;
 import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
@@ -37,16 +38,18 @@ public class UserContextEventHandler {
 
     private static UserContextEventHandler userContextEventHandler = null;
 //	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
-	private static final String MUSES_SERVER_URL = "http://192.168.44.104:8080/server/commain";
+	//private static final String MUSES_SERVER_URL = "http://192.168.44.104:8080/server/commain";
+    private static final String MUSES_SERVER_URL = "http://172.17.3.5:8080/server-0.0.1-SNAPSHOT/commain";
 	
 	private Context context;
 
     // connection fields
     private ConnectionManager connectionManager;
     private IConnectionCallbacks connectionCallback;
-	public static int serverStatus;
+	public int serverStatus;
 	private int serverDetailedStatus;
 	private boolean isUserAuthenticated;
+	public static boolean serverOnlineAndUserAuthenticated;
 
 	private UserContextEventHandler() {
         connectionManager = new ConnectionManager();
@@ -55,6 +58,7 @@ public class UserContextEventHandler {
         serverStatus = Statuses.OFFLINE;
         serverDetailedStatus = Statuses.OFFLINE;
         isUserAuthenticated = false;
+        serverOnlineAndUserAuthenticated = false;
 	}
 	
 	/**
@@ -103,8 +107,8 @@ public class UserContextEventHandler {
 
         // check for a locally stored decision
         Request request = new Request(action, null);
-//        Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
-        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
+        Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
+//        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
         if(decision != null) { // local decision found
             ActuatorController.getInstance().showFeedback(decision);
         }
@@ -214,6 +218,7 @@ public class UserContextEventHandler {
         if (requestJSON != null) {
             if(serverStatus == Statuses.ONLINE) {
                 String sendData  = requestJSON.toString();
+                Log.d(TAG, "sendData:"+sendData);//Demo Debug
                 connectionManager.sendData(sendData);
             }
         }
@@ -229,6 +234,21 @@ public class UserContextEventHandler {
 	
 	public Context getContext(){
 		return this.context;
+	}
+	
+
+
+	public static boolean isServerOnlineAndUserAuthenticated() {
+		return serverOnlineAndUserAuthenticated;
+	}
+
+	public void updateServerOnlineAndUserAuthenticated() {
+		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
+			serverOnlineAndUserAuthenticated = true;
+		}
+		else {
+			serverOnlineAndUserAuthenticated= false;
+		}
 	}
 	
 	private class ConnectionCallback implements IConnectionCallbacks {
@@ -255,6 +275,7 @@ public class UserContextEventHandler {
                 	if(isUserAuthenticated) {
                 		serverStatus = Statuses.ONLINE;
                 		sendOfflineStoredContextEventsToServer();
+                		updateServerOnlineAndUserAuthenticated();
                 	}
             		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
                 }
@@ -269,11 +290,15 @@ public class UserContextEventHandler {
             if(status == Statuses.ONLINE ) {
                 if(serverStatus == Statuses.OFFLINE) {
                     sendOfflineStoredContextEventsToServer();
+                    isUserAuthenticated = false;
+                    updateServerOnlineAndUserAuthenticated();
                 }
                 serverStatus = status;
+                updateServerOnlineAndUserAuthenticated();
             }
             else if(status == Statuses.OFFLINE) {
 			    serverStatus = status;
+			    updateServerOnlineAndUserAuthenticated();
             }
 			serverDetailedStatus = detailedStatus;
 			return 0;

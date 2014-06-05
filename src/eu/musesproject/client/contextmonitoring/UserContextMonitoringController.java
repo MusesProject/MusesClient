@@ -79,8 +79,11 @@ public class UserContextMonitoringController implements
             new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
 
         }
-        else if(src == UISource.MUSES_AWARE_APP_UI){
+        else if(src == UISource.MUSES_AWARE_APP_UI) {
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
+        }
+        else if(src == UISource.INTERNAL) {
+        	uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
     }
 

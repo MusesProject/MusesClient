@@ -1,10 +1,13 @@
 package eu.musesproject.client.contextmonitoring;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
+import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
-
-import java.util.Map;
 
 /**
  * Created by christophstanik on 4/14/14.
@@ -25,12 +28,36 @@ public class UserActionGenerator {
      */
     public static Action createUserAction(ContextEvent contextEventTrigger, Map<String, ContextEvent> lastFiredContextEvents) {
         Action action = new Action();
-        // dummy action
-        action.setTimestamp(System.currentTimeMillis());
-        action.setActionType(ActionType.ACCESS);
+        if(contextEventTrigger.getType() == AppSensor.TYPE) {
+        	action.setTimestamp(System.currentTimeMillis());
+        	action.setActionType(ActionType.OPEN_APPLICATION);
+        }
+        else if(contextEventTrigger.getType() == FileSensor.TYPE) {
+        	if(contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
+            	action.setTimestamp(System.currentTimeMillis());
+            	action.setActionType(ActionType.OPEN_APPLICATION);
+        	}
+        }
 
         return action;
     }
+
+	public static Map<String, String> createUserActionProperties(ContextEvent contextEventTrigger) {
+		Map<String, String> properties = new HashMap<String, String>();
+        if(contextEventTrigger.getType() == AppSensor.TYPE) {
+        	properties.put("name", contextEventTrigger.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME));
+        	properties.put("package", "");
+        	properties.put("version", "");
+        }
+        else if(contextEventTrigger.getType() == FileSensor.TYPE) {
+        	if(contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
+            	properties.put("resourceName", "");
+            	properties.put("resourceType", "");
+            	properties.put("resourcePath", contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_PATH));
+        	}
+        }
+		return properties;
+	}
 
     /**
      * Method to transform a {@link eu.musesproject.client.contextmonitoring.service.aidl.Action} from a MUSES

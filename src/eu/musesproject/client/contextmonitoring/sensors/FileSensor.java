@@ -27,17 +27,17 @@ public class FileSensor implements ISensor {
     public static final String PROPERTY_KEY_PATH 		= "path";
 
     // possible events
-    private static final String OPEN  	 	 = "open";
-    private static final String ATTRIB 	 	 = "metadata";
-    private static final String ACCESS 		 = "access";
-    private static final String CREATE 		 = "create";
-    private static final String DELETE 		 = "delete";
-    private static final String MODIFY 		 = "modify";
-    private static final String MOVED_FROM 	 = "moved_from";
-    private static final String MOVED_TO 	 = "moved_to";
-    private static final String MOVE_SELF 	 = "move_self";
-    private static final String CLOSE_WRITE  = "close_write";
-    private static final String CLOSE_NOWRITE= "close_no_write";
+    public static final String OPEN  	 	 = "open";
+    public static final String ATTRIB 	 	 = "metadata";
+    public static final String ACCESS 		 = "access";
+    public static final String CREATE 		 = "create";
+    public static final String DELETE 		 = "delete";
+    public static final String MODIFY 		 = "modify";
+    public static final String MOVED_FROM 	 = "moved_from";
+    public static final String MOVED_TO 	 = "moved_to";
+    public static final String MOVE_SELF 	 = "move_self";
+    public static final String CLOSE_WRITE   = "close_write";
+    public static final String CLOSE_NOWRITE = "close_no_write";
 
     private FileObserver fileObserver;
     private String fullPath;
