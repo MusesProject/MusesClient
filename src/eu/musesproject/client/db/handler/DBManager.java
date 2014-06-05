@@ -331,13 +331,13 @@ public class DBManager {
     		cursor.moveToFirst();
     		while (!cursor.isAfterLast()){
     			// Now create the decision table object from the cursor
-        		Log.e(TAG, "id" + cursor.getString(0));
-        		Log.e(TAG, "action_id" + cursor.getString(1));
-        		Log.e(TAG, "resource_id" + cursor.getString(2));
-        		Log.e(TAG, "decision_id" + cursor.getString(3));
-        		Log.e(TAG, "subject_id" + cursor.getString(4));
-        		Log.e(TAG, "riskcommunication_id" + cursor.getString(5));
-        		Log.e(TAG, "modification" + cursor.getString(6));
+        		Log.d(TAG, "id" + cursor.getString(0));
+        		Log.d(TAG, "action_id" + cursor.getString(1));
+        		Log.d(TAG, "resource_id" + cursor.getString(2));
+        		Log.d(TAG, "decision_id" + cursor.getString(3));
+        		Log.d(TAG, "subject_id" + cursor.getString(4));
+        		Log.d(TAG, "riskcommunication_id" + cursor.getString(5));
+        		Log.d(TAG, "modification" + cursor.getString(6));
 				cursor.moveToNext();
 			}
     		
@@ -364,10 +364,12 @@ public class DBManager {
     					DECISION_ID, 
     					SUBJECT_ID, 
     					RISKCOMMUNICATION_ID, 
-    					MODIFICATION},
-    					
-    					ACTION_ID + "=?" + action_id + " AND " + RESOURCE_ID + " =?",
-    					new String[] {String.valueOf(action_id),String.valueOf(resource_id)},			
+    					MODIFICATION},    					
+    					//ACTION_ID + " LIKE " + action_id + " AND " + RESOURCE_ID + " LIKE " + resource_id,
+    					ACTION_ID + "=? AND " + RESOURCE_ID + "=?",
+    					//RESOURCE_ID + "=?",
+    					new String[] {String.valueOf(action_id),String.valueOf(resource_id)},
+    					//new String[] {String.valueOf(resource_id)},
     					null, 
     					null, 
     					null);
@@ -387,6 +389,84 @@ public class DBManager {
 		}
 
     	return new DecisionTable();    	
+    }
+    
+    public DecisionTable getDecisionTableFromResourceId(String resource_id, String action_id) {
+
+    	DecisionTable decisionTable = new DecisionTable();
+    	Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
+						ID, 
+						ACTION_ID, 
+    					RESOURCE_ID, 
+    					DECISION_ID, 
+    					SUBJECT_ID, 
+    					RISKCOMMUNICATION_ID, 
+    					MODIFICATION}, 						
+    					//ID + "=?",
+    					//RESOURCE_ID + "=?",
+    					RESOURCE_ID + "=?"+" AND " + ACTION_ID + "=?",
+    					new String[] {String.valueOf(resource_id),String.valueOf(action_id)},
+    					//null,
+    					null, 
+    					null, 
+    					null);
+        
+    	if (cursor != null) {
+    		cursor.moveToFirst();
+    		Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+    		while (!cursor.isAfterLast()){
+    			// Now create the decision object from the cursor
+    			decisionTable = new DecisionTable();
+				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
+				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
+				cursor.moveToNext();
+			}
+    		
+    		
+    	}
+    	
+    	return decisionTable;
+    }
+    
+    
+    public DecisionTable getDecisionTableFromID(String decisiontable_id) {
+
+    	DecisionTable decisionTable = new DecisionTable();
+    	Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
+						ID, 
+						ACTION_ID, 
+    					RESOURCE_ID, 
+    					DECISION_ID, 
+    					SUBJECT_ID, 
+    					RISKCOMMUNICATION_ID, 
+    					MODIFICATION}, 						
+    					//ID + "=?",
+    					"",
+    					//new String[] {String.valueOf(decisiontable_id)},
+    					null,
+    					null, 
+    					null, 
+    					null);
+        
+    	if (cursor != null) {
+    		cursor.moveToFirst();
+    		Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+    		while (!cursor.isAfterLast()){
+    			// Now create the decision object from the cursor
+    			decisionTable = new DecisionTable();
+				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
+				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
+				cursor.moveToNext();
+			}
+    		
+    		
+    	}
+    	
+    	return decisionTable;
     }
     
     /**
@@ -755,6 +835,7 @@ public class DBManager {
     	Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
 						ID, 
 						NAME,
+						CONDITION,
 						MODIFICATION},
 						
     					ID + "=?",
@@ -767,12 +848,14 @@ public class DBManager {
     		cursor.moveToFirst();
     		while (!cursor.isAfterLast()){
     			// Now create the decision object from the cursor
-        		Log.e(TAG, "id" + cursor.getString(0));
+        		Log.d(TAG, "id " + cursor.getString(0));
         		decision.setId(Integer.valueOf(cursor.getString(0)));
-        		Log.e(TAG, "name" + cursor.getString(1));
+        		Log.d(TAG, "name " + cursor.getString(1));
         		decision.setName(cursor.getString(1));
-        		Log.e(TAG, "modification" + cursor.getString(2));
-        		decision.setModification(Long.valueOf(cursor.getString(2)));
+        		Log.d(TAG, "condition " + cursor.getString(2));
+        		decision.setCondition(cursor.getString(2));
+        		Log.d(TAG, "modification " + cursor.getString(3));
+        		//decision.setModification(Long.valueOf(cursor.getString(2)));
 				cursor.moveToNext();
 			}
     		
@@ -781,6 +864,8 @@ public class DBManager {
     	
     	return decision;
     }
+    
+
     
     /**
      * Retrieve risk_communication from id
@@ -806,11 +891,11 @@ public class DBManager {
     		cursor.moveToFirst();
     		while (!cursor.isAfterLast()){
     			// Now create the decision object from the cursor
-        		Log.e(TAG, "id" + cursor.getString(0));
+        		Log.d(TAG, "id" + cursor.getString(0));
         		comm.setId(Integer.valueOf(cursor.getString(0)));
-        		Log.e(TAG, "comm_sequence" + cursor.getString(1));
+        		Log.d(TAG, "comm_sequence" + cursor.getString(1));
         		comm.setCommunication_sequence(Integer.valueOf(cursor.getString(1)));
-        		Log.e(TAG, "risk_treatment_id" + cursor.getString(2));
+        		Log.d(TAG, "risk_treatment_id" + cursor.getString(2));
         		comm.setRisktreatment_id(Integer.valueOf(cursor.getString(2)));
 				cursor.moveToNext();
 			}
@@ -844,9 +929,9 @@ public class DBManager {
     		cursor.moveToFirst();
     		Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
 			while (!cursor.isAfterLast()){
-				Log.e(TAG, "id" + cursor.getString(0));
+				Log.d(TAG, "id" + cursor.getString(0));
 	    		treatment.setId(Integer.valueOf(cursor.getString(0)));
-	    		Log.e(TAG, "textual_description" + cursor.getString(1));
+	    		Log.d(TAG, "textual_description" + cursor.getString(1));
 	    		treatment.setTextualdescription(cursor.getString(1));
 				cursor.moveToNext();
 			}

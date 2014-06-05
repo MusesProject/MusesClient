@@ -77,6 +77,8 @@ public class DevicePolicyHelper {
 		
 		decisionTable.setDecision_id(decisionId);
 		
+		
+		
 		//At the end, with all the inserted ids, update the decision table
 		dbManager.addDecisionTable(decisionTable);
 		dbManager.closeDB();
