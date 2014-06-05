@@ -5,6 +5,7 @@ public class Decision {
 	private int id;
 	private String name;
 	private long modification;
+	private String condition;
 	
 	public int getId() {
 		return id;
@@ -23,6 +24,12 @@ public class Decision {
 	}
 	public void setModification(long modification) {
 		this.modification = modification;
+	}
+	public String getCondition() {
+		return condition;
+	}
+	public void setCondition(String condition) {
+		this.condition = condition;
 	}
 	
 	
