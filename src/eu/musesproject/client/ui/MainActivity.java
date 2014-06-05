@@ -100,9 +100,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private void setAppIconOnStatusBar() {
 		Notification.Builder mBuilder =
 		        new Notification.Builder(this)
-		        .setSmallIcon(R.drawable.muses_logo)
-		        .setContentTitle("My notification")
-		        .setContentText("Hello World!");
+		        .setSmallIcon(R.drawable.muses_main)
+		        .setContentTitle("")
+		        .setContentText("");
 		// Creates an explicit intent for an Activity in your app
 		Intent resultIntent = new Intent(this, MainActivity.class);
 
