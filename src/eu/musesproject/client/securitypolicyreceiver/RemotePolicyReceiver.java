@@ -62,8 +62,10 @@ public class RemotePolicyReceiver {
 				
         if((jsonPolicy != null) && (!jsonPolicy.equals(""))) {
     		try{		
-    			JSONObject policyJSON = new JSONObject(jsonPolicy);		
-    			policy = policyJSON.getString(JSONIdentifiers.DEVICE_POLICY);
+    			JSONObject rootJSON = new JSONObject(jsonPolicy);		
+    			policy = rootJSON.getString(JSONIdentifiers.DEVICE_POLICY);
+    			
+    			JSONObject policyJSON = new JSONObject(policy);
     			
     			//Create decision table entry containing action, resource, subject and decision
     			String files = policyJSON.getString(JSONIdentifiers.POLICY_SECTION_FILES);    			
@@ -87,7 +89,9 @@ public class RemotePolicyReceiver {
             decisionTableElement.setId((int)index);
             
             if (decisionTableElement.getId()>0){
-            	Log.d(TAG, "[receiveJSONPolicy]: Decision table element has been correctly added");
+            	Log.d(TAG, "[receiveJSONPolicy]: Decision table element has been correctly added:"+decisionTableElement.getId());
+            	Log.d(TAG, "[receiveJSONPolicy]: Action_id:"+decisionTableElement.getAction_id()+"-Resource:"+decisionTableElement.getResource_id()+"-Decision:"+decisionTableElement.getDecision_id());
+            	
         		return SUCCESSFUL_RECEPTION;
             }else{
             	Log.d(TAG, "[receiveJSONPolicy]: Decision table element id is negative:" + decisionTableElement.getId());

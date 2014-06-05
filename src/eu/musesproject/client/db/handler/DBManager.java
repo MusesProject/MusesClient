@@ -56,6 +56,7 @@ public class DBManager {
 	private static final String CREATE_DECISION_TABLE_QUERY = "CREATE TABLE decision ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "name VARCHAR(45) NOT NULL,"
+																	  + "condition VARCHAR(45) NOT NULL,"
 																	  + "modification TIMESTAMP NOT NULL);";
 	private static final String CREATE_SUBJECT_TABLE_QUERY = "CREATE TABLE subject ( "
 																	  + "id INTEGER PRIMARY KEY," 
@@ -119,7 +120,7 @@ public class DBManager {
 	private static final String RISKCOMMUNICATION_ID = "riskcommunication_id";
 	private static final String DEVICE_ID = "device_id";
 	private static final String MODIFICATION = "modification";
-	private static final String DESCRIPTION = "decription";
+	private static final String DESCRIPTION = "description";
 	private static final String PATH = "path";
 	private static final String RESOURCE_TYPE = "resourcetype";
 	private static final String NAME = "name";
@@ -134,6 +135,7 @@ public class DBManager {
 	private static final String VALUE = "value";
 	private static final String USERNAME = "username";
 	private static final String PASSWORD = "password";
+	private static final String CONDITION = "condition";
 	
 	
 	
@@ -266,6 +268,8 @@ public class DBManager {
     	values.put(SUBJECT_ID, decisionTable.getSubject_id());
     	values.put(RISKCOMMUNICATION_ID, decisionTable.getRiskcommunication_id());
     	values.put(MODIFICATION, "03-09-2011");
+    	
+    	Log.d("DBManager", "Adding DT with action_id:"+decisionTable.getAction_id()+" decision_id:"+decisionTable.getDecision_id());
     	return sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
     }
     
@@ -325,15 +329,18 @@ public class DBManager {
         
     	if (cursor != null) {
     		cursor.moveToFirst();
+    		while (!cursor.isAfterLast()){
+    			// Now create the decision table object from the cursor
+        		Log.e(TAG, "id" + cursor.getString(0));
+        		Log.e(TAG, "action_id" + cursor.getString(1));
+        		Log.e(TAG, "resource_id" + cursor.getString(2));
+        		Log.e(TAG, "decision_id" + cursor.getString(3));
+        		Log.e(TAG, "subject_id" + cursor.getString(4));
+        		Log.e(TAG, "riskcommunication_id" + cursor.getString(5));
+        		Log.e(TAG, "modification" + cursor.getString(6));
+				cursor.moveToNext();
+			}
     		
-    		// Now create the decision table object from the cursor
-    		Log.e(TAG, "id" + cursor.getString(0));
-    		Log.e(TAG, "action_id" + cursor.getString(1));
-    		Log.e(TAG, "resource_id" + cursor.getString(2));
-    		Log.e(TAG, "decision_id" + cursor.getString(3));
-    		Log.e(TAG, "subject_id" + cursor.getString(4));
-    		Log.e(TAG, "riskcommunication_id" + cursor.getString(5));
-    		Log.e(TAG, "modification" + cursor.getString(6));
     		
     	}
     	
@@ -349,6 +356,7 @@ public class DBManager {
     
     public DecisionTable getDecisionTableFromActionAndResource(String action_id, String resource_id/*Action action, Resource resource*/) {
 
+    	DecisionTable decisionTable = null;
     	Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
     					ID, 
     					ACTION_ID, 
@@ -358,17 +366,26 @@ public class DBManager {
     					RISKCOMMUNICATION_ID, 
     					MODIFICATION},
     					
-    					ACTION_ID + " like " + action_id + " and " + RESOURCE_ID + " like " + resource_id,
-    					null,			
+    					ACTION_ID + "=?" + action_id + " AND " + RESOURCE_ID + " =?",
+    					new String[] {String.valueOf(action_id),String.valueOf(resource_id)},			
     					null, 
     					null, 
     					null);
         
-		if (cursor != null){
+    	if (cursor != null){
 			cursor.moveToFirst();
-			// Now create the decision table object from the cursor
-			Log.e(TAG, "modification" + cursor.getString(6));
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				// Now create the decision table object from the cursor
+				decisionTable = new DecisionTable();
+				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
+				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
+				cursor.moveToNext();
+			}	
 		}
+
     	return new DecisionTable();    	
     }
     
@@ -380,6 +397,8 @@ public class DBManager {
      */
     
     public DecisionTable getDecisionTableFromActionAndSubject(String action_id, String subject_id/*Action action, Subject subject*/) {
+    	
+    	DecisionTable decisionTable = null;
     	Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
 						ID, 
 						ACTION_ID, 
@@ -397,8 +416,16 @@ public class DBManager {
 		
 		if (cursor != null){
 			cursor.moveToFirst();
-			// Now create the decision table object from the cursor
-			Log.e(TAG, "modification" + cursor.getString(6));
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				// Now create the decision table object from the cursor
+				decisionTable = new DecisionTable();
+				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
+				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
+				cursor.moveToNext();
+			}	
 		}
 
 		return new DecisionTable();     	
@@ -413,6 +440,7 @@ public class DBManager {
      */
     
     public DecisionTable getDecisionTableFromActionAndRecourceAndSubject(String action_id, String resource_id, String subject_id/*Action action, Resource resource, Subject subject*/) {
+    	DecisionTable decisionTable = null;
     	Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
 						ID, 
 						ACTION_ID, 
@@ -432,11 +460,18 @@ public class DBManager {
 		if (cursor != null){
 			cursor.moveToFirst();
 			// Now create the decision table object from the cursor
-			Log.e(TAG, "modification" + cursor.getString(6));
+			decisionTable = new DecisionTable();
+			decisionTable.setId(cursor.getInt(0));
+			decisionTable.setAction_id(cursor.getInt(1));
+			decisionTable.setResource_id(cursor.getInt(2));
+			decisionTable.setDecision_id(cursor.getInt(3));
+			Log.d(TAG, "modification" + cursor.getString(6));
 			
+		}else{
+			Log.e(TAG, "No decision table element found with action_id: "+action_id + " and resource_id:" + resource_id);
 		}
 		
-		return new DecisionTable();      	
+		return decisionTable;      	
     }
     
     
@@ -730,14 +765,17 @@ public class DBManager {
         
     	if (cursor != null) {
     		cursor.moveToFirst();
+    		while (!cursor.isAfterLast()){
+    			// Now create the decision object from the cursor
+        		Log.e(TAG, "id" + cursor.getString(0));
+        		decision.setId(Integer.valueOf(cursor.getString(0)));
+        		Log.e(TAG, "name" + cursor.getString(1));
+        		decision.setName(cursor.getString(1));
+        		Log.e(TAG, "modification" + cursor.getString(2));
+        		decision.setModification(Long.valueOf(cursor.getString(2)));
+				cursor.moveToNext();
+			}
     		
-    		// Now create the decision object from the cursor
-    		Log.e(TAG, "id" + cursor.getString(0));
-    		decision.setId(Integer.valueOf(cursor.getString(0)));
-    		Log.e(TAG, "name" + cursor.getString(1));
-    		decision.setName(cursor.getString(1));
-    		Log.e(TAG, "modification" + cursor.getString(2));
-    		decision.setModification(Long.valueOf(cursor.getString(2)));
     		
     	}
     	
@@ -756,8 +794,7 @@ public class DBManager {
     	Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION, new String [] {
 						ID, 
 						COMMUNICATION_SEQUENCE,
-						RISKTREATMENT_ID,
-						MODIFICATION},
+						RISKTREATMENT_ID},
 						
     					ID + "=?",
     					new String[] {String.valueOf(risk_communication_id)}, 
@@ -767,14 +804,17 @@ public class DBManager {
         
     	if (cursor != null) {
     		cursor.moveToFirst();
+    		while (!cursor.isAfterLast()){
+    			// Now create the decision object from the cursor
+        		Log.e(TAG, "id" + cursor.getString(0));
+        		comm.setId(Integer.valueOf(cursor.getString(0)));
+        		Log.e(TAG, "comm_sequence" + cursor.getString(1));
+        		comm.setCommunication_sequence(Integer.valueOf(cursor.getString(1)));
+        		Log.e(TAG, "risk_treatment_id" + cursor.getString(2));
+        		comm.setRisktreatment_id(Integer.valueOf(cursor.getString(2)));
+				cursor.moveToNext();
+			}
     		
-    		// Now create the decision object from the cursor
-    		Log.e(TAG, "id" + cursor.getString(0));
-    		comm.setId(Integer.valueOf(cursor.getString(0)));
-    		Log.e(TAG, "comm_sequence" + cursor.getString(1));
-    		comm.setCommunication_sequence(Integer.valueOf(cursor.getString(1)));
-    		Log.e(TAG, "risk_treatment_id" + cursor.getString(2));
-    		comm.setRisktreatment_id(Integer.valueOf(cursor.getString(2)));
     		
     	}
     	
@@ -802,13 +842,15 @@ public class DBManager {
         
     	if (cursor != null) {
     		cursor.moveToFirst();
-    		
-    		// Now create the decision object from the cursor
-    		Log.e(TAG, "id" + cursor.getString(0));
-    		treatment.setId(Integer.valueOf(cursor.getString(0)));
-    		Log.e(TAG, "textual_description" + cursor.getString(1));
-    		treatment.setTextualdescription(cursor.getString(1));
-    		
+    		Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				Log.e(TAG, "id" + cursor.getString(0));
+	    		treatment.setId(Integer.valueOf(cursor.getString(0)));
+	    		Log.e(TAG, "textual_description" + cursor.getString(1));
+	    		treatment.setTextualdescription(cursor.getString(1));
+				cursor.moveToNext();
+			}
+
     	}
     	
     	return treatment;
@@ -834,12 +876,94 @@ public class DBManager {
     public UserDeviceCertificate getUserDeviceCert(){
     	return new UserDeviceCertificate();
     }
+
+
+	public long addDecision(Decision decision) {
+		long result = 0;
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
+				ID, 
+				NAME, 
+				MODIFICATION},
+				
+				NAME + " like '" + decision.getName()+"'",
+				null,			
+				null, 
+				null, 
+				null);
+		
+		
+		//if (cursor.getCount() == 1){
+	    	ContentValues values = new ContentValues();
+	    	values.put(NAME, decision.getName());
+	    	values.put(CONDITION, decision.getCondition());
+	    	values.put(MODIFICATION, "09-08-2012");
+	    	result = sqLiteDatabase.insert(TABLE_DECISION, null, values);
+		/*}else{
+			Log.d(TAG, "Decision count:" + cursor.getCount()); //+ "id:" + cursor.getInt(0) + "name:" + cursor.getString(1));
+			return 0;
+		}
+		result = Long.valueOf(cursor.getString(0));*/
+
+		return result;
+	}
     
-    
+	public Resource getResourceFromPath(String path) {
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
+    			ID, 
+    			DESCRIPTION,
+    			PATH,
+    			RESOURCE_TYPE,
+    			MODIFICATION}, 
+    			
+				PATH + " LIKE '" + path + "'",
+				null,			
+				null, 
+				null, 
+				null);
+
+    	Resource resource = new Resource();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				Log.d(TAG, cursor.getString(0));
+				resource.setId(Integer.parseInt(cursor.getString(0)));
+				resource.setDescription(cursor.getString(1));
+				resource.setPath(cursor.getString(2));
+				cursor.moveToNext();
+			}	
+		}
+		return resource;
+
+    }
     
     
 	
-	
+	public Action getActionFromType(String type) {
+    	Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
+    			ID, 
+    			DESCRIPTION,
+    			MODIFICATION}, 
+    			
+				DESCRIPTION + " LIKE '" + type + "'",
+				null,			
+				null, 
+				null, 
+				null);
+
+    	Action action = new Action();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				action.setId(Integer.parseInt(cursor.getString(0)));
+				action.setDescription(cursor.getString(1));
+				cursor.moveToNext();
+			}	
+		}
+		return action;
+
+    }
     
 
 

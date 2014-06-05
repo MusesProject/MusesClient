@@ -37,7 +37,8 @@ public class UserContextEventHandler {
 
     private static UserContextEventHandler userContextEventHandler = null;
 //	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
-	private static final String MUSES_SERVER_URL = "http://192.168.44.104:8080/server/commain";
+	//private static final String MUSES_SERVER_URL = "http://192.168.44.104:8080/server/commain";
+    private static final String MUSES_SERVER_URL = "http://172.17.3.5:8080/server-0.0.1-SNAPSHOT/commain";
 	
 	private Context context;
 
@@ -103,8 +104,8 @@ public class UserContextEventHandler {
 
         // check for a locally stored decision
         Request request = new Request(action, null);
-//        Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
-        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
+        Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
+//        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
         if(decision != null) { // local decision found
             ActuatorController.getInstance().showFeedback(decision);
         }
@@ -214,6 +215,7 @@ public class UserContextEventHandler {
         if (requestJSON != null) {
             if(serverStatus == Statuses.ONLINE) {
                 String sendData  = requestJSON.toString();
+                Log.d(TAG, "sendData:"+sendData);//Demo Debug
                 connectionManager.sendData(sendData);
             }
         }
