@@ -8,6 +8,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -74,7 +75,7 @@ public class AppSensor implements ISensor {
      * @param appName name of the currently active application
      */
     private void createContextEvent(String appName, List<RunningServiceInfo> runningServices) {
-        //Log.d(TAG, "APP - context event created: " +appName);
+        Log.d(TAG, "APP - context event created: " +appName);
 
         // get the running services
         List<String> runningServicesNames = new ArrayList<String>();
@@ -127,7 +128,7 @@ public class AppSensor implements ISensor {
 
         @Override
         protected Void doInBackground(Void... params) {
-            String previousApp = "";
+        	String previousApp = "";
 
             while (sensorEnabled) {
                 // get the first item in the list, because it is the foreground task
@@ -138,21 +139,26 @@ public class AppSensor implements ISensor {
                 PackageInfo foregroundAppPackageInfo;
                 String foregroundTaskAppName = "";
                 List<ActivityManager.RunningServiceInfo> runningServices = null;
+                ApplicationInfo appInfo;
                 try {
-                    foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
-                    foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
-                    runningServices = activityManager.getRunningServices(MAX_SHOWN_BACKGROUND_SERVICES);
+                    //foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
+                	//foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
+                	Log.w(TAG, "package app sensor: " + foregroundTaskPackageName);
+                	appInfo = pm.getApplicationInfo(foregroundTaskPackageName, 0);
+                	foregroundTaskAppName = pm.getApplicationLabel(appInfo).toString();
+                	runningServices = activityManager.getRunningServices(MAX_SHOWN_BACKGROUND_SERVICES);
 
-                    // fill previousApp with the first one in session
-                    // and set the start time of the first application
-                    if(previousApp.equals("")) {
-                        createContextEvent(foregroundTaskAppName, runningServices);
-                        previousApp = foregroundTaskAppName;
-                    }
+//                    // fill previousApp with the first one in session
+//                    // and set the start time of the first application
+//                    if(previousApp.equals("")) {
+//                        Log.d(TAG, "app name: " + foregroundTaskAppName);
+//                        createContextEvent(foregroundTaskAppName, runningServices);
+//                        previousApp = foregroundTaskAppName;
+//                    }
 
                     // if the foreground application changed, create a context event
                     if(!foregroundTaskAppName.equals(previousApp)) {
-                        //Log.d(TAG, "previous: " +previousApp + " now: " +foregroundTaskAppName);
+                        Log.d(TAG, "previous: " +previousApp + " now: " +foregroundTaskAppName);
                         createContextEvent(foregroundTaskAppName, runningServices);
                         previousApp = foregroundTaskAppName;
                     }
