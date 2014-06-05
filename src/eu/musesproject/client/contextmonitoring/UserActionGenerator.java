@@ -31,15 +31,17 @@ public class UserActionGenerator {
         if(contextEventTrigger.getType().equals(AppSensor.TYPE)) {
         	action.setTimestamp(System.currentTimeMillis());
         	action.setActionType(ActionType.OPEN_APPLICATION);
+        	return action;
         }
         else if(contextEventTrigger.getType().equals(FileSensor.TYPE)) {
         	if(contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
             	action.setTimestamp(System.currentTimeMillis());
             	action.setActionType(ActionType.OPEN_APPLICATION);
+            	return action;
         	}
         }
 
-        return action;
+        return null;
     }
 
 	public static Map<String, String> createUserActionProperties(ContextEvent contextEventTrigger) {
