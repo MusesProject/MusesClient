@@ -65,7 +65,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
-															 (UserContextEventHandler.serverStatus == Statuses.ONLINE) ? 
+															 UserContextEventHandler.isServerOnlineAndUserAuthenticated() ? 
 															 getResources().getString(R.string.current_com_status_2): getResources().getString(R.string.current_com_status_3) ));
 			break;
 		case MusesUICallbacksHandler.ACTION_RESPONSE_MAY_BE:
@@ -79,7 +79,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			okBtn.setText(getResources().getString(R.string.what_can_i_do_btn_txt));
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
-															 (UserContextEventHandler.serverStatus == Statuses.ONLINE) ? 
+															 UserContextEventHandler.isServerOnlineAndUserAuthenticated() ? 
 															 getResources().getString(R.string.current_com_status_2): getResources().getString(R.string.current_com_status_3) ));
 			
 			break;
@@ -94,7 +94,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
-															 (UserContextEventHandler.serverStatus == Statuses.ONLINE) ? 
+															 UserContextEventHandler.isServerOnlineAndUserAuthenticated() ? 
 															 getResources().getString(R.string.current_com_status_2): getResources().getString(R.string.current_com_status_3) ));
 			
 			break;
