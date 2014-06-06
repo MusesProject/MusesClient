@@ -175,8 +175,7 @@ public class SensorController {
 
             // 4. send action to the UserContextMonitoringController
             if(userAction != null && properties!= null) {
-            	Log.w(TAG, "sending user action");
-                //UserContextMonitoringController.getInstance(context).sendUserAction(UISource.INTERNAL, userAction, properties);
+                UserContextMonitoringController.getInstance(context).sendUserAction(UISource.INTERNAL, userAction, properties);
             }
         }
     }

@@ -141,20 +141,17 @@ public class AppSensor implements ISensor {
                 List<ActivityManager.RunningServiceInfo> runningServices = null;
                 ApplicationInfo appInfo;
                 try {
-                    //foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
-                	//foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
-                	Log.w(TAG, "package app sensor: " + foregroundTaskPackageName);
-                	appInfo = pm.getApplicationInfo(foregroundTaskPackageName, 0);
-                	foregroundTaskAppName = pm.getApplicationLabel(appInfo).toString();
+                    foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
+                	foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
                 	runningServices = activityManager.getRunningServices(MAX_SHOWN_BACKGROUND_SERVICES);
 
-//                    // fill previousApp with the first one in session
-//                    // and set the start time of the first application
-//                    if(previousApp.equals("")) {
-//                        Log.d(TAG, "app name: " + foregroundTaskAppName);
-//                        createContextEvent(foregroundTaskAppName, runningServices);
-//                        previousApp = foregroundTaskAppName;
-//                    }
+                    // fill previousApp with the first one in session
+                    // and set the start time of the first application
+                    if(previousApp.equals("")) {
+                        Log.d(TAG, "app name: " + foregroundTaskAppName);
+                        createContextEvent(foregroundTaskAppName, runningServices);
+                        previousApp = foregroundTaskAppName;
+                    }
 
                     // if the foreground application changed, create a context event
                     if(!foregroundTaskAppName.equals(previousApp)) {
