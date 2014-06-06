@@ -46,18 +46,14 @@ public class DevicePolicyHelper {
 			JSONObject actionJSON = new JSONObject(actionString);
 			action = updateAction(actionJSON, context);
 			//Resource part
-			//String resources = filesJSON.getString(JSONIdentifiers.POLICY_SECTION_RESOURCE);
 			String resources = filesJSON.getString(JSONIdentifiers.POLICY_SECTION_ACTION);
 			JSONObject resourcesJSON = new JSONObject(resources);
 			resource = updateResourceAction(resourcesJSON, context);
 			//Subject part
-			/*String subjectString = filesJSON.getString(JSONIdentifiers.POLICY_SECTION_SUBJECT);
-			JSONObject subjectJSON = new JSONObject(subjectString);
-			subject = updateSubject(subjectJSON, context);	
 			//RiskCommunication part
-			String communicationString = filesJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKCOMMUNICATION);
+			String communicationString = filesJSON.getString(JSONIdentifiers.POLICY_SECTION_ACTION);// TODO Use POLICY_SECTION_RISKCOMMUNICATION
 			JSONObject commJSON = new JSONObject(communicationString);
-			riskCommunication = updateRiskCommunication(commJSON, context);*/
+			riskCommunication = updateRiskCommunication(commJSON, context);
 
 		} catch (JSONException je) {
 	           je.printStackTrace();
@@ -72,21 +68,74 @@ public class DevicePolicyHelper {
 			decisionTable.setSubject_id(subject.getId());
 		}
 		if (riskCommunication!=null){
-			decisionTable.setRiskcommunication_id(riskCommunication.getId());
+			if (riskCommunication.getId()>0){
+				decisionTable.setRiskcommunication_id(riskCommunication.getId());
+				Log.d(TAG, "Setting riskCommunication_id into decisiontable:"+decisionTable.getRiskcommunication_id());
+			}else{
+				Log.e(TAG, "RiskCommunication id:"+decisionTable.getRiskcommunication_id());
+			}
+		}else{
+			Log.e(TAG, "RiskCommunication is null!");
 		}
 		
 		decisionTable.setDecision_id(decisionId);
-		
-		
-		
+
 		//At the end, with all the inserted ids, update the decision table
-		dbManager.addDecisionTable(decisionTable);
+		long indexDT = dbManager.addDecisionTable(decisionTable);
+		decisionTable.setId((int)indexDT);
+		Log.d(TAG, "DecisionTable correctly created with index:"+indexDT);
 		dbManager.closeDB();
 		
 		return decisionTable;
 	}
 	
 	private RiskCommunication updateRiskCommunication(JSONObject commJSON, Context context) {
+		
+		RiskCommunication riskCommunication = new RiskCommunication();
+		RiskTreatment riskTreatment = new RiskTreatment();
+		DBManager dbManager = new DBManager(context);
+        dbManager.openDB();
+		try {
+			if (commJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_ALLOW+"\"")){
+				String allowAction = commJSON.getString(JSONIdentifiers.POLICY_PROPERTY_ALLOW);
+				JSONObject allowActionJSON = new JSONObject(allowAction);
+				if (allowAction.contains(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT)){
+					String riskTreatmentAction = allowActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
+					riskTreatment.setTextualdescription(riskTreatmentAction);
+					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+				}
+			}else {
+				String denyAction = commJSON.getString(JSONIdentifiers.POLICY_PROPERTY_DENY);
+				JSONObject denyActionJSON = new JSONObject(denyAction);
+				if (denyAction.contains(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT)){
+					String riskTreatmentAction = denyActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
+					riskTreatment.setTextualdescription(riskTreatmentAction);
+					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+				}
+			}
+		} catch (JSONException je) {
+			je.printStackTrace();
+		}
+		
+		long indexRiskTreat = dbManager.addRiskTreatment(riskTreatment);
+		Log.d(TAG, "RiskTreatment index:"+ indexRiskTreat);
+
+		riskCommunication.setCommunication_sequence(1);
+		if (indexRiskTreat>0){
+			riskCommunication.setRisktreatment_id((int)indexRiskTreat);
+			long indexRiskComm = dbManager.addRiskCommunication(riskCommunication);
+			Log.d(TAG, "RiskCommunication index:"+indexRiskComm);
+			if (indexRiskComm>0){
+				riskCommunication.setId((int)indexRiskComm);
+				Log.d(TAG, "Setting riskCommunication.id:"+riskCommunication.getId());
+			}
+		}
+	     dbManager.closeDB();
+
+		return riskCommunication;
+	}
+	
+	private RiskCommunication updateRiskCommunicationRiskCommSection(JSONObject commJSON, Context context) {
 		
 		RiskCommunication riskCommunication = new RiskCommunication();
 		RiskTreatment riskTreatment = new RiskTreatment();
@@ -157,6 +206,7 @@ public class DevicePolicyHelper {
 	public Action updateAction(JSONObject actionJSON, Context context){
 		Action action = new Action();
 		Decision decision = new Decision();
+		RiskTreatment riskTreatment = new RiskTreatment();
 		DBManager dbManager = new DBManager(context);
 	    dbManager.openDB();
 		try {
@@ -169,6 +219,11 @@ public class DevicePolicyHelper {
 				String typeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_TYPE);
 				action.setDescription(typeAction);
 				Log.d(TAG, "Action type:" + typeAction);
+				if (allowAction.contains(JSONIdentifiers.POLICY_CONDITION)){
+					String conditionAction = allowActionJSON.getString(JSONIdentifiers.POLICY_CONDITION);
+					decision.setCondition(conditionAction);
+					Log.d(TAG, "Decision condition:" + conditionAction);
+				}
 			}else {
 				String denyAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_DENY);
 				JSONObject denyActionJSON = new JSONObject(denyAction);
@@ -182,7 +237,7 @@ public class DevicePolicyHelper {
 					String conditionAction = denyActionJSON.getString(JSONIdentifiers.POLICY_CONDITION);
 					decision.setCondition(conditionAction);
 					Log.d(TAG, "Decision condition:" + conditionAction);
-				}	
+				}
 			}
 		} catch (JSONException je) {
 			je.printStackTrace();
@@ -197,6 +252,8 @@ public class DevicePolicyHelper {
 		long indexDecision = dbManager.addDecision(decision);
 		decisionId = (int)indexDecision;
 		Log.d(TAG, "Decision index:"+ indexDecision);
+		
+		
 		dbManager.closeDB();
 		
 		return action;
@@ -244,6 +301,7 @@ public class DevicePolicyHelper {
 				String idResourceAllowed = allowActionJSON.getString("path");//TODO Include in JSONIdentifiers
 				Log.d(TAG, "Allowed:" + idResourceAllowed);
 				resource.setPath(idResourceAllowed);
+				resource.setDescription(idResourceAllowed);
 			}else {
 				String denyAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_DENY);
 				JSONObject denyActionJSON = new JSONObject(denyAction);

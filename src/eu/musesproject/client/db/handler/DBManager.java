@@ -269,7 +269,7 @@ public class DBManager {
     	values.put(RISKCOMMUNICATION_ID, decisionTable.getRiskcommunication_id());
     	values.put(MODIFICATION, "03-09-2011");
     	
-    	Log.d("DBManager", "Adding DT with action_id:"+decisionTable.getAction_id()+" decision_id:"+decisionTable.getDecision_id());
+    	Log.d("DBManager", "Adding DT with action_id:"+decisionTable.getAction_id()+" decision_id:"+decisionTable.getDecision_id()+" riskCommunication_id:"+decisionTable.getRiskcommunication_id());
     	return sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
     }
     
@@ -421,6 +421,8 @@ public class DBManager {
 				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
 				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
 				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
+				decisionTable.setSubject_id(Integer.parseInt(cursor.getString(4)));
+				decisionTable.setRiskcommunication_id(Integer.parseInt(cursor.getString(5)));
 				cursor.moveToNext();
 			}
     		
@@ -442,10 +444,10 @@ public class DBManager {
     					SUBJECT_ID, 
     					RISKCOMMUNICATION_ID, 
     					MODIFICATION}, 						
-    					//ID + "=?",
-    					"",
-    					//new String[] {String.valueOf(decisiontable_id)},
-    					null,
+    					ID + "=?",
+    					//"",
+    					new String[] {String.valueOf(decisiontable_id)},
+    					//null,
     					null, 
     					null, 
     					null);
@@ -576,7 +578,6 @@ public class DBManager {
     	
     	ContentValues values = new ContentValues();
     	values.put(TEXTUAL_DESCRIPTION, riskTreatment.getTextualdescription());
-    	values.put(MODIFICATION, "03-09-2011");
     	return sqLiteDatabase.insert(TABLE_RISK_TREATMENT, null	, values);
     }
     
@@ -623,7 +624,6 @@ public class DBManager {
     	ContentValues values = new ContentValues();
     	values.put(COMMUNICATION_SEQUENCE, riskCommunication.getCommunication_sequence());
     	values.put(RISKTREATMENT_ID, riskCommunication.getRisktreatment_id());
-    	values.put(MODIFICATION, "03-09-2011");
     	return sqLiteDatabase.insert(TABLE_RISK_COMMUNICATION, null	, values);
     }
 
@@ -889,6 +889,7 @@ public class DBManager {
         
     	if (cursor != null) {
     		cursor.moveToFirst();
+    		Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
     		while (!cursor.isAfterLast()){
     			// Now create the decision object from the cursor
         		Log.d(TAG, "id" + cursor.getString(0));

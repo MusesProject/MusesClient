@@ -78,19 +78,13 @@ public class RemotePolicyReceiver {
     	           return FAILED_RECEPTION;
     	    }
         }
-        
-        //Database insertion
-        DBManager dbManager = new DBManager(context);
-        dbManager.openDB();
-        long index = dbManager.addDecisionTable(decisionTableElement);
-        dbManager.closeDB();
+
         
         if (decisionTableElement != null){
-            decisionTableElement.setId((int)index);
             
             if (decisionTableElement.getId()>0){
             	Log.d(TAG, "[receiveJSONPolicy]: Decision table element has been correctly added:"+decisionTableElement.getId());
-            	Log.d(TAG, "[receiveJSONPolicy]: Action_id:"+decisionTableElement.getAction_id()+"-Resource:"+decisionTableElement.getResource_id()+"-Decision:"+decisionTableElement.getDecision_id());
+            	Log.d(TAG, "[receiveJSONPolicy]: Action_id:"+decisionTableElement.getAction_id()+"-Resource:"+decisionTableElement.getResource_id()+"-Decision:"+decisionTableElement.getDecision_id()+"-RiskComm:"+decisionTableElement.getRiskcommunication_id());
             	
         		return SUCCESSFUL_RECEPTION;
             }else{

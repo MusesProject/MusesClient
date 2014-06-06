@@ -15,14 +15,15 @@ import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.db.entity.Resource;
+import eu.musesproject.client.db.entity.RiskCommunication;
+import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.contextmodel.ContextEvent;
-import eu.musesproject.server.risktrust.RiskCommunication;
-import eu.musesproject.server.risktrust.RiskTreatment;
+
 
 /**
  * The Class LocalPolicySelector.
@@ -68,6 +69,8 @@ public class DecisionMaker {
         eu.musesproject.client.db.entity.RiskTreatment treatment = new eu.musesproject.client.db.entity.RiskTreatment();
         Resource resourceInPolicy = new Resource();
         Action actionInPolicy = new Action();
+        RiskCommunication riskCommInPolicy = new RiskCommunication();
+        RiskTreatment riskTreatInPolicy = new RiskTreatment();
         Decision resultDecision = new Decision();
         DecisionTable decisionTable = null;
         
@@ -76,32 +79,53 @@ public class DecisionMaker {
         Log.d(TAG, "Action:"+request.getAction().getId());
         Log.d(TAG, "Action:"+request.getAction().getTimestamp());
         
+        //TODO Remove this tweak when the action and resources are not null:        
+        if (request.getAction().getActionType()==null){
+        	request.getAction().setActionType("open_asset");
+        }
+        if (request.getResource().getPath()==null){
+        	request.getResource().setPath("/sdcard/Swe/MUSES_partner_grades.txt");
+        }        
+        //End of Tweak
+        
         for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
 			ContextEvent contextEvent = (ContextEvent) iterator.next();
 			Log.d(TAG, "Event list:"+contextEvent.getType());
 		}
         
         Log.d(TAG, "Resource:"+request.getResource());
+        Log.d(TAG, "Resource:"+request.getResource().getPath());
         
         DBManager dbManager = new DBManager(UserContextEventHandler.getInstance().getContext());
         dbManager.openDB();
         
         
-        if ((request.getAction()!=null)&&(request.getResource()!=null)){// TODO Use resource whenever it is available from sensors
+        if ((request.getAction()!=null)&&(request.getResource()!=null)){
         	resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getPath());
-        	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());
+        	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());        	
         	Log.d(TAG, "Resource in table:" + resourceInPolicy.getPath() + " Id:" +  resourceInPolicy.getId());
         	Log.d(TAG, "Action in table:" + actionInPolicy.getDescription() + " Id:" +  actionInPolicy.getId());
         	decisionTable = dbManager.getDecisionTableFromResourceId(String.valueOf(resourceInPolicy.getId()),String.valueOf(actionInPolicy.getId()));
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
+        	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
+        	riskCommInPolicy = dbManager.getRiskCommunicationFromID(String.valueOf(decisionTable.getRiskcommunication_id()));
+        	Log.d(TAG, "RiskComm in table: Id:" +  riskCommInPolicy.getId());
+        	if (riskCommInPolicy != null){
+        		Log.d(TAG, "Retrieving riskTreatment associated to id:" +  String.valueOf(riskCommInPolicy.getRisktreatment_id()));
+        		riskTreatInPolicy = dbManager.getRiskTreatmentFromID(String.valueOf(riskCommInPolicy.getRisktreatment_id()));
+        		Log.d(TAG, "RiskTreat in table:" + riskTreatInPolicy.getTextualdescription() + " Id:" +  riskTreatInPolicy.getId());
+        		
+        	}
         }
         
         if (decisionTable != null){
         	decision = dbManager.getDecisionFromID(String.valueOf(decisionTable.getDecision_id()));
         	
+        	if (decision!=null){
         	String condition = decision.getCondition();
-        	if ((condition!=null)&&(!condition.equals("any"))){
-        		if (decision.getName().equals("deny")){
+    		//if ((decision.getName()!=null)&&(decision.getName().equals("deny"))){
+        	if ((decision.getName()!=null)&&(decision.getName().equals("maybe"))){
+    			if ((condition!=null)&&(!condition.equals("any"))){
         			if (condition.contains("wifiencryption")){// TODO This should be managed by a ConditionHelper, to be implemented
         				for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
 							ContextEvent contextEvent = (ContextEvent) iterator.next();
@@ -118,11 +142,12 @@ public class DecisionMaker {
 												Log.d(TAG, "comparisonValue:"+comparisonValue);
 												if (!entry.getValue().equals(comparisonValue)){
 													//Deny
-													Logger.getLogger(TAG).log(Level.WARNING, "Condition satisfied: MUSES should deny");
-													resultDecision.setName(Decision.STRONG_DENY_ACCESS);
-													RiskTreatment [] riskTreatments = new RiskTreatment[1];//TODO Take this treatment from device policy
-													RiskTreatment riskTreatment = new RiskTreatment("Action not allowed. Please, change WIFI encryption to WPA2");
-													RiskCommunication riskCommunication = new RiskCommunication();
+													Logger.getLogger(TAG).log(Level.WARNING, "Condition satisfied: MUSES should say maybe, explaining the risk treatment");
+													resultDecision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+													//resultDecision.setName(Decision.STRONG_DENY_ACCESS);
+													eu.musesproject.server.risktrust.RiskTreatment [] riskTreatments = new eu.musesproject.server.risktrust.RiskTreatment[1];												
+													eu.musesproject.server.risktrust.RiskTreatment riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(riskTreatInPolicy.getTextualdescription());
+													eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
 													riskTreatments[0] = riskTreatment;	
 													riskCommunication.setRiskTreatment(riskTreatments);
 													resultDecision.setRiskCommunication(riskCommunication); 
@@ -142,8 +167,70 @@ public class DecisionMaker {
 						}
         			}
         		}
-        	}
-        	//decision = dbManager.getDecisionFromID("1");
+        	}else if ((decision.getName()!=null)&&(decision.getName().equals("allow"))){
+        		if ((condition!=null)&&(!condition.equals("any"))){
+        			Log.d(TAG, "Allow decision with a concrete condition");
+        		}else{
+        			Log.d(TAG, "Allow decision with any condition");
+					resultDecision.setName(Decision.GRANTED_ACCESS);
+        			
+
+        			eu.musesproject.server.risktrust.RiskTreatment [] riskTreatments = new eu.musesproject.server.risktrust.RiskTreatment[1];				
+					eu.musesproject.server.risktrust.RiskTreatment riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(riskTreatInPolicy.getTextualdescription());
+					eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
+					riskTreatments[0] = riskTreatment;
+					Log.d(TAG, "RiskTreatment inserted for feedback:"+ riskTreatment.getTextualDescription());
+					riskCommunication.setRiskTreatment(riskTreatments);
+					resultDecision.setRiskCommunication(riskCommunication); 
+
+        		
+					
+					eu.musesproject.server.risktrust.RiskTreatment[] r = resultDecision.getRiskCommunication().getRiskTreatment();// TODO Remove: Simple log
+					Log.d(TAG, "RiskTreat for feedback:"+ resultDecision.getRiskCommunication().getRiskTreatment());
+					if (r[0].getTextualDescription() != null) {
+						String textualDecp = r[0].getTextualDescription();
+						Log.d(TAG, "RiskTreatment:"+textualDecp);
+					}else{
+						Log.d(TAG, "RiskTreatment textualDescription null. Array length:"+r.length);
+					}
+					
+					
+					return resultDecision;
+        		}
+    		}else if ((decision.getName()!=null)&&(decision.getName().equals("deny"))){
+        		if ((condition!=null)&&(!condition.equals("any"))){
+        			Log.d(TAG, "Maybe decision with a concrete condition");
+        		}else{
+        			Log.d(TAG, "Maybe decision with any condition");
+					
+        			
+        			//resultDecision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+        			resultDecision.setName(Decision.STRONG_DENY_ACCESS);
+        			eu.musesproject.server.risktrust.RiskTreatment [] riskTreatments = new eu.musesproject.server.risktrust.RiskTreatment[1];				
+					eu.musesproject.server.risktrust.RiskTreatment riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(riskTreatInPolicy.getTextualdescription());
+					eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
+					riskTreatments[0] = riskTreatment;
+					Log.d(TAG, "RiskTreatment inserted for feedback:"+ riskTreatment.getTextualDescription());
+					riskCommunication.setRiskTreatment(riskTreatments);
+					resultDecision.setRiskCommunication(riskCommunication); 
+
+        		
+					
+					eu.musesproject.server.risktrust.RiskTreatment[] r = resultDecision.getRiskCommunication().getRiskTreatment();// TODO Remove: Simple log
+					Log.d(TAG, "RiskTreat for feedback:"+ resultDecision.getRiskCommunication().getRiskTreatment());
+					if (r[0].getTextualDescription() != null) {
+						String textualDecp = r[0].getTextualDescription();
+						Log.d(TAG, "RiskTreatment:"+textualDecp);
+					}else{
+						Log.d(TAG, "RiskTreatment textualDescription null. Array length:"+r.length);
+					}
+					
+					
+					return resultDecision;
+        		}
+    		}
+        }
+
         	comm= dbManager.getRiskCommunicationFromID(String.valueOf(decisionTable.getRiskcommunication_id()));
         	if (comm != null){
         		treatment = dbManager.getRiskTreatmentFromID(String.valueOf(comm.getRisktreatment_id()));
@@ -162,9 +249,9 @@ public class DecisionMaker {
 			eu.musesproject.client.db.entity.RiskTreatment treatment) {
 		
 		Decision resultDecision = new Decision();
-		RiskCommunication riskCommunication = new RiskCommunication();
-		RiskTreatment riskTreatment = null;
-		RiskTreatment[] arrayTreatment = null;
+		eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
+		eu.musesproject.server.risktrust.RiskTreatment riskTreatment = null;
+		eu.musesproject.server.risktrust.RiskTreatment[] arrayTreatment = null;
 		
 		if (decision != null){
 			if (decision.getName() != null){
@@ -178,8 +265,8 @@ public class DecisionMaker {
 			Logger.getLogger(TAG).log(Level.WARNING, "No decision is found. Hence, MUSES sets default decision");
 			resultDecision.setName(Decision.STRONG_DENY_ACCESS);//Default decision is deny
 		}
-		riskTreatment = new RiskTreatment(treatment.getTextualdescription());
-		arrayTreatment = new RiskTreatment[]{riskTreatment};
+		riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(treatment.getTextualdescription());
+		arrayTreatment = new eu.musesproject.server.risktrust.RiskTreatment[]{riskTreatment};
 		riskCommunication.setRiskTreatment(arrayTreatment);
 		resultDecision.setRiskCommunication(riskCommunication);
 		
@@ -207,27 +294,27 @@ public class DecisionMaker {
 		
 		Decision decision = new Decision();
 
-		RiskCommunication riskCommunication = new RiskCommunication();
-		RiskTreatment riskTreatment = null;
-		RiskTreatment[] arrayTreatment = new RiskTreatment[]{riskTreatment};
+		eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
+		eu.musesproject.server.risktrust.RiskTreatment riskTreatment = null;
+		eu.musesproject.server.risktrust.RiskTreatment[] arrayTreatment = new eu.musesproject.server.risktrust.RiskTreatment[]{riskTreatment};
 		
 	
 		if(request.getAction() != null) {
 		    if (request.getAction().getActionType().equals(ActionType.ACCESS)){
 		        decision.setName(Decision.GRANTED_ACCESS);
-		        riskTreatment = new RiskTreatment("No additional treatment is needed");
+		        riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment("No additional treatment is needed");
 		    }else if (request.getAction().getActionType().equals(ActionType.OPEN)){
 		        decision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
-		        riskTreatment = new RiskTreatment("Requested action will be allowed with the user connects to an encrypted connection");
+		        riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment("Requested action will be allowed with the user connects to an encrypted connection");
 		    }else if (request.getAction().getActionType().equals(ActionType.RUN)){
 		        decision.setName(Decision.STRONG_DENY_ACCESS);
-		        riskTreatment = new RiskTreatment("Requested action is not allowed, no matter the settings");//TODO: Us
+		        riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment("Requested action is not allowed, no matter the settings");//TODO: Us
 		    }else if (request.getAction().getActionType().equals(ActionType.INSTALL)){
 		        decision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
-		        riskTreatment = new RiskTreatment("This action is potentially unsecure.You might continue with the action under your own risk");
+		        riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment("This action is potentially unsecure.You might continue with the action under your own risk");
 		    } else {
 		    	decision.setName(Decision.STRONG_DENY_ACCESS);
-		    	riskTreatment = new RiskTreatment("Requested action is not allowed, no matter the settings");
+		    	riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment("Requested action is not allowed, no matter the settings");
 		    }
 		}
 		
