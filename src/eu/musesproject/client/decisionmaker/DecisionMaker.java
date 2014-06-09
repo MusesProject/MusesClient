@@ -119,6 +119,9 @@ public class DecisionMaker {
         	Log.d(TAG, "Action in table:" + actionInPolicy.getDescription() + " Id:" +  actionInPolicy.getId());
         	decisionTable = dbManager.getDecisionTableFromResourceId(String.valueOf(resourceInPolicy.getId()),String.valueOf(actionInPolicy.getId()));
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
+        	if (decisionTable.getId()==0){
+        		return null;
+        	}
         	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
         	riskCommInPolicy = dbManager.getRiskCommunicationFromID(String.valueOf(decisionTable.getRiskcommunication_id()));
         	Log.d(TAG, "RiskComm in table: Id:" +  riskCommInPolicy.getId());
