@@ -52,6 +52,10 @@ public class UserContextEventHandler {
 	private boolean isUserAuthenticated;
 	public static boolean serverOnlineAndUserAuthenticated;
 
+	private Action tmpAction;
+	private Map<String, String> tmpProperties;
+	private List<ContextEvent> tmpContextEvents;
+	
 	private UserContextEventHandler() {
         connectionManager = new ConnectionManager();
         connectionCallback = new ConnectionCallback();
@@ -119,6 +123,10 @@ public class UserContextEventHandler {
                 onlineDecisionRequested = true;
                 JSONObject requestObject = JSONManager.createJSON(RequestType.ONLINE_DECISION, action, properties, contextEvents);
                 sendRequestToServer(requestObject);
+                
+                tmpAction = action;
+                tmpProperties = properties;
+                tmpContextEvents = contextEvents;
             }
             else if(serverStatus == Statuses.OFFLINE || !isUserAuthenticated) { // save request to the database
                 storeContextEvent(action, properties, contextEvents);
@@ -271,6 +279,7 @@ public class UserContextEventHandler {
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
                     RemotePolicyReceiver.getInstance().updateJSONPolicy(receiveData, context);
+                    send(tmpAction, tmpProperties, tmpContextEvents);
                 }
                 else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
                 	isUserAuthenticated = JSONManager.getAuthResult(receiveData);
