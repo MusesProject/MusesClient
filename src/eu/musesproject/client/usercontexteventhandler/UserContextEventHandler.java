@@ -279,7 +279,9 @@ public class UserContextEventHandler {
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
                     RemotePolicyReceiver.getInstance().updateJSONPolicy(receiveData, context);
-                    send(tmpAction, tmpProperties, tmpContextEvents);
+                    if(tmpAction != null && tmpProperties != null && tmpContextEvents != null) {
+                    	send(tmpAction, tmpProperties, tmpContextEvents);
+                    }
                 }
                 else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
                 	isUserAuthenticated = JSONManager.getAuthResult(receiveData);
