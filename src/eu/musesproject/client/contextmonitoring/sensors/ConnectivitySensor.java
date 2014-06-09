@@ -161,7 +161,7 @@ public class ConnectivitySensor implements ISensor {
                 String wifiEncryption = "unknown";
                 if (networkList != null) {
                     for (ScanResult network : networkList) {
-                        if (network.BSSID == wifiInfo.getBSSID()){
+                        if (network.BSSID.equals(wifiInfo.getBSSID())){
                             wifiEncryption = network.capabilities;
                             Log.d(TAG, "Connectivity  - wifiEncryption is: " + wifiEncryption);
                         }
