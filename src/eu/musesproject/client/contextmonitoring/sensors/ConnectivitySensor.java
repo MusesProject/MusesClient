@@ -163,6 +163,7 @@ public class ConnectivitySensor implements ISensor {
                     for (ScanResult network : networkList) {
                         if (network.BSSID == wifiInfo.getBSSID()){
                             wifiEncryption = network.capabilities;
+                            Log.d(TAG, "Connectivity  - wifiEncryption is: " + wifiEncryption);
                         }
                     }
                 }

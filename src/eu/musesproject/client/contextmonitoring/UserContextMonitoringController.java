@@ -83,7 +83,6 @@ public class UserContextMonitoringController implements
             if(requestByMusesAwareApp) {
             	new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
             }
-
         }
         else if(src == UISource.MUSES_AWARE_APP_UI) {
         	requestByMusesAwareApp = true;
