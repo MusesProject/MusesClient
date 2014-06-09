@@ -79,13 +79,15 @@ public class DecisionMaker {
         Log.d(TAG, "Action:"+request.getAction().getId());
         Log.d(TAG, "Action:"+request.getAction().getTimestamp());
         
+        Log.d(TAG, "Resource:"+request.getResource().getDescription());
+        
         //TODO Remove this tweak when the action and resources are not null:        
-        if (request.getAction().getActionType()==null){
+        /*if (request.getAction().getActionType()==null){
         	request.getAction().setActionType("open_asset");
         }
         if (request.getResource().getPath()==null){
         	request.getResource().setPath("/sdcard/Swe/MUSES_partner_grades.txt");
-        }        
+        } */       
         //End of Tweak
         
         for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
@@ -101,7 +103,12 @@ public class DecisionMaker {
         
         
         if ((request.getAction()!=null)&&(request.getResource()!=null)){
-        	resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getPath());
+        	if (request.getResource().getPath()!=null){
+        		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getPath());
+        	}else{
+        		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getDescription());
+        	}
+        	
         	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());        	
         	Log.d(TAG, "Resource in table:" + resourceInPolicy.getPath() + " Id:" +  resourceInPolicy.getId());
         	Log.d(TAG, "Action in table:" + actionInPolicy.getDescription() + " Id:" +  actionInPolicy.getId());
