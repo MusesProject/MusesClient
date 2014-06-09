@@ -103,6 +103,9 @@ public class UserActionGenerator {
         else if(type.equals(ActionType.CANCEL)) {
             return ActionType.CANCEL;
         }
+        else if(type.equals(ActionType.OPEN_ASSET)) {
+        	return ActionType.OPEN_ASSET;
+        }
         else {
             return null;
         }
