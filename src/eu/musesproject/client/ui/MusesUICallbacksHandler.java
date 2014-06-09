@@ -53,9 +53,9 @@ public class MusesUICallbacksHandler implements IUICallback {
 		Log.d(TAG, "onDeny: " + decision.toString());
 		String textualDecp = "this is a test risk treatment ...";
 		RiskTreatment[] r = decision.getRiskCommunication().getRiskTreatment();
-//		if (r[0].getTextualDescription() != null) {
-//			textualDecp = r[0].getTextualDescription();
-//		}
+		if (r[0].getTextualDescription() != null) {
+			textualDecp = r[0].getTextualDescription();
+		}
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_DENIED);
 		Bundle bundle = new Bundle();
 		bundle.putString("name",decision.getName());
@@ -69,9 +69,9 @@ public class MusesUICallbacksHandler implements IUICallback {
 		Log.d(TAG, "onMaybe: " + decision.toString());
 		String textualDecp = "this is a test risk treatment ...";
 		RiskTreatment[] r = decision.getRiskCommunication().getRiskTreatment();
-//		if (r[0].getTextualDescription() != null) {
-//			textualDecp = r[0].getTextualDescription();
-//		}
+		if (r[0].getTextualDescription() != null) {
+			textualDecp = r[0].getTextualDescription();
+		}
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_MAY_BE);
 		Bundle bundle = new Bundle();
 		bundle.putString("name",decision.getName());
@@ -85,9 +85,9 @@ public class MusesUICallbacksHandler implements IUICallback {
 		Log.d(TAG, "onUpToUser: " + decision.toString());
 		String textualDecp = "this is a test risk treatment ...";
 		RiskTreatment[] r = decision.getRiskCommunication().getRiskTreatment();
-//		if (r[0].getTextualDescription() != null) {
-//			textualDecp = r[0].getTextualDescription();
-//		}    	
+		if (r[0].getTextualDescription() != null) {
+			textualDecp = r[0].getTextualDescription();
+		}    	
 		Message msg = mHandler.obtainMessage(ACTION_RESPONSE_UP_TO_USER);
 		Bundle bundle = new Bundle();
 		bundle.putString("name",decision.getName());
