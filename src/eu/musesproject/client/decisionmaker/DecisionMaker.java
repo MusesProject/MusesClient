@@ -74,20 +74,25 @@ public class DecisionMaker {
         Decision resultDecision = new Decision();
         DecisionTable decisionTable = null;
         
-        Log.d(TAG, "Action:"+request.getAction().getActionType());
-        Log.d(TAG, "Action:"+request.getAction().getDescription());
-        Log.d(TAG, "Action:"+request.getAction().getId());
-        Log.d(TAG, "Action:"+request.getAction().getTimestamp());
+        Log.d(TAG, "Action type:"+request.getAction().getActionType());
+        Log.d(TAG, "Action description:"+request.getAction().getDescription());
+        Log.d(TAG, "Action id:"+request.getAction().getId());
+        Log.d(TAG, "Action timestamp:"+request.getAction().getTimestamp());
         
-        Log.d(TAG, "Resource:"+request.getResource().getDescription());
+        Log.d(TAG, "Resource description:"+request.getResource().getDescription());
         
         //TODO Remove this tweak when the action and resources are not null:        
         /*if (request.getAction().getActionType()==null){
-        	request.getAction().setActionType("open_asset");
+        	//request.getAction().setActionType("open_asset");
+        	request.getAction().setActionType("open_application");
         }
-        if (request.getResource().getPath()==null){
-        	request.getResource().setPath("/sdcard/Swe/MUSES_partner_grades.txt");
-        } */       
+
+        if (request.getResource().getDescription()==null){
+        	request.getResource().setPath("Gmail");
+        }*/
+        /*if (request.getResource().getPath()==null){
+    	request.getResource().setPath("/sdcard/Swe/MUSES_partner_grades.txt");
+    	}*/
         //End of Tweak
         
         for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
@@ -96,7 +101,7 @@ public class DecisionMaker {
 		}
         
         Log.d(TAG, "Resource:"+request.getResource());
-        Log.d(TAG, "Resource:"+request.getResource().getPath());
+        Log.d(TAG, "Resource path:"+request.getResource().getPath());
         
         DBManager dbManager = new DBManager(UserContextEventHandler.getInstance().getContext());
         dbManager.openDB();
@@ -147,7 +152,7 @@ public class DecisionMaker {
 											if (condition.startsWith("!=")){
 												String comparisonValue = condition.substring(2);
 												Log.d(TAG, "comparisonValue:"+comparisonValue);
-												if (!entry.getValue().equals(comparisonValue)){
+												if (!entry.getValue().contains(comparisonValue)){
 													//Deny
 													Logger.getLogger(TAG).log(Level.WARNING, "Condition satisfied: MUSES should say maybe, explaining the risk treatment");
 													resultDecision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
@@ -206,9 +211,9 @@ public class DecisionMaker {
         		}
     		}else if ((decision.getName()!=null)&&(decision.getName().equals("deny"))){
         		if ((condition!=null)&&(!condition.equals("any"))){
-        			Log.d(TAG, "Maybe decision with a concrete condition");
+        			Log.d(TAG, "Deny with condition");
         		}else{
-        			Log.d(TAG, "Maybe decision with any condition");
+        			Log.d(TAG, "Deny");
 					
         			
         			//resultDecision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
