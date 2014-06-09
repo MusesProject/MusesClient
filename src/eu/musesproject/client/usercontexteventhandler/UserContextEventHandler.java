@@ -120,13 +120,18 @@ public class UserContextEventHandler {
         }
         else { // if there is no local decision, send a request to the server
             if(serverStatus == Statuses.ONLINE && isUserAuthenticated) { // if the server is online, request a decision
+            	// flag that an online decision is requested
                 onlineDecisionRequested = true;
-                JSONObject requestObject = JSONManager.createJSON(RequestType.ONLINE_DECISION, action, properties, contextEvents);
-                sendRequestToServer(requestObject);
                 
+                // temporary store the information so that the decision can be made after the server responded with 
+                // an database update (new policies are sent from the server to the client and stored in the database)
                 tmpAction = action;
                 tmpProperties = properties;
                 tmpContextEvents = contextEvents;
+
+                // create the JSON request and send it to the server
+                JSONObject requestObject = JSONManager.createJSON(RequestType.ONLINE_DECISION, action, properties, contextEvents);
+                sendRequestToServer(requestObject);
             }
             else if(serverStatus == Statuses.OFFLINE || !isUserAuthenticated) { // save request to the database
                 storeContextEvent(action, properties, contextEvents);
@@ -282,6 +287,10 @@ public class UserContextEventHandler {
                     if(tmpAction != null && tmpProperties != null && tmpContextEvents != null) {
                     	send(tmpAction, tmpProperties, tmpContextEvents);
                     }
+                    // reset temporary data
+                    tmpAction = null;
+                    tmpProperties = null;
+                    tmpContextEvents = null;
                 }
                 else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
                 	isUserAuthenticated = JSONManager.getAuthResult(receiveData);
