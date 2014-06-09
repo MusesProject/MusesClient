@@ -50,8 +50,7 @@ public class UserActionGenerator {
         	properties.put("name", contextEventTrigger.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME));
         	properties.put("package", "");
         	properties.put("version", "");
-//        	if(!properties.get("name").equals("Gmail")) {
-    		if(!properties.get("name").equals("Calendar")) {
+        	if(!properties.get("name").equals("Gmail")) {
         		return null;
         	}
         }
