@@ -8,13 +8,13 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
+import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -55,7 +55,7 @@ public class AppSensor implements ISensor {
 
     // holds a value that indicates if the sensor is enabled or disabled
     private boolean sensorEnabled;
-
+    
     public AppSensor(Context context) {
         this.context = context;
         init();
@@ -139,7 +139,6 @@ public class AppSensor implements ISensor {
                 PackageInfo foregroundAppPackageInfo;
                 String foregroundTaskAppName = "";
                 List<ActivityManager.RunningServiceInfo> runningServices = null;
-                ApplicationInfo appInfo;
                 try {
                     foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
                 	foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
@@ -154,8 +153,10 @@ public class AppSensor implements ISensor {
 
                     // if the foreground application changed, create a context event
                     if(!foregroundTaskAppName.equals(previousApp)) {
-                        createContextEvent(foregroundTaskAppName, runningServices);
-                        previousApp = foregroundTaskAppName;
+                        if(!foregroundTaskAppName.equals(context.getResources().getString(R.string.app_name))) {
+                        	createContextEvent(foregroundTaskAppName, runningServices);
+                        	previousApp = foregroundTaskAppName;
+                        }
                     }
 
                     Thread.sleep(OBSERVATION_INTERVALL);
