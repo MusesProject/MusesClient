@@ -31,11 +31,15 @@ public class UserContextMonitoringController implements
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
     private Context context;
+    
+    private boolean requestByMusesAwareApp;
 
     private UserContextMonitoringController(Context context) {
         this.context = context;
         uceHandler.setContext(context);
         uceHandler.connectToServer();
+        
+        requestByMusesAwareApp = false;
     }
 
     public static UserContextMonitoringController getInstance(Context context) {
@@ -76,13 +80,17 @@ public class UserContextMonitoringController implements
                 infoAP = ResponseInfoAP.DENY;
                 riskTreatment = new RiskTreatment("action denied because of...");
             }
-            new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+            if(requestByMusesAwareApp) {
+            	new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+            }
 
         }
         else if(src == UISource.MUSES_AWARE_APP_UI) {
+        	requestByMusesAwareApp = true;
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
         else if(src == UISource.INTERNAL) {
+        	requestByMusesAwareApp = false;
         	uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
     }

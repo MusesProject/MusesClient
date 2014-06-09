@@ -148,14 +148,12 @@ public class AppSensor implements ISensor {
                     // fill previousApp with the first one in session
                     // and set the start time of the first application
                     if(previousApp.equals("")) {
-                        Log.d(TAG, "app name: " + foregroundTaskAppName);
                         createContextEvent(foregroundTaskAppName, runningServices);
                         previousApp = foregroundTaskAppName;
                     }
 
                     // if the foreground application changed, create a context event
                     if(!foregroundTaskAppName.equals(previousApp)) {
-                        Log.d(TAG, "previous: " +previousApp + " now: " +foregroundTaskAppName);
                         createContextEvent(foregroundTaskAppName, runningServices);
                         previousApp = foregroundTaskAppName;
                     }

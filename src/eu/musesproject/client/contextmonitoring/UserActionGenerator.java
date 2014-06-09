@@ -50,6 +50,9 @@ public class UserActionGenerator {
         	properties.put("name", contextEventTrigger.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME));
         	properties.put("package", "");
         	properties.put("version", "");
+        	if(!properties.get("name").equals("Gmail")) {
+        		return null;
+        	}
         }
         else if(contextEventTrigger.getType().equals(FileSensor.TYPE)) {
         	if(contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
