@@ -11,7 +11,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import eu.musesproject.client.R;
-import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 public class FeedbackActivity extends Activity implements View.OnClickListener {
@@ -55,8 +54,10 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		case MusesUICallbacksHandler.ACTION_RESPONSE_DENIED:
 			Log.v(TAG, "acion denied in feedback shown..");
 			feedback = String.format("%s %s %s",getResources().getString(R.string.feedback_txt_1),
-					getResources().getString(R.string.feedback_txt_2), 
-					message); // FIXME suggestions should be added in future
+					message,
+					getResources().getString(R.string.feedback_txt_2)); 
+			feedback = message; // temp FIXME
+			
 			okBtn.setEnabled(false);
 			okBtn.setText(getResources().getString(R.string.details_btn_txt));
 			feedbackView.setText(feedback);
@@ -72,7 +73,9 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			Log.v(TAG, "acion maybe in feedback shown..");
 			feedback = String.format("%s %s %s",getResources().getString(R.string.feedback_txt_1),
 					message,
-					getResources().getString(R.string.feedback_txt_2)); // FIXME suggestions should be added in future
+					getResources().getString(R.string.feedback_txt_2)); 
+			feedback = message; // temp FIXME
+			
 			feedbackView.setText(feedback);
 			feedbackTitleView.setText(getResources().getString(R.string.feedback_title_txt));
 			resolveConflictAutoBtn.setVisibility(View.GONE);
@@ -87,7 +90,8 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			Log.v(TAG, "acion up to user in feedback shown..");
 			feedback = String.format("%s %s %s",getResources().getString(R.string.feedback_txt_1),
 					message,
-					getResources().getString(R.string.feedback_txt_2)); // FIXME suggestions should be added in future
+					getResources().getString(R.string.feedback_txt_2));
+			feedback = message; // temp FIXME
 			feedbackView.setText(feedback);
 			feedbackTitleView.setText(getResources().getString(R.string.feedback_title_txt));
 			okBtn.setText(getResources().getString(R.string.continue_btn_txt));

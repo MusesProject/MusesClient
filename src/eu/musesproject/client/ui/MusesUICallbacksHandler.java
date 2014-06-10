@@ -59,7 +59,7 @@ public class MusesUICallbacksHandler implements IUICallback {
     	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_DENIED);
 		Bundle bundle = new Bundle();
 		bundle.putString("name",decision.getName());
-		bundle.putString("rist_textual_decp", textualDecp);
+		bundle.putString("risk_textual_decp", textualDecp);
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);		
 	}

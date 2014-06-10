@@ -33,7 +33,7 @@
 	<string name="cancel_btn_txt">Cancel</string>
 	<string name="resolve_auto_btn_txt">Resolve conflicts automatically</string>
 	<string name="feedback_txt_1">You just want to </string>
-	<string name="feedback_txt_2">\n PERSUASIVE STRATEGIES: </string>
+	<string name="feedback_txt_2">PERSUASIVE STRATEGIES: </string>
 	<string name="current_com_status_1">You are</string>
 	<string name="current_com_status_2">Online</string>
     <string name="current_com_status_3">Offline</string>
