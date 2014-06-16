@@ -20,7 +20,8 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 	private Button resolveConflictAutoBtn, okBtn, cancelBtn;
 	private String feedback = "";
 	private Dialog feedBackDialog;
-	
+	private String message;
+	private int type;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -28,15 +29,49 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		if (extras == null) {
 			return;
 		}
-		String message = extras.getString("message");
-		int type = extras.getInt("type");
+		message = extras.getString("message");
+		type = extras.getInt("type");
+	}
 
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.resolve_conflict_auto_btn:
+			Log.v(TAG, "resolve_conflict_auto_btn..");
+			feedBackDialog.dismiss();
+			finish();		
+			// Not implemented
+			break;
+		case R.id.details_btn:
+			Intent restartMainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+			extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_OK);
+			restartMainActivityIntent.putExtras(extras);
+			startActivity(restartMainActivityIntent);
+			feedBackDialog.dismiss();
+			finish();
+			break;
+		case R.id.cancel_btn:
+			Intent restartMainActivityIntent2 = new Intent(getApplicationContext(), MainActivity.class);
+			extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_CANCEL);
+			restartMainActivityIntent2.putExtras(extras);
+			startActivity(restartMainActivityIntent2);
+			feedBackDialog.dismiss();
+			finish();
+			break;
+		}
+		
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
 		// Dialog
 		feedBackDialog = new Dialog(this);
 		feedBackDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		feedBackDialog.setContentView(R.layout.feedback_dialog);
 		
-		// Views
+		// Views	
 		feedbackView = (TextView)feedBackDialog.findViewById(R.id.feedback_txt);
 		feedbackTitleView = (TextView)feedBackDialog.findViewById(R.id.feedback_title_txt);
 		currentStatusView = (TextView)feedBackDialog.findViewById(R.id.server_status);
@@ -112,38 +147,9 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			}
 		}, 100);
 
-		
 	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.resolve_conflict_auto_btn:
-			System.out.println("resolve_conflict_auto_btn..");
-			feedBackDialog.dismiss();
-			finish();		
-			// Not implemented
-			break;
-		case R.id.details_btn:
-			Intent restartMainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-			extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_OK);
-			restartMainActivityIntent.putExtras(extras);
-			startActivity(restartMainActivityIntent);
-			feedBackDialog.dismiss();
-			finish();
-			break;
-		case R.id.cancel_btn:
-			Intent restartMainActivityIntent2 = new Intent(getApplicationContext(), MainActivity.class);
-			extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_CANCEL);
-			restartMainActivityIntent2.putExtras(extras);
-			startActivity(restartMainActivityIntent2);
-			feedBackDialog.dismiss();
-			finish();
-			break;
-		}
-		
-	}
-
+	
+	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
