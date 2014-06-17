@@ -12,6 +12,7 @@ import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.contextmonitoring.sensors.OSSensor;
+import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.actuators.Setting.SettingType;
@@ -64,6 +65,7 @@ public class SensorController {
         activeSensors.put(SettingsSensor.TYPE, new SettingsSensor(context));
         activeSensors.put(OSSensor.TYPE, new OSSensor(context));
         activeSensors.put(FileSensor.TYPE, new FileSensor());
+        activeSensors.put(PackageSensor.TYPE, new PackageSensor(context));
         for (ISensor sensor : activeSensors.values()) {
             sensor.addContextListener(contextEventBus);
             sensor.enable();

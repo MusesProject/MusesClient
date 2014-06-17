@@ -1,5 +1,8 @@
 package eu.musesproject.client.contextmonitoring.sensors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,9 +13,6 @@ import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.contextmodel.ContextEvent;
 import eu.musesproject.contextmodel.PackageStatus;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author christophstanik
@@ -30,6 +30,8 @@ public class PackageSensor implements ISensor {
 
     // sensor identifier
     public static final String TYPE = "CONTEXT_SENSOR_PACKAGE";
+
+    private static final String INITIAL_STARTUP 				= "init";
 
     // context property keys
     public static final String PROPERTY_KEY_ID 					= "id";
@@ -59,6 +61,9 @@ public class PackageSensor implements ISensor {
     public PackageSensor(Context context) {
         this.context = context;
         init();
+        
+        // create a list of installed ups and hold it
+        createContextEvent(INITIAL_STARTUP);
     }
 
     private void init() {
@@ -114,7 +119,7 @@ public class PackageSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_APP_NAME, "");
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, "");
         contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps());
-
+        
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
         if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
