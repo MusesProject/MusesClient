@@ -20,6 +20,8 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
@@ -28,50 +30,72 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.contextmodel.ContextEvent;
 
-public class LocationSensor implements ISensor, LocationListener{
+public class LocationSensor implements ISensor, LocationListener {
 	private static final String TAG = LocationSensor.class.getSimpleName();
-	
-    private Context context;
-    private ContextListener listener;
 
-    // holds a value that indicates if the sensor is enabled or disabled
-    private boolean sensorEnabled;
+	// sensor identifier
+	public static final String TYPE = "CONTEXT_SENSOR_LOCATION";
 
-    private LocationManager locationManager;
-    private String provider;
+    // context property keys
+    public static final String PROPERTY_KEY_ID 					= "id";
+    public static final String PROPERTY_KEY_IS_WITHIN_SECURE_ZONE= "insecurezone";
 
-    // settings
-    Location allowedZoneCentralPoint;
-    float allowedZoneRadius;
-    int minTimeBetweenLocationUpdates;
+	private Context context;
+	private ContextListener listener;
 
-    public LocationSensor(Context context) {
-        this.context = context;
-        init();
-    }
+	// history of fired context events
+	List<ContextEvent> contextEventHistory;
 
-    private void init() {
-        allowedZoneRadius = 12.0f; // default radius; radius in m
-        minTimeBetweenLocationUpdates = 400; // default, value in ms
+	// holds a value that indicates if the sensor is enabled or disabled
+	private boolean sensorEnabled;
 
-        // Get the location manager
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        provider = LocationManager.NETWORK_PROVIDER; // default location tracking accuracy -> Wi-Fi & Cell Tower
-        Location location = locationManager.getLastKnownLocation(provider);
+	private LocationManager locationManager;
+	private String provider;
 
-        // Initialize the location fields
-        if (location != null) {
-            onLocationChanged(location);
-        }
-        else {
-            Log.d(TAG, "no location available");
-        }
-    }
+	// configuration
+	Location allowedZoneCentralPoint;
+	float allowedZoneRadius;
+	int minTimeBetweenLocationUpdates; // in milliseconds
+	int minDistanceBetweenLocationUpdates; // in meter
+	boolean isWithinSecureZone;
 
-    
+	public LocationSensor(Context context) {
+		this.context = context;
+		init();
+	}
+
+	private void init() {
+		allowedZoneRadius = 12.0f; // default radius; radius in m
+		minTimeBetweenLocationUpdates = 400; // default, value in ms
+		minDistanceBetweenLocationUpdates = 10;
+
+		isWithinSecureZone = false; // default value
+
+		// Get the location manager
+		locationManager = (LocationManager) context
+				.getSystemService(Context.LOCATION_SERVICE);
+		provider = LocationManager.NETWORK_PROVIDER; // default location tracking accuracy -> Wi-Fi & Cell Tower
+		Location location = locationManager.getLastKnownLocation(provider);
+
+		// START MOCK UP CONFIGURATION
+		allowedZoneCentralPoint = location;
+		
+		Map<String, String> mockUpConfig = new HashMap<String, String>();
+		configure(mockUpConfig);
+		// END MOCK UP CONFIGURATION
+
+		// Initialize the location fields
+		if (location != null) {
+			onLocationChanged(location);
+		} else {
+			Log.d(TAG, "no location available");
+		}
+	}
+
 	@Override
 	public void addContextListener(ContextListener listener) {
 		this.listener = listener;
@@ -84,50 +108,72 @@ public class LocationSensor implements ISensor, LocationListener{
 
 	@Override
 	public void enable() {
-		this.sensorEnabled = true;
-        locationManager.requestLocationUpdates(provider, 400, 1, this);
+		if (!sensorEnabled) {
+			sensorEnabled = true;
+			locationManager.requestLocationUpdates(
+					provider, 
+					minTimeBetweenLocationUpdates, 
+					minDistanceBetweenLocationUpdates, 
+					this
+			);
+		}
 	}
 
 	@Override
 	public void disable() {
-		this.sensorEnabled = false;
-        locationManager.removeUpdates(this);
+		if (sensorEnabled) {
+			this.sensorEnabled = false;
+			locationManager.removeUpdates(this);
+		}
 	}
 
 	@Override
 	public ContextEvent getLastFiredContextEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		if (contextEventHistory.size() > 0) {
+			return contextEventHistory.get(contextEventHistory.size() - 1);
+		} else {
+			return null;
+		}
 	}
 
 	public void configure(Map<String, String> config) {
 
-    }
-	
+	}
+
 	@Override
 	public void onLocationChanged(Location location) {
-		if(allowedZoneCentralPoint != null) {
-            int distance = (int) location.distanceTo(allowedZoneCentralPoint);
-            if(distance > allowedZoneRadius) {
-                //TODO create context event
-            }
-        }
-		/*
-        targetLocation = new Location("POINT_LOCATION");
-        targetLocation.setLatitude(targetLat);
-        targetLocation.setLongitude(targetLon);
-        int distance = (int) location.distanceTo(targetLocation);
-        distanceText.setText(distance + " m");
+		if (allowedZoneCentralPoint != null) {
+			int distance = (int) location.distanceTo(allowedZoneCentralPoint);
+			if (distance > allowedZoneRadius) {
+				Toast.makeText(context, "distance="+distance+"m", Toast.LENGTH_SHORT).show();
+				Log.d(TAG, "location sensor - is within secure zone: " + false + "; distance=" + distance);
+				if (isWithinSecureZone) { // just fire a context event if the user went from a secure zone to an insecure
+					createContextEvent(false);
+				}
+			} else {
+				Toast.makeText(context, "distance="+distance+"m", Toast.LENGTH_SHORT).show();
+				Log.d(TAG, "location sensor - is within secure zone: " + true + "; distance=" + distance);
+				if (!isWithinSecureZone) { // just fire a context event if the user went from a insecure zone to a secure
+					createContextEvent(true);
+				}
+			}
+		}
+	}
 
-        if(distance > radius) {
-            enterTextView.setText("outside");
-        }
-        else {
-            enterTextView.setText("inside");
-        }
-        */
-    }
-	
+	private void createContextEvent(boolean isWithinSecureZone) {
+		this.isWithinSecureZone = isWithinSecureZone;
+
+		ContextEvent contextEvent = new ContextEvent();
+		contextEvent.setType(TYPE);
+		contextEvent.setTimestamp(System.currentTimeMillis());
+		contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
+		contextEvent.addProperty(PROPERTY_KEY_IS_WITHIN_SECURE_ZONE, String.valueOf(isWithinSecureZone));
+
+		if (listener != null) {
+			listener.onEvent(contextEvent);
+		}
+	}
+
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 	}

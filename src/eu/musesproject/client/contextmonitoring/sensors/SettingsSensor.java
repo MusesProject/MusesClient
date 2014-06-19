@@ -25,7 +25,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.contextmodel.ContextEvent;
 
