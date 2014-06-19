@@ -41,8 +41,16 @@ public class LocationSensor implements ISensor, LocationListener {
 	public static final String TYPE = "CONTEXT_SENSOR_LOCATION";
 
     // context property keys
-    public static final String PROPERTY_KEY_ID 					= "id";
-    public static final String PROPERTY_KEY_IS_WITHIN_SECURE_ZONE= "insecurezone";
+    public static final String PROPERTY_KEY_ID 						= "id";
+    public static final String PROPERTY_KEY_IS_WITHIN_SECURE_ZONE	= "insecurezone";
+    
+    // config keys
+    public static final String PROPERTY_KEY_MIN_DIS 				= "mindistance";
+    public static final String PROPERTY_KEY_MIN_TIME				= "mindtime";
+    public static final String PROPERTY_KEY_LONGITUDE_SECURE_ZONE	= "locationlong";
+    public static final String PROPERTY_KEY_LATITUDE_SECURE_ZONE	= "locationlat";
+    public static final String PROPERTY_KEY_SECURE_ZONE_RADIUS		= "radius";
+    
 
 	private Context context;
 	private ContextListener listener;
@@ -69,6 +77,8 @@ public class LocationSensor implements ISensor, LocationListener {
 	}
 
 	private void init() {
+        sensorEnabled = false;
+        
 		allowedZoneRadius = 12.0f; // default radius; radius in m
 		minTimeBetweenLocationUpdates = 400; // default, value in ms
 		minDistanceBetweenLocationUpdates = 10;
@@ -137,11 +147,29 @@ public class LocationSensor implements ISensor, LocationListener {
 	}
 
 	public void configure(Map<String, String> config) {
-
+		try {
+			if(config.containsKey(PROPERTY_KEY_MIN_DIS)) {
+				minDistanceBetweenLocationUpdates = Integer.valueOf(config.get(PROPERTY_KEY_MIN_DIS));
+			}
+			if(config.containsKey(PROPERTY_KEY_MIN_TIME)) {
+				minTimeBetweenLocationUpdates = Integer.valueOf(config.get(PROPERTY_KEY_MIN_TIME));
+			}
+			if(config.containsKey(PROPERTY_KEY_LONGITUDE_SECURE_ZONE) && config.containsKey(PROPERTY_KEY_LATITUDE_SECURE_ZONE)) {
+				allowedZoneCentralPoint = new Location(provider);
+				allowedZoneCentralPoint.setLatitude(Double.valueOf(config.get(PROPERTY_KEY_LATITUDE_SECURE_ZONE)));
+				allowedZoneCentralPoint.setLongitude(Double.valueOf(config.get(PROPERTY_KEY_LONGITUDE_SECURE_ZONE)));
+			}
+			if(config.containsKey(PROPERTY_KEY_SECURE_ZONE_RADIUS)) {
+				allowedZoneRadius = Float.valueOf(config.get(PROPERTY_KEY_SECURE_ZONE_RADIUS));
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "could not map config value to correct type");
+		}
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
+		Log.d(TAG, "location sensor - : onLocationChanged");
 		if (allowedZoneCentralPoint != null) {
 			int distance = (int) location.distanceTo(allowedZoneCentralPoint);
 			if (distance > allowedZoneRadius) {

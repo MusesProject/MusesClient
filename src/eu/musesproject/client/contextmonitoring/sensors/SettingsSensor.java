@@ -63,6 +63,7 @@ public class SettingsSensor implements ISensor {
     }
     
     private void init() {
+        sensorEnabled = false;
     	// create an initial context event since the information
     	// gathered by this sensor does not change often
     	createContextEvent();
