@@ -85,12 +85,6 @@ public class SettingsSensor implements ISensor {
     	contextEvent.addProperty(PROPERTY_KEY_OS_VERSION, getOSVersion());
     	contextEvent.addProperty(PROPERTY_KEY_SDK_VERSION, getSDKVersion());
     	contextEvent.addProperty(PROPERTY_KEY_IMEI, getIMEI());
-
-    	Log.d(TAG, "system settings sensor:" +
-    			"id: " + contextEvent.getProperties().get(PROPERTY_KEY_ID) + 
-    			"; os version: " + contextEvent.getProperties().get(PROPERTY_KEY_OS_VERSION) + 
-    			"; sdk version: " + contextEvent.getProperties().get(PROPERTY_KEY_SDK_VERSION) + 
-    			"; imei " + contextEvent.getProperties().get(PROPERTY_KEY_IMEI));
     	
         if (listener != null) {
             listener.onEvent(contextEvent);
