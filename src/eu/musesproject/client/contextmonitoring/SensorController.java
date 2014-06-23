@@ -1,5 +1,25 @@
 package eu.musesproject.client.contextmonitoring;
 
+/*
+ * #%L
+ * musesclient
+ * %%
+ * Copyright (C) 2013 - 2014 HITEC
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +31,8 @@ import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
-import eu.musesproject.client.contextmonitoring.sensors.OSSensor;
+import eu.musesproject.client.contextmonitoring.sensors.LocationSensor;
+import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.actuators.Setting.SettingType;
@@ -62,8 +83,9 @@ public class SensorController {
         activeSensors.put(AppSensor.TYPE, new AppSensor(context));
         activeSensors.put(ConnectivitySensor.TYPE, new ConnectivitySensor(context));
         activeSensors.put(SettingsSensor.TYPE, new SettingsSensor(context));
-        activeSensors.put(OSSensor.TYPE, new OSSensor(context));
         activeSensors.put(FileSensor.TYPE, new FileSensor());
+        activeSensors.put(PackageSensor.TYPE, new PackageSensor(context));
+        activeSensors.put(LocationSensor.TYPE, new LocationSensor(context));
         for (ISensor sensor : activeSensors.values()) {
             sensor.addContextListener(contextEventBus);
             sensor.enable();
