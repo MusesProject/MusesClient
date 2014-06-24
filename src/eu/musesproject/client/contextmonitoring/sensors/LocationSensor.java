@@ -20,6 +20,7 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,8 @@ public class LocationSensor implements ISensor, LocationListener {
 
 	public LocationSensor(Context context) {
 		this.context = context;
+		contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
+		
 		init();
 	}
 
