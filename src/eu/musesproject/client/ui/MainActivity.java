@@ -92,7 +92,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		loginView = new LoginView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
-		setAppIconOnStatusBar();
+		//setAppIconOnStatusBar();
 	}
 	
 	

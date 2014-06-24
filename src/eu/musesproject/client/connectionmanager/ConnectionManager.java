@@ -178,9 +178,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 					params[1], params[2], params[3]);
 			
 			try {
-//				response = doSecurePost(request);
-				response = doPost(params[0], 
-					params[1], params[3]);
+				response = doSecurePost(request);
+//				response = doPost(params[0], 
+//					params[1], params[3]);
 				HttpResponseHandler httpResponseHandler = new HttpResponseHandler(response, request.getType());
 				httpResponseHandler.checkHttpResponse();
 			} catch (ClientProtocolException e) {

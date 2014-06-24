@@ -59,9 +59,11 @@ public class UserContextEventHandler {
     private static final String TAG = UserContextEventHandler.class.getSimpleName();
 
     private static UserContextEventHandler userContextEventHandler = null;
-	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
-//	private static final String MUSES_SERVER_URL = "http://192.168.41.100:8080/server/commain";
-//    private static final String MUSES_SERVER_URL = "http://172.17.3.5:8080/server-0.0.1-SNAPSHOT/commain";
+//	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
+	private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server/commain";
+//  private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server-0.0.1-SNAPSHOT/commain";
+//  private static final String MUSES_SERVER_URL = "http://192.168.44.107:8080/server/commain";
+//  private static final String MUSES_SERVER_URL = "http://172.17.3.5:8080/server-0.0.1-SNAPSHOT/commain";
 	
 	private Context context;
 
@@ -106,7 +108,7 @@ public class UserContextEventHandler {
      * connects to the MUSES server
      */
     public void connectToServer() {
-        connectionManager.connect(
+        connectionManager.connect(	
                 MUSES_SERVER_URL,
                 AlarmReceiver.DEFAULT_POLL_INTERVAL,
                 AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
