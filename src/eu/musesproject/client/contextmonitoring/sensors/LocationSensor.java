@@ -74,13 +74,13 @@ public class LocationSensor implements ISensor, LocationListener {
 
 	public LocationSensor(Context context) {
 		this.context = context;
-		contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
 		
 		init();
 	}
 
 	private void init() {
         sensorEnabled = false;
+        contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
         
 		allowedZoneRadius = 12.0f; // default radius; radius in m
 		minTimeBetweenLocationUpdates = 400; // default, value in ms
@@ -142,11 +142,12 @@ public class LocationSensor implements ISensor, LocationListener {
 
 	@Override
 	public ContextEvent getLastFiredContextEvent() {
-		if (contextEventHistory.size() > 0) {
-			return contextEventHistory.get(contextEventHistory.size() - 1);
-		} else {
-			return null;
-		}
+		if(contextEventHistory.size() > 0) {
+            return contextEventHistory.get(contextEventHistory.size() - 1);
+        }
+        else {
+            return null;
+        }
 	}
 
 	public void configure(Map<String, String> config) {
