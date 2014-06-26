@@ -21,13 +21,12 @@ package eu.musesproject.client.usercontexteventhandler;
  * #L%
  */
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+
 import eu.musesproject.client.db.entity.ContextEvent;
 import eu.musesproject.client.db.entity.Property;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by christophstanik on 4/22/14.
@@ -42,7 +41,7 @@ public class DBEntityParser {
         ContextEvent contextEvent = new ContextEvent();
         contextEvent.setId(0);
         contextEvent.setType(oldEvent.getType());
-        contextEvent.setTimestamp(oldEvent.getType());
+        contextEvent.setTimestamp(String.valueOf(oldEvent.getTimestamp()));
         return contextEvent;
     }
 
@@ -56,9 +55,7 @@ public class DBEntityParser {
     public static List<Property> transformProperty(long contextEventId, eu.musesproject.contextmodel.ContextEvent oldEvent) {
         List<Property> properties = new ArrayList<Property>();
 
-        Map<String, HashMap> entries = new HashMap<String, HashMap>();
-
-        for(Map.Entry<String, HashMap> entry : entries.entrySet()) {
+        for(Entry<String, String> entry : oldEvent.getProperties().entrySet()) {
             Property property = new Property();
             property.setId(0);
             property.setContextevent_id((int) contextEventId);
