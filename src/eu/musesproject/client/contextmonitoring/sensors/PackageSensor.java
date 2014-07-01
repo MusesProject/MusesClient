@@ -259,6 +259,7 @@ public class PackageSensor implements ISensor {
                 }
                 String packageStatusName = packageStatus != null ? packageStatus.toString() : "unknown";
                 
+                // prepare the context event creation
                 String[] params = new String[4];
                 params[0] = packageStatusName;
                 params[1] = packageName;
