@@ -225,25 +225,29 @@ public class PackageSensor implements ISensor {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
-            	  Uri uri = intent.getData();
-                  String packageName = uri != null ? uri.getSchemeSpecificPart() : "unknown";
+            	// retrieve the package name
+            	Uri uri = intent.getData();
+            	String packageName = uri != null ? uri.getSchemeSpecificPart() : "unknown";
+              
+            	// procedure to retrieve the application name
+            	PackageManager pm = context.getPackageManager();
+            	ApplicationInfo ai;
+            	try {
+            		ai = pm.getApplicationInfo(packageName, 0);
+            	} catch (final NameNotFoundException e) {
+            		ai = null;
+            	}
+            	String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "unknown");
+              
+            	// procedure to retrieve the version code of the application
+            	String appVersion;
+            	try {
+            		appVersion = String.valueOf(pm.getPackageInfo(packageName, 0).versionCode);
+            	} catch (NameNotFoundException e) {
+            	  appVersion = "- 1";
+            	}
                   
-                  PackageManager pm = context.getPackageManager();
-                  ApplicationInfo ai;
-                  try {
-                      ai = pm.getApplicationInfo(packageName, 0);
-                  } catch (final NameNotFoundException e) {
-                      ai = null;
-                  }
-                  String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "unknown");
-                  
-                  String appVersion;
-                  try {
-                	  appVersion = String.valueOf(pm.getPackageInfo(packageName, 0).versionCode);
-                  } catch (NameNotFoundException e) {
-                	  appVersion = "- 1";
-                  }
-                  
+            	// identify the package status
                 final String action = intent.getAction();
                 PackageStatus packageStatus = null;
                 if (action.equals(Intent.ACTION_PACKAGE_ADDED)) {
