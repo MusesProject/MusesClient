@@ -33,6 +33,7 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
@@ -44,175 +45,182 @@ import eu.musesproject.contextmodel.ContextEvent;
 
 /**
  * @author christophstanik
- *
- * Class to collect information about the decive configuration
+ * 
+ *         Class to collect information about the device configuration
  */
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class DeviceProtectionSensor implements ISensor {
-    private static final String TAG = DeviceProtectionSensor.class.getSimpleName();
+	private static final String TAG = DeviceProtectionSensor.class.getSimpleName();
 
-    // sensor identifier
-    public static final String TYPE = "CONTEXT_SENSOR_DEVICE_PROTECTION";
-    
-    // context property keys
-    public static final String PROPERTY_KEY_ID 						 = "id";
-    public static final String PROPERTY_KEY_IS_ROOTED				 = "isrooted";
-    public static final String PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN = "isrootpermissiongiven";
-    public static final String PROPERTY_KEY_IP_ADRESS	 			 = "ipaddress";
-    public static final String PROPERTY_KEY_IS_PASSWORD_PROTECTED	 = "ispasswordprotected";
-    public static final String PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS= "screentimeoutinseconds";
-    public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED	 = "istrustedantivirusinstalled";
+	// sensor identifier
+	public static final String TYPE = "CONTEXT_SENSOR_DEVICE_PROTECTION";
 
-    private Context context;
-    private ContextListener listener;
+	// context property keys
+	public static final String PROPERTY_KEY_ID = "id";
+	public static final String PROPERTY_KEY_IS_ROOTED = "isrooted";
+	public static final String PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN = "isrootpermissiongiven";
+	public static final String PROPERTY_KEY_IP_ADRESS = "ipaddress";
+	public static final String PROPERTY_KEY_IS_PASSWORD_PROTECTED = "ispasswordprotected";
+	public static final String PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS = "screentimeoutinseconds";
+	public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED = "istrustedantivirusinstalled";
 
-    // history of fired context events
-    List<ContextEvent> contextEventHistory;
+	private Context context;
+	private ContextListener listener;
 
-    // holds a value that indicates if the sensor is enabled or disabled
-    private boolean sensorEnabled;
-    
+	// history of fired context events
+	List<ContextEvent> contextEventHistory;
 
-    // list with names of trusted anti virus applications
-    private List<String> trustedAVs;
+	// holds a value that indicates if the sensor is enabled or disabled
+	private boolean sensorEnabled;
 
+	// list with names of trusted anti virus applications
+	private List<String> trustedAVs;
 
-    public DeviceProtectionSensor(Context context) {
-        this.context = context;
-        contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
-        
-        init();
-    }
-    
-    private void init() {
-        sensorEnabled = false;
-        
-        trustedAVs = new ArrayList<String>();
-        mockTrustedDevices();
-    	// create an initial context event since the information
-    	// gathered by this sensor does not change often
-    	createContextEvent();
-    }
+	public DeviceProtectionSensor(Context context) {
+		this.context = context;
+		contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
 
-    private void mockTrustedDevices() {
-        trustedAVs.add("avast! Mobile Security");
-        trustedAVs.add("Mobile Security & Antivirus");
-        trustedAVs.add("Avira Antivirus Security");
-        trustedAVs.add("Norton Security & Antivirus");
-        trustedAVs.add("CM Security & Find My Phone");
+		init();
+	}
+
+	private void init() {
+		sensorEnabled = false;
+
+		trustedAVs = new ArrayList<String>();
+		mockTrustedDevices();
+		// create an initial context event since the information
+		// gathered by this sensor does not change often
+		new CreateContextEventAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	}
+
+	private void mockTrustedDevices() {
+		trustedAVs.add("avast! Mobile Security");
+		trustedAVs.add("Mobile Security & Antivirus");
+		trustedAVs.add("Avira Antivirus Security");
+		trustedAVs.add("Norton Security & Antivirus");
+		trustedAVs.add("CM Security & Find My Phone");
 	}
 
 	@Override
-    public void enable() {
-    	if (!sensorEnabled) {
-    		sensorEnabled = true;
-    	}
-    }
+	public void enable() {
+		if (!sensorEnabled) {
+			sensorEnabled = true;
+		}
+	}
 
-    private void createContextEvent() {
-    	// create context event
-    	ContextEvent contextEvent = new ContextEvent();
-    	contextEvent.setType(TYPE);
-    	contextEvent.setTimestamp(System.currentTimeMillis());
-        contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
-        contextEvent.addProperty(PROPERTY_KEY_IS_ROOTED, String.valueOf(checkDeviceRooted()));
-        contextEvent.addProperty(PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN,String.valueOf(checkRootPermissionGiven()));
-        contextEvent.addProperty(PROPERTY_KEY_IP_ADRESS, getIPAddress(true));
-        contextEvent.addProperty(PROPERTY_KEY_IS_PASSWORD_PROTECTED,String.valueOf(isPasswordProtected()));
-        contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS,String.valueOf(getScreenTimeout()));
-        contextEvent.addProperty(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED, String.valueOf(isTrustedAntiVirInstalled())); // do in async
-        
-        Log.d("TESt", "DEVICE PROTECTION: " + String.valueOf(getScreenTimeout()));
-        
-        if (listener != null) {
-            listener.onEvent(contextEvent);
-        }
-    }
+	private void createContextEvent() {
+		// create context event
+		ContextEvent contextEvent = new ContextEvent();
+		contextEvent.setType(TYPE);
+		contextEvent.setTimestamp(System.currentTimeMillis());
+		contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory .size() + 1) : -1));
+		contextEvent.addProperty(PROPERTY_KEY_IS_ROOTED, String.valueOf(checkDeviceRooted()));
+		contextEvent.addProperty(PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN, String.valueOf(checkRootPermissionGiven()));
+		contextEvent.addProperty(PROPERTY_KEY_IP_ADRESS, getIPAddress(true));
+		contextEvent.addProperty(PROPERTY_KEY_IS_PASSWORD_PROTECTED, String.valueOf(isPasswordProtected()));
+		contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS, String.valueOf(getScreenTimeout()));
+		contextEvent.addProperty(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED, String.valueOf(isTrustedAntiVirInstalled())); // do in async
+
+		if (listener != null) {
+			listener.onEvent(contextEvent);
+		}
+	}
 
 	public boolean checkDeviceRooted() {
-        return RootTools.isRootAvailable();
-    }
+		return RootTools.isRootAvailable();
+	}
 
-    public boolean checkRootPermissionGiven() {
-        return RootTools.isAccessGiven();
-    }
+	public boolean checkRootPermissionGiven() {
+		return RootTools.isAccessGiven();
+	}
 
-    public String getIPAddress(boolean useIPv4) {
-        try {
-            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface intf : interfaces) {
-                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
-                for (InetAddress addr : addrs) {
-                    if (!addr.isLoopbackAddress()) {
-                        String sAddr = addr.getHostAddress().toUpperCase();
-                        boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
-                        if (useIPv4) {
-                            if (isIPv4)
-                                return sAddr;
-                        } else {
-                            if (!isIPv4) {
-                                int delim = sAddr.indexOf('%'); // drop ip6 port suffix
-                                return delim<0 ? sAddr : sAddr.substring(0, delim);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) { } // for now eat exceptions
-        return "";
-    }
+	public String getIPAddress(boolean useIPv4) {
+		try {
+			List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+			for (NetworkInterface intf : interfaces) {
+				List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+				for (InetAddress addr : addrs) {
+					if (!addr.isLoopbackAddress()) {
+						String sAddr = addr.getHostAddress().toUpperCase();
+						boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
+						if (useIPv4) {
+							if (isIPv4)
+								return sAddr;
+						} else {
+							if (!isIPv4) {
+								int delim = sAddr.indexOf('%');
+								return delim < 0 ? sAddr : sAddr.substring(0,
+										delim);
+							}
+						}
+					}
+				}
+			}
+		} catch (Exception ex) {
+		} // for now eat exceptions
+		return "";
+	}
 
-    public boolean isPasswordProtected() {
-        KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-        
-        return keyguardManager.isKeyguardSecure();
-    }
+	public boolean isPasswordProtected() {
+		KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
 
-    private int getScreenTimeout() {
+		return keyguardManager.isKeyguardSecure();
+	}
+
+	private int getScreenTimeout() {
 		return (Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 3000) / 1000);
 	}
 
-    public boolean isTrustedAntiVirInstalled() {
-        PackageManager packageManager = context.getPackageManager();
-        List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-        for(ApplicationInfo appInfo : installedApps) {
-            String appName = appInfo.loadLabel(packageManager).toString();
+	public boolean isTrustedAntiVirInstalled() {
+		PackageManager packageManager = context.getPackageManager();
+		List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+		for (ApplicationInfo appInfo : installedApps) {
+			String appName = appInfo.loadLabel(packageManager).toString();
 
-            for(String trustedAVName : trustedAVs) {
-                if(trustedAVName.equals(appName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
+			for (String trustedAVName : trustedAVs) {
+				if (trustedAVName.equals(appName)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
-    @Override
-    public void disable() {
-    	if(sensorEnabled) {
-    		sensorEnabled = false;
-    	}
-    }
-    
-    @Override
-    public void addContextListener(ContextListener listener) {
-        this.listener = listener;
-    }
+	@Override
+	public void disable() {
+		if (sensorEnabled) {
+			sensorEnabled = false;
+		}
+	}
 
-    @Override
-    public void removeContextListener(ContextListener listener) {
-        this.listener = listener;
-    }
+	@Override
+	public void addContextListener(ContextListener listener) {
+		this.listener = listener;
+	}
 
-    @Override
-    public ContextEvent getLastFiredContextEvent() {
-        if(contextEventHistory.size() > 0) {
-            return contextEventHistory.get(contextEventHistory.size() - 1);
-        }
-        else {
-            return null;
-        }
-    }
+	@Override
+	public void removeContextListener(ContextListener listener) {
+		this.listener = listener;
+	}
+
+	@Override
+	public ContextEvent getLastFiredContextEvent() {
+		if (contextEventHistory.size() > 0) {
+			return contextEventHistory.get(contextEventHistory.size() - 1);
+		} else {
+			return null;
+		}
+	}
+
+	private class CreateContextEventAsync extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			if (sensorEnabled) {
+				createContextEvent();
+			}
+			return null;
+		}
+	}
 }
