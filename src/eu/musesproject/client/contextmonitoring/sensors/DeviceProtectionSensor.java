@@ -34,6 +34,8 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.provider.Settings;
+import android.util.Log;
 
 import com.stericson.RootTools.RootTools;
 
@@ -54,10 +56,13 @@ public class DeviceProtectionSensor implements ISensor {
     public static final String TYPE = "CONTEXT_SENSOR_DEVICE_PROTECTION";
     
     // context property keys
-    public static final String PROPERTY_KEY_ID 					= "id";
-    public static final String PROPERTY_KEY_OS_VERSION 			= "osversion";
-    public static final String PROPERTY_KEY_SDK_VERSION 		= "sdkversion";
-    public static final String PROPERTY_KEY_IMEI		 		= "imei";
+    public static final String PROPERTY_KEY_ID 						 = "id";
+    public static final String PROPERTY_KEY_IS_ROOTED				 = "isrooted";
+    public static final String PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN = "isrootpermissiongiven";
+    public static final String PROPERTY_KEY_IP_ADRESS	 			 = "ipaddress";
+    public static final String PROPERTY_KEY_IS_PASSWORD_PROTECTED	 = "ispasswordprotected";
+    public static final String PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS= "screentimeoutinseconds";
+    public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED	 = "istrustedantivirusinstalled";
 
     private Context context;
     private ContextListener listener;
@@ -110,14 +115,22 @@ public class DeviceProtectionSensor implements ISensor {
     	ContextEvent contextEvent = new ContextEvent();
     	contextEvent.setType(TYPE);
     	contextEvent.setTimestamp(System.currentTimeMillis());
-    	
+        contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
+        contextEvent.addProperty(PROPERTY_KEY_IS_ROOTED, String.valueOf(checkDeviceRooted()));
+        contextEvent.addProperty(PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN,String.valueOf(checkRootPermissionGiven()));
+        contextEvent.addProperty(PROPERTY_KEY_IP_ADRESS, getIPAddress(true));
+        contextEvent.addProperty(PROPERTY_KEY_IS_PASSWORD_PROTECTED,String.valueOf(isPasswordProtected()));
+        contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS,String.valueOf(getScreenTimeout()));
+        contextEvent.addProperty(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED, String.valueOf(isTrustedAntiVirInstalled())); // do in async
+        
+        Log.d("TESt", "DEVICE PROTECTION: " + String.valueOf(getScreenTimeout()));
+        
         if (listener != null) {
             listener.onEvent(contextEvent);
         }
     }
-    
 
-    public boolean checkDeviceRooted() {
+	public boolean checkDeviceRooted() {
         return RootTools.isRootAvailable();
     }
 
@@ -156,6 +169,10 @@ public class DeviceProtectionSensor implements ISensor {
         return keyguardManager.isKeyguardSecure();
     }
 
+    private int getScreenTimeout() {
+		return (Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 3000) / 1000);
+	}
+
     public boolean isTrustedAntiVirInstalled() {
         PackageManager packageManager = context.getPackageManager();
         List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
@@ -164,7 +181,6 @@ public class DeviceProtectionSensor implements ISensor {
 
             for(String trustedAVName : trustedAVs) {
                 if(trustedAVName.equals(appName)) {
-//                    Log.w(getClass().getSimpleName(), "trusted AV name: " + appName);
                     return true;
                 }
             }
