@@ -21,7 +21,9 @@ package eu.musesproject.client.contextmonitoring.sensors;
  */
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -84,7 +86,7 @@ public class PackageSensor implements ISensor {
         init();
         
         // create a list of installed ups and hold it
-        createContextEvent(null, INITIAL_STARTUP, INITIAL_STARTUP, INITIAL_STARTUP);
+        createContextEvent(null, INITIAL_STARTUP, INITIAL_STARTUP, "-1");
     }
     
 	private void init() {
@@ -139,8 +141,16 @@ public class PackageSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_PACKAGE_NAME, packageName);
         contextEvent.addProperty(PROPERTY_KEY_APP_NAME, appName);
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, appVersion);
-        contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps()); // maybe this should be in an async
+        contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps()); // TODO put in asynctask
         
+        // just for debugging/testing purpose
+//        Iterator it = contextEvent.getProperties().entrySet().iterator();
+//        while (it.hasNext()) {
+//            Map.Entry pairs = (Map.Entry)it.next();
+//            Log.d("TESt", "package sensor result: " + pairs.getKey() + " = " + pairs.getValue());
+//            it.remove(); // avoids a ConcurrentModificationException
+//        }
+//        
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
         if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
