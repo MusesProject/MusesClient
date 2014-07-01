@@ -28,7 +28,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -72,10 +75,8 @@ public class PackageSensor implements ISensor {
     // broadcast receiver fields
     final PackageBroadcastReceiver packageReceiver = new PackageBroadcastReceiver();
     final IntentFilter packageAddedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-    final IntentFilter packageRemovedIntentFilter = new IntentFilter(
-            Intent.ACTION_PACKAGE_REMOVED);
-    final IntentFilter packageUpdatedIntentFilter = new IntentFilter(
-            Intent.ACTION_PACKAGE_REPLACED);
+    final IntentFilter packageRemovedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
+    final IntentFilter packageUpdatedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_REPLACED);
 
 
     public PackageSensor(Context context) {
@@ -83,10 +84,10 @@ public class PackageSensor implements ISensor {
         init();
         
         // create a list of installed ups and hold it
-        createContextEvent(INITIAL_STARTUP);
+        createContextEvent(null, INITIAL_STARTUP, INITIAL_STARTUP, INITIAL_STARTUP);
     }
-
-    private void init() {
+    
+	private void init() {
         sensorEnabled = false;
         contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
     }
@@ -129,16 +130,16 @@ public class PackageSensor implements ISensor {
         }
     }
 
-    private void createContextEvent(String packageStatus) {
+    private void createContextEvent(PackageStatus packageStatus, String packageName, String appName, String appVersion) {
         ContextEvent contextEvent = new ContextEvent();
         contextEvent.setType(TYPE);
         contextEvent.setTimestamp(System.currentTimeMillis());
         contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
-        contextEvent.addProperty(PROPERTY_KEY_PACKAGE_STATUS, packageStatus);
-        contextEvent.addProperty(PROPERTY_KEY_PACKAGE_NAME, "");
-        contextEvent.addProperty(PROPERTY_KEY_APP_NAME, "");
-        contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, "");
-        contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps());
+        contextEvent.addProperty(PROPERTY_KEY_PACKAGE_STATUS, packageStatus != null ? packageStatus.toString() : "unknown");
+        contextEvent.addProperty(PROPERTY_KEY_PACKAGE_NAME, packageName);
+        contextEvent.addProperty(PROPERTY_KEY_APP_NAME, appName);
+        contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, appVersion);
+        contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps()); // maybe this should be in an async
         
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
@@ -166,10 +167,17 @@ public class PackageSensor implements ISensor {
 
         PackageManager packageManager = context.getPackageManager();
         List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+        PackageInfo pInfo; 
         for(ApplicationInfo appInfo : installedApps) {
             String appName = appInfo.loadLabel(packageManager).toString();
             String packageName = appInfo.packageName;
-            installedAppsFormatted += appName + "," + packageName;
+            String appVersion;
+            try {
+				appVersion = String.valueOf(packageManager.getPackageInfo(packageName, 0).versionCode);
+			} catch (NameNotFoundException e) {
+				appVersion = "- 1";
+			}
+            installedAppsFormatted += appName + "," + packageName + "," + appVersion;
             installedAppsFormatted += ";";
         }
         // remove last separation item
@@ -192,14 +200,36 @@ public class PackageSensor implements ISensor {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
+            	  Uri uri = intent.getData();
+                  String packageName = uri != null ? uri.getSchemeSpecificPart() : "unknown";
+                  
+                  PackageManager pm = context.getPackageManager();
+                  ApplicationInfo ai;
+                  try {
+                      ai = pm.getApplicationInfo(packageName, 0);
+                  } catch (final NameNotFoundException e) {
+                      ai = null;
+                  }
+                  String appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "unknown");
+                  
+                  String appVersion;
+                  try {
+                	  appVersion = String.valueOf(pm.getPackageInfo(packageName, 0).versionCode);
+                  } catch (NameNotFoundException e) {
+                	  appVersion = "- 1";
+                  }
+                  
                 final String action = intent.getAction();
+                PackageStatus packageStatus = null;
                 if (action.equals(Intent.ACTION_PACKAGE_ADDED)) {
-                    createContextEvent(PackageStatus.INSTALLED.toString());
+                    packageStatus = PackageStatus.INSTALLED;
                 } else if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
-                    createContextEvent(PackageStatus.REMOVED.toString());
+                	packageStatus = PackageStatus.REMOVED;
                 } else if (action.equals(Intent.ACTION_PACKAGE_REPLACED)) {
-                    createContextEvent(PackageStatus.UPDATED.toString());
+                	packageStatus = PackageStatus.UPDATED;
                 }
+                
+                createContextEvent(packageStatus, packageName, appName, appVersion);
             }
         }
     }
