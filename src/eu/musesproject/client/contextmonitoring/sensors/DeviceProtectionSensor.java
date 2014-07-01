@@ -76,6 +76,8 @@ public class DeviceProtectionSensor implements ISensor {
 	// list with names of trusted anti virus applications
 	private List<String> trustedAVs;
 
+    private boolean initialContextEventFired;
+    
 	public DeviceProtectionSensor(Context context) {
 		this.context = context;
 		contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
@@ -88,9 +90,19 @@ public class DeviceProtectionSensor implements ISensor {
 
 		trustedAVs = new ArrayList<String>();
 		mockTrustedDevices();
-		// create an initial context event since the information
-		// gathered by this sensor does not change often
-		new CreateContextEventAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		
+        initialContextEventFired = false;
+	}
+	
+	private void createInitialContextEvent() {
+        // create a list of installed ups and hold it
+		if(!initialContextEventFired) {
+			// create an initial context event since the information
+			// gathered by this sensor does not change often
+			new CreateContextEventAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			
+			initialContextEventFired = true;
+		}
 	}
 
 	private void mockTrustedDevices() {
@@ -105,6 +117,8 @@ public class DeviceProtectionSensor implements ISensor {
 	public void enable() {
 		if (!sensorEnabled) {
 			sensorEnabled = true;
+			
+            createInitialContextEvent();
 		}
 	}
 
