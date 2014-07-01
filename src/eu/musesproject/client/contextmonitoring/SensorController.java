@@ -85,7 +85,7 @@ public class SensorController {
         activeSensors.put(SettingsSensor.TYPE, new SettingsSensor(context));
         activeSensors.put(FileSensor.TYPE, new FileSensor());
         activeSensors.put(PackageSensor.TYPE, new PackageSensor(context));
-        activeSensors.put(PackageSensor.TYPE, new DeviceProtectionSensor(context));
+        activeSensors.put(DeviceProtectionSensor.TYPE, new DeviceProtectionSensor(context));
 //        activeSensors.put(LocationSensor.TYPE, new LocationSensor(context));
 //        activeSensors.put(InteractionSensor.TYPE, new InteractionSensor());
         for (ISensor sensor : activeSensors.values()) {

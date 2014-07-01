@@ -32,6 +32,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -77,20 +78,35 @@ public class PackageSensor implements ISensor {
     final IntentFilter packageAddedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
     final IntentFilter packageRemovedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
     final IntentFilter packageUpdatedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_REPLACED);
+    
+    private boolean initialContextEventFired;
 
 
     public PackageSensor(Context context) {
         this.context = context;
         init();
-        
-        // create a list of installed ups and hold it
-        createContextEvent(null, INITIAL_STARTUP, INITIAL_STARTUP, "-1");
     }
     
 	private void init() {
         sensorEnabled = false;
         contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
+        initialContextEventFired = false;
     }
+	
+	private void createInitialContextEvent() {
+        // create a list of installed ups and hold it
+		if(!initialContextEventFired) {
+			String[] params = new String[4];
+			params[0] = INITIAL_STARTUP;
+			params[1] = INITIAL_STARTUP;
+			params[2] = INITIAL_STARTUP;
+			params[3] = "-1";
+			
+			new CreateContextEventAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+			
+			initialContextEventFired = true;
+		}
+	}
 
     @Override
     public void enable() {
@@ -98,6 +114,7 @@ public class PackageSensor implements ISensor {
             Log.d(TAG, "start package sensor");
             sensorEnabled = true;
             registerPackageBroadcastReceiver();
+            createInitialContextEvent();
         }
     }
 
@@ -130,16 +147,16 @@ public class PackageSensor implements ISensor {
         }
     }
 
-    private void createContextEvent(PackageStatus packageStatus, String packageName, String appName, String appVersion) {
+    private void createContextEvent(String packageStatus, String packageName, String appName, String appVersion) {
         ContextEvent contextEvent = new ContextEvent();
         contextEvent.setType(TYPE);
         contextEvent.setTimestamp(System.currentTimeMillis());
         contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
-        contextEvent.addProperty(PROPERTY_KEY_PACKAGE_STATUS, packageStatus != null ? packageStatus.toString() : "unknown");
+        contextEvent.addProperty(PROPERTY_KEY_PACKAGE_STATUS, packageStatus);
         contextEvent.addProperty(PROPERTY_KEY_PACKAGE_NAME, packageName);
         contextEvent.addProperty(PROPERTY_KEY_APP_NAME, appName);
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, appVersion);
-        contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps()); // TODO put in asynctask
+        contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps());
         
         // just for debugging/testing purpose
 //        Iterator it = contextEvent.getProperties().entrySet().iterator();
@@ -148,7 +165,7 @@ public class PackageSensor implements ISensor {
 //            Log.d("TESt", "package sensor result: " + pairs.getKey() + " = " + pairs.getValue());
 //            it.remove(); // avoids a ConcurrentModificationException
 //        }
-//        
+        
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
         if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
@@ -236,9 +253,30 @@ public class PackageSensor implements ISensor {
                 } else if (action.equals(Intent.ACTION_PACKAGE_REPLACED)) {
                 	packageStatus = PackageStatus.UPDATED;
                 }
+                String packageStatusName = packageStatus != null ? packageStatus.toString() : "unknown";
                 
-                createContextEvent(packageStatus, packageName, appName, appVersion);
+                String[] params = new String[4];
+                params[0] = packageStatusName;
+                params[1] = packageName;
+                params[2] = appName;
+                params[3] = appVersion;
+                
+                new CreateContextEventAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
             }
         }
     }
+    
+
+	private class CreateContextEventAsync extends AsyncTask<String, Void, Void> {
+
+		@Override
+		protected Void doInBackground(String... params) {
+			if (sensorEnabled) {
+				if(params.length == 4) {
+					createContextEvent(params[0], params[1], params[2], params[3]);
+				}
+			}
+			return null;
+		}
+	}
 }
