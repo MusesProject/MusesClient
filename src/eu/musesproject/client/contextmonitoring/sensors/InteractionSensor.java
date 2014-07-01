@@ -7,11 +7,14 @@ import android.accessibilityservice.AccessibilityService;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.model.contextmonitoring.InteractionDictionary;
+import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -56,41 +59,31 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 		}
 	}
 
-	private void createContextEvent(AccessibilityEvent accEvent) {
-		if(sensorEnabled) {
-			// retrieve the package name of the current app
-			String foregroundAppPackageName = "unknown";
-			try {
-				foregroundAppPackageName = (String) accEvent.getSource()
-						.getPackageName();
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-			}
-			
-			// retrieve the current app name based on the package name
-			String appName = "unknown";
-			final PackageManager pm = getApplicationContext().getPackageManager();
-			ApplicationInfo ai;
-			try {
-				ai = pm.getApplicationInfo( this.getPackageName(), 0);
-			} catch (final NameNotFoundException e) {
-				ai = null;
-			}
-			appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "unknown");
-			
-			// create context event
-			ContextEvent contextEvent = new ContextEvent();
-			contextEvent.setType(TYPE);
-			contextEvent.setTimestamp(System.currentTimeMillis());
-			contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
-			contextEvent.addProperty(PROPERTY_FOREGROUND_APP_PACKAGENAME, foregroundAppPackageName);
-			contextEvent.addProperty(PROPERTY_FOREGROUND_APP_NAME, appName);
-			contextEvent.addProperty(PROPERTY_CONTAINS_PASSWORDFIELDS, String.valueOf(isOneChildPassword(accEvent.getSource(), "")));
-			
-			if (listener != null) {
-				listener.onEvent(contextEvent);
-			}
+	private void createContextEvent(String actionType, String containsPasswordField, String foregroundAppPackageName, String appName) {
+		// create context event
+		ContextEvent contextEvent = new ContextEvent();
+		contextEvent.setType(TYPE);
+		contextEvent.setTimestamp(System.currentTimeMillis());
+		contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
+		contextEvent.addProperty(PROPERTY_FOREGROUND_APP_PACKAGENAME, foregroundAppPackageName);
+		contextEvent.addProperty(PROPERTY_FOREGROUND_APP_NAME, appName);
+		contextEvent.addProperty(PROPERTY_CONTAINS_PASSWORDFIELDS, containsPasswordField);
+		
+		if (listener != null) {
+			listener.onEvent(contextEvent);
 		}
+	}
+
+	/**
+	 * Method that returns whether an app is listed as an app
+	 * that should be observed. Like e.g. Gmail to detect interactions
+	 * with the mail application
+	 * 
+	 * @param appName current active app
+	 * @return true if app should be observed
+	 */
+	private boolean isAppUnderObservation(String appName) {
+		return appName.equalsIgnoreCase("Gmail"); // just for testing purpose hard coded.
 	}
 
 	@Override
@@ -168,20 +161,11 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			for (int i = 0; i < source.getChildCount(); i++) {
 				AccessibilityNodeInfo child = source.getChild(i);
 
-				// usefull for debugging to see to what point the View could be
-				// read
-				// if (child.getClassName().equals("android.widget.TextView"))
-				// Log.d(TAG, generation + child.getClassName() + " = " +
-				// child.getText());
-				// else
-				// Log.d(TAG, generation + child.getClassName());
-
 				if (child.isPassword()) {
 					thisRun = true;
 				}
 
-				// recursively call this method again, to check children of this
-				// child
+				// recursively call this method again, to check children of this child
 				if (child.getChildCount() > 0) {
 					nextRun = isOneChildPassword(child, generation.concat("> "));
 				}
@@ -205,15 +189,84 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		Log.d(TAG + "Event", AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType()));
 
-		if (sensorEnabled) {
-			createContextEvent(accessibilityEvent);
-		}
+		new InteractionObserverAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, accessibilityEvent);
 	}
 
 	@Override
 	public void onInterrupt() {
 		Log.d(TAG, "DetectPasswordFieldsAccessibilityService:onInterrupt");
+	}
+	
+	private class InteractionObserverAsync extends AsyncTask<AccessibilityEvent, Void, Void> {
+
+		@Override
+		protected Void doInBackground(AccessibilityEvent... params) {
+			if(params.length == 1) {
+				AccessibilityEvent accessibilityEvent = params[0];
+				if (sensorEnabled) {
+					String foregroundAppPackageName = "unknown";
+					try {
+						foregroundAppPackageName = (String) accessibilityEvent.getSource().getPackageName();
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+					
+					// retrieve the current app name based on the package name
+					String appName = "unknown";
+					final PackageManager pm = getApplicationContext().getPackageManager();
+					ApplicationInfo ai;
+					try {
+						ai = pm.getApplicationInfo(InteractionSensor.this.getPackageName(), 0);
+					} catch (final NameNotFoundException e) {
+						ai = null;
+					}
+					appName = (String) (ai != null ? pm.getApplicationLabel(ai) : "unknown");
+					
+					// just react on specified apps / app types
+					if(isAppUnderObservation(appName)) {
+						switch (accessibilityEvent.getEventType()) {
+							// just react on view clicked events
+							case AccessibilityEvent.TYPE_VIEW_CLICKED:
+								String containsPasswordField = String.valueOf(isOneChildPassword(accessibilityEvent.getSource(), ""));
+								String actionType = observeMailApplication(accessibilityEvent);
+								if(actionType != null) {
+									createContextEvent(actionType, containsPasswordField, foregroundAppPackageName, appName);
+								}
+							break;
+						}
+					}
+				}
+			}
+			return null;
+		}
+		
+		// returns the text of clicked view
+		private String getEventText(AccessibilityEvent event) {
+			StringBuilder sb = new StringBuilder();
+	        for (CharSequence s : event.getText()) {
+	            sb.append(s);
+	        }
+	        return sb.toString();
+	    }
+		
+		private String observeMailApplication(AccessibilityEvent event) {
+			String eventText = getEventText(event);
+			
+			// check (in different languages) if file is attached
+			for(String dictionaryEntry : InteractionDictionary.ATTACH_FILE) { 
+				if(eventText.equalsIgnoreCase(dictionaryEntry)) {
+					return ActionType.FILE_ATTACHED;
+				}
+			}
+			// check (in different languages) if mail is send
+			for(String dictionaryEntry : InteractionDictionary.SEND) { 
+				if(eventText.equalsIgnoreCase(dictionaryEntry)) {
+					return ActionType.SEND_MAIL;
+				}
+			}
+			
+			return null;
+		}
 	}
 }
