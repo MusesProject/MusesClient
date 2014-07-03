@@ -1,6 +1,3 @@
-/**
- * 
- */
 package eu.musesproject.client.actuators;
 
 /*
@@ -23,7 +20,6 @@ package eu.musesproject.client.actuators;
  * #L%
  */
 
-
 import android.util.Log;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
@@ -41,9 +37,11 @@ public class ActuatorController implements IActuatorController {
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
     private FeedbackActuator feedbackActuator;
+    private IBlockActuator blockActuator;
 
     public ActuatorController() {
         this.feedbackActuator = new FeedbackActuator();
+        this.blockActuator = new BlockActuator(uceHandler.getContext());
     }
 
     public static ActuatorController getInstance() {
@@ -62,9 +60,14 @@ public class ActuatorController implements IActuatorController {
         Log.d(TAG, "called: sendLoginResponse(boolean loginResponse)");
         feedbackActuator.sendLoginResponseToUI(loginResponse);
     }
-
-    public void sendResponseToMusesAwareApp() {
-
+    
+    /**
+     * Method to block a specific app by killing its process
+     * 
+     * @param packageName package name of the app that should be blocked
+     */
+    public void block(String packageName) {
+    	blockActuator.block(packageName);
     }
 
     @Override
