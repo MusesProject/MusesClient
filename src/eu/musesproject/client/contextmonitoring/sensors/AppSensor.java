@@ -33,7 +33,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.util.Log;
 import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -62,6 +61,7 @@ public class AppSensor implements ISensor {
     // context property keys
     public static final String PROPERTY_KEY_ID 					= "id";
     public static final String PROPERTY_KEY_APP_NAME 			= "appname";
+    public static final String PROPERTY_KEY_PACKAGE_NAME		= "packagename";
     public static final String PROPERTY_KEY_BACKGROUND_PROCESS 	= "backgroundprocess";
 
     private Context context;
@@ -94,9 +94,7 @@ public class AppSensor implements ISensor {
      * @param runningServices list of background services
      * @param appName name of the currently active application
      */
-    private void createContextEvent(String appName, List<RunningServiceInfo> runningServices) {
-        Log.d(TAG, "APP - context event created: " +appName);
-
+    private void createContextEvent(String appName, String packageName, List<RunningServiceInfo> runningServices) {
         // get the running services
         List<String> runningServicesNames = new ArrayList<String>();
         for (RunningServiceInfo runningServiceInfo : runningServices) {
@@ -109,6 +107,7 @@ public class AppSensor implements ISensor {
         contextEvent.setTimestamp(System.currentTimeMillis());
         contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
         contextEvent.addProperty(PROPERTY_KEY_APP_NAME, appName);
+        contextEvent.addProperty(PROPERTY_KEY_PACKAGE_NAME, packageName);
         contextEvent.addProperty(PROPERTY_KEY_BACKGROUND_PROCESS, runningServicesNames.toString());
 
         // add context event to the context event history
@@ -167,14 +166,14 @@ public class AppSensor implements ISensor {
                     // fill previousApp with the first one in session
                     // and set the start time of the first application
                     if(previousApp.equals("")) {
-                        createContextEvent(foregroundTaskAppName, runningServices);
+                        createContextEvent(foregroundTaskAppName, foregroundTaskPackageName, runningServices);
                         previousApp = foregroundTaskAppName;
                     }
 
                     // if the foreground application changed, create a context event
                     if(!foregroundTaskAppName.equals(previousApp)) {
                         if(!foregroundTaskAppName.equals(context.getResources().getString(R.string.app_name))) {
-                        	createContextEvent(foregroundTaskAppName, runningServices);
+                        	createContextEvent(foregroundTaskAppName, foregroundTaskPackageName, runningServices);
                         	previousApp = foregroundTaskAppName;
                         }
                     }
