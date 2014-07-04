@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import eu.musesproject.client.db.entity.Action;
+import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.ContextEvent;
 import eu.musesproject.client.db.entity.Decision;
 import eu.musesproject.client.db.entity.DecisionTable;
@@ -94,7 +95,18 @@ public class DBManager {
 																	  + "device_id VARCHAR(45) NOT NULL,"
 																	  + "username VARCHAR(45) NOT NULL,"
 																	  + "password VARCHAR(45) NOT NULL);";
-	
+
+	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
+			  + "id INTEGER PRIMARY KEY," 
+			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
+			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
+			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
+			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain');"
+			  + "timeout INTEGER NOT NULL DEFAULT 5000);"
+			  + "poll_timeout INTEGER NOT NULL DEFAULT 10000);"
+			  + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000);"
+			  + "polling_enabled INTEGER NOT NULL DEFAULT 1);";
+
 	// Tables name 
 	public static final String TABLE_POLICES = "polices";
 	public static final String TABLE_DECISIONTABLE = "decisiontable";
@@ -109,6 +121,7 @@ public class DBManager {
 	public static final String TABLE_CONTEXT_EVENT = "contextevent";
 	public static final String TABLE_PROPERTY = "property";
 	public static final String TABLE_USER_CREADENTIALS = "user_credentials";
+	public static final String TABLE_CONFIGURATION = "configuration";
 	
 
 	// Columns name
@@ -136,7 +149,14 @@ public class DBManager {
 	private static final String USERNAME = "username";
 	private static final String PASSWORD = "password";
 	private static final String CONDITION = "condition";
-	
+	private static final String SERVER_IP = "server_ip";
+	private static final String SERVER_PORT = "server_port";
+	private static final String SERVER_CONTEXT_PATH = "server_context_path";
+	private static final String SERVER_SERVLET_PATH = "server_servlet_path";
+	private static final String TIMEOUT = "timeout";
+	private static final String POLL_TIMEOUT = "poll_timeout";
+	private static final String SLEEP_POLL_TIMEOUT = "sleep_poll_timeout";
+	private static final String POLLING_ENABLED = "polling_enabled";
 	
 	
 	private Context context;
@@ -200,6 +220,7 @@ public class DBManager {
         	db.execSQL(CREATE_CONTEXT_EVENTS_TABLE_QUERY);
         	db.execSQL(CREATE_PROPERTY_TABLE_QUERY);
         	db.execSQL(CREATE_USER_CREDENTIALS_TABLE_QUERY);
+        	db.execSQL(CREATE_CONFIGURATION_TABLE_QUERY);
         }
 
         @Override
@@ -219,7 +240,7 @@ public class DBManager {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTEXT_EVENT);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROPERTY);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_CREADENTIALS);
-            
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONFIGURATION);
             onCreate(db);
             
         }
@@ -237,8 +258,8 @@ public class DBManager {
     	values.put(USERNAME, "muses");
     	values.put(PASSWORD, "muses");
     	sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null	, values);
-    	
     }
+    
     
     public String getDevId(){
     	String device_id = "";
@@ -251,6 +272,43 @@ public class DBManager {
             } while (cursor.moveToNext());
         }
 		return device_id;
+    }
+    
+    // Configuration related queries
+    public void insertConnectionProperties(Configuration config){
+    	ContentValues values = new ContentValues();
+    	values.put(SERVER_IP, config.getServerIP());
+    	values.put(SERVER_PORT, config.getServerPort());
+    	values.put(SERVER_CONTEXT_PATH, config.getServerContextPath());
+    	values.put(SERVER_SERVLET_PATH, config.getServerServletPath());
+    	values.put(TIMEOUT, config.getTimeout());
+    	values.put(POLL_TIMEOUT, config.getPollTimeout());
+    	values.put(SLEEP_POLL_TIMEOUT, config.getSleepPollTimeout());
+    	values.put(POLLING_ENABLED, config.getPollingEnabled());
+    	sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
+    }
+
+    public Configuration getConfigurations(){
+    	// Select All Query
+        String selectQuery = "select  * from " + TABLE_CONFIGURATION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        Configuration configuration = new Configuration();
+        
+        if (cursor.moveToFirst()) {
+            do {
+                configuration.setId(cursor.getInt(0));
+                configuration.setServerIP(cursor.getString(1));
+                configuration.setServerPort(cursor.getInt(2));
+                configuration.setServerContextPath(cursor.getString(3));
+                configuration.setServerServletPath(cursor.getString(4));
+                configuration.setTimeout(cursor.getInt(5));
+                configuration.setPollTimeout(cursor.getInt(6));
+                configuration.setSleepPollTimeout(cursor.getInt(7));
+                configuration.setPollingEnabled(cursor.getInt(8));
+            } while (cursor.moveToNext());
+        }
+        return configuration;
+        
     }
     
     // Decision Maker related queries

@@ -19,6 +19,7 @@ package eu.musesproject.client.connectionmanager;
  * #L%
  */
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -200,7 +201,7 @@ public abstract class HttpConnectionsHelper {
 	        httpPost.setHeader("poll-interval", getInStringSeconds(request.getPollInterval()));
 		}
 
-		if (cookie != null && !isSessionExpired(new Date(), AlarmReceiver.LAST_SENT_POLL_INTERVAL)) {
+		if (cookie != null && !cookie.isExpired(new Date()) /*!isSessionExpired(new Date(), AlarmReceiver.LAST_SENT_POLL_INTERVAL)*/) {
 			httpclient.getCookieStore().addCookie(cookie);
 		    try {
 		        httpResponse = httpclient.execute(httpPost);

@@ -1,0 +1,106 @@
+package eu.musesproject.client.db.entity;
+
+public class Configuration {
+	private int id;
+	private String serverIP;
+	private int serverPort;
+	private String serverContextPath;
+	private String serverServletPath;
+	private int timeout;
+	private int pollTimeout;
+	private int sleepPollTimeout;
+	private int pollingEnabled;
+
+	public Configuration() {
+	}
+
+	public Configuration(int id, String serverIP, int serverPort,
+			String serverContextPath, String serverServletPath, int timeout,
+			int pollTimeout, int sleepPollTimeout, int pollingEnabled) {
+		super();
+		this.id = id;
+		this.serverIP = serverIP;
+		this.serverPort = serverPort;
+		this.serverContextPath = serverContextPath;
+		this.serverServletPath = serverServletPath;
+		this.timeout = timeout;
+		this.pollTimeout = pollTimeout;
+		this.sleepPollTimeout = sleepPollTimeout;
+		this.pollingEnabled = pollingEnabled;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getServerIP() {
+		return serverIP;
+	}
+
+	public void setServerIP(String serverIP) {
+		this.serverIP = serverIP;
+	}
+
+	public int getServerPort() {
+		return serverPort;
+	}
+
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
+	}
+
+	public String getServerContextPath() {
+		return serverContextPath;
+	}
+
+	public void setServerContextPath(String serverContextPath) {
+		this.serverContextPath = serverContextPath;
+	}
+
+	public String getServerServletPath() {
+		return serverServletPath;
+	}
+
+	public void setServerServletPath(String serverServletPath) {
+		this.serverServletPath = serverServletPath;
+	}
+
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
+	public int getPollTimeout() {
+		return pollTimeout;
+	}
+
+	public void setPollTimeout(int pollTimeout) {
+		this.pollTimeout = pollTimeout;
+	}
+
+	public int getSleepPollTimeout() {
+		return sleepPollTimeout;
+	}
+
+	public void setSleepPollTimeout(int sleepPollTimeout) {
+		this.sleepPollTimeout = sleepPollTimeout;
+	}
+
+	public int getPollingEnabled() {
+		return pollingEnabled;
+	}
+
+	public void setPollingEnabled(int pollingEnabled) {
+		this.pollingEnabled = pollingEnabled;
+	}
+	
+	
+	
+}

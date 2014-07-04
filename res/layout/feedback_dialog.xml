@@ -49,6 +49,7 @@
         android:layout_marginRight="5dp"
         android:textSize="18sp"
         android:text="@string/resolve_auto_btn_txt"
+        android:contentDescription="hints"
         android:textStyle="bold" />
 
     <LinearLayout
@@ -65,6 +66,7 @@
             android:layout_weight="1"
             android:textSize="18sp"
             android:text="@string/details_btn_txt"
+            android:contentDescription="ok"
             android:textStyle="bold" />
 
         <Button
@@ -75,6 +77,7 @@
             android:textSize="18sp"
             android:layout_weight="1"
             android:text="@string/cancel_btn_txt"
+            android:contentDescription="cancel"
             android:textStyle="bold" />
     </LinearLayout>
 

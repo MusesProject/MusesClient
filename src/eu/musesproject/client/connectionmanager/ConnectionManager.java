@@ -1,4 +1,4 @@
-package eu.musesproject.client.connectionmanager;
+	package eu.musesproject.client.connectionmanager;
 /*
  * #%L
  * MUSES Client
