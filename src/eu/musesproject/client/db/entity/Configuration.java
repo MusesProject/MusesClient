@@ -1,11 +1,14 @@
 package eu.musesproject.client.db.entity;
 
 public class Configuration {
+	
 	private int id;
 	private String serverIP;
 	private int serverPort;
 	private String serverContextPath;
 	private String serverServletPath;
+	private String serverCertificate;
+	private String clientCertificate;
 	private int timeout;
 	private int pollTimeout;
 	private int sleepPollTimeout;
@@ -15,7 +18,8 @@ public class Configuration {
 	}
 
 	public Configuration(int id, String serverIP, int serverPort,
-			String serverContextPath, String serverServletPath, int timeout,
+			String serverContextPath, String serverServletPath,
+			String serverCertificate, String clientCertificate, int timeout,
 			int pollTimeout, int sleepPollTimeout, int pollingEnabled) {
 		super();
 		this.id = id;
@@ -23,6 +27,8 @@ public class Configuration {
 		this.serverPort = serverPort;
 		this.serverContextPath = serverContextPath;
 		this.serverServletPath = serverServletPath;
+		this.serverCertificate = serverCertificate;
+		this.clientCertificate = clientCertificate;
 		this.timeout = timeout;
 		this.pollTimeout = pollTimeout;
 		this.sleepPollTimeout = sleepPollTimeout;
@@ -69,6 +75,22 @@ public class Configuration {
 		this.serverServletPath = serverServletPath;
 	}
 
+	public String getServerCertificate() {
+		return serverCertificate;
+	}
+
+	public void setServerCertificate(String serverCertificate) {
+		this.serverCertificate = serverCertificate;
+	}
+
+	public String getClientCertificate() {
+		return clientCertificate;
+	}
+
+	public void setClientCertificate(String clientCertificate) {
+		this.clientCertificate = clientCertificate;
+	}
+
 	public int getTimeout() {
 		return timeout;
 	}
@@ -100,7 +122,19 @@ public class Configuration {
 	public void setPollingEnabled(int pollingEnabled) {
 		this.pollingEnabled = pollingEnabled;
 	}
+
+	@Override
+	public String toString() {
+		return "Configuration [id=" + id + ", serverIP=" + serverIP
+				+ ", serverPort=" + serverPort + ", serverContextPath="
+				+ serverContextPath + ", serverServletPath="
+				+ serverServletPath + ", serverCertificate="
+				+ serverCertificate + ", clientCertificate="
+				+ clientCertificate + ", timeout=" + timeout + ", pollTimeout="
+				+ pollTimeout + ", sleepPollTimeout=" + sleepPollTimeout
+				+ ", pollingEnabled=" + pollingEnabled + "]";
+	}
 	
 	
-	
+
 }

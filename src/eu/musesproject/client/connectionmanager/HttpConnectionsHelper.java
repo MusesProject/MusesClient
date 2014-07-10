@@ -19,7 +19,6 @@ package eu.musesproject.client.connectionmanager;
  * #L%
  */
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 

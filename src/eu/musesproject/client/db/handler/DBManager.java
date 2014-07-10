@@ -21,7 +21,7 @@ import eu.musesproject.client.db.entity.RiskCommunication;
 import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.entity.Role;
 import eu.musesproject.client.db.entity.Subject;
-import eu.musesproject.client.utils.DeviceInfo;
+import eu.musesproject.client.utils.MusesUtils;
 
 public class DBManager {
 
@@ -96,17 +96,33 @@ public class DBManager {
 																	  + "username VARCHAR(45) NOT NULL,"
 																	  + "password VARCHAR(45) NOT NULL);";
 
+//	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
+//			  + "id INTEGER PRIMARY KEY," 
+//			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
+//			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
+//			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
+//			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain',"
+//			  + "server_certificate VARCHAR(4500) NOT NULL,"
+//			  + "client_certificate VARCHAR(4500) NOT NULL,"
+//			  + "timeout INTEGER NOT NULL DEFAULT 5000,"
+//			  + "poll_timeout INTEGER NOT NULL DEFAULT 10000,"
+//			  + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000,"
+//			  + "polling_enabled INTEGER NOT NULL DEFAULT 1);";
+
 	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 			  + "id INTEGER PRIMARY KEY," 
-			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
-			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
-			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
-			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain');"
-			  + "timeout INTEGER NOT NULL DEFAULT 5000);"
-			  + "poll_timeout INTEGER NOT NULL DEFAULT 10000);"
-			  + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000);"
-			  + "polling_enabled INTEGER NOT NULL DEFAULT 1);";
+			  + "server_ip VARCHAR(45) NOT NULL,"
+			  + "server_port VARCHAR(45) NOT NULL,"
+			  + "server_context_path VARCHAR(45) NOT NULL,"
+			  + "server_servlet_path VARCHAR(45) NOT NULL,"
+			  + "server_certificate VARCHAR(4500) NOT NULL,"
+			  + "client_certificate VARCHAR(4500) NOT NULL,"
+			  + "timeout INTEGER NOT NULL,"
+			  + "poll_timeout INTEGER NOT NULL,"
+			  + "sleep_poll_timeout INTEGER NOT NULL,"
+			  + "polling_enabled INTEGER NOT NULL);";
 
+	
 	// Tables name 
 	public static final String TABLE_POLICES = "polices";
 	public static final String TABLE_DECISIONTABLE = "decisiontable";
@@ -157,6 +173,8 @@ public class DBManager {
 	private static final String POLL_TIMEOUT = "poll_timeout";
 	private static final String SLEEP_POLL_TIMEOUT = "sleep_poll_timeout";
 	private static final String POLLING_ENABLED = "polling_enabled";
+	private static final String SERVER_CERTIFICATE = "server_certificate";
+	private static final String CLIENT_CERTIFICATE = "client_certificate";
 	
 	
 	private Context context;
@@ -191,7 +209,7 @@ public class DBManager {
 	}
 	
 	 /**
-     * This is a private class which creates the database�when the application
+     * This is a private class which creates the database when the application
      * starts or upgrades it if it already exist by removing the last version
      * of the databases
      * Create database .. and tables 
@@ -244,9 +262,6 @@ public class DBManager {
             onCreate(db);
             
         }
-        
-        
-        
     }     
     
     
@@ -254,7 +269,7 @@ public class DBManager {
     
     public void insertCredentials(){
     	ContentValues values = new ContentValues();
-    	values.put(DEVICE_ID, DeviceInfo.getIMEINumberFromPhone(context));
+    	values.put(DEVICE_ID, MusesUtils.getIMEINumberFromPhone(context));
     	values.put(USERNAME, "muses");
     	values.put(PASSWORD, "muses");
     	sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null	, values);
@@ -281,12 +296,70 @@ public class DBManager {
     	values.put(SERVER_PORT, config.getServerPort());
     	values.put(SERVER_CONTEXT_PATH, config.getServerContextPath());
     	values.put(SERVER_SERVLET_PATH, config.getServerServletPath());
+    	values.put(SERVER_CERTIFICATE, config.getServerCertificate());
+    	values.put(CLIENT_CERTIFICATE, config.getServerCertificate());
     	values.put(TIMEOUT, config.getTimeout());
     	values.put(POLL_TIMEOUT, config.getPollTimeout());
     	values.put(SLEEP_POLL_TIMEOUT, config.getSleepPollTimeout());
     	values.put(POLLING_ENABLED, config.getPollingEnabled());
     	sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
     }
+    
+    public void insertServerCertificate(String certificate){
+    	certificate = "-----BEGIN CERTIFICATE-----";
+//					+ "MIID2DCCA0GgAwIBAgIBATANBgkqhkiG9w0BAQUFADCBvTELMAkGA1UEBhMCU1Yx"
+//					+ "EjAQBgNVBAgMCVN0b2NraG9sbTEXMBUGA1UEBwwOU3RvY2tob2xtIENpdHkxHzAd"
+//					+ "BgNVBAoMFlN3ZWRlbiBDb25uZWN0aXZpdHkgQUIxHzAdBgNVBAsMFkluZm9ybWF0"
+//					+ "aW9uIFRlY2hub2xvZ3kxDjAMBgNVBAMMBUFkbWluMS8wLQYJKoZIhvcNAQkBFiB5"
+//					+ "YXNpci5hbGlAc3dlZGVuY29ubmVjdGl2aXR5LmNvbTAeFw0xMzEwMjEwNzU4MTNa"
+//					+ "Fw0xNDEwMjEwNzU4MTNaMIGkMQswCQYDVQQGEwJTVjESMBAGA1UECAwJU3RvY2to"
+//					+ "b2xtMR8wHQYDVQQKDBZTd2VkZW4gQ29ubmVjdGl2aXR5IEFCMR8wHQYDVQQLDBZJ"
+//					+ "bmZvcm1hdGlvbiBUZWNobm9sb2d5MQ4wDAYDVQQDDAVBZG1pbjEvMC0GCSqGSIb3"
+//					+ "DQEJARYgeWFzaXIuYWxpQHN3ZWRlbmNvbm5lY3Rpdml0eS5jb20wggEiMA0GCSqG"
+//					+ "SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCkCpYMjTdaRuPWRH8olEn8172ZDlxLBKeg"
+//					+ "ZhPijRJp0fKUK/UDq+1uccPvCL/CG3fie+w6VJGCMYnm+FZlWc8/6hZEb0Cn6Upy"
+//					+ "fg9SwP7bgiXzHBlpv9UoD40nQ9LVzM/GZyCaThFRXIhQPGstuJv5JufjXHT9BGm5"
+//					+ "/9ijQWinipwbrIBMxor5ZIJGS4lvJF+Lyo2N0zBXIi4nZfjDPbFWrpbx6tuHCdy0"
+//					+ "4VpLw9Qd7Os4M1uD7NXKNcZrMOb6zS7Z2n3M5fosdEeojhCSe0wPTEQMmbeyXDJJ"
+//					+ "urbcQQQ6JwLSJ/X00rHeRSb9HaJvehLZ1Lr+vevTTJ/TOz958JSRAgMBAAGjezB5"
+//					+ "MAkGA1UdEwQCMAAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENl"
+//					+ "cnRpZmljYXRlMB0GA1UdDgQWBBR3cFVlprhgomG3Ekpfv1vpjaPXgTAfBgNVHSME"
+//					+ "GDAWgBRDB0qWULr2wI/yUbCpnwjwBZQsZzANBgkqhkiG9w0BAQUFAAOBgQBbkN+F"
+//					+ "sd7JVDBRXU242iWJ3KO6XSQnLn2P90mZE2Y2L7amJgFEYSZOfjL2BzgePVcP94An"
+//					+ "LYlbYm+iPMK5dpplbuGrGiLK7HRx3rfrjimLtbqrLMLnGUzv7YdL0c110iVf29Lq"
+//					+ "lwKeHb+x0NgwdzCLcLfyC59rr55EII1U58cf3Q=="
+//					+ "-----END CERTIFICATE-----";
+		;
+    	ContentValues values = new ContentValues();
+    	values.put(SERVER_CERTIFICATE, certificate);
+    	sqLiteDatabase.insert(TABLE_CONFIGURATION, null, values);
+    }
+    
+    public String getServerCertificate() {
+    	// Select All Query
+    	String certificate = "";
+        String selectQuery = "select  * from " + TABLE_CONFIGURATION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+            	certificate = cursor.getString(5);
+            }while (cursor.moveToNext());
+        }
+        return certificate;
+	}
+    
+    public String getClientCertificate() {
+    	// Select All Query
+    	String certificate = "";
+        String selectQuery = "select  * from " + TABLE_CONFIGURATION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+            	certificate = cursor.getString(6);
+            }while (cursor.moveToNext());
+        }
+        return certificate;
+	}
 
     public Configuration getConfigurations(){
     	// Select All Query
@@ -301,6 +374,8 @@ public class DBManager {
                 configuration.setServerPort(cursor.getInt(2));
                 configuration.setServerContextPath(cursor.getString(3));
                 configuration.setServerServletPath(cursor.getString(4));
+                configuration.setServerCertificate(cursor.getString(5));
+                configuration.setClientCertificate(cursor.getString(6));
                 configuration.setTimeout(cursor.getInt(5));
                 configuration.setPollTimeout(cursor.getInt(6));
                 configuration.setSleepPollTimeout(cursor.getInt(7));

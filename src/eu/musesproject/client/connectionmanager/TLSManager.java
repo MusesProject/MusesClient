@@ -18,9 +18,7 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -40,8 +38,10 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EncodingUtils;
 
-import android.os.Environment;
+import eu.musesproject.client.db.handler.DBManager;
+import eu.musesproject.client.utils.MusesUtils;
 
 /**
  * Handle TLS/SSL communication with the server
@@ -51,10 +51,6 @@ import android.os.Environment;
  */
 
 public class TLSManager {
-
-	public TLSManager() {
-
-	}
 
 	/**
 	 * Get HttpsClient object
@@ -72,11 +68,14 @@ public class TLSManager {
 	
 	private SSLSocketFactory newSslSocketFactory() {
 		try {
-			String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-			String certificateName = "localhost.crt";
-			InputStream in = new BufferedInputStream(new FileInputStream(baseDir + File.separator + certificateName));
+//			String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+//			String certificateName = "localhost.crt";
+			DBManager db = new DBManager(MusesUtils.getMusesAppContext());
+			db.openDB();
+			String certificate = db.getServerCertificate();
+			db.closeDB();
 			KeyStore trustedStore = null;
-
+			InputStream in = convertToStream(certificate);
 			if (in != null){
 				trustedStore = ConvertCerToBKS(in, "muses alias", "muses11".toCharArray());
 			}
@@ -84,8 +83,19 @@ public class TLSManager {
 			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 			return sf;
 		} catch (Exception e) {
-			throw new AssertionError(e);
+			throw new AssertionError(e);	
 		}
+	}
+	
+	private InputStream convertToStream(String certificate){
+		InputStream in = null;
+		try {
+			in = new ByteArrayInputStream(EncodingUtils.getAsciiBytes(certificate));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return in;
+		
 	}
 	
 	
