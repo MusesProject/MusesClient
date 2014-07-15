@@ -19,11 +19,8 @@ package eu.musesproject.client.utils;
  * limitations under the License.
  * #L%
  */
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.provider.Settings.Secure;
@@ -65,19 +62,6 @@ public class MusesUtils {
 		
 		return certificate;
 			
-	}
-	
-	public static File convertToFile(String buffer){
-		File file = null;
-		try {
-			file = new File("localhost_m.crt");
-			FileWriter writer = new FileWriter(file);
-			writer.write(buffer);
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return file;
 	}
 	
 	public static Context getMusesAppContext(){

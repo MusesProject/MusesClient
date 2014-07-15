@@ -187,13 +187,13 @@ public class DBManager {
 	}
 
 	
-	public SQLiteDatabase openDB() { // always returns writableDB
+	public synchronized SQLiteDatabase openDB() { // always returns writableDB
 		Log.d(TAG, "opening database..");
        	sqLiteDatabase = databaseHelper.getWritableDatabase();
 		return sqLiteDatabase;
 	}
 
-	public void closeDB() {
+	public synchronized void closeDB() {
     	if (sqLiteDatabase !=null){
     		databaseHelper.close();
     		sqLiteDatabase = null;
