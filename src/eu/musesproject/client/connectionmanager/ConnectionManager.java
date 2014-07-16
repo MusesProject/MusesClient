@@ -23,9 +23,6 @@ import java.io.IOException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 
-import eu.musesproject.client.db.entity.Configuration;
-import eu.musesproject.client.db.handler.DBManager;
-import eu.musesproject.client.utils.MusesUtils;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -85,23 +82,6 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		
 		alarmReceiver = new AlarmReceiver();
 		alarmReceiver.setAlarm(context);
-		MusesUtils.setAppContext(context);
-		DBManager db = new DBManager(context);
-		db.openDB();
-		Configuration config = new Configuration();
-		config.setId(1);
-		config.setServerIP("192.168.44.101");
-		config.setServerPort(8443);
-		config.setServerContextPath("/server");
-		config.setServerServletPath("/commain");
-		config.setTimeout(5000);
-		config.setPollTimeout(10000);
-		config.setSleepPollTimeout(10000);
-		config.setPollingEnabled(1);
-		config.setClientCertificate("");
-		config.setServerCertificate(MusesUtils.getCertificateFromAssets(context));
-		db.insertConnectionProperties(config);
-		db.closeDB();
 		
 	}
 
