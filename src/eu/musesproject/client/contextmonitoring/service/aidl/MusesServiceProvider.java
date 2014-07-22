@@ -54,13 +54,13 @@ public class MusesServiceProvider extends Service {
 		public void unregisterCallback(IMusesServiceCallback callback)
 				throws RemoteException {
 			MusesServiceProvider.this.callback = callback;
-			Log.d(TAG, "callback unregistered");
+			Log.v(TAG, "callback unregistered");
 		}	
 		
 		@Override
 		public void sendUserAction(Action action, Map properties)
 				throws RemoteException {
-            Log.d(TAG, "called: sendUserAction(Action action, Map properties)");
+            Log.v(TAG, "called: sendUserAction(Action action, Map properties)");
 			ServiceModel.getInstance().setServiceObject(MusesServiceProvider.this);
             eu.musesproject.client.model.decisiontable.Action userAction = UserActionGenerator.transformUserAction(action);
 			UserContextMonitoringController.getInstance(MusesServiceProvider.this)
@@ -85,7 +85,7 @@ public class MusesServiceProvider extends Service {
 			try {
 				super.onTransact(code, data, reply, flags);
 			}catch(RuntimeException re){
-		        Log.d(TAG, "Unexpected remote exception", re);
+		        Log.v(TAG, "Unexpected remote exception", re);
 		        throw re;
 			}
 			return false;
