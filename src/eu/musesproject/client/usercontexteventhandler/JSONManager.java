@@ -47,19 +47,27 @@ public class JSONManager {
 	 * @param contextEvents {@link eu.musesproject.contextmodel.ContextEvent}
 	 * @return {@link org.json.JSONObject}
 	 */
-	public static JSONObject createJSON(String requestType, Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+	public static JSONObject createJSON(String deviceId, String userName, String requestType, Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
 		JSONObject root = new JSONObject();
 		try {
             /*
              * request type
              */
-            // add request type to root
             root.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, requestType);
+            
+            /*
+             * device id
+             */
+            root.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+            
+            /*
+             * username
+             */
+            root.put(JSONIdentifiers.AUTH_USERNAME, userName);
 
             /*
              * action
              */
-            // create action
             JSONObject actionJSON = new JSONObject();
             if(action != null) {
                 actionJSON.put(JSONIdentifiers.ACTION_TYPE, action.getActionType());
@@ -132,6 +140,28 @@ public class JSONManager {
 		}
 		
 		return sensorJSONObject;
+	}
+	
+	/**
+	 * Method to create a response to the server which describes the user behavior. 
+	 * The user behavior is defined as the decision a user took when a MUSES dialog popped up
+	 * @param deviceId deviceId (IMEI)
+	 * @param userName
+	 * @param userBehavior decision of the user from a muses dialog
+	 * @return {@link JSONObject}
+	 */
+	public static JSONObject createUserBehaviorJSON(String deviceId, String userName, String userBehavior) {
+		JSONObject userBehaviorJSONObject = new JSONObject();
+		try {
+			userBehaviorJSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.LOGIN);
+			userBehaviorJSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+			userBehaviorJSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
+			userBehaviorJSONObject.put(JSONIdentifiers.USER_BEHAVIOR, userBehavior);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return userBehaviorJSONObject;
 	}
 	
 	/**

@@ -98,15 +98,15 @@ public class SettingsSensor implements ISensor {
     	}
     }
     
-    private String getOSVersion() {
+    public String getOSVersion() {
     	return android.os.Build.VERSION.RELEASE;
     }
     
-    private String getSDKVersion() {
+    public String getSDKVersion() {
     	return String.valueOf(android.os.Build.VERSION.SDK_INT);
     }
     
-    private String getIMEI() {
+    public String getIMEI() {
     	final TelephonyManager telephonyManager = (TelephonyManager) context
     			.getSystemService(Context.TELEPHONY_SERVICE);
     	return telephonyManager.getDeviceId();
