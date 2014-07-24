@@ -23,7 +23,9 @@ public class JSONManagerTest extends TestCase {
     private Action action;
     private Map<String, String> actionProperties;
     private List<ContextEvent> contextEvents;
-
+    
+    private String deviceId;
+    private String userName; 
     private String requestType;
     private long actionTimestamp;
     private String actionType;
@@ -35,6 +37,9 @@ public class JSONManagerTest extends TestCase {
         // create dummy data
         requestType = RequestType.UPDATE_CONTEXT_EVENTS;
 
+        deviceId = "123456";
+        userName = "muses";
+        
         actionTimestamp = System.currentTimeMillis();
         actionType = ActionType.ACCESS;
         action = new Action();
@@ -59,7 +64,7 @@ public class JSONManagerTest extends TestCase {
     }
 
     public void testCreateJSON() throws JSONException {
-        JSONObject resultJSON = JSONManager.createJSON(requestType, action, actionProperties, contextEvents);
+        JSONObject resultJSON = JSONManager.createJSON(deviceId, userName, requestType, action, actionProperties, contextEvents);
         assertNotNull(resultJSON);
 
         assertEquals("request type", "update_context_events", resultJSON.getString(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER));
