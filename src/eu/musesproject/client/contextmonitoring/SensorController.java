@@ -32,10 +32,12 @@ import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
+import eu.musesproject.client.contextmonitoring.sensors.InteractionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.actuators.Setting.SettingType;
+import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -87,7 +89,7 @@ public class SensorController {
         activeSensors.put(PackageSensor.TYPE, new PackageSensor(context));
         activeSensors.put(DeviceProtectionSensor.TYPE, new DeviceProtectionSensor(context));
 //        activeSensors.put(LocationSensor.TYPE, new LocationSensor(context));
-//        activeSensors.put(InteractionSensor.TYPE, new InteractionSensor());
+        activeSensors.put(InteractionSensor.TYPE, new InteractionSensor());
         for (ISensor sensor : activeSensors.values()) {
             sensor.addContextListener(contextEventBus);
             sensor.enable();
@@ -169,8 +171,17 @@ public class SensorController {
 
         @Override
         public void onEvent(ContextEvent contextEvent) {
-            //Log.d(TAG, "onEvent(ContextEvent contextEvent)");
-            /*
+        	// if an app is active that should be observed inform the interaction sensor
+        	if(contextEvent.getType().equals(AppSensor.TYPE)) {
+        		// if the app is gmail in this case //TODO must be configurable
+        		if(contextEvent.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME).equals(InteractionObservedApps.OBSERVED_GMAIL)) {
+        			if (activeSensors != null && activeSensors.containsKey(InteractionSensor.TYPE)) {
+        				((InteractionSensor) activeSensors.get(InteractionSensor.TYPE)).setAppName(InteractionObservedApps.OBSERVED_GMAIL);;
+        			}
+        		}
+        	}
+            
+        	/*
              * Workflow of creating an action and sending it to the server
              *
              * If a context event is fired:

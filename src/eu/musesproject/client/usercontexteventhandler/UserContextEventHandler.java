@@ -38,6 +38,7 @@ import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
 import eu.musesproject.client.connectionmanager.Statuses;
+import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.ResourceCreator;
@@ -78,6 +79,9 @@ public class UserContextEventHandler {
 	private Action tmpAction;
 	private Map<String, String> tmpProperties;
 	private List<ContextEvent> tmpContextEvents;
+	
+	private String imei;
+	private String userName;
 	
 	private UserContextEventHandler() {
         connectionManager = new ConnectionManager();
@@ -153,7 +157,7 @@ public class UserContextEventHandler {
                 tmpContextEvents = contextEvents;
 
                 // create the JSON request and send it to the server
-                JSONObject requestObject = JSONManager.createJSON(RequestType.ONLINE_DECISION, action, properties, contextEvents);
+                JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
                 sendRequestToServer(requestObject);
             }
             else if(serverStatus == Statuses.OFFLINE || !isUserAuthenticated) { // save request to the database
@@ -163,11 +167,32 @@ public class UserContextEventHandler {
         // update context events even if a local decision was found.
         // Prevent sending context events again if they are already sent for a online decision
         if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE) && isUserAuthenticated) {
-            JSONObject requestObject = JSONManager.createJSON(RequestType.LOCAL_DECISION, action, properties, contextEvents);
+            JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.LOCAL_DECISION, action, properties, contextEvents);
             sendRequestToServer(requestObject);
         }
 	}
 	
+
+	/**
+	 * Method that takes an {@link eu.musesproject.client.model.decisiontable.Action} 
+	 * which contains the decision taken by the user on the MUSES UI.
+	 * This behavior will be send to the server
+	 * @param action
+	 */
+	public void sendUserBehavior(Action action) {
+		JSONObject userBehaviorJSON = JSONManager.createUserBehaviorJSON(getImei(), getUserName(), action.getActionType());
+		sendRequestToServer(userBehaviorJSON);
+		
+	}
+	
+	/**
+	 * Method to log in to MUSES.
+	 * Necessary to establish server communication and for 
+	 * using this application
+	 * 
+	 * @param userName
+	 * @param password
+	 */
 	public void login(String userName, String password) {
         Log.d(TAG, "called: login(String userName, String password)");
         String deviceId = "";
@@ -238,7 +263,9 @@ public class UserContextEventHandler {
         	dbManager.closeDB();
         	
         	// transform to JSON
-        	JSONObject requestObject = JSONManager.createJSON(RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
+        	String imei = new SettingsSensor(getContext()).getIMEI();
+        	String userName = "muses";  //new DBManager(getContext()).get // TODO there is no method yet to get the user name
+        	JSONObject requestObject = JSONManager.createJSON(imei, userName, RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
         	// send to server
         	sendRequestToServer(requestObject);
         }
@@ -254,7 +281,7 @@ public class UserContextEventHandler {
     public void sendRequestToServer(JSONObject requestJSON) {
         Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
         if (requestJSON != null) {
-            if(serverStatus == Statuses.ONLINE) {
+            if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
                 String sendData  = requestJSON.toString();
                 Log.d(TAG, "sendData:"+sendData);//Demo Debug
                 connectionManager.sendData(sendData);
@@ -349,4 +376,20 @@ public class UserContextEventHandler {
 			return 0;
 		}
 	}
+
+	public String getImei() {
+		if(imei == null || imei.equals("")) {
+			this.imei = new SettingsSensor(getContext()).getIMEI();
+		}
+		return imei;
+	}
+
+
+	public String getUserName() {
+		if(userName == null || userName.equals("")) {
+			return "muses";  // TODO there is no method yet to get the user name
+		}
+		return userName;
+	}
+
 }
