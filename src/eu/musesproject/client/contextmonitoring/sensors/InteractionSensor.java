@@ -7,7 +7,6 @@ import java.util.Map;
 
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -28,13 +27,6 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	// sensor identifier
 	public static final String TYPE = "CONTEXT_SENSOR_INTERACTION";
 
-	// context property keys
-	public static final String PROPERTY_KEY_ID = "id";
-	public static final String PROPERTY_KEY_APP_NAME = "appname";
-	public static final String PROPERTY_KEY_PACKAGE_NAME = "packagename";
-	public static final String PROPERTY_KEY_BACKGROUND_PROCESS = "backgroundprocess";
-
-	private Context context;
 	private ContextListener listener;
 
 	// stores all fired context events of this sensor
