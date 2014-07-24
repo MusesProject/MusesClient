@@ -21,17 +21,18 @@ package eu.musesproject.client.usercontexteventhandler;
  * #L%
  */
 
-import eu.musesproject.client.model.JSONIdentifiers;
-import eu.musesproject.client.model.RequestType;
-import eu.musesproject.client.model.decisiontable.Action;
-import eu.musesproject.contextmodel.ContextEvent;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import eu.musesproject.client.model.JSONIdentifiers;
+import eu.musesproject.client.model.RequestType;
+import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.contextmodel.ContextEvent;
 
 /**
  * @author christophstanik
@@ -151,17 +152,19 @@ public class JSONManager {
 	 * @return {@link JSONObject}
 	 */
 	public static JSONObject createUserBehaviorJSON(String deviceId, String userName, String userBehavior) {
-		JSONObject userBehaviorJSONObject = new JSONObject();
+		JSONObject rootJSONObject = new JSONObject();
 		try {
-			userBehaviorJSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.LOGIN);
-			userBehaviorJSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
-			userBehaviorJSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
-			userBehaviorJSONObject.put(JSONIdentifiers.USER_BEHAVIOR, userBehavior);
+			rootJSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.USER_ACTION);
+			rootJSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+			rootJSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
+			JSONObject userBehaviorJSONObject = new JSONObject();
+			userBehaviorJSONObject.put(JSONIdentifiers.ACTION_IDENTIFIER, userBehavior);
+			rootJSONObject.put(JSONIdentifiers.USER_BEHAVIOR, userBehavior);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		
-		return userBehaviorJSONObject;
+		return rootJSONObject;
 	}
 	
 	/**
@@ -222,5 +225,22 @@ public class JSONManager {
         }
 
         return requestType;
+    }
+    
+    /**
+     * Method to get a decision which was made on the server from a JSON response 
+     * @param jsonString String. JSON string from the server
+     * @return String that contains a {@link eu.musesproject.client.model.RequestType}
+     */
+    public static Decision getDecision(String jsonString) {
+    	Decision decision = null;
+    	
+    	try {
+    		JSONObject decisionJSON = new JSONObject(jsonString);
+    	} catch (JSONException e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return decision;
     }
 }

@@ -36,6 +36,13 @@ public interface IUserContextMonitoringController {
      * @param properties {@link java.util.Map}. properties related to the action
      */
     void sendUserAction(UISource src, Action action, Map<String, String> properties);
+    
+    /**
+     * Method that takes an {@link eu.musesproject.client.model.decisiontable.Action} 
+	 * which contains the decision taken by the user on the MUSES UI.
+     * @param action {@link eu.musesproject.client.model.decisiontable.Action}. action received from a MUSES aware app
+     */
+    void sendUserBehavior(Action action);
 
     /**
      * Method to change the settings / configuration of the sensors

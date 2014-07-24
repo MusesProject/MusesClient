@@ -104,6 +104,8 @@ public class UserContextMonitoringController implements
             if(requestByMusesAwareApp) {
             	new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
             }
+            // send the user decision back to the server
+            sendUserBehavior(action);
         }
         else if(src == UISource.MUSES_AWARE_APP_UI) {
         	requestByMusesAwareApp = true;
@@ -114,6 +116,12 @@ public class UserContextMonitoringController implements
         	uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
     }
+
+
+	@Override
+	public void sendUserBehavior(Action action) {
+		uceHandler.sendUserBehavior(action);
+	}
 
     @Override
     public void changeSettings(List<Setting> settings) {
