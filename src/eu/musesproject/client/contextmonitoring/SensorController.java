@@ -89,7 +89,7 @@ public class SensorController {
         activeSensors.put(PackageSensor.TYPE, new PackageSensor(context));
         activeSensors.put(DeviceProtectionSensor.TYPE, new DeviceProtectionSensor(context));
 //        activeSensors.put(LocationSensor.TYPE, new LocationSensor(context));
-        activeSensors.put(InteractionSensor.TYPE, new InteractionSensor());
+//        activeSensors.put(InteractionSensor.TYPE, new InteractionSensor());
         for (ISensor sensor : activeSensors.values()) {
             sensor.addContextListener(contextEventBus);
             sensor.enable();
@@ -172,14 +172,14 @@ public class SensorController {
         @Override
         public void onEvent(ContextEvent contextEvent) {
         	// if an app is active that should be observed inform the interaction sensor
-        	if(contextEvent != null && contextEvent.getType().equals(AppSensor.TYPE)) {
-        		// if the app is gmail in this case //TODO must be configurable
-        		if(contextEvent.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME).equals(InteractionObservedApps.OBSERVED_GMAIL)) {
-        			if (activeSensors != null && activeSensors.containsKey(InteractionSensor.TYPE)) {
-        				//((InteractionSensor) activeSensors.get(InteractionSensor.TYPE)).setAppName(InteractionObservedApps.OBSERVED_GMAIL);;
-        			}
-        		}
-        	}
+//        	if(contextEvent != null && contextEvent.getType().equals(AppSensor.TYPE)) {
+//        		// if the app is gmail in this case //TODO must be configurable
+//        		if(contextEvent.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME).equals(InteractionObservedApps.OBSERVED_GMAIL)) {
+//        			if (activeSensors != null && activeSensors.containsKey(InteractionSensor.TYPE)) {
+//        				//((InteractionSensor) activeSensors.get(InteractionSensor.TYPE)).setAppName(InteractionObservedApps.OBSERVED_GMAIL);;
+//        			}
+//        		}
+//        	}
             
         	/*
              * Workflow of creating an action and sending it to the server

@@ -263,9 +263,7 @@ public class UserContextEventHandler {
         	dbManager.closeDB();
         	
         	// transform to JSON
-        	String imei = new SettingsSensor(getContext()).getIMEI();
-        	String userName = "muses";  //new DBManager(getContext()).get // TODO there is no method yet to get the user name
-        	JSONObject requestObject = JSONManager.createJSON(imei, userName, RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
+        	JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
         	// send to server
         	sendRequestToServer(requestObject);
         }
@@ -387,9 +385,9 @@ public class UserContextEventHandler {
 
 	public String getUserName() {
 		if(userName == null || userName.equals("")) {
-			return "muses";  // TODO there is no method yet to get the user name
+			this.userName = "muses";  // TODO there is no method yet to get the user name
 		}
-		return userName;
+		return "muses";
 	}
 
 }
