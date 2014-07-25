@@ -279,7 +279,7 @@ public class UserContextEventHandler {
     public void sendRequestToServer(JSONObject requestJSON) {
         Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
         if (requestJSON != null) {
-            if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
+            if(serverStatus == Statuses.ONLINE) {
                 String sendData  = requestJSON.toString();
                 Log.d(TAG, "sendData:"+sendData);//Demo Debug
                 connectionManager.sendData(sendData);
