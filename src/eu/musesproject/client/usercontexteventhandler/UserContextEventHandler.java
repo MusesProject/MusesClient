@@ -208,7 +208,9 @@ public class UserContextEventHandler {
         	sendRequestToServer(requestObject);
         }
         else {
-        	ActuatorController.getInstance().sendLoginResponse(false);
+        	dbManager.openDB();
+        	ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), userName, password));
+        	dbManager.closeDB();
         }
 	}
 
