@@ -322,6 +322,24 @@ public class DBManager {
     	sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null	, values);
     }
     
+    public boolean isUserAuthenticated(String deviceId, String userName, String password) {
+    	Cursor cursor = sqLiteDatabase.query(
+    			TABLE_USER_CREADENTIALS, // table name
+                null,                    // select
+                DEVICE_ID + "=? AND " + 
+        			USERNAME + "=? AND " +
+        			PASSWORD + "=?", // where identifier
+                new String[] {deviceId, userName, password}, // where args
+                null,null,null,null);
+    	
+    	if (cursor != null && cursor.moveToFirst()) {
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+    }
+    
     
     public String getDevId(){
     	String device_id = "";
