@@ -33,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.util.Log;
 import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -112,6 +113,8 @@ public class AppSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, String.valueOf(appVersion));
         contextEvent.addProperty(PROPERTY_KEY_BACKGROUND_PROCESS, runningServicesNames.toString());
 
+        Log.d(TAG, "appVersion : " + String.valueOf(appVersion));
+        
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
         if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
