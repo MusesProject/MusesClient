@@ -20,6 +20,7 @@ import eu.musesproject.client.db.entity.ResourceType;
 import eu.musesproject.client.db.entity.RiskCommunication;
 import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.entity.Role;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.entity.Subject;
 import eu.musesproject.client.utils.MusesUtils;
 
@@ -122,6 +123,12 @@ public class DBManager {
 			  + "sleep_poll_timeout INTEGER NOT NULL,"
 			  + "polling_enabled INTEGER NOT NULL);";
 
+	private static final String CREATE_SENSOR_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE sensor_configuration	 ( "
+			  + "id INTEGER PRIMARY KEY," 
+			  + "sensor_type (45) NOT NULL,"
+			  + "enabled INTEGER NOT NULL,"
+			  + "key VARCHAR(45) NOT NULL,"
+			  + "value VARCHAR(45) NOT NULL);";
 	
 	// Tables name 
 	public static final String TABLE_POLICES = "polices";
@@ -138,6 +145,7 @@ public class DBManager {
 	public static final String TABLE_PROPERTY = "property";
 	public static final String TABLE_USER_CREADENTIALS = "user_credentials";
 	public static final String TABLE_CONFIGURATION = "configuration";
+	public static final String TABLE_SENSOR_CONFIGURATION = "sensor_configuration";
 	
 
 	// Columns name
@@ -175,6 +183,9 @@ public class DBManager {
 	private static final String POLLING_ENABLED = "polling_enabled";
 	private static final String SERVER_CERTIFICATE = "server_certificate";
 	private static final String CLIENT_CERTIFICATE = "client_certificate";
+	private static final String SENSOR_TYPE = "sensor_type";
+	private static final String ENABLED = "enabled";
+	
 	
 	
 	private Context context;
@@ -239,6 +250,7 @@ public class DBManager {
         	db.execSQL(CREATE_PROPERTY_TABLE_QUERY);
         	db.execSQL(CREATE_USER_CREDENTIALS_TABLE_QUERY);
         	db.execSQL(CREATE_CONFIGURATION_TABLE_QUERY);
+        	db.execSQL(CREATE_SENSOR_CONFIGURATION_TABLE_QUERY);
         }
 
         @Override
@@ -259,6 +271,7 @@ public class DBManager {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROPERTY);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_CREADENTIALS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONFIGURATION);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_SENSOR_CONFIGURATION);
             onCreate(db);
             
         }
@@ -266,6 +279,40 @@ public class DBManager {
     
     
     // All CRUD (Create, retrieve, update and delete ) operations here
+    
+    public void insertSensorConfiguration(SensorConfiguration sensorConfiguration){
+    	ContentValues values = new ContentValues();
+    	values.put(ID, sensorConfiguration.getId());
+    	values.put(SENSOR_TYPE, sensorConfiguration.getSensor_type());
+    	values.put(ENABLED, sensorConfiguration.getEnabled());
+    	values.put(KEY, sensorConfiguration.getKey());
+    	values.put(VALUE, sensorConfiguration.getValue());
+    	sqLiteDatabase.insert(TABLE_SENSOR_CONFIGURATION, null	, values);
+    }
+    
+    public List<SensorConfiguration> getAllSensorConfiguration(){
+    	
+    	List<SensorConfiguration> configurationList = new ArrayList<SensorConfiguration>();
+    	
+    	// Select All Query
+        String selectQuery = "select  * from " + TABLE_SENSOR_CONFIGURATION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        
+        if (cursor.moveToFirst()) {
+            do {
+            	SensorConfiguration configuration = new SensorConfiguration();
+            	configuration.setId(cursor.getInt(0));
+                configuration.setSensor_type(cursor.getString(1));
+                configuration.setEnabled(cursor.getInt(2));
+                configuration.setKey(cursor.getString(3));
+                configuration.setValue(cursor.getString(4));
+                
+                configurationList.add(configuration); 
+            } while (cursor.moveToNext());
+        }
+        
+        return configurationList;
+    }
     
     public void insertCredentials(){
     	ContentValues values = new ContentValues();
