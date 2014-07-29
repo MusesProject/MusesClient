@@ -120,7 +120,6 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	public void setAppName(String appName) {
 		this.appName = appName;
-		Log.d(TAG, "set name called");
 	}
 	
 	// returns the text of clicked view
