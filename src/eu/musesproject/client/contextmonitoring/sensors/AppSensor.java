@@ -113,8 +113,6 @@ public class AppSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, String.valueOf(appVersion));
         contextEvent.addProperty(PROPERTY_KEY_BACKGROUND_PROCESS, runningServicesNames.toString());
 
-        Log.d(TAG, "appVersion : " + String.valueOf(appVersion));
-        
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
         if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
