@@ -36,11 +36,11 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
-import android.util.Log;
 
 import com.stericson.RootTools.RootTools;
 
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -57,13 +57,16 @@ public class DeviceProtectionSensor implements ISensor {
 	public static final String TYPE = "CONTEXT_SENSOR_DEVICE_PROTECTION";
 
 	// context property keys
-	public static final String PROPERTY_KEY_ID = "id";
-	public static final String PROPERTY_KEY_IS_ROOTED = "isrooted";
-	public static final String PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN = "isrootpermissiongiven";
-	public static final String PROPERTY_KEY_IP_ADRESS = "ipaddress";
-	public static final String PROPERTY_KEY_IS_PASSWORD_PROTECTED = "ispasswordprotected";
-	public static final String PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS = "screentimeoutinseconds";
-	public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED = "istrustedantivirusinstalled";
+	public static final String PROPERTY_KEY_ID 							= "id";
+	public static final String PROPERTY_KEY_IS_ROOTED 					= "isrooted";
+	public static final String PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN 	= "isrootpermissiongiven";
+	public static final String PROPERTY_KEY_IP_ADRESS 					= "ipaddress";
+	public static final String PROPERTY_KEY_IS_PASSWORD_PROTECTED 		= "ispasswordprotected";
+	public static final String PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS 	= "screentimeoutinseconds";
+	public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED 	= "istrustedantivirusinstalled";
+	
+	// config keys
+    public static final String CONFIG_KEY_TRUSTED_AV = "trustedav";
 
 	private Context context;
 	private ContextListener listener;
@@ -90,7 +93,6 @@ public class DeviceProtectionSensor implements ISensor {
 		sensorEnabled = false;
 
 		trustedAVs = new ArrayList<String>();
-		mockTrustedDevices();
 		
         initialContextEventFired = false;
 	}
@@ -104,14 +106,6 @@ public class DeviceProtectionSensor implements ISensor {
 			
 			initialContextEventFired = true;
 		}
-	}
-
-	private void mockTrustedDevices() {
-		trustedAVs.add("avast! Mobile Security");
-		trustedAVs.add("Mobile Security & Antivirus");
-		trustedAVs.add("Avira Antivirus Security");
-		trustedAVs.add("Norton Security & Antivirus");
-		trustedAVs.add("CM Security & Find My Phone");
 	}
 
 	@Override
@@ -136,8 +130,6 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS, String.valueOf(getScreenTimeout()));
 		contextEvent.addProperty(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED, String.valueOf(isTrustedAntiVirInstalled()));
 		
-		Log.d(TAG, "context event created");
-
 		if (listener != null) {
 			listener.onEvent(contextEvent);
 		}
@@ -173,8 +165,9 @@ public class DeviceProtectionSensor implements ISensor {
 					}
 				}
 			}
-		} catch (Exception ex) {
-		} // for now eat exceptions
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
 		return "";
 	}
 
@@ -201,6 +194,15 @@ public class DeviceProtectionSensor implements ISensor {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public void configure(List<SensorConfiguration> config) {
+		for (SensorConfiguration item : config) {
+			if(item.getKey().equals(CONFIG_KEY_TRUSTED_AV)) {
+				trustedAVs.add(item.getValue());
+			}
+		}
 	}
 
 	@Override

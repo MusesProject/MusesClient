@@ -21,9 +21,7 @@ package eu.musesproject.client.contextmonitoring.sensors;
  */
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
 import android.location.Location;
@@ -33,6 +31,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
 
 public class LocationSensor implements ISensor, LocationListener {
@@ -46,11 +45,11 @@ public class LocationSensor implements ISensor, LocationListener {
     public static final String PROPERTY_KEY_IS_WITHIN_SECURE_ZONE	= "insecurezone";
     
     // config keys
-    public static final String PROPERTY_KEY_MIN_DIS 				= "mindistance";
-    public static final String PROPERTY_KEY_MIN_TIME				= "mindtime";
-    public static final String PROPERTY_KEY_LONGITUDE_SECURE_ZONE	= "locationlong";
-    public static final String PROPERTY_KEY_LATITUDE_SECURE_ZONE	= "locationlat";
-    public static final String PROPERTY_KEY_SECURE_ZONE_RADIUS		= "radius";
+    public static final String CONFIG_KEY_MIN_DIS 				= "mindistance";
+    public static final String CONFIG_KEY_MIN_TIME				= "mindtime";
+    public static final String CONFIG_KEY_LONGITUDE_SECURE_ZONE	= "locationlong";
+    public static final String CONFIG_KEY_LATITUDE_SECURE_ZONE	= "locationlat";
+    public static final String CONFIG_KEY_SECURE_ZONE_RADIUS	= "radius";
     
 
 	private Context context;
@@ -97,10 +96,6 @@ public class LocationSensor implements ISensor, LocationListener {
 		// START MOCK UP CONFIGURATION
 		allowedZoneCentralPoint = location;
 		
-		Map<String, String> mockUpConfig = new HashMap<String, String>();
-		configure(mockUpConfig);
-		// END MOCK UP CONFIGURATION
-
 		// Initialize the location fields
 		if (location != null) {
 			onLocationChanged(location);
@@ -150,21 +145,29 @@ public class LocationSensor implements ISensor, LocationListener {
         }
 	}
 
-	public void configure(Map<String, String> config) {
+	@Override
+	public void configure(List<SensorConfiguration> config) {
 		try {
-			if(config.containsKey(PROPERTY_KEY_MIN_DIS)) {
-				minDistanceBetweenLocationUpdates = Integer.valueOf(config.get(PROPERTY_KEY_MIN_DIS));
-			}
-			if(config.containsKey(PROPERTY_KEY_MIN_TIME)) {
-				minTimeBetweenLocationUpdates = Integer.valueOf(config.get(PROPERTY_KEY_MIN_TIME));
-			}
-			if(config.containsKey(PROPERTY_KEY_LONGITUDE_SECURE_ZONE) && config.containsKey(PROPERTY_KEY_LATITUDE_SECURE_ZONE)) {
-				allowedZoneCentralPoint = new Location(provider);
-				allowedZoneCentralPoint.setLatitude(Double.valueOf(config.get(PROPERTY_KEY_LATITUDE_SECURE_ZONE)));
-				allowedZoneCentralPoint.setLongitude(Double.valueOf(config.get(PROPERTY_KEY_LONGITUDE_SECURE_ZONE)));
-			}
-			if(config.containsKey(PROPERTY_KEY_SECURE_ZONE_RADIUS)) {
-				allowedZoneRadius = Float.valueOf(config.get(PROPERTY_KEY_SECURE_ZONE_RADIUS));
+			for (SensorConfiguration item : config) {
+				if(item.getKey().equals(CONFIG_KEY_MIN_DIS)) {
+					minDistanceBetweenLocationUpdates = Integer.valueOf(item.getValue());
+				}
+				else if(item.getKey().equals(CONFIG_KEY_MIN_TIME)) {
+					minTimeBetweenLocationUpdates = Integer.valueOf(item.getValue());
+				}
+				else if(item.getKey().equals(CONFIG_KEY_LONGITUDE_SECURE_ZONE)) {
+					// just use this config item if longitude and latitude is provided
+					for (SensorConfiguration subItem : config) {
+						if(item.getKey().equals(CONFIG_KEY_LATITUDE_SECURE_ZONE)) {
+							allowedZoneCentralPoint = new Location(provider);
+							allowedZoneCentralPoint.setLongitude(Double.valueOf(item.getValue()));
+							allowedZoneCentralPoint.setLatitude(Double.valueOf(subItem.getValue()));
+						}
+					}
+				}
+				else if(item.getKey().equals(CONFIG_KEY_SECURE_ZONE_RADIUS)) {
+					allowedZoneRadius = Float.valueOf(item.getValue());
+				}
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "could not map config value to correct type");

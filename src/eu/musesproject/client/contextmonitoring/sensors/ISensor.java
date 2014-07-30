@@ -20,7 +20,10 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
+import java.util.List;
+
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
 
 public interface ISensor {
@@ -54,4 +57,10 @@ public interface ISensor {
      * @return the last fired context event
      */
     ContextEvent getLastFiredContextEvent();
+    
+    /**
+     * Method to setup the configuration of a sensor
+     * @param config {@link SensorConfiguration}
+     */
+    void configure(List<SensorConfiguration> config);
 }

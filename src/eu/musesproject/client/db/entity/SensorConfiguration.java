@@ -4,7 +4,6 @@ public class SensorConfiguration {
 	
 	private int id;
 	private String sensor_type;
-	private int enabled;
 	private String key;
 	private String value;
 	
@@ -16,7 +15,6 @@ public class SensorConfiguration {
 		super();
 		this.id = id;
 		this.sensor_type = sensor_type;
-		this.enabled = enabled;
 		this.key = key;
 		this.value = value;
 	}
@@ -35,14 +33,6 @@ public class SensorConfiguration {
 
 	public void setSensor_type(String sensor_type) {
 		this.sensor_type = sensor_type;
-	}
-
-	public int getEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(int enabled) {
-		this.enabled = enabled;
 	}
 
 	public String getKey() {
@@ -64,7 +54,7 @@ public class SensorConfiguration {
 	@Override
 	public String toString() {
 		return "SensorConfiguration [id=" + id + ", sensor_type=" + sensor_type
-				+ ", enabled=" + enabled + ", key=" + key + ", value=" + value
+				+ ", key=" + key + ", value=" + value
 				+ "]";
 	}
 	

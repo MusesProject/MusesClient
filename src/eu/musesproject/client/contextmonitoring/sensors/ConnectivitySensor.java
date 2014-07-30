@@ -39,6 +39,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.contextmonitoring.BluetoothState;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -258,4 +259,10 @@ public class ConnectivitySensor implements ISensor {
             return null;
         }
     }
+
+	@Override
+	public void configure(List<SensorConfiguration> config) {
+		// TODO Auto-generated method stub
+		
+	}
 }

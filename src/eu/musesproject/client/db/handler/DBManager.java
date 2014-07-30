@@ -101,7 +101,6 @@ public class DBManager {
 	private static final String CREATE_SENSOR_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE sensor_configuration	 ( "
 																	  + "id INTEGER PRIMARY KEY,"
 																	  + "sensor_type VARCHAR(45) NOT NULL,"
-																	  + "enabled INT NOT NULL,"
 																	  + "key VARCHAR(45) NOT NULL,"
 																	  + "value VARCHAR(45) NOT NULL);";
 
@@ -284,16 +283,37 @@ public class DBManager {
     // All CRUD (Create, retrieve, update and delete ) operations here
     
     public void insertSensorConfiguration(SensorConfiguration sensorConfiguration){
-    	ContentValues values = new ContentValues();
-    	values.put(ID, sensorConfiguration.getId());
-    	values.put(SENSOR_TYPE, sensorConfiguration.getSensor_type());
-    	values.put(ENABLED, sensorConfiguration.getEnabled());
-    	values.put(KEY, sensorConfiguration.getKey());
-    	values.put(VALUE, sensorConfiguration.getValue());
-    	sqLiteDatabase.insert(TABLE_SENSOR_CONFIGURATION, null	, values);
+    	if(!sensorConfigExists(sensorConfiguration)) {
+    		ContentValues values = new ContentValues();
+    		values.put(ID, sensorConfiguration.getId());
+    		values.put(SENSOR_TYPE, sensorConfiguration.getSensor_type());
+    		values.put(KEY, sensorConfiguration.getKey());
+    		values.put(VALUE, sensorConfiguration.getValue());
+    		sqLiteDatabase.insert(TABLE_SENSOR_CONFIGURATION, null	, values);
+    	}
     }
     
-    public List<SensorConfiguration> getAllSensorConfiguration(){
+    // check if an equal config item exists to avoid duplicate entries
+    private boolean sensorConfigExists(SensorConfiguration sensorConfiguration) {
+    	Cursor cursor = sqLiteDatabase.query(
+    			TABLE_SENSOR_CONFIGURATION, // table name
+                null,                    // select
+                SENSOR_TYPE + "=? AND " + 
+        			KEY + "=? AND " +
+        			VALUE + "=?", // where identifier
+                new String[] {sensorConfiguration.getSensor_type(), sensorConfiguration.getKey(), sensorConfiguration.getValue()}, // where args
+                null,null,null,null);
+    	
+    	if (cursor != null && cursor.moveToFirst()) {
+    		return true;
+    	}
+    	else {
+    		return false;
+    	}
+	}
+
+
+	public List<SensorConfiguration> getAllSensorConfiguration(){
     	
     	List<SensorConfiguration> configurationList = new ArrayList<SensorConfiguration>();
     	
@@ -306,9 +326,8 @@ public class DBManager {
             	SensorConfiguration configuration = new SensorConfiguration();
             	configuration.setId(cursor.getInt(0));
                 configuration.setSensor_type(cursor.getString(1));
-                configuration.setEnabled(cursor.getInt(2));
-                configuration.setKey(cursor.getString(3));
-                configuration.setValue(cursor.getString(4));
+                configuration.setKey(cursor.getString(2));
+                configuration.setValue(cursor.getString(3));
                 
                 configurationList.add(configuration); 
             } while (cursor.moveToNext());
@@ -1254,8 +1273,8 @@ public class DBManager {
 
     }
     
-	public Map<String,String> getAllSensorConfigItemsBySensorType(String type) {
-		Map<String,String> configItems = new HashMap<String,String>();
+	public List<SensorConfiguration> getAllSensorConfigItemsBySensorType(String type) {
+		List<SensorConfiguration> configurationList = new ArrayList<SensorConfiguration>();
 		
 		Cursor cursor = sqLiteDatabase.query(
     			TABLE_SENSOR_CONFIGURATION, // table name
@@ -1266,9 +1285,15 @@ public class DBManager {
     	
     	if (cursor != null && cursor.moveToFirst()) {
     		while (!cursor.isAfterLast()) {
+    			SensorConfiguration configItem = new SensorConfiguration();
+    			configItem.setSensor_type(type);
+    			configItem.setKey(cursor.getString(cursor.getColumnIndex(KEY)));
+    			configItem.setValue(cursor.getString(cursor.getColumnIndex(VALUE)));
+    			
+    			configurationList.add(configItem);
 			}
     	}
 		
-		return configItems;
+		return configurationList;
 	}
 }

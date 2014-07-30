@@ -33,6 +33,7 @@ import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.contextmonitoring.sensors.InteractionSensor;
+import eu.musesproject.client.contextmonitoring.sensors.NotificationSensor;
 import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.model.actuators.Setting;
@@ -90,6 +91,7 @@ public class SensorController {
         activeSensors.put(DeviceProtectionSensor.TYPE, new DeviceProtectionSensor(context));
 //        activeSensors.put(LocationSensor.TYPE, new LocationSensor(context));
         activeSensors.put(InteractionSensor.TYPE, new InteractionSensor());
+        activeSensors.put(NotificationSensor.TYPE, new NotificationSensor(context));
         for (ISensor sensor : activeSensors.values()) {
             sensor.addContextListener(contextEventBus);
             sensor.enable();

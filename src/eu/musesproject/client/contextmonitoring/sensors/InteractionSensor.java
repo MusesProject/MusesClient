@@ -32,6 +32,7 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.contextmonitoring.InteractionDictionary;
 import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.client.model.contextmonitoring.MailAttachment;
@@ -303,5 +304,11 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	            }
 	        }
 		}
+	}
+
+	@Override
+	public void configure(List<SensorConfiguration> config) {
+		// TODO Auto-generated method stub
+		
 	}
 }

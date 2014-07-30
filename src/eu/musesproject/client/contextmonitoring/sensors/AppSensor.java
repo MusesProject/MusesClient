@@ -36,6 +36,7 @@ import android.os.Build;
 import android.util.Log;
 import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -213,4 +214,10 @@ public class AppSensor implements ISensor {
             return null;
         }
     }
+
+	@Override
+	public void configure(List<SensorConfiguration> config) {
+		// TODO Auto-generated method stub
+		
+	}
 }

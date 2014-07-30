@@ -35,6 +35,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
 import eu.musesproject.contextmodel.PackageStatus;
 
@@ -283,5 +284,12 @@ public class PackageSensor implements ISensor {
 			}
 			return null;
 		}
+	}
+
+
+	@Override
+	public void configure(List<SensorConfiguration> config) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -27,6 +27,7 @@ import android.os.Environment;
 import android.os.FileObserver;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -46,6 +47,10 @@ public class FileSensor implements ISensor {
     public static final String PROPERTY_KEY_FILE_EVENT 	= "fileevent";
     public static final String PROPERTY_KEY_PATH 		= "path";
 
+	// config keys
+    public static final String CONFIG_KEY_PATH = "path";
+    
+    
     // possible events
     public static final String OPEN  	 	 = "open";
     public static final String ATTRIB 	 	 = "metadata";
@@ -80,7 +85,7 @@ public class FileSensor implements ISensor {
         running = false;
 
         // example directory.
-        pathToObserve = "/Pictures/Screenshots/"; // TODO add sensor config to set a directory
+        pathToObserve = "/Pictures/Screenshots/";
         fullPath =  Environment.getExternalStorageDirectory().getAbsolutePath() + pathToObserve;
         Log.d(TAG, "path:" + fullPath);
 
@@ -96,49 +101,52 @@ public class FileSensor implements ISensor {
     public void enable() {
         if(!running){
             Log.d(TAG, "start file observation");
+            startObservation();
+        }
+    }
+    
+    private void startObservation() {
+    	fileObserver = new FileObserver(fullPath) {
+            // these variables are needed to prevent the context event creation multiple times a second.
+            // this is necessary because the FileObserver fires the same event multiple times
+            int oldEvent = - 1;
+            long lastEventTimestamp = System.currentTimeMillis();
+            long threshold = 1000;
 
-            fileObserver = new FileObserver(fullPath) {
-                // these variables are needed to prevent the context event creation multiple times a second.
-                // this is necessary because the FileObserver fires the same event multiple times
-                int oldEvent = - 1;
-                long lastEventTimestamp = System.currentTimeMillis();
-                long threshold = 1000;
+            @Override
+            public void onEvent(int event, String path) {
+                long eventTimeStamp = System.currentTimeMillis();
 
-                @Override
-                public void onEvent(int event, String path) {
-                    long eventTimeStamp = System.currentTimeMillis();
+                // add ALL_EVENTS to erase high bit values
+                event &= ALL_EVENTS;
+                String eventText = null;
 
-                    // add ALL_EVENTS to erase high bit values
-                    event &= ALL_EVENTS;
-                    String eventText = null;
+                if((oldEvent != event) || ((eventTimeStamp - lastEventTimestamp) >= threshold)) {
+                    oldEvent = event;
+                    lastEventTimestamp = eventTimeStamp;
 
-                    if((oldEvent != event) || ((eventTimeStamp - lastEventTimestamp) >= threshold)) {
-                        oldEvent = event;
-                        lastEventTimestamp = eventTimeStamp;
-
-                        switch(event){
-                            case FileObserver.OPEN			: eventText = FileSensor.OPEN; 		   break;
-                            case FileObserver.ATTRIB		: eventText = FileSensor.ATTRIB;  	   break;
-                            case FileObserver.ACCESS		: eventText = FileSensor.ACCESS; 	   break;
-                            case FileObserver.CREATE		: eventText = FileSensor.CREATE; 	   break;
-                            case FileObserver.DELETE		: eventText = FileSensor.DELETE;	   break;
-                            case FileObserver.MODIFY		: eventText = FileSensor.MODIFY;	   break;
-                            case FileObserver.MOVED_FROM	: eventText = FileSensor.MOVED_FROM;   break;
-                            case FileObserver.MOVED_TO		: eventText = FileSensor.MOVED_TO; 	   break;
-                            case FileObserver.MOVE_SELF		: eventText = FileSensor.MOVE_SELF;    break;
-                            case FileObserver.CLOSE_WRITE	: eventText = FileSensor.CLOSE_WRITE;  break;
-                            case FileObserver.CLOSE_NOWRITE	: eventText = FileSensor.CLOSE_NOWRITE;break;
-                            default: break;
-                        }
-                        if((eventText != null) && (path != null)) {
-                            createContextEvent(eventText, path);
-                        }
+                    switch(event){
+                        case FileObserver.OPEN			: eventText = FileSensor.OPEN; 		   break;
+                        case FileObserver.ATTRIB		: eventText = FileSensor.ATTRIB;  	   break;
+                        case FileObserver.ACCESS		: eventText = FileSensor.ACCESS; 	   break;
+                        case FileObserver.CREATE		: eventText = FileSensor.CREATE; 	   break;
+                        case FileObserver.DELETE		: eventText = FileSensor.DELETE;	   break;
+                        case FileObserver.MODIFY		: eventText = FileSensor.MODIFY;	   break;
+                        case FileObserver.MOVED_FROM	: eventText = FileSensor.MOVED_FROM;   break;
+                        case FileObserver.MOVED_TO		: eventText = FileSensor.MOVED_TO; 	   break;
+                        case FileObserver.MOVE_SELF		: eventText = FileSensor.MOVE_SELF;    break;
+                        case FileObserver.CLOSE_WRITE	: eventText = FileSensor.CLOSE_WRITE;  break;
+                        case FileObserver.CLOSE_NOWRITE	: eventText = FileSensor.CLOSE_NOWRITE;break;
+                        default: break;
+                    }
+                    if((eventText != null) && (path != null)) {
+                        createContextEvent(eventText, path);
                     }
                 }
-            };
-            fileObserver.startWatching();
-            running = true;
-        }
+            }
+        };
+        fileObserver.startWatching();
+        running = true;
     }
 
     /**
@@ -209,4 +217,14 @@ public class FileSensor implements ISensor {
     public void setPathToObserve(String pathToObserve) {
         this.pathToObserve = pathToObserve;
     }
+
+	@Override
+	public void configure(List<SensorConfiguration> config) {
+		for (SensorConfiguration item : config) {
+			if(item.getKey().equals(CONFIG_KEY_PATH)) {
+				fullPath =  Environment.getExternalStorageDirectory().getAbsolutePath() + item.getValue();
+				startObservation();
+			}
+		}
+	}
 }
