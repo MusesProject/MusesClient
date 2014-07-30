@@ -1,7 +1,9 @@
 package eu.musesproject.client.db.handler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -1249,7 +1251,21 @@ public class DBManager {
 
     }
     
-
-
-	
+	public Map<String,String> getAllSensorConfigItemsBySensorType(String type) {
+		Map<String,String> configItems = new HashMap<String,String>();
+		
+		Cursor cursor = sqLiteDatabase.query(
+    			TABLE_SENSOR_CONFIGURATION, // table name
+                null,                       // select
+                SENSOR_TYPE + "=?" + 
+                new String[] {type}, 		// where args
+                null,null,null,null);
+    	
+    	if (cursor != null && cursor.moveToFirst()) {
+    		while (!cursor.isAfterLast()) {
+			}
+    	}
+		
+		return configItems;
+	}
 }
