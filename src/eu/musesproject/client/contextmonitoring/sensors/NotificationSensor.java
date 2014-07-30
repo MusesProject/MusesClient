@@ -35,12 +35,12 @@ import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.contextmodel.ContextEvent;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 /**
  * The intention of this class is to be able to detect incoming emails.
  * This class is just working with Android API 18 or higher.
  * @author christophstanik
  */
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationSensor implements
 		ISensor {
     private static final String TAG = NotificationSensor.class.getName();

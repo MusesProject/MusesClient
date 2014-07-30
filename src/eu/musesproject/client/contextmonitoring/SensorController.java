@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
@@ -156,7 +157,12 @@ public class SensorController {
     			sensor = new InteractionSensor();
     		}
     		else if(sensorType.equals(NotificationSensor.TYPE)) {
-    			sensor = new NotificationSensor(context);
+    			 if (Build.VERSION.SDK_INT > 17){
+    				 sensor = new NotificationSensor(context);
+    			 } 
+    			 else {
+    				 continue;
+    			 }
     		}
     		else {
     			continue;
