@@ -45,6 +45,8 @@ import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.NetworkChecker;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
+import eu.musesproject.client.db.entity.Configuration;
+import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
@@ -81,6 +83,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.muses_main);
 		context = getApplicationContext();
+		setConfiguration();
 		
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
 		loginListBtn = (Button) findViewById(R.id.login_list_button);
@@ -107,7 +110,25 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		//setAppIconOnStatusBar();
 	}
 	
-	
+	private void setConfiguration(){
+		Configuration configuration = new Configuration();
+		configuration.setId(1);
+		configuration.setClientCertificate("");
+		configuration.setPollingEnabled(1);
+		configuration.setPollTimeout(5000);
+		configuration.setServerCertificate("");
+		configuration.setServerContextPath("/server");
+		configuration.setServerServletPath("/commain");
+		configuration.setServerIP("192.168.44.101");
+		configuration.setServerPort(8443);
+		configuration.setSleepPollTimeout(10000);
+		configuration.setTimeout(5000);
+		
+        DBManager dbManager = new DBManager(context);
+        dbManager.openDB();
+        dbManager.insertConnectionProperties(configuration);
+        dbManager.closeDB();
+	}
 	
 	private void setAppIconOnStatusBar() {
 		Notification.Builder mBuilder =

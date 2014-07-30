@@ -98,39 +98,40 @@ public class DBManager {
 																	  + "device_id VARCHAR(45) NOT NULL,"
 																	  + "username VARCHAR(45) NOT NULL,"
 																	  + "password VARCHAR(45) NOT NULL);";
-
-//	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
-//			  + "id INTEGER PRIMARY KEY," 
-//			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
-//			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
-//			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
-//			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain',"
-//			  + "server_certificate VARCHAR(4500) NOT NULL,"
-//			  + "client_certificate VARCHAR(4500) NOT NULL,"
-//			  + "timeout INTEGER NOT NULL DEFAULT 5000,"
-//			  + "poll_timeout INTEGER NOT NULL DEFAULT 10000,"
-//			  + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000,"
-//			  + "polling_enabled INTEGER NOT NULL DEFAULT 1);";
+	private static final String CREATE_SENSOR_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE sensor_configuration	 ( "
+																	  + "id INTEGER PRIMARY KEY,"
+																	  + "sensor_type VARCHAR(45) NOT NULL,"
+																	  + "enabled INT NOT NULL,"
+																	  + "key VARCHAR(45) NOT NULL,"
+																	  + "value VARCHAR(45) NOT NULL);";
 
 	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 			  + "id INTEGER PRIMARY KEY," 
-			  + "server_ip VARCHAR(45) NOT NULL,"
-			  + "server_port VARCHAR(45) NOT NULL,"
-			  + "server_context_path VARCHAR(45) NOT NULL,"
-			  + "server_servlet_path VARCHAR(45) NOT NULL,"
+			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
+			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
+			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
+			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain',"
 			  + "server_certificate VARCHAR(4500) NOT NULL,"
 			  + "client_certificate VARCHAR(4500) NOT NULL,"
-			  + "timeout INTEGER NOT NULL,"
-			  + "poll_timeout INTEGER NOT NULL,"
-			  + "sleep_poll_timeout INTEGER NOT NULL,"
-			  + "polling_enabled INTEGER NOT NULL);";
+			  + "timeout INTEGER NOT NULL DEFAULT 5000,"
+			  + "poll_timeout INTEGER NOT NULL DEFAULT 10000,"
+			  + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000,"
+			  + "polling_enabled INTEGER NOT NULL DEFAULT 1);";
 
-	private static final String CREATE_SENSOR_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE sensor_configuration	 ( "
-			  + "id INTEGER PRIMARY KEY," 
-			  + "sensor_type (45) NOT NULL,"
-			  + "enabled INTEGER NOT NULL,"
-			  + "key VARCHAR(45) NOT NULL,"
-			  + "value VARCHAR(45) NOT NULL);";
+//	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
+//			  + "id INTEGER PRIMARY KEY," 
+//			  + "server_ip VARCHAR(45) NOT NULL,"
+//			  + "server_port VARCHAR(45) NOT NULL,"
+//			  + "server_context_path VARCHAR(45) NOT NULL,"
+//			  + "server_servlet_path VARCHAR(45) NOT NULL,"
+//			  + "server_certificate VARCHAR(4500) NOT NULL,"
+//			  + "client_certificate VARCHAR(4500) NOT NULL,"
+//			  + "timeout INTEGER NOT NULL,"
+//			  + "poll_timeout INTEGER NOT NULL,"
+//			  + "sleep_poll_timeout INTEGER NOT NULL,"
+//			  + "polling_enabled INTEGER NOT NULL);";
+
+
 	
 	// Tables name 
 	public static final String TABLE_POLICES = "polices";
@@ -200,10 +201,10 @@ public class DBManager {
 	}
 
 	
-	public synchronized SQLiteDatabase openDB() { // always returns writableDB
+	public synchronized DBManager openDB() { // always returns writableDB
 		Log.d(TAG, "opening database..");
        	sqLiteDatabase = databaseHelper.getWritableDatabase();
-		return sqLiteDatabase;
+		return this;
 	}
 
 	public synchronized void closeDB() {
@@ -359,6 +360,8 @@ public class DBManager {
     // Configuration related queries
     public void insertConnectionProperties(Configuration config){
     	ContentValues values = new ContentValues();
+    	
+    	values.put(ID, config.getId());
     	values.put(SERVER_IP, config.getServerIP());
     	values.put(SERVER_PORT, config.getServerPort());
     	values.put(SERVER_CONTEXT_PATH, config.getServerContextPath());
@@ -436,17 +439,17 @@ public class DBManager {
         
         if (cursor.moveToFirst()) {
             do {
-                configuration.setId(cursor.getInt(0));
-                configuration.setServerIP(cursor.getString(1));
-                configuration.setServerPort(cursor.getInt(2));
-                configuration.setServerContextPath(cursor.getString(3));
-                configuration.setServerServletPath(cursor.getString(4));
-                configuration.setServerCertificate(cursor.getString(5));
-                configuration.setClientCertificate(cursor.getString(6));
-                configuration.setTimeout(cursor.getInt(5));
-                configuration.setPollTimeout(cursor.getInt(6));
-                configuration.setSleepPollTimeout(cursor.getInt(7));
-                configuration.setPollingEnabled(cursor.getInt(8));
+            	// configuration.setId(cursor.getInt(0)); FIXME commented for time being
+            	configuration.setServerIP(cursor.getString(1));
+            	configuration.setServerPort(cursor.getInt(2));
+            	configuration.setServerContextPath(cursor.getString(3));
+            	configuration.setServerServletPath(cursor.getString(4));
+            	configuration.setServerCertificate(cursor.getString(5));
+            	configuration.setClientCertificate(cursor.getString(6));
+            	configuration.setTimeout(cursor.getInt(5));
+            	configuration.setPollTimeout(cursor.getInt(6));
+            	configuration.setSleepPollTimeout(cursor.getInt(7));
+            	configuration.setPollingEnabled(cursor.getInt(8));
             } while (cursor.moveToNext());
         }
         return configuration;
