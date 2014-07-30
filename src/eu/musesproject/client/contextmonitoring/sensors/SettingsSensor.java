@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
@@ -108,9 +109,19 @@ public class SettingsSensor implements ISensor {
     }
     
     public String getIMEI() {
+    	String imei = null; 
+    	
     	final TelephonyManager telephonyManager = (TelephonyManager) context
     			.getSystemService(Context.TELEPHONY_SERVICE);
-    	return telephonyManager.getDeviceId();
+    	
+		if (telephonyManager != null) {
+			imei =telephonyManager.getDeviceId();
+			
+		}
+		if (imei == null || imei.length() == 0)
+			imei = Secure.getString(context.getContentResolver(),
+					Secure.ANDROID_ID);
+		return imei;
     }
 
     @Override

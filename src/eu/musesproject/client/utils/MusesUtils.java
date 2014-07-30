@@ -21,24 +21,12 @@ package eu.musesproject.client.utils;
  */
 import java.io.IOException;
 import java.io.InputStream;
+
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.provider.Settings.Secure;
-import android.telephony.TelephonyManager;
 
 public class MusesUtils {
 	static Context sContext;
-	public static String getIMEINumberFromPhone(Context context) {
-		String identifier = null;
-		TelephonyManager tm = (TelephonyManager) context
-				.getSystemService(Context.TELEPHONY_SERVICE);
-		if (tm != null)
-			identifier = tm.getDeviceId();
-		if (identifier == null || identifier.length() == 0)
-			identifier = Secure.getString(context.getContentResolver(),
-					Secure.ANDROID_ID);
-		return identifier;
-	}
 
 	public static String getCertificateFromAssets(Context context) {
 		String certificate = "";
@@ -71,6 +59,4 @@ public class MusesUtils {
 	public static void setAppContext(Context context){
 		sContext = context;
 	}
-	
 }
-

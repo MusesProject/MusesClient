@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
+import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.ContextEvent;
@@ -23,7 +24,6 @@ import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.entity.Role;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.entity.Subject;
-import eu.musesproject.client.utils.MusesUtils;
 
 public class DBManager {
 
@@ -336,7 +336,7 @@ public class DBManager {
     
     public void insertCredentials(){
     	ContentValues values = new ContentValues();
-    	values.put(DEVICE_ID, MusesUtils.getIMEINumberFromPhone(context));
+    	values.put(DEVICE_ID, new SettingsSensor(context).getIMEI());
     	values.put(USERNAME, "muses");
     	values.put(PASSWORD, "muses");
     	sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null	, values);
