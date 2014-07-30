@@ -1,9 +1,7 @@
 package eu.musesproject.client.db.handler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.ContextEvent;
@@ -285,7 +284,6 @@ public class DBManager {
     public void insertSensorConfiguration(SensorConfiguration sensorConfiguration){
     	if(!sensorConfigExists(sensorConfiguration)) {
     		ContentValues values = new ContentValues();
-    		values.put(ID, sensorConfiguration.getId());
     		values.put(SENSOR_TYPE, sensorConfiguration.getSensor_type());
     		values.put(KEY, sensorConfiguration.getKey());
     		values.put(VALUE, sensorConfiguration.getValue());
@@ -380,7 +378,6 @@ public class DBManager {
     public void insertConnectionProperties(Configuration config){
     	ContentValues values = new ContentValues();
     	
-    	values.put(ID, config.getId());
     	values.put(SERVER_IP, config.getServerIP());
     	values.put(SERVER_PORT, config.getServerPort());
     	values.put(SERVER_CONTEXT_PATH, config.getServerContextPath());
@@ -1275,25 +1272,52 @@ public class DBManager {
     
 	public List<SensorConfiguration> getAllSensorConfigItemsBySensorType(String type) {
 		List<SensorConfiguration> configurationList = new ArrayList<SensorConfiguration>();
-		
-		Cursor cursor = sqLiteDatabase.query(
-    			TABLE_SENSOR_CONFIGURATION, // table name
-                null,                       // select
-                SENSOR_TYPE + "=?" + 
-                new String[] {type}, 		// where args
-                null,null,null,null);
+		Log.d(TAG, "type="  + type); 
+		Cursor cursor = sqLiteDatabase.rawQuery("SELECT key, value FROM sensor_configuration WHERE sensor_type=?", new String[] {type});
     	
     	if (cursor != null && cursor.moveToFirst()) {
     		while (!cursor.isAfterLast()) {
     			SensorConfiguration configItem = new SensorConfiguration();
     			configItem.setSensor_type(type);
-    			configItem.setKey(cursor.getString(cursor.getColumnIndex(KEY)));
-    			configItem.setValue(cursor.getString(cursor.getColumnIndex(VALUE)));
+    			configItem.setKey(cursor.getString(0));
+    			configItem.setValue(cursor.getString(1));
     			
     			configurationList.add(configItem);
+				cursor.moveToNext();
 			}
     	}
 		
 		return configurationList;
+	}
+	
+	public List<String> getAllEnabledSensorTypes() {
+		List<String> enabledSensors = new ArrayList<String>();
+		
+		Cursor cursor = sqLiteDatabase.query(
+				TABLE_SENSOR_CONFIGURATION, // table name
+				new String[] {SENSOR_TYPE}, // select
+				KEY + "=? AND " + 
+					VALUE + "=?",
+				new String[] {ISensor.CONFIG_KEY_ENABLED, "true"},// where args
+				null,null,null,null);
+		
+		if (cursor != null && cursor.moveToFirst()) {
+			while (!cursor.isAfterLast()) {
+				enabledSensors.add(cursor.getString(0));
+				cursor.moveToNext();
+			}
+		}
+		
+		return enabledSensors;
+	}
+	
+	public boolean hasSensorConfig() {
+		String selectQuery = "select  COUNT(*) from " + TABLE_SENSOR_CONFIGURATION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+		
+		if (cursor != null && cursor.moveToFirst()) {
+			return true;
+		}
+		return false;
 	}
 }

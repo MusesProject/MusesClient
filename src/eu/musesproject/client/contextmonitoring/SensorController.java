@@ -33,9 +33,12 @@ import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.contextmonitoring.sensors.InteractionSensor;
+import eu.musesproject.client.contextmonitoring.sensors.LocationSensor;
 import eu.musesproject.client.contextmonitoring.sensors.NotificationSensor;
 import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
+import eu.musesproject.client.db.entity.SensorConfiguration;
+import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.actuators.Setting.SettingType;
 import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
@@ -60,11 +63,15 @@ public class SensorController {
     private Map<String, ISensor> activeSensors;
     // stores the latest fired ContextEvent of every sensor
     private Map<String, ContextEvent> lastFiredContextEvents;
+    
+    private DBManager dbManager;
 
     private SensorController(Context context) {
         this.context = context;
         activeSensors = new HashMap<String, ISensor>();
         lastFiredContextEvents = new HashMap<String, ContextEvent>();
+        
+        dbManager = new DBManager(context);
     }
 
     public static SensorController getInstance(Context context) {
@@ -73,17 +80,33 @@ public class SensorController {
         }
         return sensorController;
     }
+    
+    public void startSensors() {
+    	List<String> enabledSensor;
+    	boolean sensorConfigExists = false;
+    	dbManager.openDB();
+    	sensorConfigExists = dbManager.hasSensorConfig();
+    	dbManager.closeDB();
+    	
+    	if(sensorConfigExists) {
+    		Log.d(TAG, "config test: config exists");
+        	dbManager.openDB();
+        	enabledSensor = dbManager.getAllEnabledSensorTypes();
+        	dbManager.closeDB();
+    		startAndConfigureSensors(enabledSensor);
+    	}
+    	else {
+    		Log.d(TAG, "config test: config does not exists");
+    		startAllSensors();
+    	}
+    }
 
     /**
      * Method to start and enable all sensors
      */
     public void startAllSensors() {
-        initSensors();
-    }
-
-    private void initSensors() {
-        Log.d(TAG, "called: initSensors()");
-        activeSensors.put(AppSensor.TYPE, new AppSensor(context));
+		Log.d(TAG, "config test: startAllSensors");
+    	activeSensors.put(AppSensor.TYPE, new AppSensor(context));
         activeSensors.put(ConnectivitySensor.TYPE, new ConnectivitySensor(context));
         activeSensors.put(SettingsSensor.TYPE, new SettingsSensor(context));
         activeSensors.put(FileSensor.TYPE, new FileSensor());
@@ -92,10 +115,58 @@ public class SensorController {
 //        activeSensors.put(LocationSensor.TYPE, new LocationSensor(context));
         activeSensors.put(InteractionSensor.TYPE, new InteractionSensor());
         activeSensors.put(NotificationSensor.TYPE, new NotificationSensor(context));
+        
         for (ISensor sensor : activeSensors.values()) {
             sensor.addContextListener(contextEventBus);
             sensor.enable();
         }
+    }
+    
+    public void startAndConfigureSensors(List<String> enabledSensor) {
+		Log.d(TAG, "config test: startAndConfigureSensors");
+		
+    	for (String sensorType : enabledSensor) {
+    		ISensor sensor;
+        	dbManager.openDB();
+    		List<SensorConfiguration> configItems = dbManager.getAllSensorConfigItemsBySensorType(sensorType);
+        	dbManager.closeDB();
+    		
+    		if(sensorType.equals(AppSensor.TYPE)) {
+    			sensor = new AppSensor(context);
+    		}
+    		else if(sensorType.equals(ConnectivitySensor.TYPE)) {
+    			sensor = new ConnectivitySensor(context);
+    		}
+    		else if(sensorType.equals(SettingsSensor.TYPE)) {
+    			sensor = new SettingsSensor(context);
+    		}
+    		else if(sensorType.equals(FileSensor.TYPE)) {
+    			sensor = new FileSensor();
+    		}
+    		else if(sensorType.equals(PackageSensor.TYPE)) {
+    			sensor = new PackageSensor(context);
+    		}
+    		else if(sensorType.equals(DeviceProtectionSensor.TYPE)) {
+    			sensor = new DeviceProtectionSensor(context);
+    		}
+    		else if(sensorType.equals(LocationSensor.TYPE)) {
+    			sensor = new LocationSensor(context);
+    		}
+    		else if(sensorType.equals(InteractionSensor.TYPE)) {
+    			sensor = new InteractionSensor();
+    		}
+    		else if(sensorType.equals(NotificationSensor.TYPE)) {
+    			sensor = new NotificationSensor(context);
+    		}
+    		else {
+    			continue;
+    		}
+
+    		Log.d(TAG, "config test: sensor type="+sensor.getClass().getSimpleName() + ", no. config items="+configItems.size());
+    		sensor.configure(configItems);
+    		sensor.enable();
+    		activeSensors.put(sensorType, sensor);
+		}
     }
 
     /**

@@ -36,6 +36,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.stericson.RootTools.RootTools;
 
@@ -199,6 +200,7 @@ public class DeviceProtectionSensor implements ISensor {
 	@Override
 	public void configure(List<SensorConfiguration> config) {
 		for (SensorConfiguration item : config) {
+			Log.d(TAG, "DEVICE CONFIG TEST: key=" + item.getKey() + ", value="+item.getValue());
 			if(item.getKey().equals(CONFIG_KEY_TRUSTED_AV)) {
 				trustedAVs.add(item.getValue());
 			}

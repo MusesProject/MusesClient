@@ -27,6 +27,8 @@ import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
 
 public interface ISensor {
+	public static String CONFIG_KEY_ENABLED = "enabled"; 
+	
     /**
      * max size of the array for the context event history
      */

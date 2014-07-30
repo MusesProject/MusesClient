@@ -74,7 +74,7 @@ public class UserContextMonitoringController implements
      * starts every sensor for the context observation
      */
     public void startContextObservation() {
-        SensorController.getInstance(context).startAllSensors();
+        SensorController.getInstance(context).startSensors();
     }
 
     /**
