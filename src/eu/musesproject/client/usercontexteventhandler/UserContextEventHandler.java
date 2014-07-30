@@ -39,6 +39,7 @@ import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
+import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.ResourceCreator;
@@ -112,14 +113,26 @@ public class UserContextEventHandler {
      * connects to the MUSES server
      */
     public void connectToServer() {
+    	Configuration config = getServerConfigurationFromDB();
+    	String url = "https://" + config.getServerIP() + ":" + config.getServerPort() + config.getServerContextPath() + config.getServerServletPath();
+    	AlarmReceiver.DEFAULT_POLL_INTERVAL = config.getPollTimeout();
+    	AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL = config.getSleepPollTimeout();
         connectionManager.connect(	
-                MUSES_SERVER_URL,
+                url,
                 AlarmReceiver.DEFAULT_POLL_INTERVAL,
                 AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
                 connectionCallback,
                 context
         );
     }
+
+	private Configuration getServerConfigurationFromDB() {
+        DBManager dbManager = new DBManager(context);
+        dbManager.openDB();
+        Configuration config = dbManager.getConfigurations();
+        dbManager.closeDB();
+        return config;
+	}	 
 
 	/**
 	 *  Method to first check the local decision maker for a decision to the corresponding

@@ -44,7 +44,7 @@ import org.apache.http.protocol.HttpContext;
 
 
 public abstract class HttpConnectionsHelper {
-	public static final boolean D = false;
+	public static final boolean D = true;
 	public static Cookie cookie;
 	static HttpContext localContext = new BasicHttpContext();
 	static Date cookieExpiryDate = new Date();
