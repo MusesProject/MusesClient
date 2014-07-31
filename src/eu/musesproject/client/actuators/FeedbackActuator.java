@@ -35,6 +35,7 @@ import eu.musesproject.client.model.decisiontable.Decision;
  */
 public class FeedbackActuator implements IFeedbackActuator {
     private static final String TAG = FeedbackActuator.class.getSimpleName();
+	private static final String APP_TAG = "APP_TAG";
 
     private IUICallback callback;
 
@@ -42,6 +43,7 @@ public class FeedbackActuator implements IFeedbackActuator {
     public void showFeedback(Decision decision) {
         Log.e(TAG, "called: showFeedback(Decision decision)");
         if(callback != null && decision.getName() != null) {
+        	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
             if(decision.getName().equals(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
             }
@@ -63,6 +65,7 @@ public class FeedbackActuator implements IFeedbackActuator {
     }
 
     public void sendLoginResponseToUI(boolean result) {
+    	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator sending login response with result: " + result);
         Log.d(TAG, "called: sendLoginResponseToUI(boolean result)");
         this.callback.onLogin(result);
     }

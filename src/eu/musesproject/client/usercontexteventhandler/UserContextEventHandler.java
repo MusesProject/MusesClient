@@ -59,6 +59,7 @@ import eu.musesproject.contextmodel.ContextEvent;
  */
 public class UserContextEventHandler {
     private static final String TAG = UserContextEventHandler.class.getSimpleName();
+    private static final String APP_TAG = "APP_TAG";
 
     private static UserContextEventHandler userContextEventHandler = null;
 //	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
@@ -153,9 +154,11 @@ public class UserContextEventHandler {
         // check for a locally stored decision
         Resource resource = ResourceCreator.create(action, properties);
         Request request = new Request(action, resource);
+		Log.d(APP_TAG, "Info DC, UserContextEventHandler=> receives actions, properties, events");
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
 //        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
         if(decision != null) { // local decision found
+        	Log.d(APP_TAG, "Info CT, Local decision found, now calling actuator to showFeedback");
             ActuatorController.getInstance().showFeedback(decision);
         }
         else { // if there is no local decision, send a request to the server
@@ -171,15 +174,19 @@ public class UserContextEventHandler {
 
                 // create the JSON request and send it to the server
                 JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
+                Log.d(APP_TAG, "Info SS, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
                 sendRequestToServer(requestObject);
             }
             else if(serverStatus == Statuses.OFFLINE || !isUserAuthenticated) { // save request to the database
-                storeContextEvent(action, properties, contextEvents);
+        		Log.d(APP_TAG, "Info DB, No Local decision found, Sever is OFFLINE, storing user data JSON(actions,properties,contextevnts) to server");
+            	storeContextEvent(action, properties, contextEvents);
+                
             }
         }
         // update context events even if a local decision was found.
         // Prevent sending context events again if they are already sent for a online decision
         if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE) && isUserAuthenticated) {
+    		Log.d(APP_TAG, "Info DB, update context events even if a local decision was found.");
             JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.LOCAL_DECISION, action, properties, contextEvents);
             sendRequestToServer(requestObject);
         }
@@ -193,6 +200,7 @@ public class UserContextEventHandler {
 	 * @param action
 	 */
 	public void sendUserBehavior(Action action) {
+		Log.d(APP_TAG, "Info U, sending user behavior to server with action");
 		JSONObject userBehaviorJSON = JSONManager.createUserBehaviorJSON(getImei(), getUserName(), action.getActionType());
 		sendRequestToServer(userBehaviorJSON);
 		
@@ -207,6 +215,7 @@ public class UserContextEventHandler {
 	 * @param password
 	 */
 	public void login(String userName, String password) {
+		Log.d(APP_TAG, "Info U, sending user login to server with username:"+userName+" password:"+password);
         Log.d(TAG, "called: login(String userName, String password)");
         String deviceId = "";
         
@@ -217,10 +226,12 @@ public class UserContextEventHandler {
         dbManager.closeDB();
         
         if(serverStatus == Statuses.ONLINE) {
+    		Log.d(APP_TAG, "Info U, Authenticating user login to server with username:"+userName+" password:"+password);
         	JSONObject requestObject = JSONManager.createLoginJSON(userName, password, deviceId);
         	sendRequestToServer(requestObject);
         }
         else {
+    		Log.d(APP_TAG, "Info U, Authenticating login with username:"+userName+" password:"+password + "in localdatabase");
         	dbManager.openDB();
         	ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), userName, password));
         	dbManager.closeDB();
@@ -256,6 +267,7 @@ public class UserContextEventHandler {
     public void sendOfflineStoredContextEventsToServer() {
         Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
         if(isUserAuthenticated) {
+        	Log.d(APP_TAG, "Info SS, Sending offline stored context events to server if user authenticated.");
         	// load context events from the database
         	DBManager dbManager = new DBManager(context);
         	dbManager.openDB();
@@ -338,14 +350,20 @@ public class UserContextEventHandler {
                 String requestType = JSONManager.getRequestType(receiveData);
 
                 if(requestType.equals(RequestType.ONLINE_DECISION)) {
+                	Log.d(APP_TAG, "RequestT type was " + RequestType.ONLINE_DECISION );
+                	
                     // TODO get decision from the json
                     // send decision to the actuator controller
                     // dummy data
                     Decision decision = new Decision();
                     decision.setName(Decision.GRANTED_ACCESS);
+                    Log.d(APP_TAG, "Info DC, Hardcoding decision to GRANT_ACCESS");
+                    Log.d(APP_TAG, "Info CT, calling actuator to showFeedback");
                     ActuatorController.getInstance().showFeedback(decision);
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
+                	Log.d(APP_TAG, "RequestT type was " + RequestType.UPDATE_POLICIES );
+                	Log.d(APP_TAG, "Updating polices");
                     RemotePolicyReceiver.getInstance().updateJSONPolicy(receiveData, context);
                     if(tmpAction != null && tmpProperties != null && tmpContextEvents != null) {
                     	send(tmpAction, tmpProperties, tmpContextEvents);
@@ -356,6 +374,8 @@ public class UserContextEventHandler {
                     tmpContextEvents = null;
                 }
                 else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
+                	Log.d(APP_TAG, "RequestT type was " + RequestType.AUTH_RESPONSE );
+                	Log.d(APP_TAG, "Retreiving auth response from JSON");
                 	isUserAuthenticated = JSONManager.getAuthResult(receiveData);
                 	if(isUserAuthenticated) {
                 		serverStatus = Statuses.ONLINE;
@@ -374,6 +394,7 @@ public class UserContextEventHandler {
             // detect if server is back online after an offline status
             if(status == Statuses.ONLINE ) {
                 if(serverStatus == Statuses.OFFLINE) {
+                	Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
                     sendOfflineStoredContextEventsToServer();
                     isUserAuthenticated = false;
                     updateServerOnlineAndUserAuthenticated();

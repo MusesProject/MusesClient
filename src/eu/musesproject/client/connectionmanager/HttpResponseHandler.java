@@ -34,6 +34,7 @@ public class HttpResponseHandler {
 	
 	private static final boolean D = false;
 	private static final String TAG = HttpResponseHandler.class.getSimpleName();
+	private static final String APP_TAG = "APP_TAG";
 	private String receivedHttpResponseData = null;
 	private HttpResponse httpResponse;
 	private String requestType;
@@ -60,6 +61,7 @@ public class HttpResponseHandler {
 				setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
 				if (isPollRequest(requestType)) {
 					if (isPayloadInData(httpResponse)) {
+						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
 						sendAcktoServer();
 					}
@@ -126,6 +128,7 @@ public class HttpResponseHandler {
 	 */
 	
 	private void sendDataToFunctionalLayer(){
+		Log.d(APP_TAG, "Info SS, Sending JSON to MusACS");
 		ConnectionManager.callBacks.receiveCb(receivedHttpResponseData);
 	}
 	
@@ -243,7 +246,6 @@ public class HttpResponseHandler {
 		for (Header responseHedar : dataReceived){
 			if (responseHedar.getName().equals("data")){
 				receivedHttpResponseData = responseHedar.getValue();
-				Log.v(TAG, "Server responded with JSON " + receivedHttpResponseData);
 				break;
 			}
 			

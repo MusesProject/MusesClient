@@ -46,6 +46,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public static final String DISCONNECT = "disconnect";
 	public static final String ACK = "ack";
 	private static final String TAG = ConnectionManager.class.getSimpleName();
+	private static final String APP_TAG = "APP_TAG";
 	
 	private AlarmReceiver alarmReceiver;
 	private Context context;
@@ -95,10 +96,14 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public void sendData(String data) {
 		
 		if (NetworkChecker.isInternetConnected) {
+			Log.d(APP_TAG, "ConnManager=> send data to server: "+data);
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DATA, URL, 
 					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), data);
-		} else callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+		} else {
+			Log.d(APP_TAG, "ConnManager=> can't send data no intenet connection, calling statusCB");
+			callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+		}
 	}
 	
 	/**
@@ -111,13 +116,17 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		// As we are disconnecting we need to stop the polling 
 		if (D) Log.v(TAG, "Disconnecting ..");
 		if (NetworkChecker.isInternetConnected) {
+			Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DISCONNECT, URL, 
 					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "");
 			HttpConnectionsHelper.cookie = null;
 			alarmReceiver.cancelAlarm(context);
 			callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
-		} else callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
+		} else {
+			Log.d(APP_TAG, "ConnManager=> can't disconnect no intenet connection");
+			callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
+		}
 
 	
 	}

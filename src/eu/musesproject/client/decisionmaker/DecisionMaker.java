@@ -34,7 +34,8 @@ import eu.musesproject.contextmodel.ContextEvent;
 public class DecisionMaker {
 
     private static final String TAG = DecisionMaker.class.getSimpleName();
-
+    private static final String APP_TAG = "APP_TAG";
+    
     /**
 	 * Info DC
 	 * 
@@ -48,8 +49,8 @@ public class DecisionMaker {
 	
 	public void notifyActionRequest(Request request){
 
-	}	
 	
+	}	
 	/**
 	 * Info DC
 	 * 
@@ -62,6 +63,7 @@ public class DecisionMaker {
 	 */
 	
 	public Decision makeDecision(Request request, List<ContextEvent> eventList){
+		Log.d(APP_TAG, "Info DC, DecisionMaker=> Making decision with request and events");
         Log.d(TAG, "called: makeDecision(Request request, List<ContextEvent> eventList)");
 
         eu.musesproject.client.db.entity.Decision decision = new eu.musesproject.client.db.entity.Decision();
