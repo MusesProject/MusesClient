@@ -113,7 +113,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	@Override
 	public void disconnect() { // FIXME What if the server is not online, How should we stop polling from here
 		// As we are disconnecting we need to stop the polling 
-		if (D) Log.v(TAG, "Disconnecting ..");
+		Log.d(TAG, "Disconnecting ..");
 		if (NetworkChecker.isInternetConnected) {
 			Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
