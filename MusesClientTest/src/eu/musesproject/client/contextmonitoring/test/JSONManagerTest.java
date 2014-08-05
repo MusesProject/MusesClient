@@ -101,7 +101,6 @@ public class JSONManagerTest extends TestCase {
     public void testCreateUserBehaviorJSON() throws JSONException {
     	JSONObject resultJSON = JSONManager.createUserBehaviorJSON(deviceId, userName, userBehavior);
         assertNotNull(resultJSON);
-        Log.d("TEST", "JSON MESSAGE: " + resultJSON.toString());
 
     	assertEquals("request type", RequestType.USER_ACTION, resultJSON.getString(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER));
     	assertEquals("device id", deviceId, resultJSON.getString(JSONIdentifiers.AUTH_DEVICE_ID));
@@ -120,6 +119,14 @@ public class JSONManagerTest extends TestCase {
     	assertEquals("device id", deviceId, resultJSON.getString(JSONIdentifiers.AUTH_DEVICE_ID));
         assertEquals("password", password, resultJSON.getString(JSONIdentifiers.AUTH_PASSWORD));
         assertEquals("userName", userName, resultJSON.getString(JSONIdentifiers.AUTH_USERNAME));
+    }
+    
+    public void testGetRequestType() {
+    	// create a test JSON object
+    	JSONObject testJSON = JSONManager.createJSON(deviceId, userName, requestType, action, actionProperties, contextEvents);
+		assertNotNull(testJSON);
+    	
+    	assertEquals(requestType, JSONManager.getRequestType(testJSON.toString()));
     }
 
     @Override
