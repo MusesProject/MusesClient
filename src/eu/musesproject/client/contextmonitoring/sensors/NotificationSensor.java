@@ -40,7 +40,6 @@ import eu.musesproject.contextmodel.ContextEvent;
  * This class is just working with Android API 18 or higher.
  * @author christophstanik
  */
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationSensor implements
 		ISensor {
     private static final String TAG = NotificationSensor.class.getName();
@@ -110,6 +109,7 @@ public class NotificationSensor implements
         }
 	}
 	
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	public static class NotificationService extends NotificationListenerService {
 
 		public NotificationService() {
