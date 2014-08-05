@@ -27,7 +27,7 @@ package eu.musesproject.client.connectionmanager;
 
 public class DetailedStatuses {
 
-
+	private DetailedStatuses(){};
 	// Detailed Server Statuses
 	public static final int SUCCESS = 101;     				// ---> 200 OK
 	public static final int INCORRECT_URL = 102;				// ---> 400 Bad Request

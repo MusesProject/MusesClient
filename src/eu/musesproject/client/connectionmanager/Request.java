@@ -70,7 +70,8 @@ public class Request {
 	 * @return pollInterval
 	 */
 	public String getPollIntervalInSeconds() {
-		int pollIntervalInSeconds = (int) (Integer.parseInt(pollInterval) / 1000) ;
+		int millisecDivider=1000;
+		int pollIntervalInSeconds = (int) (Integer.parseInt(pollInterval) / millisecDivider) ;
 		pollInterval = Integer.toString(pollIntervalInSeconds);
 		return pollInterval;
 	}
