@@ -1,5 +1,15 @@
 package eu.musesproject.client.contextmonitoring.test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.RequestType;
@@ -7,17 +17,6 @@ import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.JSONManager;
 import eu.musesproject.contextmodel.ContextEvent;
-import junit.framework.TestCase;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by christophstanik on 3/12/14.
@@ -34,6 +33,8 @@ public class JSONManagerTest extends TestCase {
     private long actionTimestamp;
     private String actionType;
     private String userBehavior;
+    private String successfulAuthenticationJSON;
+    private String unSuccessfulAuthenticationJSON;
 
     @Override
     protected void setUp() throws Exception {
@@ -69,6 +70,9 @@ public class JSONManagerTest extends TestCase {
         contextEvents.add(contextEvent);
         
         userBehavior = ActionType.CANCEL;
+        
+        successfulAuthenticationJSON = "{\"auth-message\":\"Successfully authenticated\",\"auth-result\":\"SUCCESS\",\"requesttype\":\"auth-response\"}";
+        unSuccessfulAuthenticationJSON = "{\"auth-message\":\"Incorrect password\",\"auth-result\":\"FAIL\",\"requesttype\":\"auth-response\"}";
     }
 
     public void testCreateJSON() throws JSONException {
@@ -127,6 +131,11 @@ public class JSONManagerTest extends TestCase {
 		assertNotNull(testJSON);
     	
     	assertEquals(requestType, JSONManager.getRequestType(testJSON.toString()));
+    }
+    
+    public void testGetAuthResult() {
+    	assertEquals(true, JSONManager.getAuthResult(successfulAuthenticationJSON));
+    	assertEquals(false, JSONManager.getAuthResult(unSuccessfulAuthenticationJSON));
     }
 
     @Override
