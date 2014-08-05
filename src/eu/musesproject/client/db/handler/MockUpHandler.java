@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.util.Log;
+import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
@@ -110,7 +111,7 @@ public class MockUpHandler {
 		 * App sensor
 		 */
 		SensorConfiguration appConfig = new SensorConfiguration();
-		appConfig.setSensor_type(FileSensor.TYPE);
+		appConfig.setSensor_type(AppSensor.TYPE);
 		appConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		appConfig.setValue("true");
 		configList.add(appConfig);

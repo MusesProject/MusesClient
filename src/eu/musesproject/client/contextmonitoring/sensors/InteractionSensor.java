@@ -123,7 +123,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			
 		}
 		else if(action.getActionType() == ActionType.SEND_MAIL) {
-			Log.d(TAG, "action.getActionType(): " + action.getActionType());
+			Log.d(TAG, "mail test : action.getActionType(): " + action.getActionType());
 			for(Map.Entry<String, String> entry : actionProperties.entrySet()) {
 				Log.d(TAG, entry.getKey() + ":" + entry.getValue());
 			}
@@ -171,7 +171,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			}
 
 			if(eventText.equals(InteractionDictionary.SEND_EN) || event.equals(InteractionDictionary.SEND_DE)) {
-				Log.e(TAG, "SEND");
+				Log.e(TAG, "mail test : SEND");
 
 				// create action
 				Action action = new Action();
