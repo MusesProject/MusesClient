@@ -6,7 +6,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.test.AndroidTestCase;
-import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.db.entity.Property;
@@ -98,6 +97,7 @@ public class UserContextEventHandlerTest extends AndroidTestCase {
     }
 
     public void tearDown() throws Exception{
+    	context.deleteDatabase("muses_client_db");
         super.tearDown();
     }
 }
