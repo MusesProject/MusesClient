@@ -26,11 +26,10 @@ import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.entity.Subject;
 
 public class DBManager {
-
-	
 	private static final String TAG = DBManager.class.getSimpleName();
-	private static final int DATABASE_VERSION = 1;
-	private static final String DATABASE_NAME = "muses_client_db";
+	
+	public static final int DATABASE_VERSION = 1;
+	public static final String DATABASE_NAME = "muses_client_db";
 	
 	// Creating tables queries run at the start
 	private static final String CREATE_POLICIES_TABLE_QUERY = "";

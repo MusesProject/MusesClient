@@ -20,6 +20,7 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import com.stericson.RootTools.RootTools;
 
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
+import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -65,6 +67,7 @@ public class DeviceProtectionSensor implements ISensor {
 	public static final String PROPERTY_KEY_IS_PASSWORD_PROTECTED 		= "ispasswordprotected";
 	public static final String PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS 	= "screentimeoutinseconds";
 	public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED 	= "istrustedantivirusinstalled";
+	public static final String PROPERTY_KEY_MUSES_DATABASE_EXISTS 		= "musesdatabaseexists";
 	
 	// config keys
     public static final String CONFIG_KEY_TRUSTED_AV = "trustedav";
@@ -130,6 +133,7 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_IS_PASSWORD_PROTECTED, String.valueOf(isPasswordProtected()));
 		contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS, String.valueOf(getScreenTimeout()));
 		contextEvent.addProperty(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED, String.valueOf(isTrustedAntiVirInstalled()));
+		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_EXISTS, String.valueOf(musesDatabaseExist(context, DBManager.DATABASE_NAME)));
 		
 		if (listener != null) {
 			listener.onEvent(contextEvent);
@@ -195,6 +199,11 @@ public class DeviceProtectionSensor implements ISensor {
 			}
 		}
 		return false;
+	}
+	
+	public boolean musesDatabaseExist(Context context, String dbName) {
+	    File dbFile = context.getDatabasePath(dbName);
+	    return dbFile.exists();
 	}
 	
 	@Override
