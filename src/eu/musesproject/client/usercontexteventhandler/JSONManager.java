@@ -159,7 +159,7 @@ public class JSONManager {
 			rootJSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
 			JSONObject userBehaviorJSONObject = new JSONObject();
 			userBehaviorJSONObject.put(JSONIdentifiers.ACTION_IDENTIFIER, userBehavior);
-			rootJSONObject.put(JSONIdentifiers.USER_BEHAVIOR, userBehavior);
+			rootJSONObject.put(JSONIdentifiers.USER_BEHAVIOR, userBehaviorJSONObject);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
