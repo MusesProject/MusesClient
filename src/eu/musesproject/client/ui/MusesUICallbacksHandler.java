@@ -31,7 +31,6 @@ public class MusesUICallbacksHandler implements IUICallback {
 
 
 	private static final String TAG = MusesUICallbacksHandler.class.getSimpleName();
-	private Context context;
 	private Handler mHandler;
 	// CallBack messages
 	public static final int LOGIN_SUCCESSFUL = 0;
@@ -42,7 +41,6 @@ public class MusesUICallbacksHandler implements IUICallback {
 	public static final int ACTION_RESPONSE_UP_TO_USER = 5;
 	
 	public MusesUICallbacksHandler(Context context, Handler handler) {
-		this.context = context;
 		mHandler = handler;
 	}
 	

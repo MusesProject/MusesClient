@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
@@ -32,8 +31,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+
+import android.util.Log;
 
 /**
  * Helper class for connection Manager handles POST and GET request with the server
@@ -44,16 +43,13 @@ import org.apache.http.protocol.HttpContext;
 
 
 public abstract class HttpConnectionsHelper {
-	public static final boolean D = true;
 	public static Cookie cookie;
-	static HttpContext localContext = new BasicHttpContext();
-	static Date cookieExpiryDate = new Date();
+	private static Date cookieExpiryDate = new Date();
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
 	public static final String DISCONNECT = "disconnect";
-	private static Date lastDate = new Date();
-	private HttpResponse httpResponse = null;
-	private static final int TIMEOUT = 5000; 
+	private static final int TIMEOUT = 5000;
+	private static final String TAG = HttpConnectionsHelper.class.getSimpleName(); 
 	
 	/**
 	 * Http get implementation               // Not Used for Muses
@@ -62,57 +58,57 @@ public abstract class HttpConnectionsHelper {
 	 * @return httpResponse
 	 */
 	public synchronized HttpResponse doGet(String url, String data) {
-	    DefaultHttpClient httpclient = new DefaultHttpClient();
-	    HttpResponse httpResponse = null;
-	    String dataAppendedURL;
-	    // Prepare a request object
-		String formatedData = data.replace(" ","%20");
-		formatedData = formatedData.replace("\"","%22");
-		formatedData = formatedData.replace("}", "%7D");
-		formatedData = formatedData.replace("{", "%7B");
-		formatedData = formatedData.replace("]", "%5D");
-		formatedData = formatedData.replace("[", "%5B");
-	    
-		if (data.equalsIgnoreCase("disconnect"))
-	    	dataAppendedURL = url+"?disconnect=";
-	    else dataAppendedURL = url+"?data="+formatedData;
-	    HttpGet httpget = new HttpGet(dataAppendedURL);
-	    httpget.setHeader("Content-Type", "text/plain; charset=utf-8"); // Change it JSON
-	    httpget.setHeader("Expect", "100-continue");
-	    // Execute the request
-	    if (cookie == null || cookie.isExpired(new Date())){
-	    	try {
-				httpResponse = httpclient.execute(httpget);
-				List<Cookie> cookies = httpclient.getCookieStore().getCookies();
-		 	    if (cookies.isEmpty()) {
-		 	    	if (D) System.out.println("None");
-		 	    } else {
-		 	    	for (int i = 0; i < cookies.size(); i++) {
-		 	              System.out.println("- " + cookies.get(i).toString());
-		 	        }
-		 	        cookie = cookies.get(0);
-		 	        cookieExpiryDate = cookie.getExpiryDate();
-		 	        if (D) System.out.println("Curent cookie expiry : " + cookieExpiryDate);
-		 	    }
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		    
-	    } else {
-	    	httpget.addHeader("accept", "application/xml");
-	        httpclient.getCookieStore().addCookie(cookie);
-	        try {
-	        	httpResponse = httpclient.execute(httpget);
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	    }
-		return httpResponse;
-
+//	    DefaultHttpClient httpclient = new DefaultHttpClient();
+//	    HttpResponse httpResponse = null;
+//	    String dataAppendedURL;
+//	    // Prepare a request object
+//		String formatedData = data.replace(" ","%20");
+//		formatedData = formatedData.replace("\"","%22");
+//		formatedData = formatedData.replace("}", "%7D");
+//		formatedData = formatedData.replace("{", "%7B");
+//		formatedData = formatedData.replace("]", "%5D");
+//		formatedData = formatedData.replace("[", "%5B");
+//	    
+//		if (data.equalsIgnoreCase("disconnect"))
+//	    	dataAppendedURL = url+"?disconnect=";
+//	    else dataAppendedURL = url+"?data="+formatedData;
+//	    HttpGet httpget = new HttpGet(dataAppendedURL);
+//	    httpget.setHeader("Content-Type", "text/plain; charset=utf-8"); // Change it JSON
+//	    httpget.setHeader("Expect", "100-continue");
+//	    // Execute the request
+//	    if (cookie == null || cookie.isExpired(new Date())){
+//	    	try {
+//				httpResponse = httpclient.execute(httpget);
+//				List<Cookie> cookies = httpclient.getCookieStore().getCookies();
+//		 	    if (cookies.isEmpty()) {
+//		 	    	Log.d(TAG, "None");
+//		 	    } else {
+//		 	    	for (int i = 0; i < cookies.size(); i++) {
+//		 	    		 Log.d(TAG,"- " + cookies.get(i).toString());
+//		 	        }
+//		 	        cookie = cookies.get(0);
+//		 	        cookieExpiryDate = cookie.getExpiryDate();
+//		 	        Log.d(TAG,"Curent cookie expiry : " + cookieExpiryDate);
+//		 	    }
+//			} catch (ClientProtocolException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		    
+//	    } else {
+//	    	httpget.addHeader("accept", "application/xml");
+//	        httpclient.getCookieStore().addCookie(cookie);
+//	        try {
+//	        	httpResponse = httpclient.execute(httpget);
+//			} catch (ClientProtocolException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//	    }
+//		return httpResponse;
+		return null;
 	}
 	
 
@@ -126,6 +122,7 @@ public abstract class HttpConnectionsHelper {
 	 */
 	
 	public synchronized HttpResponse doPost(String type ,String url, String data) throws ClientProtocolException, IOException {
+		HttpResponse httpResponse = null;
 		HttpPost httpPost = new HttpPost(url);
 		HttpParams httpParameters = new BasicHttpParams();  
 	    HttpConnectionParams.setConnectionTimeout(httpParameters, TIMEOUT);
@@ -141,19 +138,16 @@ public abstract class HttpConnectionsHelper {
         		httpResponse = httpclient.execute(httpPost);
 				List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 		 	    if (cookies.isEmpty()) {
-		 	        if (D) System.out.println("None");
+		 	    	Log.d(TAG,"None");
 		 	    } else {
-		 	    	for (int i = 0; i < cookies.size(); i++) {
-		 	              System.out.println("- " + cookies.get(i).toString());
-		 	        }
 		 	        cookie = cookies.get(0);
 		 	        cookieExpiryDate = cookie.getExpiryDate();
-		 	        if (D) System.out.println("Curent cookie expiry : " + cookieExpiryDate);
+		 	        Log.d(TAG,"Curent cookie expiry : " + cookieExpiryDate);
 		 	    }
 			} catch (ClientProtocolException e) {
-				e.printStackTrace();
+				Log.d(TAG,e.getMessage());
 			} catch (Exception e) {
-				e.printStackTrace();
+				Log.d(TAG,e.getMessage());
 			}
 		    
         }else {
@@ -162,9 +156,9 @@ public abstract class HttpConnectionsHelper {
 	        try {
 	        	httpResponse = httpclient.execute(httpPost);
 			} catch (ClientProtocolException e) {
-				e.printStackTrace();
+				Log.d(TAG,e.getMessage());
 			} catch (Exception e) {
-				e.printStackTrace();
+				Log.d(TAG,e.getMessage());
 			}
 	    }
         return httpResponse;
@@ -205,9 +199,9 @@ public abstract class HttpConnectionsHelper {
 		    try {
 		        httpResponse = httpclient.execute(httpPost);
 			} catch (ClientProtocolException e) {
-			if (D) e.printStackTrace();
+				Log.d(TAG,e.getMessage());
 			} catch (IOException e) {
-			if (D) e.printStackTrace();
+				Log.d(TAG,e.getMessage());
 			}
 		} else {
 			try {
@@ -218,9 +212,9 @@ public abstract class HttpConnectionsHelper {
 		 	    } 
 		 	    
 			} catch (ClientProtocolException e) {
-				if (D) e.printStackTrace();
+				Log.d(TAG,e.getMessage());
 			} catch (IOException e) {
-				if (D) e.printStackTrace();
+				Log.d(TAG,e.getMessage());
 			}
 		}
 		AlarmReceiver.LAST_SENT_POLL_INTERVAL = Integer.parseInt(request.getPollInterval());
@@ -228,31 +222,31 @@ public abstract class HttpConnectionsHelper {
 		
     }
 	
-	private boolean isSessionExpired(Date newDate, int pollInterval){
-		long diff = newDate.getTime() - lastDate.getTime();
-		long diffSeconds = (diff / 1000) % 60;
-		if (D) System.out.println("Diffrence secondds: " + diffSeconds);
-		if (D) System.out.println("NewDate: " + newDate);
-		if (D) System.out.println("LastDate: " + lastDate);
-		lastDate = newDate;
-		if (diffSeconds > getInSeconds(AlarmReceiver.LAST_SENT_POLL_INTERVAL)*2){
-			return true;
-		}
-		return false;
-	}
+//	private boolean isSessionExpired(Date newDate, int pollInterval){
+//		long diff = newDate.getTime() - lastDate.getTime();
+//		long diffSeconds = (diff / 1000) % 60;
+//		Log.d(TAG,"Diffrence secondds: " + diffSeconds);
+//		Log.d(TAG,"NewDate: " + newDate);
+//		Log.d(TAG,"LastDate: " + lastDate);
+//		lastDate = newDate;
+//		if (diffSeconds > getInSeconds(AlarmReceiver.LAST_SENT_POLL_INTERVAL)*2){
+//			return true;
+//		}
+//		return false;
+//	}
 
 
-	private int getInSeconds(int pollInterval) {
-		int pollIntervalInSeconds = (pollInterval / 1000) % 60 ;
-		return pollIntervalInSeconds;
-	}
+//	private int getInSeconds(int pollInterval) {
+//		int pollIntervalInSeconds = (pollInterval / 1000) % 60 ;
+//		return pollIntervalInSeconds;
+//	}
 	
 	private String getInStringSeconds(String pollInterval) {
 		int pollIntervalInSeconds = (Integer.parseInt(pollInterval) / 1000) % 60 ;
 		return Integer.toString(pollIntervalInSeconds);
 	}
 
-	public HttpResponse getHttpResponse(){
-		return httpResponse;
-	}
+//	public HttpResponse getHttpResponse(){
+//		return httpResponse;
+//	}
 }

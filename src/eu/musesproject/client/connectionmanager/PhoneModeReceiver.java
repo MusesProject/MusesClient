@@ -34,7 +34,6 @@ import android.util.Log;
 public class PhoneModeReceiver {
 	
 	protected static final String TAG = "PhoneModeReceiver";
-	public static boolean D = false;
 	public static boolean SLEEP_MODE_ACTIVE = false;
 	private Context context;
 	
@@ -68,7 +67,7 @@ public class PhoneModeReceiver {
 			
 			if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)){
 				// Set alarm normal mode
-				if(D) Log.v(TAG, "Screeen On");
+				Log.d(TAG, "Screeen On");
 				AlarmReceiver alarmReceiver = new AlarmReceiver();
 				alarmReceiver.cancelAlarm(context);
 				alarmReceiver.setAlarm(context);
@@ -77,7 +76,7 @@ public class PhoneModeReceiver {
 			
 			if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)){
 				// Set alarm sleep mode
-				if(D) Log.v(TAG, "Screeen Off");
+				Log.d(TAG, "Screeen Off");
 				AlarmReceiver alarmReceiver = new AlarmReceiver();
 				alarmReceiver.cancelAlarm(context);
 				alarmReceiver.setAlarm(context);

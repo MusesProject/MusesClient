@@ -19,10 +19,6 @@ package eu.musesproject.client.ui;
  * #L%
  */
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -67,7 +63,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private static final String USERNAME = "username";
 	private static final String PASSWORD = "password";
 	private static final String PREFERENCES_KEY = "eu.musesproject.client";
-	private static String TAG = MainActivity.class.getSimpleName();
+	private static final String TAG = MainActivity.class.getSimpleName();
 	private LinearLayout topLayout;
 	private Button loginListBtn, securityInformationListbtn;
 	private Context context;
@@ -76,8 +72,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static boolean isLoggedIn = false;
 	private SharedPreferences prefs;
 		
-	private static final int NOTIFICATION_EX = 1;
-	private NotificationManager notificationManager;
+//	private static final int NOTIFICATION_EX = 1;
+//	private NotificationManager notificationManager;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -134,35 +130,35 @@ public class MainActivity extends Activity implements View.OnClickListener {
         dbManager.closeDB();
 	}
 	
-	private void setAppIconOnStatusBar() {
-		Notification.Builder mBuilder =
-		        new Notification.Builder(this)
-		        .setSmallIcon(R.drawable.muses_main)
-		        .setContentTitle("")
-		        .setContentText("");
-		// Creates an explicit intent for an Activity in your app
-		Intent resultIntent = new Intent(this, MainActivity.class);
-
-		// The stack builder object will contain an artificial back stack for the
-		// started Activity.
-		// This ensures that navigating backward from the Activity leads out of
-		// your application to the Home screen.
-		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-		// Adds the back stack for the Intent (but not the Intent itself)
-		stackBuilder.addParentStack(MainActivity.class);
-		// Adds the Intent that starts the Activity to the top of the stack
-		stackBuilder.addNextIntent(resultIntent);
-		PendingIntent resultPendingIntent =
-		        stackBuilder.getPendingIntent(
-		            0,
-		            PendingIntent.FLAG_UPDATE_CURRENT
-		        );
-		mBuilder.setContentIntent(resultPendingIntent);
-		NotificationManager mNotificationManager =
-		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		// mId allows you to update the notification later on.
-		mNotificationManager.notify(1, mBuilder.build());
-	}
+//	private void setAppIconOnStatusBar() {
+//		Notification.Builder mBuilder =
+//		        new Notification.Builder(this)
+//		        .setSmallIcon(R.drawable.muses_main)
+//		        .setContentTitle("")
+//		        .setContentText("");
+//		// Creates an explicit intent for an Activity in your app
+//		Intent resultIntent = new Intent(this, MainActivity.class);
+//
+//		// The stack builder object will contain an artificial back stack for the
+//		// started Activity.
+//		// This ensures that navigating backward from the Activity leads out of
+//		// your application to the Home screen.
+//		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+//		// Adds the back stack for the Intent (but not the Intent itself)
+//		stackBuilder.addParentStack(MainActivity.class);
+//		// Adds the Intent that starts the Activity to the top of the stack
+//		stackBuilder.addNextIntent(resultIntent);
+//		PendingIntent resultPendingIntent =
+//		        stackBuilder.getPendingIntent(
+//		            0,
+//		            PendingIntent.FLAG_UPDATE_CURRENT
+//		        );
+//		mBuilder.setContentIntent(resultPendingIntent);
+//		NotificationManager mNotificationManager =
+//		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//		// mId allows you to update the notification later on.
+//		mNotificationManager.notify(1, mBuilder.build());
+//	}
 
 	@Override
 	protected void onPause() {
@@ -378,7 +374,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			View.OnClickListener, OnCheckedChangeListener {
 
 		private EditText userNameTxt, passwordTxt;
-		private LinearLayout loginLayout1, loginLayout2;
+		private LinearLayout /*loginLayout1,*/ loginLayout2;
 		private Button loginBtn, logoutBtn;
 		private TextView loginDetailTextView;
 		private CheckBox rememberCheckBox, agreeTermsCheckBox;

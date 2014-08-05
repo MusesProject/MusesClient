@@ -40,10 +40,9 @@ import android.util.Log;
 public class AlarmReceiver extends BroadcastReceiver {
 	
 	private static final String TAG = "AlarmReceiver";
-	private static final boolean D = false;
 	public static int POLL_INTERVAL = 10000; // Default value
 	public static int SLEEP_POLL_INTERVAL = 10000; // Default value
-	public static int exponentialCounter = 4;
+	private static int exponentialCounter = 4;
 	public static int DEFAULT_POLL_INTERVAL = 10000;
 	public static int DEFAULT_SLEEP_POLL_INTERVAL = 10000;
 	public static int LAST_SENT_POLL_INTERVAL;
@@ -57,7 +56,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         ConnectionManager connectionManager = new ConnectionManager();
         connectionManager.poll();
         
-        if (D) Log.e(TAG, "Alarm..");
+        Log.d(TAG, "Alarm..");
         wl.release();
 	}
 

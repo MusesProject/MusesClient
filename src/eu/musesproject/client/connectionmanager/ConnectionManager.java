@@ -36,9 +36,8 @@ import android.util.Log;
 
 public class ConnectionManager extends HttpConnectionsHelper implements IConnectionManager{
 
-	public static String URL;
+	private static String URL;
 	public static IConnectionCallbacks callBacks;
-	public static final boolean D = false;
 	public static final boolean FAKE_MODE_ON = true;
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
@@ -74,7 +73,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		NetworkChecker networkChecker = new NetworkChecker(context);
 		PhoneModeReceiver phoneModeReceiver = new PhoneModeReceiver(context);
 		phoneModeReceiver.register();
-		if (D) Log.v(TAG, "Connecting ..");
+		Log.d(TAG, "Connecting ..");
 		if (networkChecker.isInternetConnected()) {
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
@@ -151,9 +150,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	 */
 	
 	public void poll() {
-		if (D) Log.v(TAG, "Polling !!");
+		Log.d(TAG, "Polling !!");
 		if (NetworkChecker.isInternetConnected) {
-			if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) { // FIXME 
+			if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) { 
 				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
 						Integer.toString(AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL), "");
@@ -171,7 +170,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	 */
 	
 	public void ack() {
-		if (D) Log.v(TAG, "Sending ack..");
+		Log.d(TAG, "Sending ack..");
 		if (NetworkChecker.isInternetConnected) {
 			if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) { // FIXME 
 				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
@@ -206,9 +205,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				HttpResponseHandler httpResponseHandler = new HttpResponseHandler(response, request.getType());
 				httpResponseHandler.checkHttpResponse();
 			} catch (ClientProtocolException e) {
-				e.printStackTrace();
+				Log.d(APP_TAG, e.getMessage());
 			} catch (IOException e) {
-				e.printStackTrace();
+				Log.d(APP_TAG, e.getMessage());
 			}
 			return null;
 

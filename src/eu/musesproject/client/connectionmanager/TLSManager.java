@@ -42,6 +42,7 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
 import android.os.Environment;
+import android.util.Log;
 
 /**
  * Handle TLS/SSL communication with the server
@@ -51,7 +52,11 @@ import android.os.Environment;
  */
 
 public class TLSManager {
-
+	
+	
+	private static final String TAG = TLSManager.class.getSimpleName();
+	private static final int HTTP_PORT = 80;
+	private static final int HTTPS_PORT = 8443;
 	public TLSManager() {
 
 	}
@@ -78,7 +83,7 @@ public class TLSManager {
 			KeyStore trustedStore = null;
 
 			if (in != null){
-				trustedStore = ConvertCerToBKS(in, "muses alias", "muses11".toCharArray());
+				trustedStore = convertCerToBKS(in, "muses alias", "muses11".toCharArray());
 			}
 			SSLSocketFactory sf = new SSLSocketFactory(trustedStore);
 			sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
@@ -96,7 +101,7 @@ public class TLSManager {
 	 * @param password
 	 * @return keyStore
 	 */
-	private KeyStore ConvertCerToBKS(InputStream cerStream, String alias, char [] password){
+	private KeyStore convertCerToBKS(InputStream cerStream, String alias, char [] password){
 	    KeyStore keyStore = null;
 	    try {
 	        keyStore = KeyStore.getInstance("BKS", "BC");
@@ -106,7 +111,7 @@ public class TLSManager {
 	        keyStore.setCertificateEntry(alias, certificate);
 	    }
 	    catch (Exception e){
-	    	System.out.println(e.getLocalizedMessage());
+	    	Log.d(TAG, e.getLocalizedMessage());
 	    }
 	    return keyStore;                                    
 	}
@@ -121,8 +126,8 @@ public class TLSManager {
 	    HttpProtocolParams.setUseExpectContinue(params, true);
 
 	    SchemeRegistry schReg = new SchemeRegistry();
-	    schReg.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-	    schReg.register(new Scheme("https", (SocketFactory) newSslSocketFactory(), 8443));
+	    schReg.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), HTTP_PORT));
+	    schReg.register(new Scheme("https", (SocketFactory) newSslSocketFactory(), HTTPS_PORT));
 	    ClientConnectionManager conMgr = new ThreadSafeClientConnManager(params, schReg);
 
 	    return new DefaultHttpClient(conMgr, params);

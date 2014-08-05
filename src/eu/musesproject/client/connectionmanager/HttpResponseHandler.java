@@ -32,7 +32,6 @@ import android.util.Log;
  */
 public class HttpResponseHandler {
 	
-	private static final boolean D = false;
 	private static final String TAG = HttpResponseHandler.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
 	private String receivedHttpResponseData = null;
@@ -75,7 +74,7 @@ public class HttpResponseHandler {
 					} 
 				}
 				if (isAckRequest(requestType)) {
-					if (D) Log.e(TAG, "Ack by the server"); // FIXME this can do more stuff
+					Log.d(TAG, "Ack by the server");
 				}
 				AlarmReceiver.resetExponentialPollTime();
 				break;
@@ -97,7 +96,7 @@ public class HttpResponseHandler {
 				break;
 			}
 		} else {
-			if (D) Log.v(TAG, "Exception occured during communication with the server .. check the stacktrace to fix it!");
+			Log.d(TAG, "Exception occured during communication with the server .. check the stacktrace to fix it!");
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
 		}
 	}
@@ -202,7 +201,7 @@ public class HttpResponseHandler {
 			// FIXME below if condition can be merged in this condition
 			Statuses.CURRENT_STATUS = status;
 			Statuses.STATUS_CHANGED = true;
-			if (D) Log.v(TAG, "Server ONLINE");
+			Log.d(TAG, "Server ONLINE");
 		}
 		
 		if (Statuses.STATUS_CHANGED){

@@ -36,7 +36,6 @@ import android.util.Log;
 public class NetworkChecker extends BroadcastReceiver{
 	
 	protected static final String TAG = "NetworkChecker";
-	private static final boolean D = false;
 	public static boolean isInternetConnected = false;
 	private Context context;
 	
@@ -84,7 +83,7 @@ public class NetworkChecker extends BroadcastReceiver{
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (D) Log.d("app","Network connectivity change");
+		Log.d("app","Network connectivity change");
 		ConnectivityManager connectivityManager = (ConnectivityManager)
 			    context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo wifi =
