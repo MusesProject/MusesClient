@@ -168,7 +168,8 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			String eventText = getEventText(event);
 			
 			if(event.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) {
-				if(eventText.equals(InteractionDictionary.ATTACH_FILE_EN) || eventText.equals(InteractionDictionary.ATTACH_FILE_DE)) {
+				if(eventText.contains(InteractionDictionary.ATTACH_FILE_EN) || eventText.contains(InteractionDictionary.ATTACH_FILE_DE)) {
+					Log.d(TAG, "mail test : attach file");
 					Action action = new Action();
 					action.setActionType(ActionType.FILE_ATTACHED);
 					action.setTimestamp(System.currentTimeMillis());
@@ -176,7 +177,8 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 					createUserAction(action, null);
 				}
 	
-				if(eventText.equals(InteractionDictionary.SEND_EN) || eventText.equals(InteractionDictionary.SEND_DE)) {
+				if(eventText.contains(InteractionDictionary.SEND_EN) || eventText.contains(InteractionDictionary.SEND_DE)) {
+					Log.d(TAG, "mail test : send clicked");
 					content = null;
 					content = new MailContent();
 					
@@ -277,11 +279,13 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                        try {
 	                        	MailAttachment attachment = new MailAttachment();
 	                        	String[] splitAttachmentName = subChild.getChild(0).getText().toString().split(".");
-	                        	attachment.setFileName(splitAttachmentName[0]);
-	                        	attachment.setFileType(splitAttachmentName[1]);
-	                        	attachment.setFileSize(subChild.getChild(1).getText().toString());
-	                        	
-	                        	content.addMailAttachmentItem(attachment);
+	                        	if(splitAttachmentName.length >= 2) {
+	                        		attachment.setFileName(splitAttachmentName[0]);
+	                        		attachment.setFileType(splitAttachmentName[1]);
+	                        		attachment.setFileSize(subChild.getChild(1).getText().toString());
+	                        		
+	                        		content.addMailAttachmentItem(attachment);
+	                        	}
 	                        } catch (NullPointerException e) {}
 	                    }
 	                }
