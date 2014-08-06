@@ -133,7 +133,6 @@ public class SensorController {
         	dbManager.openDB();
     		List<SensorConfiguration> configItems = dbManager.getAllSensorConfigItemsBySensorType(sensorType);
         	dbManager.closeDB();
-        	Log.d(TAG, "mail test : " + sensorType);
     		
     		if(sensorType.equals(AppSensor.TYPE)) {
     			sensor = new AppSensor(context);
@@ -176,6 +175,12 @@ public class SensorController {
     		sensor.enable();
     		activeSensors.put(sensorType, sensor);
 		}
+    	
+
+        for (ISensor sensor : activeSensors.values()) {
+            sensor.addContextListener(contextEventBus);
+            sensor.enable();
+        }
     }
 
     /**
@@ -259,7 +264,6 @@ public class SensorController {
         		if(contextEvent.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME).equals(InteractionObservedApps.OBSERVED_GMAIL)) {
         			if (activeSensors != null && activeSensors.containsKey(InteractionSensor.TYPE)) {
         				((InteractionSensor) activeSensors.get(InteractionSensor.TYPE)).setAppName(InteractionObservedApps.OBSERVED_GMAIL);
-        				Log.d(TAG, "mail test :  activate mail sensor");
         			}
         		}
         	}

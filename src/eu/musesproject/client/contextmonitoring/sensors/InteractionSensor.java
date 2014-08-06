@@ -32,12 +32,13 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.contextmonitoring.InteractionDictionary;
-import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.client.model.contextmonitoring.MailAttachment;
 import eu.musesproject.client.model.contextmonitoring.MailContent;
 import eu.musesproject.client.model.contextmonitoring.MailProperties;
+import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -61,6 +62,12 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	public InteractionSensor() {
 		init();
+	}
+	
+	@Override
+	public void onCreate() {
+		Log.d(TAG, "mail test : onCreate()");
+		super.onCreate();
 	}
 
 	public InteractionSensor(String appName) {
@@ -110,11 +117,9 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
-		if (sensorEnabled) { // sensor must be enabled
-			// observe just definied apps
-			if (getAppName().equals(InteractionObservedApps.OBSERVED_GMAIL)) { 
-				new GmailObserver(event);
-			}
+		String pckName = (String) event.getPackageName();
+		if(pckName.equals("com.google.android.gm")) {
+			new GmailObserver(getRootInActiveWindow(), event);
 		}
 	}
 
@@ -123,9 +128,9 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			
 		}
 		else if(action.getActionType() == ActionType.SEND_MAIL) {
-			Log.d(TAG, "mail test : action.getActionType(): " + action.getActionType());
+			UserContextMonitoringController.getInstance(this).sendUserAction(UISource.INTERNAL, action, actionProperties);
 			for(Map.Entry<String, String> entry : actionProperties.entrySet()) {
-				Log.d(TAG, entry.getKey() + ":" + entry.getValue());
+				Log.d(TAG, "mail test : " + entry.getKey() + ":" + entry.getValue());
 			}
 		}
 	}
@@ -159,42 +164,42 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 		private MailContent content;
 
-		public GmailObserver(AccessibilityEvent event) {
+		public GmailObserver(AccessibilityNodeInfo accessibilityNodeInfo, AccessibilityEvent event) {
 			String eventText = getEventText(event);
 			
-			if(eventText.equals(InteractionDictionary.ATTACH_FILE_EN) || event.equals(InteractionDictionary.ATTACH_FILE_DE)) {
-				Action action = new Action();
-				action.setActionType(ActionType.FILE_ATTACHED);
-				action.setTimestamp(System.currentTimeMillis());
-				
-				createUserAction(action, null);
-			}
-
-			if(eventText.equals(InteractionDictionary.SEND_EN) || event.equals(InteractionDictionary.SEND_DE)) {
-				Log.e(TAG, "mail test : SEND");
-
-				// create action
-				Action action = new Action();
-				action.setActionType(ActionType.SEND_MAIL);
-				action.setTimestamp(System.currentTimeMillis());
-				
-				// create properties
-				readMailContent(getRootInActiveWindow(), "");
-				readAttachmentsAndSubject(getRootInActiveWindow());
-				
-				Map<String, String> actionProperties = new HashMap<String, String>();
-				actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
-				actionProperties.put(MailProperties.PROPERTY_KEY_TO, content.getTo());
-				actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc());
-				actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc());
-				actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject());
-				actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT, String.valueOf(content.getAttachments().size()));
-				actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_INFO, generateMailAttachmentInfo(content.getAttachments()));
-				
-				createUserAction(action, actionProperties);
-				
-				content = null;
-				content = new MailContent();
+			if(event.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+				if(eventText.equals(InteractionDictionary.ATTACH_FILE_EN) || eventText.equals(InteractionDictionary.ATTACH_FILE_DE)) {
+					Action action = new Action();
+					action.setActionType(ActionType.FILE_ATTACHED);
+					action.setTimestamp(System.currentTimeMillis());
+					
+					createUserAction(action, null);
+				}
+	
+				if(eventText.equals(InteractionDictionary.SEND_EN) || eventText.equals(InteractionDictionary.SEND_DE)) {
+					content = null;
+					content = new MailContent();
+					
+					// create action
+					Action action = new Action();
+					action.setActionType(ActionType.SEND_MAIL);
+					action.setTimestamp(System.currentTimeMillis());
+					
+					// create properties
+					readMailContent(accessibilityNodeInfo, "");
+					readAttachmentsAndSubject(accessibilityNodeInfo);
+					
+					Map<String, String> actionProperties = new HashMap<String, String>();
+					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
+					actionProperties.put(MailProperties.PROPERTY_KEY_TO, content.getTo());
+					actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc());
+					actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc());
+					actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject());
+					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT, String.valueOf(content.getAttachments().size()));
+					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_INFO, generateMailAttachmentInfo(content.getAttachments()));
+					
+					createUserAction(action, actionProperties);
+				}
 			}
 		}
 		
@@ -218,15 +223,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	            for(int i = 0; i < source.getChildCount(); i++) {
 	                AccessibilityNodeInfo child = source.getChild(i);
 	                if(child != null) {
-	                    String line = generation + " " + child.getClassName();
-	                    if(child.getText() != null) {
-	                        line += " = " + child.getText() + "|";
-	                    }
-	                    if(child.getLabelFor() != null) {
-	                        line += " label for= " + child.getLabelFor() + "|";
-	                    }
 	                    if(child.getContentDescription() != null) {
-	                        line += " content description= " + child.getContentDescription() + "|";
 	                        if (child.getContentDescription().equals("An") || child.getContentDescription().equals("To") && child.getText() != null) {
 	                            content.setTo(child.getText().toString());
 	                        }
@@ -243,8 +240,6 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                        }
 	                    }
 
-	                    Log.d(TAG, line);
-	
 	                    if(child.getChildCount() > 0) {
 	                    	readMailContent(child, generation.concat("\t"));
 	                    }
@@ -297,7 +292,6 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                AccessibilityNodeInfo subjectChild = rLayouts.get(rLayouts.size() - 2);
 	                if (subjectChild.getChild(0) != null) {
 	                    try {
-	                        Log.d(TAG, "subject: " + subjectChild.getChild(0).getText());
 	                        content.setSubject(subjectChild.getChild(0).getText().toString());
 	                    } catch (NullPointerException e) {}
 	                }
