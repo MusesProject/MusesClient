@@ -125,7 +125,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	private void createUserAction(Action action, Map<String, String> actionProperties) {
 		if(action.getActionType() == ActionType.FILE_ATTACHED) {
-			
+			UserContextMonitoringController.getInstance(this).sendUserAction(UISource.INTERNAL, action, null);
 		}
 		else if(action.getActionType() == ActionType.SEND_MAIL) {
 			UserContextMonitoringController.getInstance(this).sendUserAction(UISource.INTERNAL, action, actionProperties);
