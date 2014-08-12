@@ -18,7 +18,7 @@ public class UserContextEventHandlerTest extends AndroidTestCase {
     private UserContextEventHandler handler;
     private List<ContextEvent> contextEvents;
     private final long timestamp = System.currentTimeMillis();
-
+/*
     public void setUp(){
         context = getContext();
         dbManager = new DBManager(context);
@@ -100,4 +100,5 @@ public class UserContextEventHandlerTest extends AndroidTestCase {
     	context.deleteDatabase("muses_client_db");
         super.tearDown();
     }
+*/
 }
