@@ -458,9 +458,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				if (isPrivacyPolicyAgreementChecked){
 					userName = userNameTxt.getText().toString();
 					password = passwordTxt.getText().toString();
-					if (NetworkChecker.isInternetConnected){
-							doLogin(userName, password);
-					} else toastMessage(getResources().getString(R.string.no_internet_connection_msg));
+					doLogin(userName, password);
+//					if (NetworkChecker.isInternetConnected){ //FIXME commented for testing in ui-automator
+//					} else toastMessage(getResources().getString(R.string.no_internet_connection_msg));
 				
 				} else toastMessage(getResources().getString(R.string.make_sure_privacy_policy_read_txt));
 				break;
