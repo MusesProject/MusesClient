@@ -117,6 +117,12 @@ public class UserActionGenerator {
         else if(type.equals(ActionType.SEND)) {
             return ActionType.SEND;
         }
+        else if(type.equals(ActionType.SEND_MAIL)) {
+            return ActionType.SEND_MAIL;
+        }
+        else if(type.equals(ActionType.VIRUS_FOUND)) {
+            return ActionType.VIRUS_FOUND;
+        }
         else if(type.equals(ActionType.OK)) {
             return ActionType.OK;
         }
