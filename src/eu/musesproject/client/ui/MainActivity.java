@@ -18,6 +18,8 @@ package eu.musesproject.client.ui;
  * limitations under the License.
  * #L%
  */
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +44,7 @@ import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.NetworkChecker;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.entity.Configuration;
+import eu.musesproject.client.db.entity.RequiredApp;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.MockUpHandler;
 import eu.musesproject.client.model.contextmonitoring.UISource;
@@ -111,22 +114,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 	
 	private void setConfiguration(){
-		Configuration configuration = new Configuration();
-		configuration.setId(1);
-		configuration.setClientCertificate("");
-		configuration.setPollingEnabled(1);
-		configuration.setPollTimeout(5000);
-		configuration.setServerCertificate("");
-		configuration.setServerContextPath("/server");
-		configuration.setServerServletPath("/commain");
-		configuration.setServerIP("192.168.44.101");
-		configuration.setServerPort(8443);
-		configuration.setSleepPollTimeout(10000);
-		configuration.setTimeout(5000);
-		
         DBManager dbManager = new DBManager(context);
         dbManager.openDB();
-        dbManager.insertConnectionProperties(configuration);
+        dbManager.insertConnectionProperties();
+        dbManager.inserRequiredAppList();
+        Configuration configuration = dbManager.getConfigurations();
+        List<RequiredApp> requiredApps = dbManager.getRequiredAppList();
         dbManager.closeDB();
 	}
 	

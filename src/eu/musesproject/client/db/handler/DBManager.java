@@ -17,6 +17,7 @@ import eu.musesproject.client.db.entity.ContextEvent;
 import eu.musesproject.client.db.entity.Decision;
 import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.db.entity.Property;
+import eu.musesproject.client.db.entity.RequiredApp;
 import eu.musesproject.client.db.entity.Resource;
 import eu.musesproject.client.db.entity.ResourceType;
 import eu.musesproject.client.db.entity.RiskCommunication;
@@ -102,6 +103,12 @@ public class DBManager {
 																	  + "key VARCHAR(45) NOT NULL,"
 																	  + "value VARCHAR(45) NOT NULL);";
 
+	private static final String CREATE_REQUIRED_APPS_TABLE_QUERY = "CREATE TABLE required_apps ( "
+																	  + "id INTEGER PRIMARY KEY,"
+																	  + "name VARCHAR(45) NOT NULL,"
+																	  + "version VARCHAR(45) NOT NULL,"
+																	  + "unique_name VARCHAR(45) NOT NULL);";
+	
 	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 			  + "id INTEGER PRIMARY KEY," 
 			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
@@ -113,7 +120,8 @@ public class DBManager {
 			  + "timeout INTEGER NOT NULL DEFAULT 5000,"
 			  + "poll_timeout INTEGER NOT NULL DEFAULT 10000,"
 			  + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000,"
-			  + "polling_enabled INTEGER NOT NULL DEFAULT 1);";
+			  + "polling_enabled INTEGER NOT NULL DEFAULT 1,"
+			  + "login_attempts INTEGER NOT NULL DEFAULT 5);";
 
 //	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 //			  + "id INTEGER PRIMARY KEY," 
@@ -146,8 +154,8 @@ public class DBManager {
 	public static final String TABLE_USER_CREADENTIALS = "user_credentials";
 	public static final String TABLE_CONFIGURATION = "configuration";
 	public static final String TABLE_SENSOR_CONFIGURATION = "sensor_configuration";
+	public static final String TABLE_REQUIRED_APPS_CONFIGURATION = "required_apps";
 	
-
 	// Columns name
 	private static final String ID = "id";
 	private static final String ACTION_ID = "action_id";
@@ -185,7 +193,9 @@ public class DBManager {
 	private static final String CLIENT_CERTIFICATE = "client_certificate";
 	private static final String SENSOR_TYPE = "sensor_type";
 	private static final String ENABLED = "enabled";
-	
+	private static final String LOGIN_ATTEMPTS = "login_attempts";
+	private static final String VERSION = "version";
+	private static final String UNIQUE_NAME = "unique_name";	
 	
 	
 	private Context context;
@@ -251,6 +261,7 @@ public class DBManager {
         	db.execSQL(CREATE_USER_CREDENTIALS_TABLE_QUERY);
         	db.execSQL(CREATE_CONFIGURATION_TABLE_QUERY);
         	db.execSQL(CREATE_SENSOR_CONFIGURATION_TABLE_QUERY);
+        	db.execSQL(CREATE_REQUIRED_APPS_TABLE_QUERY);
         }
 
         @Override
@@ -272,6 +283,7 @@ public class DBManager {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_CREADENTIALS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONFIGURATION);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_SENSOR_CONFIGURATION);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_REQUIRED_APPS_CONFIGURATION);
             onCreate(db);
             
         }
@@ -333,6 +345,51 @@ public class DBManager {
         return configurationList;
     }
     
+	public void inserRequiredAppList() {
+    	ContentValues values = new ContentValues();
+    	values.put(NAME, "Avast");
+    	values.put(VERSION, "3.10");
+    	values.put(UNIQUE_NAME, "com.avast.security.antivirus");
+    	sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null	, values);
+
+       	values.put(NAME, "AnyConnect VPN Client");
+    	values.put(VERSION, "2.20");
+    	values.put(UNIQUE_NAME, "com.anyconnect.vpn.client");
+    	sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null	, values);
+
+       	values.put(NAME, "Lotus");
+    	values.put(VERSION, "1.11");
+    	values.put(UNIQUE_NAME, "com.lotus.email.client");
+    	sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null	, values);
+    	
+       	values.put(NAME, "Encrypt Plus");
+    	values.put(VERSION, "1.08");
+    	values.put(UNIQUE_NAME, "com.secure.encryptplus");
+    	sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null	, values);
+
+	}
+	
+	public List<RequiredApp> getRequiredAppList(){
+    	List<RequiredApp> appsList = new ArrayList<RequiredApp>();
+    	
+    	// Select All Query
+        String selectQuery = "select  * from " + TABLE_REQUIRED_APPS_CONFIGURATION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        RequiredApp requiredApp = new RequiredApp();
+        
+        if (cursor.moveToFirst()) {
+            do {
+            	requiredApp.setId(cursor.getInt(0));
+            	requiredApp.setName(cursor.getString(1));
+            	requiredApp.setVersion(cursor.getString(2));
+            	requiredApp.setUniqueName(cursor.getString(3));
+
+            	appsList.add(requiredApp);
+            } while (cursor.moveToNext());
+        }
+        return appsList;
+	}
+	
     public void insertCredentials(){
     	ContentValues values = new ContentValues();
     	values.put(DEVICE_ID, new SettingsSensor(context).getIMEI());
@@ -374,20 +431,24 @@ public class DBManager {
     }
     
     // Configuration related queries
-    public void insertConnectionProperties(Configuration config){
+    public void insertConnectionProperties(){
     	ContentValues values = new ContentValues();
-    	
-    	values.put(SERVER_IP, config.getServerIP());
-    	values.put(SERVER_PORT, config.getServerPort());
-    	values.put(SERVER_CONTEXT_PATH, config.getServerContextPath());
-    	values.put(SERVER_SERVLET_PATH, config.getServerServletPath());
-    	values.put(SERVER_CERTIFICATE, config.getServerCertificate());
-    	values.put(CLIENT_CERTIFICATE, config.getServerCertificate());
-    	values.put(TIMEOUT, config.getTimeout());
-    	values.put(POLL_TIMEOUT, config.getPollTimeout());
-    	values.put(SLEEP_POLL_TIMEOUT, config.getSleepPollTimeout());
-    	values.put(POLLING_ENABLED, config.getPollingEnabled());
+    	values.put(SERVER_IP, "192.168.44.101");
+    	values.put(SERVER_PORT, 8443);
+    	values.put(SERVER_CONTEXT_PATH, "/server");
+    	values.put(SERVER_SERVLET_PATH, "/commain");
+    	values.put(SERVER_CERTIFICATE, "");
+    	values.put(CLIENT_CERTIFICATE, "");
+    	values.put(TIMEOUT, 5000);
+    	values.put(POLL_TIMEOUT, 5000);
+    	values.put(SLEEP_POLL_TIMEOUT, 10000);
+    	values.put(POLLING_ENABLED, 1);
+    	values.put(LOGIN_ATTEMPTS, 5);
     	sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
+    }
+    
+    public void deleteConnectionProperties(int id){
+    	sqLiteDatabase.delete(TABLE_CONFIGURATION, "id="+id, null);
     }
     
     public void insertServerCertificate(String certificate){
@@ -465,11 +526,43 @@ public class DBManager {
             	configuration.setPollTimeout(cursor.getInt(6));
             	configuration.setSleepPollTimeout(cursor.getInt(7));
             	configuration.setPollingEnabled(cursor.getInt(8));
+            	configuration.setLoginAttempts(cursor.getInt(9));
             } while (cursor.moveToNext());
         }
         return configuration;
         
     }
+    
+    public List<Configuration> getConfiguration(){
+    	List<Configuration> conList = new ArrayList<Configuration>();
+    	
+    	// Select All Query
+        String selectQuery = "select  * from " + TABLE_CONFIGURATION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        Configuration configuration = new Configuration();
+        
+        if (cursor.moveToFirst()) {
+            do {
+            	// configuration.setId(cursor.getInt(0)); FIXME commented for time being
+            	configuration.setId(cursor.getInt(0));
+            	configuration.setServerIP(cursor.getString(1));
+            	configuration.setServerPort(cursor.getInt(2));
+            	configuration.setServerContextPath(cursor.getString(3));
+            	configuration.setServerServletPath(cursor.getString(4));
+            	configuration.setServerCertificate(cursor.getString(5));
+            	configuration.setClientCertificate(cursor.getString(6));
+            	configuration.setTimeout(cursor.getInt(5));
+            	configuration.setPollTimeout(cursor.getInt(6));
+            	configuration.setSleepPollTimeout(cursor.getInt(7));
+            	configuration.setPollingEnabled(cursor.getInt(8));
+            	
+            	conList.add(configuration);
+            } while (cursor.moveToNext());
+        }
+        return conList;
+        
+    }
+    
     
     // Decision Maker related queries
     /**

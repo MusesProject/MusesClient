@@ -70,10 +70,12 @@ public class HttpResponseHandler {
 				}
 				if (isSendDataRequest(requestType)){
 					if (isPayloadInData(httpResponse)) {
+						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
 					} 
 				}
 				if (isAckRequest(requestType)) {
+					Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 					Log.d(TAG, "Ack by the server");
 				}
 				AlarmReceiver.resetExponentialPollTime();

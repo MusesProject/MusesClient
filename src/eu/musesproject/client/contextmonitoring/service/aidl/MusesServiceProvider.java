@@ -24,6 +24,7 @@ import java.util.Map;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
@@ -40,7 +41,19 @@ public class MusesServiceProvider extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		Log.e(TAG, "Came to Bind");
-		return binder;
+		try {
+			Bundle bundle = intent.getExtras();
+			if (bundle != null) {
+				String packageName = bundle.getString("package");
+				if (packageName.equals("eu.musesproject.musesawareapp")){
+					return binder;
+				}
+			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
+		}
+		return null;
 	}
 
     @Override

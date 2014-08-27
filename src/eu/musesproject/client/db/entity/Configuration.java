@@ -13,14 +13,15 @@ public class Configuration {
 	private int pollTimeout;
 	private int sleepPollTimeout;
 	private int pollingEnabled;
-
+	private int loginAttempts;
+	
 	public Configuration() {
 	}
 
 	public Configuration(int id, String serverIP, int serverPort,
 			String serverContextPath, String serverServletPath,
 			String serverCertificate, String clientCertificate, int timeout,
-			int pollTimeout, int sleepPollTimeout, int pollingEnabled) {
+			int pollTimeout, int sleepPollTimeout, int pollingEnabled, int loginAttempts) {
 		super();
 		this.id = id;
 		this.serverIP = serverIP;
@@ -33,6 +34,7 @@ public class Configuration {
 		this.pollTimeout = pollTimeout;
 		this.sleepPollTimeout = sleepPollTimeout;
 		this.pollingEnabled = pollingEnabled;
+		this.loginAttempts = loginAttempts;
 	}
 
 	public int getId() {
@@ -123,6 +125,14 @@ public class Configuration {
 		this.pollingEnabled = pollingEnabled;
 	}
 
+	public int getLoginAttempts() {
+		return loginAttempts;
+	}
+
+	public void setLoginAttempts(int loginAttempts) {
+		this.loginAttempts = loginAttempts;
+	}
+
 	@Override
 	public String toString() {
 		return "Configuration [id=" + id + ", serverIP=" + serverIP
@@ -132,9 +142,10 @@ public class Configuration {
 				+ serverCertificate + ", clientCertificate="
 				+ clientCertificate + ", timeout=" + timeout + ", pollTimeout="
 				+ pollTimeout + ", sleepPollTimeout=" + sleepPollTimeout
-				+ ", pollingEnabled=" + pollingEnabled + "]";
+				+ ", pollingEnabled=" + pollingEnabled + ", loginAttempts="
+				+ loginAttempts + "]";
 	}
-	
-	
+
+
 
 }
