@@ -148,7 +148,6 @@ public class UserContextEventHandler {
 	 */
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
         Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
-
         boolean onlineDecisionRequested = false;
 
         // check for a locally stored decision

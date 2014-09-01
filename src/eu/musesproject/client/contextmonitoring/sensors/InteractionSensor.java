@@ -118,7 +118,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
 		String pckName = (String) event.getPackageName();
-		if(pckName.equals("com.google.android.gm")) {
+		if(pckName != null && pckName.equals("com.google.android.gm")) {
 			new GmailObserver(getRootInActiveWindow(), event);
 		}
 	}
