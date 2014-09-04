@@ -62,14 +62,14 @@ public class DecisionMaker {
 	 * @return 
 	 */
 	
-	public Decision makeDecision(Request request, List<ContextEvent> eventList){
+	public Decision makeDecision(Request request, List<ContextEvent> eventList, Map<String, String> properties){
 		Log.d(APP_TAG, "Info DC, DecisionMaker=> Making decision with request and events");
         Log.d(TAG, "called: makeDecision(Request request, List<ContextEvent> eventList)");
 
         eu.musesproject.client.db.entity.Decision decision = new eu.musesproject.client.db.entity.Decision();
         eu.musesproject.client.db.entity.RiskCommunication comm = new eu.musesproject.client.db.entity.RiskCommunication();
         eu.musesproject.client.db.entity.RiskTreatment treatment = new eu.musesproject.client.db.entity.RiskTreatment();
-        Resource resourceInPolicy = new Resource();
+        Resource resourceInPolicy = null;
         Action actionInPolicy = new Action();
         RiskCommunication riskCommInPolicy = new RiskCommunication();
         RiskTreatment riskTreatInPolicy = new RiskTreatment();
@@ -111,8 +111,46 @@ public class DecisionMaker {
         
         if ((request.getAction()!=null)&&(request.getResource()!=null)){
         	if (request.getResource().getPath()!=null){
+        		Log.d(TAG, "Looking for resource by path" );
         		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getPath());
         	}else{
+        		Log.d(TAG, "Find resource by condition properties..." );
+        		//resourceInPolicy = dbManager.getResourceFromCondition("%noAttachments%");//TODO Manage this programmatically
+        		//Log.d(TAG, "Found..."+resourceInPolicy.getId());
+        		//List<Resource> allConditionResources = dbManager.getAllResourcesWithCondition();
+        		List<Resource> allConditionResources = dbManager.getAllResources();
+        		Log.d(TAG, "Found..."+allConditionResources.size());
+        		
+        		for (Iterator iterator = allConditionResources.iterator(); iterator
+						.hasNext();) {
+					Resource resource = (Resource) iterator.next();
+					if (resource.getCondition()!=null){
+						Log.d(TAG, "Condition:"+resource.getCondition());
+						
+						Log.d(TAG, "Resource properties:");
+		        		for (Map.Entry<String, String> entry : properties.entrySet())
+		                {        			
+		        			String comparisonString = "{\""+entry.getKey()+"\":"+entry.getValue()+"}";
+		                    Log.d(TAG, "	"+comparisonString);
+		                    if (resource.getCondition().equals(comparisonString)){
+		                    	 Log.d(TAG, "	Match!");
+		                    	resourceInPolicy = resource;//No break, since the last one should have priority over older ones
+		                    }else{
+		                    	Log.d(TAG, "	No Match!" + comparisonString);
+		                    }
+		                }
+		        		
+					}else{
+						Log.d(TAG, "Condition null");
+					}
+				}
+        		
+        		
+        	}
+        	
+        	if (resourceInPolicy == null){
+
+        		Log.d(TAG, "Looking for resource by description" );
         		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getDescription());
         	}
         	
@@ -286,6 +324,8 @@ public class DecisionMaker {
 		arrayTreatment = new eu.musesproject.server.risktrust.RiskTreatment[]{riskTreatment};
 		riskCommunication.setRiskTreatment(arrayTreatment);
 		resultDecision.setRiskCommunication(riskCommunication);
+		Logger.getLogger(TAG).log(Level.WARNING, "Result decision: " + resultDecision.getName());
+		Logger.getLogger(TAG).log(Level.WARNING, "Risk treatment: " + treatment.getTextualdescription());
 		
 		return resultDecision;
 	}

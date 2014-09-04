@@ -313,6 +313,7 @@ public class DevicePolicyHelper {
 	}
 	
 	public Resource updateResourceAction(JSONObject actionJSON, Context context){
+		Log.d(TAG, "updateResourceAction");
 		Resource resource = new Resource();
 		DBManager dbManager = new DBManager(context);
 	    dbManager.openDB();
@@ -335,9 +336,14 @@ public class DevicePolicyHelper {
 				String maybeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_MAYBE);
 				JSONObject maybeActionJSON = new JSONObject(maybeAction);
 				String idResource = maybeActionJSON.getString("path");//TODO Include in JSONIdentifiers
-				Log.d(TAG, "Denied:" + idResource);
+				Log.d(TAG, "Maybe:" + idResource);
 				resource.setPath(idResource);
 				resource.setDescription(idResource);
+				if (maybeAction.contains(JSONIdentifiers.POLICY_CONDITION)){
+					String conditionAction = maybeActionJSON.getString(JSONIdentifiers.POLICY_CONDITION);
+					resource.setCondition(conditionAction);
+					Log.d(TAG, "Resource condition:" + conditionAction);
+				}
 			}
 		} catch (JSONException je) {
 			je.printStackTrace();

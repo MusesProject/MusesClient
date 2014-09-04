@@ -63,10 +63,10 @@ public class UserContextEventHandler {
 
     private static UserContextEventHandler userContextEventHandler = null;
 //	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
-	private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server/commain";
+//	private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server/commain";
 //  private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server-0.0.1-SNAPSHOT/commain";
 //  private static final String MUSES_SERVER_URL = "http://192.168.44.107:8080/server/commain";
-//  private static final String MUSES_SERVER_URL = "http://172.17.3.5:8080/server-0.0.1-SNAPSHOT/commain";
+    private static final String MUSES_SERVER_URL = "https://172.17.3.5:8443/server/commain";
 	
 	private Context context;
 
@@ -152,9 +152,10 @@ public class UserContextEventHandler {
 
         // check for a locally stored decision
         Resource resource = ResourceCreator.create(action, properties);
+        
         Request request = new Request(action, resource);
 		Log.d(APP_TAG, "Info DC, UserContextEventHandler=> receives actions, properties, events");
-        Decision decision = new DecisionMaker().makeDecision(request, contextEvents);
+        Decision decision = new DecisionMaker().makeDecision(request, contextEvents, properties);
 //        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
         if(decision != null) { // local decision found
         	Log.d(APP_TAG, "Info CT, Local decision found, now calling actuator to showFeedback");

@@ -5,6 +5,7 @@ public class Resource {
 	private int id;
 	private String description;
 	private String path;
+	private String condition;
 	private int resourcetype;
 	private long modification;
 	
@@ -38,6 +39,11 @@ public class Resource {
 	public void setModification(long modification) {
 		this.modification = modification;
 	}
-	
+	public String getCondition() {
+		return condition;
+	}
+	public void setCondition(String condition) {
+		this.condition = condition;
+	}
 
 }

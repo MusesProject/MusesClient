@@ -19,6 +19,7 @@ import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.entity.RequiredApp;
 import eu.musesproject.client.db.entity.Resource;
+import eu.musesproject.client.db.entity.ResourceProperty;
 import eu.musesproject.client.db.entity.ResourceType;
 import eu.musesproject.client.db.entity.RiskCommunication;
 import eu.musesproject.client.db.entity.RiskTreatment;
@@ -50,12 +51,18 @@ public class DBManager {
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "description VARCHAR(45) NOT NULL,"
 																	  + "path VARCHAR(45) NOT NULL,"
+																	  + "condition VARCHAR(200),"
 																	  + "resourcetype INT NOT NULL," 		// fk resourceType.id
 																	  + "modification TIMESTAMP NOT NULL);";
 	private static final String CREATE_RESOURCE_TYPE_TABLE_QUERY = "CREATE TABLE resourcetype ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "name VARCHAR(45) NOT NULL,"
 																	  + "modification TIMESTAMP NOT NULL);";
+	private static final String CREATE_RESOURCE_PROPERTY_TABLE_QUERY = "CREATE TABLE resource_property ( "
+																	  + "id INTEGER PRIMARY KEY,"
+																	  + "resource_id INT NOT NULL,"
+																	  + "key VARCHAR(45) NOT NULL,"
+																	  + "value VARCHAR(500) NOT NULL);";
 	private static final String CREATE_DECISION_TABLE_QUERY = "CREATE TABLE decision ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "name VARCHAR(45) NOT NULL,"
@@ -112,6 +119,7 @@ public class DBManager {
 	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 			  + "id INTEGER PRIMARY KEY," 
 			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
+			  //+ "server_ip VARCHAR(45) NOT NULL DEFAULT '172.17.3.5',"
 			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
 			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
 			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain',"
@@ -146,6 +154,7 @@ public class DBManager {
 	public static final String TABLE_SUBJECT = "subject";
 	public static final String TABLE_RESOURCE = "resource";
 	public static final String TABLE_RESOURCE_TYPE = "resourcetype";
+	public static final String TABLE_RESOURCE_PROPERTY = "resource_property";
 	public static final String TABLE_ACTION = "action";
 	public static final String TABLE_RISK_TREATMENT = "risktreatment";
 	public static final String TABLE_RISK_COMMUNICATION = "riskcommunication";
@@ -252,6 +261,7 @@ public class DBManager {
         	db.execSQL(CREATE_DECISION_TABLE_QUERY);
         	db.execSQL(CREATE_RESOURCE_TABLE_QUERY);
         	db.execSQL(CREATE_RESOURCE_TYPE_TABLE_QUERY);
+        	db.execSQL(CREATE_RESOURCE_PROPERTY_TABLE_QUERY);
         	db.execSQL(CREATE_ROLE_TABLE_QUERY);
         	db.execSQL(CREATE_SUBJECT_TABLE_QUERY);
         	db.execSQL(CREATE_RISK_COMMUNICATION_TABLE_QUERY);
@@ -274,6 +284,7 @@ public class DBManager {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTION);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE_TYPE);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE_PROPERTY);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_SUBJECT);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROLE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_RISK_COMMUNICATION);
@@ -434,6 +445,7 @@ public class DBManager {
     public void insertConnectionProperties(){
     	ContentValues values = new ContentValues();
     	values.put(SERVER_IP, "192.168.44.101");
+    	//values.put(SERVER_IP, "172.17.3.5");
     	values.put(SERVER_PORT, 8443);
     	values.put(SERVER_CONTEXT_PATH, "/server");
     	values.put(SERVER_SERVLET_PATH, "/commain");
@@ -579,6 +591,7 @@ public class DBManager {
     	values.put(SUBJECT_ID, decisionTable.getSubject_id());
     	values.put(RISKCOMMUNICATION_ID, decisionTable.getRiskcommunication_id());
     	values.put(MODIFICATION, "03-09-2011");
+    	
     	
     	Log.d("DBManager", "Adding DT with action_id:"+decisionTable.getAction_id()+" decision_id:"+decisionTable.getDecision_id()+" riskCommunication_id:"+decisionTable.getRiskcommunication_id());
     	return sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
@@ -874,12 +887,46 @@ public class DBManager {
     	ContentValues values = new ContentValues();
     	values.put(DESCRIPTION, action.getDescription());
     	values.put(MODIFICATION, "09-08-2012");
-    	return sqLiteDatabase.insert(TABLE_ACTION, null, values);
-
+    	
+    	Action actionInDb = getActionFromDescription(action.getDescription());
+    	if (actionInDb.getId()==0){
+    		Log.d(TAG,"Action not found, inserting a new one...");
+    		return sqLiteDatabase.insert(TABLE_ACTION, null, values);
+    	}else{
+    		Log.d(TAG,"Action found, returning the existing one...");
+    		return actionInDb.getId();
+    	}
     }
     
     
-    /**
+    private Action getActionFromDescription(String description) {
+    	Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
+    			ID, 
+    			DESCRIPTION,
+    			MODIFICATION}, 
+    			
+    			DESCRIPTION + " LIKE '" + description + "'",
+				null,			
+				null, 
+				null, 
+				null);
+
+    	Action action = new Action();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				Log.d(TAG, cursor.getString(0));
+				action.setId(Integer.parseInt(cursor.getString(0)));
+				action.setDescription(cursor.getString(1));
+				cursor.moveToNext();
+			}	
+		}
+		return action;
+	}
+
+
+	/**
      * Inserts into riskTreatment table in the DB
      * @param riskTreatment
      */
@@ -889,11 +936,46 @@ public class DBManager {
     	
     	ContentValues values = new ContentValues();
     	values.put(TEXTUAL_DESCRIPTION, riskTreatment.getTextualdescription());
-    	return sqLiteDatabase.insert(TABLE_RISK_TREATMENT, null	, values);
+    	
+    	RiskTreatment riskTreatmentInDb = getRiskTreatmentFromDescription(riskTreatment.getTextualdescription());
+    	if (riskTreatmentInDb.getId()==0){
+    		Log.d(TAG,"Risktreatment not found, inserting a new one...");
+    		return sqLiteDatabase.insert(TABLE_RISK_TREATMENT, null	, values);
+    	}else{
+    		Log.d(TAG,"Risktreatment found, returning the existing one...");
+    		return riskTreatmentInDb.getId();
+    	}
+    	
     }
     
     
-    /**
+    private RiskTreatment getRiskTreatmentFromDescription(String textualdescription) {
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RISK_TREATMENT, new String [] {
+    			ID, 
+    			TEXTUAL_DESCRIPTION}, 
+    			
+    			TEXTUAL_DESCRIPTION + " LIKE '" + textualdescription + "'",
+				null,			
+				null, 
+				null, 
+				null);
+
+    	RiskTreatment riskTreatment = new RiskTreatment();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				Log.d(TAG, cursor.getString(0));
+				riskTreatment.setId(Integer.parseInt(cursor.getString(0)));
+				riskTreatment.setTextualdescription(cursor.getString(1));
+				cursor.moveToNext();
+			}	
+		}
+		return riskTreatment;
+	}
+
+
+	/**
      * Inserts into resourceType table in the DB
      * @param resourceType
      */
@@ -919,8 +1001,21 @@ public class DBManager {
     	values.put(DESCRIPTION, resource.getDescription());
     	values.put(PATH, resource.getPath());
     	values.put(RESOURCE_TYPE, resource.getResourcetype());
+    	values.put(CONDITION, resource.getCondition());
     	values.put(MODIFICATION, "03-09-2011");
-    	return sqLiteDatabase.insert(TABLE_RESOURCE, null, values);
+    	
+    	Resource resourceInDb = getResourceFromPathAndCondition(resource.getPath(), resource.getCondition());
+    	Log.d(TAG, "ResourceInDb id: "+resourceInDb.getId());
+    	if (resourceInDb.getId()==0){
+    		Log.d(TAG,"Resource not found, inserting a new one...");
+    		return sqLiteDatabase.insert(TABLE_RESOURCE, null, values);
+    	}else{
+    		Log.d(TAG,"Resource found, returning the existing one...");
+    		return resourceInDb.getId();
+    	}
+    	
+  
+    	
     }
     
     
@@ -935,10 +1030,49 @@ public class DBManager {
     	ContentValues values = new ContentValues();
     	values.put(COMMUNICATION_SEQUENCE, riskCommunication.getCommunication_sequence());
     	values.put(RISKTREATMENT_ID, riskCommunication.getRisktreatment_id());
-    	return sqLiteDatabase.insert(TABLE_RISK_COMMUNICATION, null	, values);
+    	
+    	RiskCommunication riskCommunicationInDb = getRiskCommunicationFromTreatmentId(riskCommunication.getRisktreatment_id());
+    	if (riskCommunicationInDb.getId()==0){
+    		Log.d(TAG,"RiskCommunication not found, inserting a new one...");
+    		return sqLiteDatabase.insert(TABLE_RISK_COMMUNICATION, null	, values);
+    	}else{
+    		Log.d(TAG,"RiskCommunication found, returning the existing one...");
+    		return riskCommunicationInDb.getId();
+    	}
+    	
+    	
     }
 
-    /**
+    private RiskCommunication getRiskCommunicationFromTreatmentId(
+			int risktreatment_id) {
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION, new String [] {
+    			ID,
+    			COMMUNICATION_SEQUENCE,
+    			RISKTREATMENT_ID}, 
+    			
+    			RISKTREATMENT_ID + " = " + risktreatment_id + "",
+				null,			
+				null, 
+				null, 
+				null);
+
+    	RiskCommunication riskCommunication = new RiskCommunication();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				Log.d(TAG, cursor.getString(0));
+				riskCommunication.setId(Integer.parseInt(cursor.getString(0)));
+				riskCommunication.setCommunication_sequence(Integer.parseInt(cursor.getString(1)));
+				riskCommunication.setRisktreatment_id(Integer.parseInt(cursor.getString(2)));
+				cursor.moveToNext();
+			}	
+		}
+		return riskCommunication;
+	}
+
+
+	/**
      * Inserts into role table in the DB
      * @param role
      */
@@ -1287,28 +1421,60 @@ public class DBManager {
 				null, 
 				null, 
 				null);
-		
-		
-		//if (cursor.getCount() == 1){
-	    	ContentValues values = new ContentValues();
-	    	values.put(NAME, decision.getName());
-	    	values.put(CONDITION, decision.getCondition());
-	    	values.put(MODIFICATION, "09-08-2012");
-	    	result = sqLiteDatabase.insert(TABLE_DECISION, null, values);
-		/*}else{
-			Log.d(TAG, "Decision count:" + cursor.getCount()); //+ "id:" + cursor.getInt(0) + "name:" + cursor.getString(1));
-			return 0;
-		}
-		result = Long.valueOf(cursor.getString(0));*/
 
+	    ContentValues values = new ContentValues();
+	    values.put(NAME, decision.getName());
+	    values.put(CONDITION, decision.getCondition());
+	    values.put(MODIFICATION, "09-08-2012");
+	    
+	    Decision decisionInDb = getDecisionFromNameAndCondition(decision.getName(), decision.getCondition());
+    	if (decisionInDb.getId()==0){
+    		Log.d(TAG,"Decision not found, inserting a new one...");
+    		result = sqLiteDatabase.insert(TABLE_DECISION, null, values);
+    	}else{
+    		Log.d(TAG,"Decision found, returning the existing one...");
+    		return decisionInDb.getId();
+    	}
+    	
 		return result;
 	}
     
+	private Decision getDecisionFromNameAndCondition(String name,
+			String condition) {
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
+    			ID, 
+    			NAME,
+    			CONDITION,
+    			MODIFICATION}, 
+    			
+				NAME + " LIKE '" + name + "' AND " + CONDITION + " LIKE '" + condition + "'"  ,
+				null,			
+				null, 
+				null, 
+				null);
+
+    	Decision decision = new Decision();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				Log.d(TAG, cursor.getString(0));
+				decision.setId(Integer.parseInt(cursor.getString(0)));
+				decision.setName(cursor.getString(1));
+				decision.setCondition(cursor.getString(2));
+				cursor.moveToNext();
+			}	
+		}
+		return decision;
+	}
+
+
 	public Resource getResourceFromPath(String path) {
     	Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
     			ID, 
     			DESCRIPTION,
     			PATH,
+    			CONDITION,
     			RESOURCE_TYPE,
     			MODIFICATION}, 
     			
@@ -1327,6 +1493,7 @@ public class DBManager {
 				resource.setId(Integer.parseInt(cursor.getString(0)));
 				resource.setDescription(cursor.getString(1));
 				resource.setPath(cursor.getString(2));
+				resource.setCondition(cursor.getString(3));
 				cursor.moveToNext();
 			}	
 		}
@@ -1412,4 +1579,155 @@ public class DBManager {
 		}
 		return false;
 	}
+	
+    public List<ResourceProperty> getPropertiesFromResourceId(String resource_id) {
+
+    	List<ResourceProperty> properties = new ArrayList<ResourceProperty>();
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE_PROPERTY, new String [] {
+						ID,  
+    					RESOURCE_ID, 
+    					KEY,
+    					VALUE}, 						
+    					RESOURCE_ID + "=?",
+    					new String[] {String.valueOf(resource_id)},
+    					//null,
+    					null, 
+    					null, 
+    					null);
+    	
+    	//Cursor cursor = sqLiteDatabase.rawQuery("SELECT key, value FROM properties WHERE resource_id=?", new String[] {String.valueOf(resource_id)});
+    	
+    	
+    	if (cursor != null && cursor.moveToFirst()) {
+    		while (!cursor.isAfterLast()) {
+    			ResourceProperty property = new ResourceProperty();    			
+    			property.setKey(cursor.getString(0));
+    			property.setValue(cursor.getString(1));    			
+    			properties.add(property);
+				cursor.moveToNext();
+			}
+    	}
+    	
+    	return properties;
+    }
+    
+    public Resource getResourceFromCondition(String condition) {
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
+    			ID, 
+    			DESCRIPTION,
+    			PATH,
+    			CONDITION,
+    			RESOURCE_TYPE,
+    			MODIFICATION}, 
+    			
+				CONDITION + " LIKE '" + condition + "'",
+				null,			
+				null, 
+				null, 
+				null);
+
+    	Resource resource = new Resource();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				Log.d(TAG, cursor.getString(0));
+				resource.setId(Integer.parseInt(cursor.getString(0)));
+				resource.setDescription(cursor.getString(1));
+				resource.setPath(cursor.getString(2));
+				resource.setCondition(cursor.getString(3));
+				cursor.moveToNext();
+			}	
+		}
+		return resource;
+
+    }
+    
+    public List<Resource> getAllResourcesWithCondition() {
+    	
+    	List<Resource> resourceList = new ArrayList<Resource>();
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
+    			ID, 
+    			DESCRIPTION,
+    			PATH,
+    			CONDITION,
+    			RESOURCE_TYPE,
+    			MODIFICATION}, 
+    			ID + " IS NOT NULL",
+				//CONDITION + " IS NOT NULL",
+				null,			
+				null, 
+				null, 
+				null);
+
+    	Resource resource = new Resource();
+    	if (cursor != null && cursor.moveToFirst()) {
+    		while (!cursor.isAfterLast()) {
+    			Log.d(TAG, cursor.getString(0));
+				resource.setId(Integer.parseInt(cursor.getString(0)));
+				resource.setDescription(cursor.getString(1));
+				resource.setPath(cursor.getString(2));
+				resource.setCondition(cursor.getString(3));		
+    			resourceList.add(resource);
+				cursor.moveToNext();
+			}
+    	}
+    	
+		return resourceList;
+
+    }
+    
+    public List<Resource> getAllResources() {
+		List<Resource> resourceList = new ArrayList<Resource>();
+		
+		Cursor cursor = sqLiteDatabase.rawQuery("SELECT id, description, path, condition, resourceType FROM resource",null);
+    	
+		Resource resource = new Resource();
+    	if (cursor != null && cursor.moveToFirst()) {
+    		while (!cursor.isAfterLast()) {
+    			Log.d(TAG, cursor.getString(0));
+				resource.setId(Integer.parseInt(cursor.getString(0)));
+				resource.setDescription(cursor.getString(1));
+				resource.setPath(cursor.getString(2));
+				resource.setCondition(cursor.getString(3));		
+    			resourceList.add(resource);
+				cursor.moveToNext();
+			}
+    	}
+		
+		return resourceList;
+	}
+    
+	public Resource getResourceFromPathAndCondition(String path, String condition) {
+    	Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
+    			ID, 
+    			DESCRIPTION,
+    			PATH,
+    			CONDITION,
+    			RESOURCE_TYPE,
+    			MODIFICATION}, 
+    			
+				PATH + " LIKE '" + path + "' AND " + CONDITION + " LIKE '" + condition + "'"  ,
+				null,			
+				null, 
+				null, 
+				null);
+
+    	Resource resource = new Resource();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
+			while (!cursor.isAfterLast()){
+				Log.d(TAG, cursor.getString(0));
+				resource.setId(Integer.parseInt(cursor.getString(0)));
+				resource.setDescription(cursor.getString(1));
+				resource.setPath(cursor.getString(2));
+				resource.setCondition(cursor.getString(3));
+				cursor.moveToNext();
+			}	
+		}
+		return resource;
+
+    }
+    
 }

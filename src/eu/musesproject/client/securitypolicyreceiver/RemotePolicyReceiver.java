@@ -70,6 +70,7 @@ public class RemotePolicyReceiver {
     			//Create decision table entry containing action, resource, subject and decision
     			String files = policyJSON.getString(JSONIdentifiers.POLICY_SECTION_FILES);    			
     			JSONObject filesJSON = new JSONObject(files);
+    			
     			decisionTableElement = DevicePolicyHelper.getInstance().getDecisionTable(filesJSON, context);
     			
     		} catch (JSONException je) {
