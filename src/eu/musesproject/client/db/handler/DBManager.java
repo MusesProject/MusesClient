@@ -66,7 +66,7 @@ public class DBManager {
 	private static final String CREATE_DECISION_TABLE_QUERY = "CREATE TABLE decision ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "name VARCHAR(45) NOT NULL,"
-																	  + "condition VARCHAR(45) NOT NULL,"
+																	  + "condition VARCHAR(45),"
 																	  + "modification TIMESTAMP NOT NULL);";
 	private static final String CREATE_SUBJECT_TABLE_QUERY = "CREATE TABLE subject ( "
 																	  + "id INTEGER PRIMARY KEY," 
