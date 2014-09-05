@@ -22,7 +22,9 @@ package eu.musesproject.client.contextmonitoring.sensors;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.os.Environment;
 import android.os.FileObserver;
@@ -66,7 +68,7 @@ public class RecursiveFileSensor implements ISensor {
     public static final String CLOSE_NOWRITE = "close_no_write";
 
 
-    private List<String> paths;
+    private Map<String, String> paths;
     private List<FileSensor> observers;
     
     private FileSensor fileObserver;
@@ -93,7 +95,7 @@ public class RecursiveFileSensor implements ISensor {
 //        rootPathToObserve = "/Pictures/";
 
         contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
-        paths = new ArrayList<String>();
+        paths = new HashMap<String, String>();
     }
 
     /**
@@ -114,12 +116,9 @@ public class RecursiveFileSensor implements ISensor {
     	fullPath =  Environment.getExternalStorageDirectory().getAbsolutePath() + rootPathToObserve;
     	findDirectoriesToObserve(new File(fullPath));
     	if(paths != null && paths.size() > 0) {
-    		for (String path : paths) {
+    		for (String path : paths.keySet()) {
     			Log.d(TAG, "path to observe: " + path);
     			observers.add(new FileSensor(path));
-    		}
-    		for (FileSensor fileSensor : observers) {
-    			fileSensor.startWatching();
     		}
     		
     		running = true;
@@ -128,13 +127,14 @@ public class RecursiveFileSensor implements ISensor {
     
     private void findDirectoriesToObserve(File file) {
         if (file.isDirectory()) {
-            System.out.println("Searching directory ... " + file.getAbsoluteFile());
+        	Log.d(TAG,"Searching directory ... " + file.getAbsoluteFile());
+            paths.put(file.getAbsolutePath(), file.getAbsolutePath());
 
             //do you have permission to read this directory?
             if (file.canRead()) {
                 for (File temp : file.listFiles()) {
                     if (temp.isDirectory()) {
-                        paths.add(temp.getAbsolutePath());
+                        paths.put(temp.getAbsolutePath(), temp.getAbsolutePath());
                         findDirectoriesToObserve(temp);
                     }
                 }
@@ -150,7 +150,6 @@ public class RecursiveFileSensor implements ISensor {
      * @param path related to the file that fires the event
      */
     public void createContextEvent(String eventText, String path) {
-        String fullPath = this.fullPath + path;
         String id = String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : - 1);
 
         ContextEvent contextEvent = new ContextEvent();
@@ -158,8 +157,8 @@ public class RecursiveFileSensor implements ISensor {
         contextEvent.setTimestamp(System.currentTimeMillis());
         contextEvent.addProperty(PROPERTY_KEY_ID, id);
         contextEvent.addProperty(PROPERTY_KEY_FILE_EVENT, eventText);
-        contextEvent.addProperty(PROPERTY_KEY_PATH, fullPath);
-        Log.d(TAG, "event received: " + eventText + " path: " +fullPath);
+        contextEvent.addProperty(PROPERTY_KEY_PATH, path);
+        Log.d(TAG, "event received: " + eventText + " path: " +path);
 
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
@@ -234,9 +233,11 @@ public class RecursiveFileSensor implements ISensor {
         int oldEvent = - 1;
         long lastEventTimestamp = System.currentTimeMillis();
         long threshold = 1000;
+        String rootPath;
 
 		public FileSensor(String path) {
 			super(path);
+			this.rootPath = path;
 			startWatching();
 		}
 		
@@ -268,7 +269,11 @@ public class RecursiveFileSensor implements ISensor {
                      default: break;
                  }
                  if((eventText != null) && (path != null)) {
-                     createContextEvent(eventText, path);
+                	 path = rootPath + "/" + path;
+                	 File file = new File(path);
+                	 if(file.isFile()) {
+                		 createContextEvent(eventText, path);
+                	 }
                  }
              }
 		}
