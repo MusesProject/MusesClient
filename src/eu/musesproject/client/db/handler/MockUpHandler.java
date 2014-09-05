@@ -8,12 +8,12 @@ import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
-import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.contextmonitoring.sensors.InteractionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.LocationSensor;
 import eu.musesproject.client.contextmonitoring.sensors.NotificationSensor;
 import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
+import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 
@@ -96,13 +96,13 @@ public class MockUpHandler {
 		 * File sensor
 		 */
 		SensorConfiguration fileConfig = new SensorConfiguration();
-		fileConfig.setSensor_type(FileSensor.TYPE);
-		fileConfig.setKey(FileSensor.CONFIG_KEY_PATH);
-		fileConfig.setValue("/Pictures/Screenshots/");
+		fileConfig.setSensor_type(RecursiveFileSensor.TYPE);
+		fileConfig.setKey(RecursiveFileSensor.CONFIG_KEY_PATH);
+		fileConfig.setValue("/Pictures/");
 		configList.add(fileConfig);
 		
 		fileConfig = new SensorConfiguration();
-		fileConfig.setSensor_type(FileSensor.TYPE);
+		fileConfig.setSensor_type(RecursiveFileSensor.TYPE);
 		fileConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		fileConfig.setValue("true");
 		configList.add(fileConfig);

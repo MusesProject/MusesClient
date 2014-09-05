@@ -20,6 +20,7 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +37,12 @@ import eu.musesproject.contextmodel.ContextEvent;
  * Class to collect information about accesses and modifications
  * to a specific directory or file in a given directory on the device
  */
-public class FileSensor implements ISensor {
-    private static final String TAG = FileSensor.class.getName();
-
+public class RecursiveFileSensor implements ISensor {
+    private static final String TAG = RecursiveFileSensor.class.getSimpleName();
+    
     // sensor identifier
     public static final String TYPE = "CONTEXT_SENSOR_FILEOBSERVER";
-
+    
     // context property keys
     public static final String PROPERTY_KEY_ID 			= "id";
     public static final String PROPERTY_KEY_FILE_EVENT 	= "fileevent";
@@ -64,9 +65,13 @@ public class FileSensor implements ISensor {
     public static final String CLOSE_WRITE   = "close_write";
     public static final String CLOSE_NOWRITE = "close_no_write";
 
-    private FileObserver fileObserver;
+
+    private List<String> paths;
+    private List<FileSensor> observers;
+    
+    private FileSensor fileObserver;
     private String fullPath;
-    private String pathToObserve;
+    private String rootPathToObserve;
 
     private ContextListener listener;
 
@@ -76,7 +81,7 @@ public class FileSensor implements ISensor {
     // file observation already started
     private boolean running;
 
-    public FileSensor() {
+    public RecursiveFileSensor() {
         init();
     }
 
@@ -85,17 +90,16 @@ public class FileSensor implements ISensor {
         running = false;
 
         // example directory.
-        pathToObserve = "/Pictures/Screenshots/";
-        fullPath =  Environment.getExternalStorageDirectory().getAbsolutePath() + pathToObserve;
-        Log.d(TAG, "path:" + fullPath);
+//        rootPathToObserve = "/Pictures/";
 
         contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
+        paths = new ArrayList<String>();
     }
 
     /**
      * This method enables the sensor and initiates the context event collection.
      * If the implemented File Observer fires an event it will be created in
-     * {@link FileSensor#createContextEvent(String, String)}
+     * {@link RecursiveFileSensor#createContextEvent(String, String)}
      */
     @Override
     public void enable() {
@@ -106,55 +110,46 @@ public class FileSensor implements ISensor {
     }
     
     private void startObservation() {
-    	fileObserver = new FileObserver(fullPath) {
-            // these variables are needed to prevent the context event creation multiple times a second.
-            // this is necessary because the FileObserver fires the same event multiple times
-            int oldEvent = - 1;
-            long lastEventTimestamp = System.currentTimeMillis();
-            long threshold = 1000;
+    	observers = new ArrayList<FileSensor>();
+    	fullPath =  Environment.getExternalStorageDirectory().getAbsolutePath() + rootPathToObserve;
+    	findDirectoriesToObserve(new File(fullPath));
+    	if(paths != null && paths.size() > 0) {
+    		for (String path : paths) {
+    			Log.d(TAG, "path to observe: " + path);
+    			observers.add(new FileSensor(path));
+    		}
+    		for (FileSensor fileSensor : observers) {
+    			fileSensor.startWatching();
+    		}
+    		
+    		running = true;
+    	}
+    }
+    
+    private void findDirectoriesToObserve(File file) {
+        if (file.isDirectory()) {
+            System.out.println("Searching directory ... " + file.getAbsoluteFile());
 
-            @Override
-            public void onEvent(int event, String path) {
-                long eventTimeStamp = System.currentTimeMillis();
-
-                // add ALL_EVENTS to erase high bit values
-                event &= ALL_EVENTS;
-                String eventText = null;
-
-                if((oldEvent != event) || ((eventTimeStamp - lastEventTimestamp) >= threshold)) {
-                    oldEvent = event;
-                    lastEventTimestamp = eventTimeStamp;
-
-                    switch(event){
-                        case FileObserver.OPEN			: eventText = FileSensor.OPEN; 		   break;
-                        case FileObserver.ATTRIB		: eventText = FileSensor.ATTRIB;  	   break;
-                        case FileObserver.ACCESS		: eventText = FileSensor.ACCESS; 	   break;
-                        case FileObserver.CREATE		: eventText = FileSensor.CREATE; 	   break;
-                        case FileObserver.DELETE		: eventText = FileSensor.DELETE;	   break;
-                        case FileObserver.MODIFY		: eventText = FileSensor.MODIFY;	   break;
-                        case FileObserver.MOVED_FROM	: eventText = FileSensor.MOVED_FROM;   break;
-                        case FileObserver.MOVED_TO		: eventText = FileSensor.MOVED_TO; 	   break;
-                        case FileObserver.MOVE_SELF		: eventText = FileSensor.MOVE_SELF;    break;
-                        case FileObserver.CLOSE_WRITE	: eventText = FileSensor.CLOSE_WRITE;  break;
-                        case FileObserver.CLOSE_NOWRITE	: eventText = FileSensor.CLOSE_NOWRITE;break;
-                        default: break;
-                    }
-                    if((eventText != null) && (path != null)) {
-                        createContextEvent(eventText, path);
+            //do you have permission to read this directory?
+            if (file.canRead()) {
+                for (File temp : file.listFiles()) {
+                    if (temp.isDirectory()) {
+                        paths.add(temp.getAbsolutePath());
+                        findDirectoriesToObserve(temp);
                     }
                 }
+            } else {
+                Log.d(TAG ,file.getAbsoluteFile() + "Permission Denied");
             }
-        };
-        fileObserver.startWatching();
-        running = true;
+        }
     }
 
     /**
      * create the context event for this sensor
-     * @param eventText private static field of {@link FileSensor} that describes the event.
+     * @param eventText private static field of {@link RecursiveFileSensor} that describes the event.
      * @param path related to the file that fires the event
      */
-    private void createContextEvent(String eventText, String path) {
+    public void createContextEvent(String eventText, String path) {
         String fullPath = this.fullPath + path;
         String id = String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : - 1);
 
@@ -182,6 +177,11 @@ public class FileSensor implements ISensor {
         Log.d(TAG, "stop file observation...waiting for confirmation");
         if(running) {
             try {
+            	if(observers!= null && observers.size() > 0) {
+            		for (FileSensor fileSensor : observers) {
+						fileSensor.stopWatching();
+					}
+            	}
                 fileObserver.stopWatching();
                 running = false;
                 Log.d(TAG, "confirmation: file observation stopped");
@@ -211,20 +211,66 @@ public class FileSensor implements ISensor {
     }
 
     public String getPathToObserve() {
-        return pathToObserve;
+        return rootPathToObserve;
     }
 
-    public void setPathToObserve(String pathToObserve) {
-        this.pathToObserve = pathToObserve;
+    public void setPathToObserve(String rootPathToObserve) {
+        this.rootPathToObserve = rootPathToObserve;
     }
 
 	@Override
 	public void configure(List<SensorConfiguration> config) {
 		for (SensorConfiguration item : config) {
 			if(item.getKey().equals(CONFIG_KEY_PATH)) {
-				fullPath =  Environment.getExternalStorageDirectory().getAbsolutePath() + item.getValue();
-				startObservation();
+				rootPathToObserve = item.getValue();
+				Log.d(TAG, item.getValue());
 			}
+		}
+	}
+	
+	public class FileSensor extends FileObserver {
+		 // these variables are needed to prevent the context event creation multiple times a second.
+        // this is necessary because the FileObserver fires the same event multiple times
+        int oldEvent = - 1;
+        long lastEventTimestamp = System.currentTimeMillis();
+        long threshold = 1000;
+
+		public FileSensor(String path) {
+			super(path);
+			startWatching();
+		}
+		
+
+		@Override
+		public void onEvent(int event, String path) {
+			 long eventTimeStamp = System.currentTimeMillis();
+
+             // add ALL_EVENTS to erase high bit values
+             event &= ALL_EVENTS;
+             String eventText = null;
+
+             if((oldEvent != event) || ((eventTimeStamp - lastEventTimestamp) >= threshold)) {
+                 oldEvent = event;
+                 lastEventTimestamp = eventTimeStamp;
+
+                 switch(event){
+                     case FileObserver.OPEN			: eventText = RecursiveFileSensor.OPEN; 		break;
+                     case FileObserver.ATTRIB		: eventText = RecursiveFileSensor.ATTRIB;  	   	break;
+                     case FileObserver.ACCESS		: eventText = RecursiveFileSensor.ACCESS; 	   	break;
+                     case FileObserver.CREATE		: eventText = RecursiveFileSensor.CREATE; 	   	break;
+                     case FileObserver.DELETE		: eventText = RecursiveFileSensor.DELETE;	   	break;
+                     case FileObserver.MODIFY		: eventText = RecursiveFileSensor.MODIFY;	   	break;
+                     case FileObserver.MOVED_FROM	: eventText = RecursiveFileSensor.MOVED_FROM;   break;
+                     case FileObserver.MOVED_TO		: eventText = RecursiveFileSensor.MOVED_TO;     break;
+                     case FileObserver.MOVE_SELF	: eventText = RecursiveFileSensor.MOVE_SELF;    break;
+                     case FileObserver.CLOSE_WRITE	: eventText = RecursiveFileSensor.CLOSE_WRITE;  break;
+                     case FileObserver.CLOSE_NOWRITE: eventText = RecursiveFileSensor.CLOSE_NOWRITE;break;
+                     default: break;
+                 }
+                 if((eventText != null) && (path != null)) {
+                     createContextEvent(eventText, path);
+                 }
+             }
 		}
 	}
 }

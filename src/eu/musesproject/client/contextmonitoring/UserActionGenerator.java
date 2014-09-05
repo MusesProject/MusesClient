@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
-import eu.musesproject.client.contextmonitoring.sensors.FileSensor;
+import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor;
+import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor.FileSensor;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -53,8 +54,8 @@ public class UserActionGenerator {
         	action.setActionType(ActionType.OPEN_APPLICATION);
         	return action;
         }
-        else if(contextEventTrigger.getType().equals(FileSensor.TYPE)) {
-        	if(contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
+        else if(contextEventTrigger.getType().equals(RecursiveFileSensor.TYPE)) {
+        	if(contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.OPEN)) {
             	action.setTimestamp(System.currentTimeMillis());
             	action.setActionType(ActionType.OPEN_APPLICATION);
             	return action;
@@ -75,11 +76,11 @@ public class UserActionGenerator {
         		return null;
         	}
         }
-        else if(contextEventTrigger.getType().equals(FileSensor.TYPE)) {
-        	if(contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
+        else if(contextEventTrigger.getType().equals(RecursiveFileSensor.TYPE)) {
+        	if(contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
             	properties.put("resourceName", "");
             	properties.put("resourceType", "");
-            	properties.put("resourcePath", contextEventTrigger.getProperties().get(FileSensor.PROPERTY_KEY_PATH));
+            	properties.put("resourcePath", contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_PATH));
         	}
         }
 		return properties;
