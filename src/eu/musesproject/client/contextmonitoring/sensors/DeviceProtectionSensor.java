@@ -26,6 +26,7 @@ import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.conn.util.InetAddressUtils;
 
@@ -37,6 +38,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 
 import com.stericson.RootTools.RootTools;
@@ -59,6 +61,9 @@ public class DeviceProtectionSensor implements ISensor {
 	// sensor identifier
 	public static final String TYPE = "CONTEXT_SENSOR_DEVICE_PROTECTION";
 
+    // time in milliseconds when the sensor polls information
+    private static int OBSERVATION_INTERVALL = 10000;
+    
 	// context property keys
 	public static final String PROPERTY_KEY_ID 							= "id";
 	public static final String PROPERTY_KEY_IS_ROOTED 					= "isrooted";
@@ -68,6 +73,7 @@ public class DeviceProtectionSensor implements ISensor {
 	public static final String PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS 	= "screentimeoutinseconds";
 	public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED 	= "istrustedantivirusinstalled";
 	public static final String PROPERTY_KEY_MUSES_DATABASE_EXISTS 		= "musesdatabaseexists";
+	public static final String PROPERTY_KEY_ACCESSIBILITY_ENABLED 		= "accessibilityenabled";
 	
 	// config keys
     public static final String CONFIG_KEY_TRUSTED_AV = "trustedav";
@@ -134,6 +140,7 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS, String.valueOf(getScreenTimeout()));
 		contextEvent.addProperty(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED, String.valueOf(isTrustedAntiVirInstalled()));
 		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_EXISTS, String.valueOf(musesDatabaseExist(context, DBManager.DATABASE_NAME)));
+		contextEvent.addProperty(PROPERTY_KEY_ACCESSIBILITY_ENABLED, String.valueOf(isAccessibilityForMusesEnabled()));
 		
 		if (listener != null) {
 			listener.onEvent(contextEvent);
@@ -205,6 +212,31 @@ public class DeviceProtectionSensor implements ISensor {
 	    File dbFile = context.getDatabasePath(dbName);
 	    return dbFile.exists();
 	}
+
+	private boolean isAccessibilityForMusesEnabled() {
+		int accessibilityEnabled = 0;
+		try {
+	        accessibilityEnabled = Settings.Secure.getInt(context.getContentResolver(), android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+	    } catch (SettingNotFoundException e) {
+	        Log.d(TAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
+	    }
+		
+		if (accessibilityEnabled==1){
+	        String settingValue = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+	         
+	         for (String name : settingValue.split(":")) {
+	        	 if(name.contains(InteractionSensor.class.getName())) {
+	        		 Log.d(TAG, "accessibility for MUSES is enabled");
+	        		 return true;
+	        	 }
+	        	 Log.d(TAG, name);
+			}
+		}
+		else {
+	        return false;
+		}
+		return false;
+	}
 	
 	@Override
 	public void configure(List<SensorConfiguration> config) {
@@ -246,8 +278,14 @@ public class DeviceProtectionSensor implements ISensor {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			if (sensorEnabled) {
+			while (sensorEnabled) {
 				createContextEvent();
+				
+				try {
+					TimeUnit.MILLISECONDS.sleep(OBSERVATION_INTERVALL);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 			return null;
 		}
