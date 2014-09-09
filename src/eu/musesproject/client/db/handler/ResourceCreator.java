@@ -3,7 +3,6 @@ package eu.musesproject.client.db.handler;
 import java.util.Map;
 
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
-import eu.musesproject.client.contextmonitoring.sensors.InteractionSensor;
 import eu.musesproject.client.model.contextmonitoring.MailProperties;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
