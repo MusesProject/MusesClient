@@ -26,6 +26,8 @@ import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.conn.util.InetAddressUtils;
@@ -124,13 +126,59 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_EXISTS, String.valueOf(musesDatabaseExist(context, DBManager.DATABASE_NAME)));
 		contextEvent.addProperty(PROPERTY_KEY_ACCESSIBILITY_ENABLED, String.valueOf(isAccessibilityForMusesEnabled()));
 		
-		Log.d(TAG, "screen timeout in seconds: " + String.valueOf(isPasswordProtected()));
-		Log.d(TAG, "Is password protected " + String.valueOf(isPasswordProtected()));
-		if (listener != null) {
+		if(contextEventHistory.size() > 0) {
+            ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
+            // fire new context event if a connectivity context field changed
+            if(!identicalContextEvent(previousContext, contextEvent)) {
+        		// add context event to the context event history
+                contextEventHistory.add(contextEvent);
+                if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
+                    contextEventHistory.remove(0);
+                }
+            }
+            else {
+            	contextEvent = null;
+            }
+		}
+		else if (contextEventHistory.size() == 0) {
+			contextEventHistory.add(contextEvent);
+		}
+
+		if (contextEvent != null && listener != null) {
+			debug(contextEvent);
 			listener.onEvent(contextEvent);
 		}
-	}
 
+	}
+	
+	public void debug(ContextEvent contextEvent) {
+		for (Entry<String, String> set : contextEvent.getProperties().entrySet()) {
+			Log.d(TAG, set.getKey() + " = " + set.getValue());
+		}
+
+		Log.d(TAG, " ");
+	}
+	
+	private boolean identicalContextEvent(ContextEvent oldEvent, ContextEvent newEvent) {
+        if(oldEvent.getProperties().size() != newEvent.getProperties().size()) {
+            return false;
+        }
+
+        Map<String, String> oldProperties = oldEvent.getProperties();
+        oldProperties.remove(PROPERTY_KEY_ID);
+        Map<String, String> newProperties = newEvent.getProperties();
+        newProperties.remove(PROPERTY_KEY_ID);
+        for (Entry<String, String> set : newProperties.entrySet()) {
+        	String oldValue = oldProperties.get(set.getKey());
+        	String newValue = newProperties.get(set.getKey());
+        	if(!oldValue.equals(newValue)) {
+        		return false;
+        	}
+        }
+
+        return true;
+    }
+	
 	public boolean checkDeviceRooted() {
 		return RootTools.isRootAvailable();
 	}
@@ -210,18 +258,15 @@ public class DeviceProtectionSensor implements ISensor {
 	         
 	         for (String name : settingValue.split(":")) {
 	        	 if(name.contains(InteractionSensor.class.getName())) {
-	        		 Log.d(TAG, "accessibility for MUSES is enabled");
 	        		 return true;
 	        	 }
 	        	 Log.d(TAG, name);
 			}
 		}
 		else {
-   		 Log.d(TAG, "accessibility for MUSES is not enabled");
 	        return false;
 		}
 		
-		Log.d(TAG, "accessibility for MUSES is not enabled");
 		return false;
 	}
 	

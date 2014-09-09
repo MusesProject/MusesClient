@@ -33,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.util.Log;
 import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
@@ -120,7 +121,7 @@ public class AppSensor implements ISensor {
         }
 
         if(listener != null) {
-            //Log.d(TAG, "called: listener.onEvent(contextEvent);");
+            Log.d(TAG, "called: listener.onEvent(contextEvent); app name: " + appName);
             listener.onEvent(contextEvent);
         }
     }
