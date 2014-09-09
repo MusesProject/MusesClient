@@ -30,13 +30,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.conn.util.InetAddressUtils;
 
-import android.annotation.TargetApi;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
@@ -54,7 +52,6 @@ import eu.musesproject.contextmodel.ContextEvent;
  *         Class to collect information about the device configuration
  */
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class DeviceProtectionSensor implements ISensor {
 	private static final String TAG = DeviceProtectionSensor.class.getSimpleName();
 
@@ -127,6 +124,8 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_EXISTS, String.valueOf(musesDatabaseExist(context, DBManager.DATABASE_NAME)));
 		contextEvent.addProperty(PROPERTY_KEY_ACCESSIBILITY_ENABLED, String.valueOf(isAccessibilityForMusesEnabled()));
 		
+		Log.d(TAG, "screen timeout in seconds: " + String.valueOf(isPasswordProtected()));
+		Log.d(TAG, "Is password protected " + String.valueOf(isPasswordProtected()));
 		if (listener != null) {
 			listener.onEvent(contextEvent);
 		}
