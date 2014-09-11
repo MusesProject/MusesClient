@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.accessibilityservice.AccessibilityService;
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -66,7 +64,6 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	
 	@Override
 	public void onCreate() {
-		Log.d(TAG, "mail test : onCreate()");
 		super.onCreate();
 	}
 
@@ -78,8 +75,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	// initializes all necessary default values
 	private void init() {
 		sensorEnabled = false;
-		contextEventHistory = new ArrayList<ContextEvent>(
-				CONTEXT_EVENT_HISTORY_SIZE);
+		contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
 	}
 
 	@Override
@@ -124,6 +120,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	}
 
 	private void createUserAction(Action action, Map<String, String> actionProperties) {
+		Log.d(TAG, "FINISH createUserAction: " + action.getActionType());
 		if(action.getActionType() == ActionType.FILE_ATTACHED) {
 			UserContextMonitoringController.getInstance(this).sendUserAction(UISource.INTERNAL, action, null);
 		}
@@ -157,7 +154,6 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
         return sb.toString();
     }
 
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	private class GmailObserver {
 		private static final String INNER_SEP = ",";
 		private static final String OUTER_SEP = ";";
@@ -187,9 +183,14 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 					action.setActionType(ActionType.SEND_MAIL);
 					action.setTimestamp(System.currentTimeMillis());
 					
-					// create properties
-					readMailContent(accessibilityNodeInfo, "");
-					readAttachmentsAndSubject(accessibilityNodeInfo);
+					// create properties (for phones)
+//                	Log.d(TAG, "readMailContent(accessibilityNodeInfo)");
+//					readMailContent(accessibilityNodeInfo, "");
+//					Log.d(TAG, "readAttachmentsAndSubject(accessibilityNodeInfo)");
+//					readAttachmentsAndSubject(accessibilityNodeInfo);
+					
+					// for 10" tablet
+					readMailContentOfTablet(accessibilityNodeInfo);
 					
 					Map<String, String> actionProperties = new HashMap<String, String>();
 					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
@@ -205,6 +206,68 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			}
 		}
 		
+		private void readMailContentOfTablet(AccessibilityNodeInfo accessibilityNodeInfo) {
+			boolean subjectHierarchyLevelReached = false;
+	        Log.d(TAG, "getTabletContent");
+	        // here we can find: From, to, cc, bcc
+	        AccessibilityNodeInfo child = accessibilityNodeInfo.getChild(1);
+	        if(!child.getClassName().equals("android.widget.ScrollView")) {
+	        	return; // cancel because the current root view does not contain the necessary information
+	        }
+	        if(child != null && child.getClassName().equals("android.widget.ScrollView")) {
+	            Log.d(TAG, "ScrollView");
+	            int childCount = child.getChildCount();
+	            // from field
+	            AccessibilityNodeInfo fromChild = child.getChild(0);
+	            content.setFrom(fromChild.getChild(0).getText().toString());
+	            // to field
+	            AccessibilityNodeInfo toChild = child.getChild(1);
+	            content.setTo(toChild.getChild(1).getText().toString());
+	
+	            if(childCount > 2) { // mcc and bcc
+	                // cc, bcc
+	                for (int i = 2; i < childCount; i++) {
+	                    AccessibilityNodeInfo subChild = child.getChild(i);
+	                    if(subChild != null) {
+	                        if(subChild.getClassName().equals("android.widget.LinearLayout")) {
+	                            AccessibilityNodeInfo subSubChild = subChild.getChild(1);
+	                            try {
+	                                String contentDescription  = subSubChild.getContentDescription().toString();
+	                                String text = subSubChild.getText().toString();
+	                                if(contentDescription != null && text != null && contentDescription.equalsIgnoreCase("Cc")) {
+	                                    content.setCc(text);
+	                                }
+	                                else if(contentDescription != null && text != null && contentDescription.equalsIgnoreCase("Bcc")) {
+	                                    content.setBcc(text);
+	                                }
+	                            } catch (NullPointerException e) {}
+	                        }
+	                        else if(subChild.getClassName().equals("android.widget.RelativeLayout")) { // subject and attachments
+	                            AccessibilityNodeInfo subSubChild = subChild.getChild(0);
+	                            if(subSubChild.getClassName().equals("android.widget.EditText")) {
+	                                if(!subjectHierarchyLevelReached) { // subject
+	                                    try {
+	                                        String subject = subSubChild.getText().toString();
+	                                        content.setSubject(subject);
+	                                        subjectHierarchyLevelReached = true;
+	                                    } catch (NullPointerException e) {}
+	                                }
+	                            }
+	                            else if(subSubChild.getClassName().equals("android.widget.TextView")) { // attachments
+	                            	MailAttachment attachment = new MailAttachment();
+	                            	attachment.setFileName(subChild.getChild(0).getText().toString());
+	                        		attachment.setFileType(subChild.getChild(0).getText().toString().split("\\.")[1]);
+	                        		attachment.setFileSize(subChild.getChild(1).getText().toString());
+	                        		
+	                        		content.addMailAttachmentItem(attachment);
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        }			
+		}
+
 		private String generateMailAttachmentInfo(List<MailAttachment> attachments) {
 			if(content.getAttachments().size() > 0) {
 				String attachmentInfos = "";
@@ -226,18 +289,24 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                AccessibilityNodeInfo child = source.getChild(i);
 	                if(child != null) {
 	                    if(child.getContentDescription() != null) {
+	                    	Log.d(TAG, "contentDescription : " + child.getContentDescription());
 	                        if (child.getContentDescription().equals("An") || child.getContentDescription().equals("To") && child.getText() != null) {
+		                    	Log.d(TAG, "to");
 	                            content.setTo(child.getText().toString());
 	                        }
 	                        else if(child.getContentDescription().equals("Cc") && child.getText() != null) {
+		                    	Log.d(TAG, "cc");
 	                            content.setCc(child.getText().toString());
 	                        }
 	                        else if(child.getContentDescription().equals("Bcc") && child.getText() != null) {
+		                    	Log.d(TAG, "bcc");
 	                            content.setBcc(child.getText().toString());
 	                        }
 	                    }
 	                    if(child.getClassName().equals("android.widget.Spinner")) {
+	                    	Log.d(TAG, "spinner for from");
 	                        if(child.getChild(0) != null && child.getChild(0).getClassName().equals("android.widget.TextView")) {
+		                    	Log.d(TAG, "from");
 	                            content.setFrom(child.getChild(0).getText().toString());
 	                        }
 	                    }
@@ -272,6 +341,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	            // Attachment
 	            if(lLayouts.size() > 0) {
+	            	Log.d(TAG, "possible attachment");
 	                AccessibilityNodeInfo attachmentChild = lLayouts.get(lLayouts.size() - 1);
 	                for(int i = 0; i < attachmentChild.getChildCount(); i++) {
 	                    AccessibilityNodeInfo subChild;
@@ -285,6 +355,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                        		attachment.setFileSize(subChild.getChild(1).getText().toString());
 	                        		
 	                        		content.addMailAttachmentItem(attachment);
+	            	            	Log.d(TAG, "attachment");
 	                        	}
 	                        } catch (NullPointerException e) {}
 	                    }
@@ -293,10 +364,12 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	            // Subject
 	            if(rLayouts.size() > 0) {
+	            	Log.d(TAG, "possible subject");
 	                AccessibilityNodeInfo subjectChild = rLayouts.get(rLayouts.size() - 2);
 	                if (subjectChild.getChild(0) != null) {
 	                    try {
 	                        content.setSubject(subjectChild.getChild(0).getText().toString());
+	    	            	Log.d(TAG, "subject");
 	                    } catch (NullPointerException e) {}
 	                }
 	            }
