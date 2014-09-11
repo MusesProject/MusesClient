@@ -190,21 +190,21 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 //					readAttachmentsAndSubject(accessibilityNodeInfo);
 					
 					// for 10" tablet
-//					readMailContentOfTablet(accessibilityNodeInfo);
+					readMailContentOfTablet(accessibilityNodeInfo);
 					
 					// debugging
-					testView(accessibilityNodeInfo, "");
+//					testView(accessibilityNodeInfo, "");
 					
-//					Map<String, String> actionProperties = new HashMap<String, String>();
-//					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
-//					actionProperties.put(MailProperties.PROPERTY_KEY_TO, content.getTo());
-//					actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc());
-//					actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc());
-//					actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject());
-//					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT, String.valueOf(content.getAttachments().size()));
-//					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_INFO, generateMailAttachmentInfo(content.getAttachments()));
-//					
-//					createUserAction(action, actionProperties);
+					Map<String, String> actionProperties = new HashMap<String, String>();
+					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
+					actionProperties.put(MailProperties.PROPERTY_KEY_TO, content.getTo());
+					actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc());
+					actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc());
+					actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject());
+					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT, String.valueOf(content.getAttachments().size()));
+					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_INFO, generateMailAttachmentInfo(content.getAttachments()));
+					
+					createUserAction(action, actionProperties);
 				}
 			}
 		}
@@ -247,7 +247,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                        }
 	                        else if(subChild.getClassName().equals("android.widget.RelativeLayout")) { // subject and attachments
 	                            AccessibilityNodeInfo subSubChild = subChild.getChild(0);
-	                            if(subChild != null) {
+	                            if(subSubChild != null) {
 	                            	if(subSubChild.getClassName() != null && subSubChild.getClassName().equals("android.widget.EditText")) {
 	                            		if(!subjectHierarchyLevelReached) { // subject
 	                            			try {
