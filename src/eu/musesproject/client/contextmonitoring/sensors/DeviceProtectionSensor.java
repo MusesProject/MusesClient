@@ -21,6 +21,7 @@ package eu.musesproject.client.contextmonitoring.sensors;
  */
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ public class DeviceProtectionSensor implements ISensor {
 		sensorEnabled = false;
 
 		trustedAVs = new ArrayList<String>();
+		RootTools.debugMode = false;
 	}
 
 	@Override
@@ -117,14 +119,15 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.setType(TYPE);
 		contextEvent.setTimestamp(System.currentTimeMillis());
 		contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory .size() + 1) : -1));
-		contextEvent.addProperty(PROPERTY_KEY_IS_ROOTED, String.valueOf(checkDeviceRooted()));
-		contextEvent.addProperty(PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN, String.valueOf(checkRootPermissionGiven()));
+//		contextEvent.addProperty(PROPERTY_KEY_IS_ROOTED, String.valueOf(checkDeviceRooted()));
+//		contextEvent.addProperty(PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN, String.valueOf(checkRootPermissionGiven()));
 		contextEvent.addProperty(PROPERTY_KEY_IP_ADRESS, getIPAddress(true));
 		contextEvent.addProperty(PROPERTY_KEY_IS_PASSWORD_PROTECTED, String.valueOf(isPasswordProtected()));
 		contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS, String.valueOf(getScreenTimeout()));
 		contextEvent.addProperty(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED, String.valueOf(isTrustedAntiVirInstalled()));
 		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_EXISTS, String.valueOf(musesDatabaseExist(context, DBManager.DATABASE_NAME)));
 		contextEvent.addProperty(PROPERTY_KEY_ACCESSIBILITY_ENABLED, String.valueOf(isAccessibilityForMusesEnabled()));
+
 		
 		if(contextEventHistory.size() > 0) {
             ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
@@ -184,7 +187,11 @@ public class DeviceProtectionSensor implements ISensor {
 	}
 
 	public boolean checkRootPermissionGiven() {
-		return RootTools.isAccessGiven();
+		try{
+			return RootTools.isAccessGiven();
+		}catch (Exception e) {
+			return false;
+		}
 	}
 
 	public String getIPAddress(boolean useIPv4) {

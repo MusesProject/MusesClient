@@ -244,22 +244,24 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                        }
 	                        else if(subChild.getClassName().equals("android.widget.RelativeLayout")) { // subject and attachments
 	                            AccessibilityNodeInfo subSubChild = subChild.getChild(0);
-	                            if(subSubChild.getClassName().equals("android.widget.EditText")) {
-	                                if(!subjectHierarchyLevelReached) { // subject
-	                                    try {
-	                                        String subject = subSubChild.getText().toString();
-	                                        content.setSubject(subject);
-	                                        subjectHierarchyLevelReached = true;
-	                                    } catch (NullPointerException e) {}
-	                                }
-	                            }
-	                            else if(subSubChild.getClassName().equals("android.widget.TextView")) { // attachments
-	                            	MailAttachment attachment = new MailAttachment();
-	                            	attachment.setFileName(subChild.getChild(0).getText().toString());
-	                        		attachment.setFileType(subChild.getChild(0).getText().toString().split("\\.")[1]);
-	                        		attachment.setFileSize(subChild.getChild(1).getText().toString());
-	                        		
-	                        		content.addMailAttachmentItem(attachment);
+	                            if(subChild != null) {
+	                            	if(subSubChild.getClassName() != null && subSubChild.getClassName().equals("android.widget.EditText")) {
+	                            		if(!subjectHierarchyLevelReached) { // subject
+	                            			try {
+	                            				String subject = subSubChild.getText().toString();
+	                            				content.setSubject(subject);
+	                            				subjectHierarchyLevelReached = true;
+	                            			} catch (NullPointerException e) {}
+	                            		}
+	                            	}
+	                            	else if(subSubChild.getClassName() != null && subSubChild.getClassName().equals("android.widget.TextView")) { // attachments
+	                            		MailAttachment attachment = new MailAttachment();
+	                            		attachment.setFileName(subChild.getChild(0).getText().toString());
+	                            		attachment.setFileType(subChild.getChild(0).getText().toString().split("\\.")[1]);
+	                            		attachment.setFileSize(subChild.getChild(1).getText().toString());
+	                            		
+	                            		content.addMailAttachmentItem(attachment);
+	                            	}
 	                            }
 	                        }
 	                    }
