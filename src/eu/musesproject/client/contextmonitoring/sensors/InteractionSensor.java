@@ -190,18 +190,21 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 //					readAttachmentsAndSubject(accessibilityNodeInfo);
 					
 					// for 10" tablet
-					readMailContentOfTablet(accessibilityNodeInfo);
+//					readMailContentOfTablet(accessibilityNodeInfo);
 					
-					Map<String, String> actionProperties = new HashMap<String, String>();
-					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
-					actionProperties.put(MailProperties.PROPERTY_KEY_TO, content.getTo());
-					actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc());
-					actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc());
-					actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject());
-					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT, String.valueOf(content.getAttachments().size()));
-					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_INFO, generateMailAttachmentInfo(content.getAttachments()));
+					// debugging
+					testView(accessibilityNodeInfo, "");
 					
-					createUserAction(action, actionProperties);
+//					Map<String, String> actionProperties = new HashMap<String, String>();
+//					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
+//					actionProperties.put(MailProperties.PROPERTY_KEY_TO, content.getTo());
+//					actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc());
+//					actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc());
+//					actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject());
+//					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT, String.valueOf(content.getAttachments().size()));
+//					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_INFO, generateMailAttachmentInfo(content.getAttachments()));
+//					
+//					createUserAction(action, actionProperties);
 				}
 			}
 		}
@@ -284,6 +287,46 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 				return "";
 			}
 		}
+		
+
+	    private void testView(AccessibilityNodeInfo source, String generation) {
+	        if(source != null) {
+	            for(int i = 0; i < source.getChildCount(); i++) {
+	                AccessibilityNodeInfo child = source.getChild(i);
+	                if(child != null) {
+	                    if (child.getClassName().equals("android.widget.TextView") || child.getClassName().equals("android.widget.EditText")) {
+	                        Log.d(TAG, generation +  child.getClassName() + " = " + child.getText() + " | label for: " + child.getLabelFor() +" | content description= " + child.getContentDescription());
+	                    }
+	                    String line = generation + " " + child.getClassName();
+	                    if(child.getText() != null) {
+	                        line += " = " + child.getText() + "|";
+	                    }
+	                    if(child.getLabelFor() != null) {
+	                        line += " label for= " + child.getLabelFor() + "|";
+	                    }
+	                    if(child.getContentDescription() != null) {
+	                        line += " content description= " + child.getContentDescription() + "|";
+	                        if (child.getContentDescription().equals("An") && child.getText() != null) {
+	                        }
+	                        else if(child.getContentDescription().equals("Cc") && child.getText() != null) {
+	                        }
+	                        else if(child.getContentDescription().equals("Bcc") && child.getText() != null) {
+	                        }
+	                    }
+	                    if(child.getClassName().equals("android.widget.Spinner")) {
+	                        if(child.getChild(0) != null && child.getChild(0).getClassName().equals("android.widget.TextView")) {
+	                        }
+	                    }
+
+	                    Log.d(TAG, line);
+
+	                    if(child.getChildCount() > 0) {
+	                        testView(child, generation.concat("\t->"));
+	                    }
+	                }
+	            }
+	        }
+	    }
 		
 		private void readMailContent(AccessibilityNodeInfo source, String generation) {
 	        if(source != null) {
