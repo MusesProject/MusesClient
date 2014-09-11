@@ -145,7 +145,7 @@ public class DeviceProtectionSensor implements ISensor {
 		}
 
 		if (contextEvent != null && listener != null) {
-			debug(contextEvent);
+//			debug(contextEvent);
 			listener.onEvent(contextEvent);
 		}
 

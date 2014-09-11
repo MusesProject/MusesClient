@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
+import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor;
 import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor.FileSensor;
 import eu.musesproject.client.model.decisiontable.Action;
@@ -61,6 +62,11 @@ public class UserActionGenerator {
             	return action;
         	}
         }
+        else if(contextEventTrigger.getType().equals(DeviceProtectionSensor.TYPE)) {
+    		action.setTimestamp(System.currentTimeMillis());
+    		action.setActionType(ActionType.SECURITY_PROPERTY_CHANGED);
+    		return action;
+        }
 
         return null;
     }
@@ -82,6 +88,9 @@ public class UserActionGenerator {
             	properties.put("resourceType", "");
             	properties.put("resourcePath", contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_PATH));
         	}
+        }
+        else {
+        	return contextEventTrigger.getProperties();
         }
 		return properties;
 	}

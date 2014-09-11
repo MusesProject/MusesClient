@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import android.content.Context;
 import android.os.Build;
@@ -258,6 +259,12 @@ public class SensorController {
 
         @Override
         public void onEvent(ContextEvent contextEvent) {
+        	if(contextEvent.getType().equals(DeviceProtectionSensor.TYPE)) {
+        		for (Entry<String, String> set : contextEvent.getProperties().entrySet()) {
+        			Log.d(TAG, set.getKey() + " = " + set.getValue());
+        		}
+        	}
+        	
         	// if an app is active that should be observed inform the interaction sensor
         	if(contextEvent != null && contextEvent.getType().equals(AppSensor.TYPE)) {
         		// if the app is gmail in this case //TODO must be configurable
