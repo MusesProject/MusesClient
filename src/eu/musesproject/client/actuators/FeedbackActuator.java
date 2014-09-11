@@ -44,16 +44,16 @@ public class FeedbackActuator implements IFeedbackActuator {
         Log.e(TAG, "called: showFeedback(Decision decision)");
         if(callback != null && decision.getName() != null) {
         	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
-            if(decision.getName().equals(Decision.GRANTED_ACCESS)){
+            if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
             }
-            else if(decision.getName().equals(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
+            else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
                 callback.onMaybe(decision);
             }
-            else if(decision.getName().equals(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
+            else if(decision.getName().equalsIgnoreCase(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
                 callback.onUpToUser(decision);
             }
-            else if(decision.getName().equals(Decision.STRONG_DENY_ACCESS)) {
+            else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS)) {
                 callback.onDeny(decision);
             }
         }
