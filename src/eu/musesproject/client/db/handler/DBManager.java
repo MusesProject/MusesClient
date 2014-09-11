@@ -1,7 +1,9 @@
 package eu.musesproject.client.db.handler;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -167,6 +169,7 @@ public class DBManager {
 	
 	// Columns name
 	private static final String ID = "id";
+	//private static final String _ID = "_id";
 	private static final String ACTION_ID = "action_id";
 	private static final String RESOURCE_ID = "resource_id";
 	private static final String DECISION_ID = "decision_id";
@@ -445,7 +448,7 @@ public class DBManager {
     public void insertConnectionProperties(){
     	ContentValues values = new ContentValues();
     	values.put(SERVER_IP, "192.168.44.101");
-    	//values.put(SERVER_IP, "172.17.3.5");
+    	//   values.put(SERVER_IP, "172.17.3.5");
     	values.put(SERVER_PORT, 8443);
     	values.put(SERVER_CONTEXT_PATH, "/server");
     	values.put(SERVER_SERVLET_PATH, "/commain");
@@ -893,7 +896,7 @@ public class DBManager {
     		Log.d(TAG,"Action not found, inserting a new one...");
     		return sqLiteDatabase.insert(TABLE_ACTION, null, values);
     	}else{
-    		Log.d(TAG,"Action found, returning the existing one...");
+    		Log.d(TAG,"Action found, returning the existing one..."+actionInDb.getId());
     		return actionInDb.getId();
     	}
     }
@@ -942,7 +945,7 @@ public class DBManager {
     		Log.d(TAG,"Risktreatment not found, inserting a new one...");
     		return sqLiteDatabase.insert(TABLE_RISK_TREATMENT, null	, values);
     	}else{
-    		Log.d(TAG,"Risktreatment found, returning the existing one...");
+    		Log.d(TAG,"Risktreatment found, returning the existing one..."+riskTreatmentInDb.getId());
     		return riskTreatmentInDb.getId();
     	}
     	
@@ -997,6 +1000,9 @@ public class DBManager {
     public long addResource(Resource resource){
     	//TODO Manage the insertion or update, avoiding duplicated entries
     	
+    	Log.d(TAG,"");
+    	int size = controlDB("before");
+    	
     	ContentValues values = new ContentValues();
     	values.put(DESCRIPTION, resource.getDescription());
     	values.put(PATH, resource.getPath());
@@ -1005,17 +1011,47 @@ public class DBManager {
     	values.put(MODIFICATION, "03-09-2011");
     	
     	Resource resourceInDb = getResourceFromPathAndCondition(resource.getPath(), resource.getCondition());
+    	Log.d(TAG, "Resource path: "+resource.getPath());
+    	Log.d(TAG, "Resource condition: "+resource.getCondition());
     	Log.d(TAG, "ResourceInDb id: "+resourceInDb.getId());
+    	Log.d(TAG, "ResourceInDb condition: "+resourceInDb.getCondition());
+    	Log.d(TAG, "ResourceInDb path: "+resourceInDb.getPath());
     	if (resourceInDb.getId()==0){
     		Log.d(TAG,"Resource not found, inserting a new one...");
-    		return sqLiteDatabase.insert(TABLE_RESOURCE, null, values);
+    		//long id = sqLiteDatabase.insertWithOnConflict(TABLE_RESOURCE, null, values, SQLiteDatabase.CONFLICT_ABORT);
+    		long id = sqLiteDatabase.insert(TABLE_RESOURCE, null, values);
+    		controlDB("after "+ id);
+    		Log.d(TAG,"");
+    		return id;
     	}else{
-    		Log.d(TAG,"Resource found, returning the existing one...");
+    		Log.d(TAG,"Resource found, returning the existing one..."+resourceInDb.getId());
+    		controlDB("after "+ resourceInDb.getId());
+    		Log.d(TAG,"");
     		return resourceInDb.getId();
     	}
+
     	
-  
+    }
+    
+    
+    public int controlDB(String control){
+    	List<Resource> allConditionResources = getAllResources();
     	
+		Log.d(TAG, control +" Found..."+allConditionResources.size());
+		
+		for (Iterator iterator = allConditionResources.iterator(); iterator
+				.hasNext();) {
+			Resource resource = (Resource) iterator.next();
+			if (resource.getCondition()!=null){
+				Log.d(TAG, "Condition:"+resource.getCondition());
+			}
+			if (resource.getPath()!=null){
+				Log.d(TAG, "Path:"+resource.getPath());
+			}
+			Log.d(TAG, "	Id:"+resource.getId());
+			
+		}
+		return allConditionResources.size();
     }
     
     
@@ -1432,7 +1468,7 @@ public class DBManager {
     		Log.d(TAG,"Decision not found, inserting a new one...");
     		result = sqLiteDatabase.insert(TABLE_DECISION, null, values);
     	}else{
-    		Log.d(TAG,"Decision found, returning the existing one...");
+    		Log.d(TAG,"Decision found, returning the existing one..."+decisionInDb.getId());
     		return decisionInDb.getId();
     	}
     	
@@ -1682,14 +1718,18 @@ public class DBManager {
 		
 		Cursor cursor = sqLiteDatabase.rawQuery("SELECT id, description, path, condition, resourceType FROM resource",null);
     	
-		Resource resource = new Resource();
+		
     	if (cursor != null && cursor.moveToFirst()) {
     		while (!cursor.isAfterLast()) {
-    			Log.d(TAG, cursor.getString(0));
-				resource.setId(Integer.parseInt(cursor.getString(0)));
+    			Resource resource = new Resource();
+    			int id = Integer.parseInt(cursor.getString(0));
+    			resource.setId(id);
+    			Log.d(TAG, String.valueOf(id));				
 				resource.setDescription(cursor.getString(1));
 				resource.setPath(cursor.getString(2));
-				resource.setCondition(cursor.getString(3));		
+				String condition = cursor.getString(3);
+				resource.setCondition(condition);
+				Log.d(TAG, "getAllResources condition:"+condition);
     			resourceList.add(resource);
 				cursor.moveToNext();
 			}
@@ -1699,7 +1739,28 @@ public class DBManager {
 	}
     
 	public Resource getResourceFromPathAndCondition(String path, String condition) {
-    	Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
+		
+		Cursor cursor = null;
+		
+		if ((condition==null)||(condition.equals("null"))){
+			
+			cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
+	    			ID, 
+	    			DESCRIPTION,
+	    			PATH,
+	    			CONDITION,
+	    			RESOURCE_TYPE,
+	    			MODIFICATION}, 
+	    			
+					PATH + " LIKE '" + path + "'" ,
+					null,			
+					null, 
+					null, 
+					null);
+			
+		}else{
+		
+			cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
     			ID, 
     			DESCRIPTION,
     			PATH,
@@ -1712,7 +1773,7 @@ public class DBManager {
 				null, 
 				null, 
 				null);
-
+		}
     	Resource resource = new Resource();
 		if (cursor != null) {
 			cursor.moveToFirst();

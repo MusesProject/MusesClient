@@ -124,6 +124,7 @@ public class DecisionMaker {
         		for (Iterator iterator = allConditionResources.iterator(); iterator
 						.hasNext();) {
 					Resource resource = (Resource) iterator.next();
+					Log.d(TAG, "Id:"+resource.getId());
 					if (resource.getCondition()!=null){
 						Log.d(TAG, "Condition:"+resource.getCondition());
 						
@@ -293,16 +294,7 @@ public class DecisionMaker {
         	resultDecision = composeDecision(decision, comm, treatment);
         }
         
-        //Default decision to be sent if no decision has been calculated: no policy available or resource not identified
-        resultDecision.setName(Decision.STRONG_DENY_ACCESS);
-		eu.musesproject.server.risktrust.RiskTreatment [] riskTreatments = new eu.musesproject.server.risktrust.RiskTreatment[1];				
-		eu.musesproject.server.risktrust.RiskTreatment riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment("Default decision. No policy available");
-		eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
-		riskTreatments[0] = riskTreatment;
-		Log.d(TAG, "RiskTreatment inserted for feedback: Default decision. No policy available");
-		riskCommunication.setRiskTreatment(riskTreatments);
-		resultDecision.setRiskCommunication(riskCommunication); 
-        
+
         
         dbManager.closeDB();
 		return resultDecision;
