@@ -115,9 +115,6 @@ public class DecisionMaker {
         		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getPath());
         	}else{
         		Log.d(TAG, "Find resource by condition properties..." );
-        		//resourceInPolicy = dbManager.getResourceFromCondition("%noAttachments%");//TODO Manage this programmatically
-        		//Log.d(TAG, "Found..."+resourceInPolicy.getId());
-        		//List<Resource> allConditionResources = dbManager.getAllResourcesWithCondition();
         		List<Resource> allConditionResources = dbManager.getAllResources();
         		Log.d(TAG, "Found..."+allConditionResources.size());
         		
@@ -161,7 +158,8 @@ public class DecisionMaker {
         	decisionTable = dbManager.getDecisionTableFromResourceId(String.valueOf(resourceInPolicy.getId()),String.valueOf(actionInPolicy.getId()));
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
         	if (decisionTable.getId()==0){
-        		return getDefaultDecision();
+        		//return getDefaultDecision();
+        		return null;
         	}
         	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
         	riskCommInPolicy = dbManager.getRiskCommunicationFromID(String.valueOf(decisionTable.getRiskcommunication_id()));
@@ -294,7 +292,8 @@ public class DecisionMaker {
         	resultDecision = composeDecision(decision, comm, treatment);
         }else{
         	Log.d(TAG,"Decision table is null");
-        	return getDefaultDecision();
+        	return null;
+        	//return getDefaultDecision();
         }
         
 
