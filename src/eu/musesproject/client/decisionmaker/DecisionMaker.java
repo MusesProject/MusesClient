@@ -161,7 +161,7 @@ public class DecisionMaker {
         	decisionTable = dbManager.getDecisionTableFromResourceId(String.valueOf(resourceInPolicy.getId()),String.valueOf(actionInPolicy.getId()));
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
         	if (decisionTable.getId()==0){
-        		return null;
+        		return getDefaultDecision();
         	}
         	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
         	riskCommInPolicy = dbManager.getRiskCommunicationFromID(String.valueOf(decisionTable.getRiskcommunication_id()));
@@ -292,6 +292,9 @@ public class DecisionMaker {
         		treatment = dbManager.getRiskTreatmentFromID(String.valueOf(comm.getRisktreatment_id()));
         	}
         	resultDecision = composeDecision(decision, comm, treatment);
+        }else{
+        	Log.d(TAG,"Decision table is null");
+        	return getDefaultDecision();
         }
         
 
@@ -381,6 +384,20 @@ public class DecisionMaker {
 		riskCommunication.setRiskTreatment(arrayTreatment);
 		decision.setRiskCommunication(riskCommunication);
 		return decision;
-	}	
+	}
+	
+	public Decision getDefaultDecision() {
+
+		Log.d(TAG,"Returning default decision...");
+		Decision defaultDecision = new Decision();
+		defaultDecision.setName(Decision.DEFAULT_DENY_ACCESS);
+		eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
+		eu.musesproject.server.risktrust.RiskTreatment riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(
+				"Decision denied by default (since no concrete local device policies apply)");
+		eu.musesproject.server.risktrust.RiskTreatment[] arrayTreatment = new eu.musesproject.server.risktrust.RiskTreatment[] { riskTreatment };
+		riskCommunication.setRiskTreatment(arrayTreatment);
+		defaultDecision.setRiskCommunication(riskCommunication);
+		return defaultDecision;
+	}
 
 }
