@@ -21,7 +21,6 @@ package eu.musesproject.client.contextmonitoring.sensors;
  */
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
@@ -138,18 +137,17 @@ public class DeviceProtectionSensor implements ISensor {
                 if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
                     contextEventHistory.remove(0);
                 }
-            }
-            else {
-            	contextEvent = null;
+                
+                if (contextEvent != null && listener != null) {
+    				listener.onEvent(contextEvent);
+    			}
             }
 		}
-		else if (contextEventHistory.size() == 0) {
+		else {
 			contextEventHistory.add(contextEvent);
-		}
-
-		if (contextEvent != null && listener != null) {
-//			debug(contextEvent);
-			listener.onEvent(contextEvent);
+			if (contextEvent != null && listener != null) {
+				listener.onEvent(contextEvent);
+			}
 		}
 
 	}
@@ -163,10 +161,6 @@ public class DeviceProtectionSensor implements ISensor {
 	}
 	
 	private boolean identicalContextEvent(ContextEvent oldEvent, ContextEvent newEvent) {
-        if(oldEvent.getProperties().size() != newEvent.getProperties().size()) {
-            return false;
-        }
-
         Map<String, String> oldProperties = oldEvent.getProperties();
         oldProperties.remove(PROPERTY_KEY_ID);
         Map<String, String> newProperties = newEvent.getProperties();
@@ -174,7 +168,9 @@ public class DeviceProtectionSensor implements ISensor {
         for (Entry<String, String> set : newProperties.entrySet()) {
         	String oldValue = oldProperties.get(set.getKey());
         	String newValue = newProperties.get(set.getKey());
+//        	Log.d(TAG, oldValue + " " + newValue);
         	if(!oldValue.equals(newValue)) {
+//            	Log.d(TAG, "FALSE: " + oldValue + " " + newValue);
         		return false;
         	}
         }
