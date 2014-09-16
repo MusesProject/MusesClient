@@ -180,7 +180,13 @@ public class UserContextEventHandler {
             else if(serverStatus == Statuses.OFFLINE || !isUserAuthenticated) { // save request to the database
         		Log.d(APP_TAG, "Info DB, No Local decision found, Sever is OFFLINE, storing user data JSON(actions,properties,contextevnts) to server");
             	storeContextEvent(action, properties, contextEvents);
-                
+            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
+            }
+            else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
+            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
+            }
+            else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
+            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
             }
         }
         // update context events even if a local decision was found.
@@ -192,7 +198,6 @@ public class UserContextEventHandler {
         }
 	}
 	
-
 	/**
 	 * Method that takes an {@link eu.musesproject.client.model.decisiontable.Action} 
 	 * which contains the decision taken by the user on the MUSES UI.
