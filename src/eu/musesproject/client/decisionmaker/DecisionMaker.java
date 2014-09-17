@@ -137,6 +137,7 @@ public class DecisionMaker {
 								Log.d(TAG, "	No Match!" + comparisonString);
 
 								//
+								try{
 								if (resource.getCondition().contains(":")) {
 									String property = resource.getCondition()
 											.substring(
@@ -195,7 +196,9 @@ public class DecisionMaker {
 
 									}
 								}
-
+								}catch (Exception e){
+									Log.d(TAG, e.getMessage());
+								}	
 							}
 		                    
 		                }
