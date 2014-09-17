@@ -103,6 +103,8 @@ public class DevicePolicyHelper {
 					String riskTreatmentAction = allowActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
 					riskTreatment.setTextualdescription(riskTreatmentAction);
 					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+				}else{
+					riskTreatment.setTextualdescription("");
 				}
 			}else if (commJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_DENY+"\"")) {
 				String denyAction = commJSON.getString(JSONIdentifiers.POLICY_PROPERTY_DENY);
@@ -111,6 +113,8 @@ public class DevicePolicyHelper {
 					String riskTreatmentAction = denyActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
 					riskTreatment.setTextualdescription(riskTreatmentAction);
 					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+				}else{
+					riskTreatment.setTextualdescription("");
 				}
 			}else{
 				String maybeAction = commJSON.getString(JSONIdentifiers.POLICY_PROPERTY_MAYBE);
@@ -119,6 +123,8 @@ public class DevicePolicyHelper {
 					String riskTreatmentAction = maybeActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
 					riskTreatment.setTextualdescription(riskTreatmentAction);
 					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+				}else{
+					riskTreatment.setTextualdescription("");
 				}
 			}
 		} catch (JSONException je) {
@@ -332,6 +338,11 @@ public class DevicePolicyHelper {
 				Log.d(TAG, "Denied:" + idResourceDenied);
 				resource.setPath(idResourceDenied);
 				resource.setDescription(idResourceDenied);
+				if (denyAction.contains(JSONIdentifiers.POLICY_CONDITION)){
+					String conditionAction = denyActionJSON.getString(JSONIdentifiers.POLICY_CONDITION);
+					resource.setCondition(conditionAction);
+					Log.d(TAG, "Resource condition:" + conditionAction);
+				}
 			}else{
 				String maybeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_MAYBE);
 				JSONObject maybeActionJSON = new JSONObject(maybeAction);
