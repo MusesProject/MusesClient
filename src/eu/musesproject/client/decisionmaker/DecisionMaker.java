@@ -137,60 +137,63 @@ public class DecisionMaker {
 								Log.d(TAG, "	No Match!" + comparisonString);
 
 								//
-								String property = resource.getCondition()
-										.substring(
-												0,
-												resource.getCondition()
-														.indexOf(":") - 1);
-								Log.d(TAG, "property:" + property);
-								if (property.contains(entry.getKey())) {
-									int intValue = -1;
-									String value = resource.getCondition()
+								if (resource.getCondition().contains(":")) {
+									String property = resource.getCondition()
 											.substring(
+													0,
 													resource.getCondition()
-															.indexOf(":") + 1,
-													resource.getCondition()
-															.length() - 1);
-									Log.d(TAG, "value:" + value);
-									try {
-										intValue = Integer.valueOf(value);
-									} catch (NumberFormatException e) {
-										Log.d(TAG, "value " + value
-												+ " is not a number");
-									}
-
-									if (intValue != -1) {
-										int currentValue = -1;
-										Log.d(TAG,
-												"Current value:"
-														+ entry.getValue());
+															.indexOf(":") - 1);
+									Log.d(TAG, "property:" + property);
+									if (property.contains(entry.getKey())) {
+										int intValue = -1;
+										String value = resource
+												.getCondition()
+												.substring(
+														resource.getCondition()
+																.indexOf(":") + 1,
+														resource.getCondition()
+																.length() - 1);
+										Log.d(TAG, "value:" + value);
 										try {
-											currentValue = Integer
-													.valueOf(entry.getValue());
+											intValue = Integer.valueOf(value);
 										} catch (NumberFormatException e) {
-											Log.d(TAG,
-													"current value "
-															+ entry.getValue()
-															+ " is not a number");
+											Log.d(TAG, "value " + value
+													+ " is not a number");
 										}
-										if (currentValue != -1) {
-											if (currentValue < intValue) {
-												Log.d(TAG, "Current value "
-														+ currentValue
-														+ " is less than "
-														+ intValue);
-												Log.d(TAG, "Allow");
-												return getConditionNotSatisfiedDecision();
-											} else {
-												Log.d(TAG,
-														"Current value "
-																+ currentValue
-																+ " is greater or equal than "
-																+ intValue);
+
+										if (intValue != -1) {
+											int currentValue = -1;
+											Log.d(TAG,
+													"Current value:"
+															+ entry.getValue());
+											try {
+												currentValue = Integer
+														.valueOf(entry
+																.getValue());
+											} catch (NumberFormatException e) {
+												Log.d(TAG, "current value "
+														+ entry.getValue()
+														+ " is not a number");
+											}
+											if (currentValue != -1) {
+												if (currentValue < intValue) {
+													Log.d(TAG, "Current value "
+															+ currentValue
+															+ " is less than "
+															+ intValue);
+													Log.d(TAG, "Allow");
+													return getConditionNotSatisfiedDecision();
+												} else {
+													Log.d(TAG,
+															"Current value "
+																	+ currentValue
+																	+ " is greater or equal than "
+																	+ intValue);
+												}
 											}
 										}
-									}
 
+									}
 								}
 
 							}
