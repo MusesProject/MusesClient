@@ -133,9 +133,68 @@ public class DecisionMaker {
 		                    if (resource.getCondition().equals(comparisonString)){
 		                    	 Log.d(TAG, "	Match!");
 		                    	resourceInPolicy = resource;//No break, since the last one should have priority over older ones
-		                    }else{
-		                    	Log.d(TAG, "	No Match!" + comparisonString);
-		                    }
+							} else {
+								Log.d(TAG, "	No Match!" + comparisonString);
+
+								//
+								String property = resource.getCondition()
+										.substring(
+												0,
+												resource.getCondition()
+														.indexOf(":") - 1);
+								Log.d(TAG, "property:" + property);
+								if (property.contains(entry.getKey())) {
+									int intValue = -1;
+									String value = resource.getCondition()
+											.substring(
+													resource.getCondition()
+															.indexOf(":") + 1,
+													resource.getCondition()
+															.length() - 1);
+									Log.d(TAG, "value:" + value);
+									try {
+										intValue = Integer.valueOf(value);
+									} catch (NumberFormatException e) {
+										Log.d(TAG, "value " + value
+												+ " is not a number");
+									}
+
+									if (intValue != -1) {
+										int currentValue = -1;
+										Log.d(TAG,
+												"Current value:"
+														+ entry.getValue());
+										try {
+											currentValue = Integer
+													.valueOf(entry.getValue());
+										} catch (NumberFormatException e) {
+											Log.d(TAG,
+													"current value "
+															+ entry.getValue()
+															+ " is not a number");
+										}
+										if (currentValue != -1) {
+											if (currentValue < intValue) {
+												Log.d(TAG, "Current value "
+														+ currentValue
+														+ " is less than "
+														+ intValue);
+												Log.d(TAG, "Allow");
+												return getConditionNotSatisfiedDecision();
+											} else {
+												Log.d(TAG,
+														"Current value "
+																+ currentValue
+																+ " is greater or equal than "
+																+ intValue);
+											}
+										}
+									}
+
+								}
+
+							}
+		                    
 		                }
 		        		
 					}else{
@@ -393,6 +452,20 @@ public class DecisionMaker {
 		eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
 		eu.musesproject.server.risktrust.RiskTreatment riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(
 				"Decision denied by default (since no concrete local device policies apply)");
+		eu.musesproject.server.risktrust.RiskTreatment[] arrayTreatment = new eu.musesproject.server.risktrust.RiskTreatment[] { riskTreatment };
+		riskCommunication.setRiskTreatment(arrayTreatment);
+		defaultDecision.setRiskCommunication(riskCommunication);
+		return defaultDecision;
+	}
+	
+	public Decision getConditionNotSatisfiedDecision() {
+
+		Log.d(TAG,"Returning allow decision due to condition not satisfied...");
+		Decision defaultDecision = new Decision();
+		defaultDecision.setName(Decision.GRANTED_ACCESS);
+		eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
+		eu.musesproject.server.risktrust.RiskTreatment riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(
+				"Decision allowed");
 		eu.musesproject.server.risktrust.RiskTreatment[] arrayTreatment = new eu.musesproject.server.risktrust.RiskTreatment[] { riskTreatment };
 		riskCommunication.setRiskTreatment(arrayTreatment);
 		defaultDecision.setRiskCommunication(riskCommunication);
