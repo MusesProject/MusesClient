@@ -44,11 +44,9 @@ public class UserActionGenerator {
      * ({@link eu.musesproject.client.contextmonitoring.sensors.ISensor}) by aggregating the context events to higher
      * level context events
      * @param contextEventTrigger the context event that triggered this method
-     * @param lastFiredContextEvents all other available context events as well as the last context event of the trigger
-     *                               if it exists
      * @return {@link eu.musesproject.client.model.decisiontable.Action}
      */
-    public static Action createUserAction(ContextEvent contextEventTrigger, Map<String, ContextEvent> lastFiredContextEvents) {
+    public static Action createUserAction(ContextEvent contextEventTrigger) {
         Action action = new Action();
         if(contextEventTrigger.getType().equals(AppSensor.TYPE)) {
         	action.setTimestamp(System.currentTimeMillis());

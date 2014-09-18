@@ -285,7 +285,7 @@ public class SensorController {
             // have to be done
             if(lastFiredContextEvents.size() > 0) {
                 // 2. create an user action
-                userAction = UserActionGenerator.createUserAction(contextEvent, lastFiredContextEvents);
+                userAction = UserActionGenerator.createUserAction(contextEvent);
                 properties = UserActionGenerator.createUserActionProperties(contextEvent);
             }
 
