@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;

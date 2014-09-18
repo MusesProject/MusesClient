@@ -58,7 +58,7 @@ public class UserActionGenerator {
         else if(contextEventTrigger.getType().equals(RecursiveFileSensor.TYPE)) {
         	if(contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.OPEN)) {
             	action.setTimestamp(System.currentTimeMillis());
-            	action.setActionType(ActionType.OPEN_APPLICATION);
+            	action.setActionType(ActionType.OPEN_ASSET);
             	return action;
         	}
         }
