@@ -130,7 +130,7 @@ public class DecisionMaker {
 		                {        			
 		        			String comparisonString = "{\""+entry.getKey()+"\":"+entry.getValue()+"}";
 		                    Log.d(TAG, "	"+comparisonString);
-		                    if (resource.getCondition().equals(comparisonString)){
+		                    if (resource.getCondition().toLowerCase().equals(comparisonString.toLowerCase())){
 		                    	 Log.d(TAG, "	Match!");
 		                    	resourceInPolicy = resource;//No break, since the last one should have priority over older ones
 		                    	break;
