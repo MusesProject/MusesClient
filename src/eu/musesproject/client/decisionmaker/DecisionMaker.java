@@ -133,6 +133,7 @@ public class DecisionMaker {
 		                    if (resource.getCondition().equals(comparisonString)){
 		                    	 Log.d(TAG, "	Match!");
 		                    	resourceInPolicy = resource;//No break, since the last one should have priority over older ones
+		                    	break;
 							} else {
 								Log.d(TAG, "	No Match!" + comparisonString);
 
@@ -215,6 +216,10 @@ public class DecisionMaker {
 
         		Log.d(TAG, "Looking for resource by description" );
         		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getDescription());
+        		if ((resourceInPolicy == null)||(resourceInPolicy.getPath()==null)||(resourceInPolicy.getId()==0)){
+        			//return getDefaultDecision();
+        			return null;
+        		}
         	}
         	
         	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());        	

@@ -331,6 +331,11 @@ public class DevicePolicyHelper {
 				Log.d(TAG, "Allowed:" + idResourceAllowed);
 				resource.setPath(idResourceAllowed);
 				resource.setDescription(idResourceAllowed);
+				if (allowAction.contains(JSONIdentifiers.POLICY_CONDITION)){
+					String conditionAction = allowActionJSON.getString(JSONIdentifiers.POLICY_CONDITION);
+					resource.setCondition(conditionAction);
+					Log.d(TAG, "Resource condition:" + conditionAction);
+				}
 			}else if (actionJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_DENY+"\"")) {
 				String denyAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_DENY);
 				JSONObject denyActionJSON = new JSONObject(denyAction);
