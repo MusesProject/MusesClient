@@ -21,6 +21,7 @@ package eu.musesproject.client.ui;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,7 +42,6 @@ import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
-import eu.musesproject.client.connectionmanager.NetworkChecker;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.RequiredApp;
@@ -74,6 +74,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private UserContextMonitoringController userContextMonitoringController;
 	public static boolean isLoggedIn = false;
 	private SharedPreferences prefs;
+	private ProgressDialog progressDialog;
 		
 //	private static final int NOTIFICATION_EX = 1;
 //	private NotificationManager notificationManager;
@@ -223,12 +224,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
+				progressDialog.dismiss();
 				loginView.updateLoginView();
 				isLoggedIn = true;
 				toastMessage(getResources().getString(
 						R.string.login_success_msg));
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
+				progressDialog.dismiss();
 				toastMessage(getResources().getString(R.string.login_fail_msg));
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
@@ -267,6 +270,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 
 	};
+	
+	private void startProgress(){
+		progressDialog = new ProgressDialog(MainActivity.this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		progressDialog.setTitle("Logging in..");
+		progressDialog.setMessage("Please wait..");
+		progressDialog.setCancelable(true);
+		progressDialog.show();
+	}
 	
 	/**
 	 * Shows the result dialog to the user
@@ -331,6 +343,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	public void doLogin(String userName, String password) {
 		if (checkLoginInputFields(userName, password)) {
+			startProgress();
 			userContextMonitoringController.login(userName, password);
 			loginView.setUsernamePasswordIfSaved();
 		} else {

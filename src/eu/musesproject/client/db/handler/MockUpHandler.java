@@ -98,7 +98,7 @@ public class MockUpHandler {
 		SensorConfiguration fileConfig = new SensorConfiguration();
 		fileConfig.setSensor_type(RecursiveFileSensor.TYPE);
 		fileConfig.setKey(RecursiveFileSensor.CONFIG_KEY_PATH);
-		fileConfig.setValue("/SWE/");
+		fileConfig.setValue("/Swe/");
 		configList.add(fileConfig);
 		
 		fileConfig = new SensorConfiguration();
