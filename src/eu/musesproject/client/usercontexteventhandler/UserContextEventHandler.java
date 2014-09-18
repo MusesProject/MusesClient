@@ -177,15 +177,17 @@ public class UserContextEventHandler {
                 Log.d(APP_TAG, "Info SS, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
                 sendRequestToServer(requestObject);
             }
+            else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
+            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
+            	storeContextEvent(action, properties, contextEvents);
+            }
+            else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
+            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
+            	storeContextEvent(action, properties, contextEvents);
+            }
             else if(serverStatus == Statuses.OFFLINE || !isUserAuthenticated) { // save request to the database
         		Log.d(APP_TAG, "Info DB, No Local decision found, Sever is OFFLINE, storing user data JSON(actions,properties,contextevnts) to server");
             	storeContextEvent(action, properties, contextEvents);
-            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
-            }
-            else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
-            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
-            }
-            else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
             	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
             }
         }
