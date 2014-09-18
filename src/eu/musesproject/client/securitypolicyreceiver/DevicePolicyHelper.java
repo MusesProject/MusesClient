@@ -104,7 +104,7 @@ public class DevicePolicyHelper {
 					riskTreatment.setTextualdescription(riskTreatmentAction);
 					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
 				}else{
-					riskTreatment.setTextualdescription("");
+					riskTreatment.setTextualdescription("The action is allowed");
 				}
 			}else if (commJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_DENY+"\"")) {
 				String denyAction = commJSON.getString(JSONIdentifiers.POLICY_PROPERTY_DENY);
@@ -114,7 +114,7 @@ public class DevicePolicyHelper {
 					riskTreatment.setTextualdescription(riskTreatmentAction);
 					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
 				}else{
-					riskTreatment.setTextualdescription("");
+					riskTreatment.setTextualdescription("The action is not allowed ");
 				}
 			}else{
 				String maybeAction = commJSON.getString(JSONIdentifiers.POLICY_PROPERTY_MAYBE);
@@ -124,7 +124,7 @@ public class DevicePolicyHelper {
 					riskTreatment.setTextualdescription(riskTreatmentAction);
 					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
 				}else{
-					riskTreatment.setTextualdescription("");
+					riskTreatment.setTextualdescription("The action is not allowed, unless you make some changes");
 				}
 			}
 		} catch (JSONException je) {
