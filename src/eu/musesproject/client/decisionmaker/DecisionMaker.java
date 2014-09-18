@@ -385,7 +385,16 @@ public class DecisionMaker {
 		
 		if (decision != null){
 			if (decision.getName() != null){
-				resultDecision.setName(decision.getName());
+				if (decision.getName().equals("deny")){
+					resultDecision.setName(Decision.STRONG_DENY_ACCESS);
+				}else if (decision.getName().equals("maybe")){
+					resultDecision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+				}else if (decision.getName().equals("allow")){
+					resultDecision.setName(Decision.GRANTED_ACCESS);
+				}else if (decision.getName().equals("up-to-you")){
+					resultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+				}
+				
 				Logger.getLogger(TAG).log(Level.WARNING, "Policy Device Decision: " + decision.getName());
 			}else{
 				Logger.getLogger(TAG).log(Level.WARNING, "No decision is found. Hence, MUSES sets default decision");
