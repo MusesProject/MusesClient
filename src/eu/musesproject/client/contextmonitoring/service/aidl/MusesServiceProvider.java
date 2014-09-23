@@ -46,6 +46,7 @@ public class MusesServiceProvider extends Service {
 			if (bundle != null) {
 				String packageName = bundle.getString("package");
 				if (packageName.equals("eu.musesproject.musesawareapp")){
+					onStartCommand(null, 0, 0); // call to make service sticky
 					return binder;
 				}
 			}
