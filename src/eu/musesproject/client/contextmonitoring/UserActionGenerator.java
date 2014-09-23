@@ -26,7 +26,6 @@ import java.util.Map;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor;
-import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor.FileSensor;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -59,6 +58,11 @@ public class UserActionGenerator {
             	action.setActionType(ActionType.OPEN_ASSET);
             	return action;
         	}
+        	else if(contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.CLOSE_WRITE)) { // close write = save file
+            	action.setTimestamp(System.currentTimeMillis());
+            	action.setActionType(ActionType.SAVE_ASSET);
+            	return action;
+        	}
         }
         else if(contextEventTrigger.getType().equals(DeviceProtectionSensor.TYPE)) {
     		action.setTimestamp(System.currentTimeMillis());
@@ -81,11 +85,7 @@ public class UserActionGenerator {
         	}
         }
         else if(contextEventTrigger.getType().equals(RecursiveFileSensor.TYPE)) {
-        	if(contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(FileSensor.OPEN)) {
-            	properties.put("resourceName", "");
-            	properties.put("resourceType", "");
-            	properties.put("resourcePath", contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_PATH));
-        	}
+        	return contextEventTrigger.getProperties();
         }
         else {
         	return contextEventTrigger.getProperties();
