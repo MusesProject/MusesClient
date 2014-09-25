@@ -65,6 +65,7 @@ public class DecisionMaker {
 	public Decision makeDecision(Request request, List<ContextEvent> eventList, Map<String, String> properties){
 		Log.d(APP_TAG, "Info DC, DecisionMaker=> Making decision with request and events");
         Log.d(TAG, "called: makeDecision(Request request, List<ContextEvent> eventList)");
+        String resourceCondition = null;
 
         eu.musesproject.client.db.entity.Decision decision = new eu.musesproject.client.db.entity.Decision();
         eu.musesproject.client.db.entity.RiskCommunication comm = new eu.musesproject.client.db.entity.RiskCommunication();
@@ -128,9 +129,26 @@ public class DecisionMaker {
 						Log.d(TAG, "Resource properties:");
 		        		for (Map.Entry<String, String> entry : properties.entrySet())
 		                {        			
-		        			String comparisonString = "{\""+entry.getKey()+"\":"+entry.getValue()+"}";
+		        			String comparisonString = null;
+		        			if (entry.getKey().contains("path")){
+		        				comparisonString = "{\""+entry.getKey()+"\":\""+entry.getValue()+"\"}";
+		        			}else{
+		        				comparisonString = "{\""+entry.getKey()+"\":"+entry.getValue()+"}";
+		        			}
+		        			
 		                    Log.d(TAG, "	"+comparisonString);
-		                    if (resource.getCondition().toLowerCase().equals(comparisonString.toLowerCase())){
+		                    
+		                    
+		                    if(resource.getCondition().contains("\\/")){
+		                    	resourceCondition = resource.getCondition().replace("\\/","/");
+		                    }else{
+		                    	resourceCondition = resource.getCondition();
+		                    }
+		                    if (resourceCondition != null){
+		                    	Log.d(TAG, "	1:"+resourceCondition.toLowerCase()+"-- 2:"+comparisonString.toLowerCase()+"--");
+		                    }
+		                    //if (resource.getCondition().toLowerCase().equals(comparisonString.toLowerCase())){
+		                    if (resourceCondition.toLowerCase().equals(comparisonString.toLowerCase())){
 		                    	 Log.d(TAG, "	Match!");
 		                    	resourceInPolicy = resource;//No break, since the last one should have priority over older ones
 		                    	break;
@@ -139,11 +157,12 @@ public class DecisionMaker {
 
 								//
 								try{
-								if (resource.getCondition().contains(":")) {
-									String property = resource.getCondition()
+								//if (resource.getCondition().contains(":")) {
+									if (resourceCondition.contains(":")) {
+									String property = resourceCondition
 											.substring(
 													0,
-													resource.getCondition()
+													resourceCondition
 															.indexOf(":") - 1);
 									Log.d(TAG, "property:" + property);
 									if (property.contains(entry.getKey())) {
@@ -151,9 +170,9 @@ public class DecisionMaker {
 										String value = resource
 												.getCondition()
 												.substring(
-														resource.getCondition()
+														resourceCondition
 																.indexOf(":") + 1,
-														resource.getCondition()
+														resourceCondition
 																.length() - 1);
 										Log.d(TAG, "value:" + value);
 										try {
