@@ -111,10 +111,10 @@ public class DecisionMaker {
         
         
         if ((request.getAction()!=null)&&(request.getResource()!=null)){
-        	if (request.getResource().getPath()!=null){
+        	/*SZLif (request.getResource().getPath()!=null){
         		Log.d(TAG, "Looking for resource by path" );
         		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getPath());
-        	}else{
+        	}else{SZL*/
         		Log.d(TAG, "Find resource by condition properties..." );
         		List<Resource> allConditionResources = dbManager.getAllResources();
         		Log.d(TAG, "Found..."+allConditionResources.size());
@@ -130,7 +130,7 @@ public class DecisionMaker {
 		        		for (Map.Entry<String, String> entry : properties.entrySet())
 		                {        			
 		        			String comparisonString = null;
-		        			if (entry.getKey().contains("path")){
+		        			if (entry.getKey().contains("path")||entry.getKey().contains("resource")){
 		        				comparisonString = "{\""+entry.getKey()+"\":\""+entry.getValue()+"\"}";
 		        			}else{
 		        				comparisonString = "{\""+entry.getKey()+"\":"+entry.getValue()+"}";
@@ -221,6 +221,47 @@ public class DecisionMaker {
 								}	
 							}
 		                    
+		                    //Connectivity condition
+		                    
+		                    if (resourceCondition.contains("wifi")){
+		                    	for (Iterator iterator1 = eventList.iterator(); iterator1.hasNext();) {
+		                			ContextEvent contextEvent = (ContextEvent) iterator1.next();
+		                			Log.d(TAG, "Event list:"+contextEvent.getType());
+		                			if (contextEvent.getType().equals(ConnectivitySensor.TYPE)){
+		                				Log.d(TAG, "resourcecondition:"+resourceCondition);
+		                				
+		                				for (Map.Entry<String, String> connEntry : contextEvent.getProperties().entrySet())
+		        		                { 
+		                					String currentProperty = "{\""+connEntry.getKey()+"\":\""+connEntry.getValue()+"\"}";
+		                					Log.d(TAG,"WIFI     "+currentProperty);
+		                					
+		                					if (resourceCondition.toLowerCase().equals(currentProperty.toLowerCase())){		                						
+		                						Log.d(TAG, "	Environment Match!");
+		                						
+		                						if (request.getResource().getPath()!=null){
+		                			        		Log.d(TAG, "Request path:" + request.getResource().getPath() );
+		                			        		Log.d(TAG, "Resource:" + resource.getPath() );
+		                			        		if (resource.getPath().equals(request.getResource().getPath())){
+		                			        			Log.d(TAG, "	Path Match!");
+		                			        			resourceInPolicy = resource;
+				                						break;
+		                			        		}else{
+		                			        			Log.d(TAG, "	No Path Match!");
+		                			        		}
+		                			        		
+		                						}
+		                						
+		                					} else {
+		                						Log.d(TAG, "	No EnvironmentMatch!" + currentProperty);
+		                					}
+		        		                }
+		                				
+		                				
+		                				
+		                			}
+		                		}
+		                    }
+		                    
 		                }
 		        		
 					}else{
@@ -229,7 +270,7 @@ public class DecisionMaker {
 				}
         		
         		
-        	}
+        	//SZL}
         	
         	if (resourceInPolicy == null){
 
