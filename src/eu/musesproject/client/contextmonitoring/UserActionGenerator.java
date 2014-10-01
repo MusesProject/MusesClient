@@ -98,10 +98,6 @@ public class UserActionGenerator {
         	properties.put(AppSensor.PROPERTY_KEY_PACKAGE_NAME, contextEventTrigger.getProperties().get(AppSensor.PROPERTY_KEY_PACKAGE_NAME));
         	properties.put("package", "");
         	properties.put("version", "");
-        	if(!properties.get(AppSensor.PROPERTY_KEY_APP_NAME).equals("Gmail")) {
-//    		if(!properties.get(AppSensor.PROPERTY_KEY_APP_NAME).equals("Calendar")) {
-        		return null;
-        	}
         }
         else if(contextEventTrigger.getType().equals(RecursiveFileSensor.TYPE)) {
         	contextEventTrigger.addProperty("resourceType", "null");
