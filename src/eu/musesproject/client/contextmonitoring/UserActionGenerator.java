@@ -72,17 +72,19 @@ public class UserActionGenerator {
     		return action;
         }
         else if(contextEventTrigger.getType().equals(PackageSensor.TYPE)) {
-        	if(contextEventTrigger.getProperties().get(PackageSensor.PROPERTY_KEY_PACKAGE_STATUS)
-        			.equalsIgnoreCase(PackageStatus.REMOVED.toString())) {
-        		action.setTimestamp(System.currentTimeMillis());
-        		action.setActionType(ActionType.UNINSTALL);
-        		return action;
-        	}
-        	else if(contextEventTrigger.getProperties().get(PackageSensor.PROPERTY_KEY_PACKAGE_STATUS)
-        			.equalsIgnoreCase(PackageStatus.INSTALLED.toString())) {
-        		action.setTimestamp(System.currentTimeMillis());
-        		action.setActionType(ActionType.INSTALL);
-        		return action;
+        	if(contextEventTrigger.getProperties().containsKey(PackageSensor.PROPERTY_KEY_PACKAGE_STATUS)) {
+	        	if(contextEventTrigger.getProperties().get(PackageSensor.PROPERTY_KEY_PACKAGE_STATUS)
+	        			.equalsIgnoreCase(PackageStatus.REMOVED.toString())) {
+	        		action.setTimestamp(System.currentTimeMillis());
+	        		action.setActionType(ActionType.UNINSTALL);
+	        		return action;
+	        	}
+	        	else if(contextEventTrigger.getProperties().get(PackageSensor.PROPERTY_KEY_PACKAGE_STATUS)
+	        			.equalsIgnoreCase(PackageStatus.INSTALLED.toString())) {
+	        		action.setTimestamp(System.currentTimeMillis());
+	        		action.setActionType(ActionType.INSTALL);
+	        		return action;
+	        	}
         	}
         }
 
