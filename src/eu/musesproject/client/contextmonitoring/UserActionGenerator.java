@@ -25,10 +25,12 @@ import java.util.Map;
 
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
+import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
 import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
+import eu.musesproject.contextmodel.PackageStatus;
 
 /**
  * Created by christophstanik on 4/14/14.
@@ -68,6 +70,20 @@ public class UserActionGenerator {
     		action.setTimestamp(System.currentTimeMillis());
     		action.setActionType(ActionType.SECURITY_PROPERTY_CHANGED);
     		return action;
+        }
+        else if(contextEventTrigger.getType().equals(PackageSensor.TYPE)) {
+        	if(contextEventTrigger.getProperties().get(PackageSensor.PROPERTY_KEY_PACKAGE_STATUS)
+        			.equalsIgnoreCase(PackageStatus.REMOVED.toString())) {
+        		action.setTimestamp(System.currentTimeMillis());
+        		action.setActionType(ActionType.UNINSTALL);
+        		return action;
+        	}
+        	else if(contextEventTrigger.getProperties().get(PackageSensor.PROPERTY_KEY_PACKAGE_STATUS)
+        			.equalsIgnoreCase(PackageStatus.INSTALLED.toString())) {
+        		action.setTimestamp(System.currentTimeMillis());
+        		action.setActionType(ActionType.INSTALL);
+        		return action;
+        	}
         }
 
         return null;
