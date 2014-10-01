@@ -32,7 +32,7 @@ public class MockUpHandler {
 		SensorConfiguration deviceProtectionConfig = new SensorConfiguration();
 		deviceProtectionConfig.setSensor_type(DeviceProtectionSensor.TYPE);
 		deviceProtectionConfig.setKey(DeviceProtectionSensor.CONFIG_KEY_TRUSTED_AV);
-		deviceProtectionConfig.setValue("avast! Mobile Security");
+		deviceProtectionConfig.setValue("CM Security AppLock &AntiVirus");
 		configList.add(deviceProtectionConfig);
 
 		deviceProtectionConfig = new SensorConfiguration();
