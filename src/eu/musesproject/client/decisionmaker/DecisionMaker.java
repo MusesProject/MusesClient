@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
+import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
 import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.db.entity.Resource;
@@ -228,6 +229,43 @@ public class DecisionMaker {
 		                			ContextEvent contextEvent = (ContextEvent) iterator1.next();
 		                			Log.d(TAG, "Event list:"+contextEvent.getType());
 		                			if (contextEvent.getType().equals(ConnectivitySensor.TYPE)){
+		                				Log.d(TAG, "resourcecondition:"+resourceCondition);
+		                				
+		                				for (Map.Entry<String, String> connEntry : contextEvent.getProperties().entrySet())
+		        		                { 
+		                					String currentProperty = "{\""+connEntry.getKey()+"\":\""+connEntry.getValue()+"\"}";
+		                					Log.d(TAG,"WIFI     "+currentProperty);
+		                					
+		                					if (resourceCondition.toLowerCase().equals(currentProperty.toLowerCase())){		                						
+		                						Log.d(TAG, "	Environment Match!");
+		                						
+		                						if (request.getResource().getPath()!=null){
+		                			        		Log.d(TAG, "Request path:" + request.getResource().getPath() );
+		                			        		Log.d(TAG, "Resource:" + resource.getPath() );
+		                			        		if (resource.getPath().equals(request.getResource().getPath())){
+		                			        			Log.d(TAG, "	Path Match!");
+		                			        			resourceInPolicy = resource;
+				                						break;
+		                			        		}else{
+		                			        			Log.d(TAG, "	No Path Match!");
+		                			        		}
+		                			        		
+		                						}
+		                						
+		                					} else {
+		                						Log.d(TAG, "	No EnvironmentMatch!" + currentProperty);
+		                					}
+		        		                }
+		                				
+		                				
+		                				
+		                			}
+		                		}
+		                    }else if (resourceCondition.contains("package")){
+		                    	for (Iterator iterator1 = eventList.iterator(); iterator1.hasNext();) {
+		                			ContextEvent contextEvent = (ContextEvent) iterator1.next();
+		                			Log.d(TAG, "Event list:"+contextEvent.getType());
+		                			if (contextEvent.getType().equals(PackageSensor.TYPE)){
 		                				Log.d(TAG, "resourcecondition:"+resourceCondition);
 		                				
 		                				for (Map.Entry<String, String> connEntry : contextEvent.getProperties().entrySet())
