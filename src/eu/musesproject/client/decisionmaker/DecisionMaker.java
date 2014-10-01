@@ -276,18 +276,8 @@ public class DecisionMaker {
 		                					if (resourceCondition.toLowerCase().equals(currentProperty.toLowerCase())){		                						
 		                						Log.d(TAG, "	Environment Match!");
 		                						
-		                						if (request.getResource().getPath()!=null){
-		                			        		Log.d(TAG, "Request path:" + request.getResource().getPath() );
-		                			        		Log.d(TAG, "Resource:" + resource.getPath() );
-		                			        		if (resource.getPath().equals(request.getResource().getPath())){
-		                			        			Log.d(TAG, "	Path Match!");
-		                			        			resourceInPolicy = resource;
-				                						break;
-		                			        		}else{
-		                			        			Log.d(TAG, "	No Path Match!");
-		                			        		}
-		                			        		
-		                						}
+		                						resourceInPolicy = resource;
+		                						break;
 		                						
 		                					} else {
 		                						Log.d(TAG, "	No EnvironmentMatch!" + currentProperty);
