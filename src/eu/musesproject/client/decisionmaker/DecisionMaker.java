@@ -412,6 +412,37 @@ public class DecisionMaker {
 					
 					return resultDecision;
         		}
+    		}else if ((decision.getName()!=null)&&(decision.getName().equals("up-to-you"))){
+        		if ((condition!=null)&&(!condition.equals("any"))){
+        			Log.d(TAG, "Up to user with condition");
+        		}else{
+        			Log.d(TAG, "Up to user");
+					
+        			
+        			//resultDecision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+        			resultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+        			eu.musesproject.server.risktrust.RiskTreatment [] riskTreatments = new eu.musesproject.server.risktrust.RiskTreatment[1];				
+					eu.musesproject.server.risktrust.RiskTreatment riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(riskTreatInPolicy.getTextualdescription());
+					eu.musesproject.server.risktrust.RiskCommunication riskCommunication = new eu.musesproject.server.risktrust.RiskCommunication();
+					riskTreatments[0] = riskTreatment;
+					Log.d(TAG, "RiskTreatment inserted for feedback:"+ riskTreatment.getTextualDescription());
+					riskCommunication.setRiskTreatment(riskTreatments);
+					resultDecision.setRiskCommunication(riskCommunication); 
+
+        		
+					
+					eu.musesproject.server.risktrust.RiskTreatment[] r = resultDecision.getRiskCommunication().getRiskTreatment();// TODO Remove: Simple log
+					Log.d(TAG, "RiskTreat for feedback:"+ resultDecision.getRiskCommunication().getRiskTreatment());
+					if (r[0].getTextualDescription() != null) {
+						String textualDecp = r[0].getTextualDescription();
+						Log.d(TAG, "RiskTreatment:"+textualDecp);
+					}else{
+						Log.d(TAG, "RiskTreatment textualDescription null. Array length:"+r.length);
+					}
+					
+					
+					return resultDecision;
+        		}
     		}
         }
 
