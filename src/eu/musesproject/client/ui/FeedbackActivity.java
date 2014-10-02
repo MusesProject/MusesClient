@@ -158,12 +158,19 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 
 		}
 		
-		new Handler().postDelayed(new Runnable() {
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				feedBackDialog.show();
 			}
-		}, 100);
+		});
+		
+//		new Handler().postDelayed(new Runnable() {
+//			@Override
+//			public void run() {
+//				feedBackDialog.show();
+//			}
+//		}, 100);
 
 	}
 	

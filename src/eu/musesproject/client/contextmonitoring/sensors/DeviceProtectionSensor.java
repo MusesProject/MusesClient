@@ -139,6 +139,7 @@ public class DeviceProtectionSensor implements ISensor {
                 }
                 
                 if (contextEvent != null && listener != null) {
+                	debug(contextEvent);
     				listener.onEvent(contextEvent);
     			}
             }
@@ -146,6 +147,7 @@ public class DeviceProtectionSensor implements ISensor {
 		else {
 			contextEventHistory.add(contextEvent);
 			if (contextEvent != null && listener != null) {
+				debug(contextEvent);
 				listener.onEvent(contextEvent);
 			}
 		}

@@ -19,7 +19,7 @@ public class ResourceCreator {
 				resType.setName(ResourceType.FILE);
 				res.setResourceType(resType);
 				res.setDescription(properties.get("resourceName"));
-				res.setPath(properties.get("resourcePath"));
+				res.setPath(properties.get("path"));
 			}
 			else if(action.getActionType().equals(ActionType.OPEN_APPLICATION)) {
 				resType.setName(ResourceType.APP);

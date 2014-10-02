@@ -224,14 +224,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
-				progressDialog.dismiss();
+				//progressDialog.dismiss();
 				loginView.updateLoginView();
 				isLoggedIn = true;
 				toastMessage(getResources().getString(
 						R.string.login_success_msg));
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
-				progressDialog.dismiss();
+				//progressDialog.dismiss();
 				toastMessage(getResources().getString(R.string.login_fail_msg));
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
@@ -343,7 +343,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	public void doLogin(String userName, String password) {
 		if (checkLoginInputFields(userName, password)) {
-			startProgress();
+			//startProgress();
 			userContextMonitoringController.login(userName, password);
 			loginView.setUsernamePasswordIfSaved();
 		} else {

@@ -131,7 +131,7 @@ public class DecisionMaker {
 		        		for (Map.Entry<String, String> entry : properties.entrySet())
 		                {        			
 		        			String comparisonString = null;
-		        			if (entry.getKey().contains("path")||entry.getKey().contains("resource")){
+		        			if (entry.getKey().contains("path")||entry.getKey().contains("resource")||entry.getKey().contains("packagename")){
 		        				comparisonString = "{\""+entry.getKey()+"\":\""+entry.getValue()+"\"}";
 		        			}else{
 		        				comparisonString = "{\""+entry.getKey()+"\":"+entry.getValue()+"}";
