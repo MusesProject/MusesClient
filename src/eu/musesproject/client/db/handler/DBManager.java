@@ -1,5 +1,7 @@
 package eu.musesproject.client.db.handler;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -447,7 +449,7 @@ public class DBManager {
     // Configuration related queries
     public void insertConnectionProperties(){
     	ContentValues values = new ContentValues();
-    	values.put(SERVER_IP, "192.168.44.101");
+    	values.put(SERVER_IP, getMusesConf());
     	//   values.put(SERVER_IP, "172.17.3.5");
     	values.put(SERVER_PORT, 8443);
     	values.put(SERVER_CONTEXT_PATH, "/server");
@@ -461,6 +463,20 @@ public class DBManager {
     	values.put(LOGIN_ATTEMPTS, 5);
     	sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
     }
+    
+	private String getMusesConf() {
+		String settings = "192.168.44.101";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(
+					"/sdcard/muses.conf"));
+			settings = reader.readLine();
+			reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return settings;
+	}
+    
     
     public void deleteConnectionProperties(int id){
     	sqLiteDatabase.delete(TABLE_CONFIGURATION, "id="+id, null);
