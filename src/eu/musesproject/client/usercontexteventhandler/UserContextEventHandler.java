@@ -185,11 +185,6 @@ public class UserContextEventHandler {
             	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
             	storeContextEvent(action, properties, contextEvents);
             }
-            else if(serverStatus == Statuses.OFFLINE || !isUserAuthenticated) { // save request to the database
-        		Log.d(APP_TAG, "Info DB, No Local decision found, Sever is OFFLINE, storing user data JSON(actions,properties,contextevnts) to server");
-            	storeContextEvent(action, properties, contextEvents);
-            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
-            }
         }
         // update context events even if a local decision was found.
         // Prevent sending context events again if they are already sent for a online decision
