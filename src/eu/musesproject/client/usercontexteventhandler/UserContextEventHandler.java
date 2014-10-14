@@ -177,6 +177,9 @@ public class UserContextEventHandler {
                 Log.d(APP_TAG, "Info SS, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
                 sendRequestToServer(requestObject);
             }
+            else if(serverStatus == Statuses.ONLINE && !isUserAuthenticated) {
+            	storeContextEvent(action, properties, contextEvents);
+            }
             else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
             	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
             	storeContextEvent(action, properties, contextEvents);
