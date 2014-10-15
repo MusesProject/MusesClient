@@ -154,11 +154,11 @@ public class UserContextEventHandler {
         Resource resource = ResourceCreator.create(action, properties);
         
         Request request = new Request(action, resource);
-		Log.d(APP_TAG, "Info DC, UserContextEventHandler=> receives actions, properties, events");
+		Log.d(APP_TAG, "Info DC, Calling decision maker");
         Decision decision = new DecisionMaker().makeDecision(request, contextEvents, properties);
 //        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
         if(decision != null) { // local decision found
-        	Log.d(APP_TAG, "Info CT, Local decision found, now calling actuator to showFeedback");
+        	Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
             ActuatorController.getInstance().showFeedback(decision);
         }
         else { // if there is no local decision, send a request to the server
@@ -174,7 +174,7 @@ public class UserContextEventHandler {
 
                 // create the JSON request and send it to the server
                 JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
-                Log.d(APP_TAG, "Info SS, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
+                Log.d(APP_TAG, "Info DC, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
                 sendRequestToServer(requestObject);
             }
             else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
@@ -222,7 +222,6 @@ public class UserContextEventHandler {
 	 * @param password
 	 */
 	public void login(String userName, String password) {
-		Log.d(APP_TAG, "Info U, sending user login to server with username:"+userName+" password:"+password);
         Log.d(TAG, "called: login(String userName, String password)");
         String deviceId = "";
         
