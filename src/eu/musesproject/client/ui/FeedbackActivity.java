@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -35,7 +34,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 	private static final String TAG = FeedbackActivity.class.getSimpleName();
 	private Bundle extras;
 	private TextView feedbackView, feedbackTitleView, currentStatusView;
-	private Button resolveConflictAutoBtn, okBtn, cancelBtn;
+	private Button okBtn, cancelBtn;
 	private String feedback = "";
 	private Dialog feedBackDialog;
 	private String message;
@@ -54,12 +53,6 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.resolve_conflict_auto_btn:
-			Log.v(TAG, "resolve_conflict_auto_btn..");
-			feedBackDialog.dismiss();
-			finish();		
-			// Not implemented
-			break;
 		case R.id.details_btn:
 			Intent restartMainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
 			extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_OK);
@@ -94,11 +87,9 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		feedbackTitleView = (TextView)feedBackDialog.findViewById(R.id.feedback_title_txt);
 		currentStatusView = (TextView)feedBackDialog.findViewById(R.id.server_status);
 		
-		// Buttons
-		resolveConflictAutoBtn = (Button)feedBackDialog.findViewById(R.id.resolve_conflict_auto_btn);
 		okBtn = (Button)feedBackDialog.findViewById(R.id.details_btn);
 		cancelBtn = (Button)feedBackDialog.findViewById(R.id.cancel_btn);
-		resolveConflictAutoBtn.setOnClickListener(this);
+//		resolveConflictAutoBtn.setOnClickListener(this);
 		
 		okBtn.setOnClickListener(this);
 		cancelBtn.setOnClickListener(this);
@@ -112,10 +103,10 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			feedback = message; // temp FIXME
 			
 			okBtn.setEnabled(false);
-			okBtn.setText(getResources().getString(R.string.details_btn_txt));
+			okBtn.setText(getResources().getString(R.string.details_btn_txt_deny));
 			feedbackView.setText(feedback);
 			feedbackTitleView.setText(getResources().getString(R.string.feedback_title_txt));
-			resolveConflictAutoBtn.setVisibility(View.GONE);
+//			resolveConflictAutoBtn.setVisibility(View.GONE);
 			
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
@@ -131,8 +122,8 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			
 			feedbackView.setText(feedback);
 			feedbackTitleView.setText(getResources().getString(R.string.feedback_title_txt));
-			resolveConflictAutoBtn.setVisibility(View.GONE);
-			okBtn.setText(getResources().getString(R.string.what_can_i_do_btn_txt));
+//			resolveConflictAutoBtn.setVisibility(View.GONE);
+			okBtn.setText(getResources().getString(R.string.details_btn_txt_maybe));
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
 															 UserContextEventHandler.isServerOnlineAndUserAuthenticated() ? 
@@ -147,7 +138,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			feedback = message; // temp FIXME
 			feedbackView.setText(feedback);
 			feedbackTitleView.setText(getResources().getString(R.string.feedback_title_txt));
-			okBtn.setText(getResources().getString(R.string.continue_btn_txt));
+			okBtn.setText(getResources().getString(R.string.details_btn_txt_uptouser));
 			
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">_MUSES</string>
 
+    <string name="app_name">_MUSES</string>
     <string name="login_list_button_txt">L o g i n</string>
     <string name="security_info_button_txt">My Security Policies</string>
     <string name="security_points_button_txt">Security Points</string>
     <string name="action_settings">Settings</string>
 
-  	<!--  Login view strings -->  
+    <!-- Login view strings -->
     <string name="username_txt">User ID:</string>
     <string name="password_txt">Password:</string>
     <string name="login_button_txt">Login</string>
@@ -24,20 +24,23 @@
     <string name="make_sure_privacy_policy_read_txt">Make sure you have read and understood the privacy policy before logging in.</string>
     <string name="terms_and_condition_description_text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
     <string name="test_string">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
-	
-	<!-- Feedback dialog strings -->
-	<string name="feedback_title_txt">Muses Policy Warning</string>
-	<string name="details_btn_txt">Details</string>
-	<string name="what_can_i_do_btn_txt">What can i do?</string>
-	<string name="continue_btn_txt">Continue</string>
-	<string name="cancel_btn_txt">Cancel</string>
-	<string name="resolve_auto_btn_txt">Resolve conflicts automatically</string>
-	<string name="feedback_txt_1">You just want to </string>
-	<string name="feedback_txt_2">PERSUASIVE STRATEGIES: </string>
-	<string name="current_com_status_1">You are</string>
-	<string name="current_com_status_2">Online</string>
+
+    <!-- Feedback dialog strings -->
+    <string name="feedback_title_txt">Muses Policy Warning</string>
+    <string name="details_btn_txt_deny">I want to know more!</string>
+    <string name="details_btn_txt_maybe">I need help!</string>
+    <string name="details_btn_txt_uptouser">I still want to go on!</string>
+    <string name="what_can_i_do_btn_txt">What can i do?</string>
+    <string name="continue_btn_txt">Continue</string>
+    <string name="cancel_btn_txt">OK. I will stop here.</string>
+    <string name="resolve_auto_btn_txt">Resolve conflicts automatically</string>
+    <string name="feedback_txt_1">You just want to </string>
+    <string name="feedback_txt_2">PERSUASIVE STRATEGIES: </string>
+    <string name="current_com_status_1">You are</string>
+    <string name="current_com_status_2">Online</string>
     <string name="current_com_status_3">Offline</string>
-    
+
+
     <!-- Toast msgs -->
     <string name="login_success_msg">Login Successful..</string>
     <string name="login_fail_msg">Login Falied..</string>
