@@ -250,6 +250,8 @@ public class DecisionMaker {
 		                			        			Log.d(TAG, "	No Path Match!");
 		                			        		}
 		                			        		
+		                						}else{
+		                							Log.d(TAG, "	Path for resource is null!");
 		                						}
 		                						
 		                					} else {
@@ -271,12 +273,13 @@ public class DecisionMaker {
 		                				for (Map.Entry<String, String> connEntry : contextEvent.getProperties().entrySet())
 		        		                { 
 		                					String currentProperty = "{\""+connEntry.getKey()+"\":\""+connEntry.getValue()+"\"}";
-		                					Log.d(TAG,"WIFI     "+currentProperty);
+		                					Log.d(TAG,"PACKAGE     "+currentProperty);
 		                					
 		                					if (resourceCondition.toLowerCase().equals(currentProperty.toLowerCase())){		                						
-		                						Log.d(TAG, "	Environment Match!");
+		                						Log.d(TAG, "	Package Match!");
 		                						
 		                						resourceInPolicy = resource;
+		                						Log.d(TAG, " resourceInPolicy:"+ resourceInPolicy.getPath());
 		                						break;
 		                						
 		                					} else {
@@ -308,6 +311,8 @@ public class DecisionMaker {
         			//return getDefaultDecision();
         			return null;
         		}
+        	}else{
+        		Log.d(TAG, "resourceInPolicy not null" );
         	}
         	
         	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());        	
