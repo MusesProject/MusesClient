@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -41,9 +42,11 @@ import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.Property;
+import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.ResourceCreator;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
+import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
@@ -376,6 +379,15 @@ public class UserContextEventHandler {
                     tmpAction = null;
                     tmpProperties = null;
                     tmpContextEvents = null;
+                    
+                    //Test BEGIN
+
+                    Decision decision = getDecisionFromDevicePolicy(receiveData);
+                    Log.d(APP_TAG, "Info DC, showing decision");
+                    Log.d(APP_TAG, "Info CT, calling actuator to showFeedback");
+                    ActuatorController.getInstance().showFeedback(decision);
+                    
+                  //Test end
                 }
                 else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
                 	Log.d(APP_TAG, "RequestT type was " + RequestType.AUTH_RESPONSE );
@@ -428,6 +440,82 @@ public class UserContextEventHandler {
 			this.userName = "muses";  // TODO there is no method yet to get the user name
 		}
 		return "muses";
+	}
+	
+	public Decision getDecisionFromDevicePolicy(String receiveData){
+		
+        Decision decision = new Decision();
+    	try {
+        RiskTreatment riskTreatment = new RiskTreatment();
+      
+        JSONObject rootJSON = new JSONObject(receiveData);
+        String policy = rootJSON.getString(JSONIdentifiers.DEVICE_POLICY);
+        JSONObject policyJSON = new JSONObject(policy);
+        String files = policyJSON.getString(JSONIdentifiers.POLICY_SECTION_FILES);    			
+		JSONObject filesJSON = new JSONObject(files);
+		String actionString = filesJSON.getString(JSONIdentifiers.POLICY_SECTION_ACTION);
+		JSONObject actionJSON = new JSONObject(actionString);
+	
+			if (actionJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_ALLOW+"\"")){
+				String allowAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_ALLOW);
+				JSONObject allowActionJSON = new JSONObject(allowAction);
+				String idResourceAllowed = allowActionJSON.getString("id");//TODO Include in JSONIdentifiers
+				Log.d(TAG, "Allowed:" + idResourceAllowed);
+				decision.setName(JSONIdentifiers.POLICY_PROPERTY_ALLOW);
+				String typeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_TYPE);
+				Log.d(TAG, "Action type:" + typeAction);
+				
+				
+				if (allowAction.contains(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT)){
+					String riskTreatmentAction = allowActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
+					riskTreatment.setTextualdescription(riskTreatmentAction);
+					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+				}else{
+					riskTreatment.setTextualdescription("The action is allowed");
+				}
+
+			}else if (actionJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_DENY+"\"")){
+				String denyAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_DENY);
+				JSONObject denyActionJSON = new JSONObject(denyAction);
+				String idResourceAllowed = denyActionJSON.getString("id");//TODO Include in JSONIdentifiers
+				Log.d(TAG, "Denied:" + idResourceAllowed);
+				String typeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_TYPE);
+				decision.setName(JSONIdentifiers.POLICY_PROPERTY_DENY);
+				Log.d(TAG, "Action type:" + typeAction);
+				
+				if (denyAction.contains(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT)){
+					String riskTreatmentAction = denyActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
+					riskTreatment.setTextualdescription(riskTreatmentAction);
+					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+				}else{
+					riskTreatment.setTextualdescription("The action is not allowed ");
+				}
+
+			}else {
+				String maybeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_MAYBE);
+				JSONObject maybeActionJSON = new JSONObject(maybeAction);
+				String idResourceAllowed = maybeActionJSON.getString("id");//TODO Include in JSONIdentifiers
+				Log.d(TAG, "Denied:" + idResourceAllowed);
+				String typeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_TYPE);
+				decision.setName(JSONIdentifiers.POLICY_PROPERTY_MAYBE);
+				Log.d(TAG, "Action type:" + typeAction);
+				
+				if (maybeAction.contains(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT)){
+					String riskTreatmentAction = maybeActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
+					riskTreatment.setTextualdescription(riskTreatmentAction);
+					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+				}else{
+					riskTreatment.setTextualdescription("The action is not allowed, unless you make some changes");
+				}
+
+			}
+
+		} catch (JSONException je) {
+			je.printStackTrace();
+		}
+    	
+    	return decision;
+		
 	}
 
 }
