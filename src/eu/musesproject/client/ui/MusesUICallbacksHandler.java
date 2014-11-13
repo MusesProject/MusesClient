@@ -81,19 +81,22 @@ public class MusesUICallbacksHandler implements IUICallback {
 	}
 
 	@Override
-	public void onMaybe(Decision decision) {
+	public void onMaybe(Decision decision) {	
 		Log.d(TAG, "onMaybe: " + decision.toString());
 		String textualDecp = "this is a test risk treatment ...";
 		RiskTreatment[] r = decision.getRiskCommunication().getRiskTreatment();
-		if (r[0].getTextualDescription() != null) {
-			textualDecp = r[0].getTextualDescription();
+		// FIXME For brussels
+		if (r != null){
+			if (r[0].getTextualDescription() != null) {
+				textualDecp = r[0].getTextualDescription();
+			}
+			Message msg = mHandler.obtainMessage(ACTION_RESPONSE_MAY_BE);
+			Bundle bundle = new Bundle();
+			bundle.putString("name",decision.getName());
+			bundle.putString("risk_textual_decp",textualDecp);
+			msg.setData(bundle);
+			mHandler.sendMessage(msg);		
 		}
-    	Message msg = mHandler.obtainMessage(ACTION_RESPONSE_MAY_BE);
-		Bundle bundle = new Bundle();
-		bundle.putString("name",decision.getName());
-		bundle.putString("risk_textual_decp",textualDecp);
-		msg.setData(bundle);
-		mHandler.sendMessage(msg);		
 	}
 
 	@Override
