@@ -81,24 +81,28 @@ public class HttpResponseHandler {
 				AlarmReceiver.resetExponentialPollTime();
 				break;
 			case DetailedStatuses.INCORRECT_URL:
+				Log.d(APP_TAG, "Server is OFFLINE .. Incorrect URL");
 				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.INCORRECT_URL);
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.NOT_ALLOWED_FROM_SERVER:
+				Log.d(APP_TAG, "Server is OFFLINE .. Request not allowed from Server..");
 				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER);
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.SERVER_NOT_AVAIABLE:
+				Log.d(APP_TAG, "Server is OFFLINE .. Server not available..");
 				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.SERVER_NOT_AVAIABLE);
 				AlarmReceiver.increasePollTime();
 				break;
 			default:
+				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error..");
 				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
 				AlarmReceiver.increasePollTime();
 				break;
 			}
 		} else {
-			Log.d(TAG, "Exception occured during communication with the server .. check the stacktrace to fix it!");
+			Log.d(TAG, "Server is OFFLINE .. Exception occured during communication with the server .. check the stacktrace to fix it!");
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
 		}
 	}

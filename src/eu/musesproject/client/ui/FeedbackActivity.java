@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -35,10 +34,10 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 	private static final String TAG = FeedbackActivity.class.getSimpleName();
 	private Bundle extras;
 	private TextView feedbackView, feedbackTitleView, currentStatusView;
-	private Button resolveConflictAutoBtn, okBtn, cancelBtn;
+	private Button okBtn, cancelBtn;
 	private String feedback = "";
 	private Dialog feedBackDialog;
-	private String message;
+	private static String MESSAGE;
 	private int type;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,19 +46,13 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		if (extras == null) {
 			return;
 		}
-		message = extras.getString("message");
+		MESSAGE = extras.getString("message");
 		type = extras.getInt("type");
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.resolve_conflict_auto_btn:
-			Log.v(TAG, "resolve_conflict_auto_btn..");
-			feedBackDialog.dismiss();
-			finish();		
-			// Not implemented
-			break;
 		case R.id.details_btn:
 			Intent restartMainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
 			extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_OK);
@@ -67,6 +60,11 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			startActivity(restartMainActivityIntent);
 			feedBackDialog.dismiss();
 			finish();
+			if (MESSAGE.contains("You want to access a file, but you do not have the permission") || 
+					MESSAGE.contains("You are trying to open an application which is considered") || 
+					MESSAGE.contains("You have a virus and you want to send an attachment via E-Mail") ){
+				pressHomeButton();	
+			}
 			break;
 		case R.id.cancel_btn:
 			Intent restartMainActivityIntent2 = new Intent(getApplicationContext(), MainActivity.class);
@@ -75,9 +73,23 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			startActivity(restartMainActivityIntent2);
 			feedBackDialog.dismiss();
 			finish();
+			if (MESSAGE.contains("You want to access a file, but you do not have the permission") || 
+					MESSAGE.contains("You are trying to open an application which is considered") || 
+					MESSAGE.contains("You have a virus and you want to send an attachment via E-Mail") ){
+				pressHomeButton();	
+			}
 			break;
 		}
 		
+	}
+
+	
+	
+	private void pressHomeButton() {
+		Intent startMain = new Intent(Intent.ACTION_MAIN);
+		startMain.addCategory(Intent.CATEGORY_HOME);
+		startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(startMain);
 	}
 
 	@Override
@@ -94,11 +106,9 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		feedbackTitleView = (TextView)feedBackDialog.findViewById(R.id.feedback_title_txt);
 		currentStatusView = (TextView)feedBackDialog.findViewById(R.id.server_status);
 		
-		// Buttons
-		resolveConflictAutoBtn = (Button)feedBackDialog.findViewById(R.id.resolve_conflict_auto_btn);
 		okBtn = (Button)feedBackDialog.findViewById(R.id.details_btn);
 		cancelBtn = (Button)feedBackDialog.findViewById(R.id.cancel_btn);
-		resolveConflictAutoBtn.setOnClickListener(this);
+//		resolveConflictAutoBtn.setOnClickListener(this);
 		
 		okBtn.setOnClickListener(this);
 		cancelBtn.setOnClickListener(this);
@@ -107,15 +117,15 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		case MusesUICallbacksHandler.ACTION_RESPONSE_DENIED:
 			Log.v(TAG, "acion denied in feedback shown..");
 			feedback = String.format("%s %s %s",getResources().getString(R.string.feedback_txt_1),
-					message,
+					MESSAGE,
 					getResources().getString(R.string.feedback_txt_2)); 
-			feedback = message; // temp FIXME
+			feedback = MESSAGE; // temp FIXME
 			
 			okBtn.setEnabled(false);
-			okBtn.setText(getResources().getString(R.string.details_btn_txt));
+			okBtn.setText(getResources().getString(R.string.details_btn_txt_deny));
 			feedbackView.setText(feedback);
 			feedbackTitleView.setText(getResources().getString(R.string.feedback_title_txt));
-			resolveConflictAutoBtn.setVisibility(View.GONE);
+//			resolveConflictAutoBtn.setVisibility(View.GONE);
 			
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
@@ -125,14 +135,14 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		case MusesUICallbacksHandler.ACTION_RESPONSE_MAY_BE:
 			Log.v(TAG, "acion maybe in feedback shown..");
 			feedback = String.format("%s %s %s",getResources().getString(R.string.feedback_txt_1),
-					message,
+					MESSAGE,
 					getResources().getString(R.string.feedback_txt_2)); 
-			feedback = message; // temp FIXME
+			feedback = MESSAGE; // temp FIXME
 			
 			feedbackView.setText(feedback);
 			feedbackTitleView.setText(getResources().getString(R.string.feedback_title_txt));
-			resolveConflictAutoBtn.setVisibility(View.GONE);
-			okBtn.setText(getResources().getString(R.string.what_can_i_do_btn_txt));
+//			resolveConflictAutoBtn.setVisibility(View.GONE);
+			okBtn.setText(getResources().getString(R.string.details_btn_txt_maybe));
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
 															 UserContextEventHandler.isServerOnlineAndUserAuthenticated() ? 
@@ -142,12 +152,12 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		case MusesUICallbacksHandler.ACTION_RESPONSE_UP_TO_USER:
 			Log.v(TAG, "acion up to user in feedback shown..");
 			feedback = String.format("%s %s %s",getResources().getString(R.string.feedback_txt_1),
-					message,
+					MESSAGE,
 					getResources().getString(R.string.feedback_txt_2));
-			feedback = message; // temp FIXME
+			feedback = MESSAGE; // temp FIXME
 			feedbackView.setText(feedback);
 			feedbackTitleView.setText(getResources().getString(R.string.feedback_title_txt));
-			okBtn.setText(getResources().getString(R.string.continue_btn_txt));
+			okBtn.setText(getResources().getString(R.string.details_btn_txt_uptouser));
 			
 			// show current status
 			currentStatusView.setText(String.format("%s %s", getResources().getString(R.string.current_com_status_1),
