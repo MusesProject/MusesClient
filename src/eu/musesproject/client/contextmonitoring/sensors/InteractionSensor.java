@@ -57,6 +57,10 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	// holds a value that indicates if the sensor is enabled or disabled
 	private boolean sensorEnabled;
+	
+	// apps
+	GmailObserver gmailObserver;
+	IBMNotesTravelerObserver notesTravelerObserver;
 
 	public InteractionSensor() {
 		init();
@@ -76,6 +80,8 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	private void init() {
 		sensorEnabled = false;
 		contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
+		
+		notesTravelerObserver = new IBMNotesTravelerObserver();
 	}
 
 	@Override
@@ -117,6 +123,14 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 		if(pckName != null && pckName.equals("com.google.android.gm")) {
 			new GmailObserver(getRootInActiveWindow(), event);
 		}
+		else if(pckName != null && pckName.equals("com.lotus.sync.traveler")) {
+			if(notesTravelerObserver == null) {
+				notesTravelerObserver = new IBMNotesTravelerObserver();
+			}
+			notesTravelerObserver.setAccessibilityNodeInfo(getRootInActiveWindow());
+			notesTravelerObserver.setEvent(event);
+			notesTravelerObserver.observe();
+		}
 	}
 
 	private void createUserAction(Action action, Map<String, String> actionProperties) {
@@ -154,6 +168,124 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
         return sb.toString();
     }
 
+    private class IBMNotesTravelerObserver {
+		private static final String INNER_SEP = ",";
+		private static final String OUTER_SEP = ";";
+		
+    	private AccessibilityNodeInfo accessibilityNodeInfo;
+    	private AccessibilityEvent event;
+    	
+    	private MailContent content;
+
+    	public void observe() {
+    		// stop processing if one of the necessary objects is null
+    		if(getAccessibilityNodeInfo() == null || getEvent() == null) {
+    			return;
+    		}
+    		if(getEventText(event).contains(InteractionDictionary.SEND_EN) || getEventText(event).contains(InteractionDictionary.SEND_DE)) {
+	    		content = new MailContent();
+	    		
+	    		// otherwise continue with the processing
+	    		 if(accessibilityNodeInfo.getChildCount() > 1) {
+    	            AccessibilityNodeInfo nodeInfoRoot = accessibilityNodeInfo.getChild(1);
+    	            if (nodeInfoRoot != null) {
+    	            	// start read the content here
+    	                for (int i = 0; i < nodeInfoRoot.getChildCount(); i++) {
+    	                    if(nodeInfoRoot.getChild(i) != null) {
+    	                        AccessibilityNodeInfo nodeInfoChild = nodeInfoRoot.getChild(i);
+    	                        String childText = nodeInfoChild.getText() + "";
+    	                        if (childText.contains("To")) {
+    	                            System.out.println("to pos: " + nodeInfoRoot.getChild(i+1).getText());
+    	                            content.setTo(nodeInfoRoot.getChild(i+1).getText() + "");
+    	                        } else if (childText.contains("Cc")) {
+    	                            System.out.println("Cc pos: " + nodeInfoRoot.getChild(i+1).getText());
+    	                            content.setCc(nodeInfoRoot.getChild(i+1).getText() + "");
+    	                        } else if (childText.contains("Bcc")) {
+    	                            System.out.println("Bcc pos: " + nodeInfoRoot.getChild(i+1).getText());
+    	                            content.setBcc(nodeInfoRoot.getChild(i+1).getText() + "");
+    	                        } else if (childText.contains("Subject")) {
+    	                            System.out.println("Subject pos: " + nodeInfoRoot.getChild(i+1).getText());
+    	                            content.setSubject(nodeInfoRoot.getChild(i+1).getText() + "");
+    	                        }
+
+    	                        //check for attachments
+    	                        if(nodeInfoChild.getClassName().equals("android.widget.LinearLayout")) {
+    	                            // within the linear layout, each attachment is represented as a text view
+    	                            for (int j = 0; j < nodeInfoChild.getChildCount(); j++) {
+    	                            	MailAttachment attachment = new MailAttachment();
+    	                                AccessibilityNodeInfo nodeInfoAttachment = nodeInfoChild.getChild(j);
+    	                                if(nodeInfoAttachment.getText() == null) {
+    	                                	continue;
+    	                                }
+    	                                String[] splitText = nodeInfoAttachment.getText().toString().split(".");
+    	                                attachment.setFileName(nodeInfoAttachment.getText() + "");
+    	                                if(splitText.length > 1) {
+    	                                	attachment.setFileType(splitText[splitText.length - 1]);
+    	                                }
+    	                                content.addMailAttachmentItem(attachment);
+    	                                
+    	                                System.out.println(nodeInfoAttachment.getClassName() + " " + nodeInfoAttachment.getText());
+    	                            }
+    	                        }
+    	                    }
+    	                } // stop to read the content
+    	                
+                        // create action
+    					Action action = new Action();
+    					action.setActionType(ActionType.SEND_MAIL);
+    					action.setTimestamp(System.currentTimeMillis());
+                        
+    					// set action properties
+                        Map<String, String> actionProperties = new HashMap<String, String>();
+    					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_TO, content.getTo());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT, String.valueOf(content.getAttachments().size()));
+    					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_INFO, generateMailAttachmentInfo(content.getAttachments()));
+    					
+    					createUserAction(action, actionProperties);
+    	            }
+	    		 }	
+    		 }
+    	}
+    	
+
+    	public AccessibilityNodeInfo getAccessibilityNodeInfo() {
+			return accessibilityNodeInfo;
+		}
+
+		public void setAccessibilityNodeInfo(AccessibilityNodeInfo accessibilityNodeInfo) {
+			this.accessibilityNodeInfo = accessibilityNodeInfo;
+		}
+
+		public AccessibilityEvent getEvent() {
+			return event;
+		}
+
+		public void setEvent(AccessibilityEvent event) {
+			this.event = event;
+		}
+		
+		private String generateMailAttachmentInfo(List<MailAttachment> attachments) {
+			if(content.getAttachments().size() > 0) {
+				String attachmentInfos = "";
+				for (MailAttachment item : content.getAttachments()) {
+					attachmentInfos += item.getFileName() + INNER_SEP + item.getFileType() + OUTER_SEP;
+				}
+				
+				// remove last separator and return value
+				return attachmentInfos.substring(0, attachmentInfos.length() - 1);
+			}
+			else {
+				return "";
+			}
+		}
+    }
+    
+    
+    
 	private class GmailObserver {
 		private static final String INNER_SEP = ",";
 		private static final String OUTER_SEP = ";";

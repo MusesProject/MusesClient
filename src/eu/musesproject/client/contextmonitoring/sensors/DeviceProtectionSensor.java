@@ -202,8 +202,9 @@ public class DeviceProtectionSensor implements ISensor {
 						String sAddr = addr.getHostAddress().toUpperCase();
 						boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
 						if (useIPv4) {
-							if (isIPv4)
+							if (isIPv4) {
 								return sAddr;
+							}
 						} else {
 							if (!isIPv4) {
 								int delim = sAddr.indexOf('%');
