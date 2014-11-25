@@ -8,6 +8,9 @@ public class Resource {
 	private String condition;
 	private int resourcetype;
 	private long modification;
+	private String severity;
+	private String name;
+	private String type;
 	
 	public int getId() {
 		return id;
@@ -44,6 +47,24 @@ public class Resource {
 	}
 	public void setCondition(String condition) {
 		this.condition = condition;
+	}
+	public String getSeverity() {
+		return severity;
+	}
+	public void setSeverity(String severity) {
+		this.severity = severity;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 
 }

@@ -57,6 +57,9 @@ public class DBManager {
 																	  + "path VARCHAR(45) NOT NULL,"
 																	  + "condition VARCHAR(200),"
 																	  + "resourcetype INT NOT NULL," 		// fk resourceType.id
+																	  + "name VARCHAR(45) NOT NULL,"
+																	  + "severity VARCHAR(45) NOT NULL,"
+																	  + "type VARCHAR(45) NOT NULL,"
 																	  + "modification TIMESTAMP NOT NULL);";
 	private static final String CREATE_RESOURCE_TYPE_TABLE_QUERY = "CREATE TABLE resourcetype ( "
 																	  + "id INTEGER PRIMARY KEY," 
