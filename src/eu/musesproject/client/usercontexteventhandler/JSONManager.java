@@ -48,12 +48,16 @@ public class JSONManager {
 	 * @param contextEvents {@link eu.musesproject.contextmodel.ContextEvent}
 	 * @return {@link org.json.JSONObject}
 	 */
-	public static JSONObject createJSON(String deviceId, String userName, String requestType, Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+	public static JSONObject createJSON(String deviceId, String userName, int requestId, String requestType, Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
 		JSONObject root = new JSONObject();
 		try {
             /*
-             * request type
+             * request id
              */
+			root.put(JSONIdentifiers.REQUEST_IDENTIFIER, requestId);
+			/*
+			 * request type
+			 */
             root.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, requestType);
             
             /*
@@ -251,11 +255,17 @@ public class JSONManager {
      * @return the request id
      */
     public static int getRequestId(String jsonString) {
+    	int requestId = - 1;
     	try {
-    		JSONObject requestJSON = new JSONObject(jsonString);
+    		JSONObject responseJSON = new JSONObject(jsonString);
+    		JSONObject policyJSON = responseJSON.getJSONObject("muses-device-policy");
+    		JSONObject fileJSON = policyJSON.getJSONObject("files");
+    		JSONObject actionJSON = fileJSON.getJSONObject("action");
+
+    		requestId = actionJSON.getInt("requestid");
     	} catch (JSONException e) {
     		e.printStackTrace();
     	}
-    	return 0;
+    	return requestId;
     }
 }

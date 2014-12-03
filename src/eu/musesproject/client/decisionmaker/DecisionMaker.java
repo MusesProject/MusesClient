@@ -19,7 +19,9 @@ import eu.musesproject.client.db.entity.Resource;
 import eu.musesproject.client.db.entity.RiskCommunication;
 import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.handler.DBManager;
-import eu.musesproject.client.model.decisiontable.*;
+import eu.musesproject.client.model.decisiontable.ActionType;
+import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -680,5 +682,12 @@ public class DecisionMaker {
 		defaultDecision.setRiskCommunication(riskCommunication);
 		return defaultDecision;
 	}
+	
+	public Decision getDefaultDecision(
+			eu.musesproject.client.model.decisiontable.Action action,
+			Map<String, String> actionProperties,
+			List<ContextEvent> contextEvents) {
 
+		return getDefaultDecision(action);
+	}
 }

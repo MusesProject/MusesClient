@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.model.JSONIdentifiers;
+import eu.musesproject.client.model.RequestHolder;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
@@ -35,6 +36,7 @@ public class JSONManagerTest extends TestCase {
     private String userBehavior;
     private String successfulAuthenticationJSON;
     private String unSuccessfulAuthenticationJSON;
+    private String responseJSON;
 
     @Override
     protected void setUp() throws Exception {
@@ -73,10 +75,13 @@ public class JSONManagerTest extends TestCase {
         
         successfulAuthenticationJSON = "{\"auth-message\":\"Successfully authenticated\",\"auth-result\":\"SUCCESS\",\"requesttype\":\"auth-response\"}";
         unSuccessfulAuthenticationJSON = "{\"auth-message\":\"Incorrect password\",\"auth-result\":\"FAIL\",\"requesttype\":\"auth-response\"}";
+        
+        responseJSON = "{\"muses-device-policy\":{\"files\":{\"action\":{\"deny\":{\"id\":1,\"condition\":{\"noAttachments\":0},\"path\":\"//repository/projects/sandproject/offer/null\",\"riskTreatment\":\"Email action allowed\"},\"requestid\":3,\"type\":\"ACTION_SEND_MAIL\"}},\"revision\":1,\"schema-version\":1},\"requesttype\":\"update_policies\"}";
     }
 
     public void testCreateJSON() throws JSONException {
-        JSONObject resultJSON = JSONManager.createJSON(deviceId, userName, requestType, action, actionProperties, contextEvents);
+        RequestHolder requestHolder = new RequestHolder(action, actionProperties, contextEvents);
+        JSONObject resultJSON = JSONManager.createJSON(deviceId, userName, requestHolder.getId(), requestType, action, actionProperties, contextEvents);
         assertNotNull(resultJSON);
 
         assertEquals("request type", "update_context_events", resultJSON.getString(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER));
@@ -126,8 +131,9 @@ public class JSONManagerTest extends TestCase {
     }
     
     public void testGetRequestType() {
+        RequestHolder requestHolder = new RequestHolder(action, actionProperties, contextEvents);
     	// create a test JSON object
-    	JSONObject testJSON = JSONManager.createJSON(deviceId, userName, requestType, action, actionProperties, contextEvents);
+        JSONObject testJSON = JSONManager.createJSON(deviceId, userName, requestHolder.getId(), requestType, action, actionProperties, contextEvents);
 		assertNotNull(testJSON);
     	
     	assertEquals(requestType, JSONManager.getRequestType(testJSON.toString()));
@@ -136,6 +142,10 @@ public class JSONManagerTest extends TestCase {
     public void testGetAuthResult() {
     	assertEquals(true, JSONManager.getAuthResult(successfulAuthenticationJSON));
     	assertEquals(false, JSONManager.getAuthResult(unSuccessfulAuthenticationJSON));
+    }
+    
+    public void testGetRequestId() {
+    	assertEquals(3, JSONManager.getRequestId(responseJSON));
     }
 
     @Override

@@ -33,11 +33,14 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
+import eu.musesproject.client.connectionmanager.RequestTimeoutTimer;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Configuration;
@@ -59,8 +62,9 @@ import eu.musesproject.contextmodel.ContextEvent;
  * @author Christoph
  * @version 28 feb 2014
  */
-public class UserContextEventHandler {
+public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeoutHandler {
     private static final String TAG = UserContextEventHandler.class.getSimpleName();
+    public static final String TAG_RQT = "REQUEST_TIMEOUT";
     private static final String APP_TAG = "APP_TAG";
 
     private static UserContextEventHandler userContextEventHandler = null;
@@ -79,6 +83,8 @@ public class UserContextEventHandler {
 	private int serverDetailedStatus;
 	private boolean isUserAuthenticated;
 	public static boolean serverOnlineAndUserAuthenticated;
+	
+	private DecisionMaker decisionMaker; 
 
 	private Map<Integer, RequestHolder> mapOfPendingRequests;//String key is the hashID of the request object
 	
@@ -93,6 +99,8 @@ public class UserContextEventHandler {
         serverDetailedStatus = Statuses.OFFLINE;
         isUserAuthenticated = false;
         serverOnlineAndUserAuthenticated = false;
+        
+        decisionMaker = new DecisionMaker();
         
         mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
 	}
@@ -152,13 +160,9 @@ public class UserContextEventHandler {
         Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
         boolean onlineDecisionRequested = false;
 
-        // check for a locally stored decision
-        Resource resource = ResourceCreator.create(action, properties);
-        
-        Request request = new Request(action, resource);
 		Log.d(APP_TAG, "Info DC, Calling decision maker");
-        Decision decision = new DecisionMaker().makeDecision(request, contextEvents, properties);
-//        Decision decision = new DecisionMaker().makeDummyDecision(request, contextEvents);
+        Decision decision = retrieveDecision(action, properties, contextEvents);
+        
         if(decision != null) { // local decision found
         	Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
             ActuatorController.getInstance().showFeedback(decision);
@@ -170,11 +174,20 @@ public class UserContextEventHandler {
                 
                 // temporary store the information so that the decision can be made after the server responded with 
                 // an database update (new policies are sent from the server to the client and stored in the database)
-                RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
+                // In addition, add a timeout to every request
+                final RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
+                Log.d(TAG_RQT, "1. send: request_id: " + requestHolder.getId());
+                Handler handler = new Handler(Looper.getMainLooper()); 
+                handler.postDelayed(new Runnable() {
+        	          @Override
+        	          public void run() {
+        	        	  new RequestTimeoutTimer(UserContextEventHandler.this, requestHolder.getId()).start();
+        	          }
+        	        }, 10 );
                 mapOfPendingRequests.put(requestHolder.getId(), requestHolder);
 
                 // create the JSON request and send it to the server
-                JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
+                JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
                 Log.d(APP_TAG, "Info DC, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
                 sendRequestToServer(requestObject);
             }
@@ -194,9 +207,33 @@ public class UserContextEventHandler {
         // Prevent sending context events again if they are already sent for a online decision
         if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE) && isUserAuthenticated) {
     		Log.d(APP_TAG, "Info DB, update context events even if a local decision was found.");
-            JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.LOCAL_DECISION, action, properties, contextEvents);
+
+            RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
+            JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.LOCAL_DECISION, action, properties, contextEvents);
             sendRequestToServer(requestObject);
         }
+	}
+	
+	/**
+	 * Method that handles the necessary steps to retrieve a decision from the decision maker
+	 * 1. Generate the {@link Resource}
+	 * 2. Generate the {@link Request}
+	 * 3. Make sure that the {@link DecisionMaker} is initialized
+	 * 4. Request a decision from the {@link DecisionMaker}
+	 * 
+	 * @param action
+	 * @param properties
+	 * @param contextEvents
+	 * @return
+	 */
+	private Decision retrieveDecision(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+		Resource resource = ResourceCreator.create(action, properties);
+		Request request = new Request(action, resource);
+		Log.d(APP_TAG, "Info DC, Calling decision maker");
+		if(decisionMaker == null) {
+			decisionMaker = new DecisionMaker();
+		}
+        return decisionMaker.makeDecision(request, contextEvents, properties);
 	}
 	
 	/**
@@ -295,7 +332,8 @@ public class UserContextEventHandler {
         	dbManager.closeDB();
 
         	// transform to JSON
-        	JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
+        	RequestHolder requestHolder = new RequestHolder(null, null, contextEvents);
+        	JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
         	// send to server
         	sendRequestToServer(requestObject);
         }
@@ -373,8 +411,12 @@ public class UserContextEventHandler {
                     
                     // look for the related request
                     int requestId = JSONManager.getRequestId(receivedData);
-                    if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
+                    if(mapOfPendingRequests == null) {
+                    	mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
+                    }
+                    if(mapOfPendingRequests.containsKey(requestId)) {
                     	RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
+                    	mapOfPendingRequests.remove(requestId);
                     	send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
                     }
                 }
@@ -430,6 +472,32 @@ public class UserContextEventHandler {
 		}
 		return "muses";
 	}
+	
+	public void removeRequestById(int requestId) {
+		Log.d(TAG_RQT, "6. removeRequestById map size: " + mapOfPendingRequests.size());
+		if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
+			mapOfPendingRequests.remove(requestId);
+			Log.d(TAG_RQT, "7. removeRequestById map size afterwards: " + mapOfPendingRequests.size());
+		}
+	}
 
+	@Override
+	public void handleRequestTimeout(int requestId) {
+		Log.d(TAG_RQT, "5. handleRequestTimeout to id: " + requestId);
+		// 1. store object temporary
+		// 2. remove object from the map that holds all RequestHolder
+		// 3. perform default decision
 
+		// -> 1.
+		RequestHolder requestHolder = new RequestHolder();
+		requestHolder = mapOfPendingRequests.get(requestId);
+		// -> 2.
+		removeRequestById(requestId);
+		// -> 3.
+		if(decisionMaker == null) {
+			decisionMaker = new DecisionMaker();
+		}
+		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
+		ActuatorController.getInstance().showFeedback(decision);
+	}
 }

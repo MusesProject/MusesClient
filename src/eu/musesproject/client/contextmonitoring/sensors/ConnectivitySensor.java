@@ -170,7 +170,7 @@ public class ConnectivitySensor implements ISensor {
                 contextEvent.setType(TYPE);
                 contextEvent.setTimestamp(System.currentTimeMillis());
                 contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(id));
-                if (mobileNetworkInfo !=null)
+                if (mobileNetworkInfo != null)
                     contextEvent.addProperty(PROPERTY_KEY_MOBILE_CONNECTED, String.valueOf(mobileNetworkInfo.isConnected()));
                 contextEvent.addProperty(PROPERTY_KEY_WIFI_ENABLED, String.valueOf(wifiManager.isWifiEnabled()));
                 if(wifiManager.isWifiEnabled()) {
