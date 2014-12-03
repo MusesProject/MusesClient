@@ -87,6 +87,7 @@ public class SettingsSensor implements ISensor {
     	contextEvent.addProperty(PROPERTY_KEY_OS_VERSION, getOSVersion());
     	contextEvent.addProperty(PROPERTY_KEY_SDK_VERSION, getSDKVersion());
     	contextEvent.addProperty(PROPERTY_KEY_IMEI, getIMEI());
+    	contextEvent.generateId();
     	
         if (listener != null) {
             listener.onEvent(contextEvent);
@@ -143,7 +144,7 @@ public class SettingsSensor implements ISensor {
             return null;
         }
     }
-
+    
 	@Override
 	public void configure(List<SensorConfiguration> config) {
 		// TODO Auto-generated method stub

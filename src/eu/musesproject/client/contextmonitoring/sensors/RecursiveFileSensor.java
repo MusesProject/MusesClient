@@ -158,6 +158,7 @@ public class RecursiveFileSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_ID, id);
         contextEvent.addProperty(PROPERTY_KEY_FILE_EVENT, eventText);
         contextEvent.addProperty(PROPERTY_KEY_PATH, path);
+        contextEvent.generateId();
         Log.d(TAG, "event received: " + eventText + " path: " +path);
 
         // add context event to the context event history

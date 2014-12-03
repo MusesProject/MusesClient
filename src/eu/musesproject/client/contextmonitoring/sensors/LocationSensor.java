@@ -203,6 +203,7 @@ public class LocationSensor implements ISensor, LocationListener {
 		contextEvent.setTimestamp(System.currentTimeMillis());
 		contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
 		contextEvent.addProperty(PROPERTY_KEY_IS_WITHIN_SECURE_ZONE, String.valueOf(isWithinSecureZone));
+		contextEvent.generateId();
 
 		if (listener != null) {
 			listener.onEvent(contextEvent);

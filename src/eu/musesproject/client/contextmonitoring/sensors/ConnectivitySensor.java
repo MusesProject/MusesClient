@@ -124,6 +124,7 @@ public class ConnectivitySensor implements ISensor {
 
     /** adds the context event to the context event history */
     private void createContextEvent(ContextEvent contextEvent) {
+    	contextEvent.generateId();
         Log.d(TAG, "Connectivity  - context event created");
 
         // add context event to the context event history

@@ -6,6 +6,7 @@ public class Action {
 	private String description;
 	private long modification;
 	
+	
 	public int getId() {
 		return id;
 	}
@@ -24,7 +25,4 @@ public class Action {
 	public void setModification(long modification) {
 		this.modification = modification;
 	}
-	
-	
-
 }

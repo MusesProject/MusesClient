@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
@@ -243,5 +242,20 @@ public class JSONManager {
     	}
     	
     	return decision;
+    }
+    
+    /**
+     * Method that returns the id of the request that was sent to the server.
+     * 
+     * @param jsonString response from server
+     * @return the request id
+     */
+    public static int getRequestId(String jsonString) {
+    	try {
+    		JSONObject requestJSON = new JSONObject(jsonString);
+    	} catch (JSONException e) {
+    		e.printStackTrace();
+    	}
+    	return 0;
     }
 }

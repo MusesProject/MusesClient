@@ -55,10 +55,10 @@ public class AppSensor implements ISensor {
     public static final String TYPE = "CONTEXT_SENSOR_APP";
 
     // time in milliseconds when the sensor polls information
-    private static int OBSERVATION_INTERVALL = 500;
+    private static int OBSERVATION_INTERVALL = 1000;
 
     // maximal number of how many background services are stored if a context event is fired
-    private static final int MAX_SHOWN_BACKGROUND_SERVICES = 100;
+    private static final int MAX_SHOWN_BACKGROUND_SERVICES = 30;
 
     // context property keys
     public static final String PROPERTY_KEY_ID 					= "id";
@@ -113,6 +113,7 @@ public class AppSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_PACKAGE_NAME, packageName);
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, String.valueOf(appVersion));
         contextEvent.addProperty(PROPERTY_KEY_BACKGROUND_PROCESS, runningServicesNames.toString());
+        contextEvent.generateId();
 
         // add context event to the context event history
         contextEventHistory.add(contextEvent);

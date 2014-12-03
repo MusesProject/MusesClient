@@ -26,6 +26,7 @@ package eu.musesproject.client.usercontexteventhandler;
  */
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,7 @@ import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.ResourceCreator;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
+import eu.musesproject.client.model.RequestHolder;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
@@ -78,9 +80,7 @@ public class UserContextEventHandler {
 	private boolean isUserAuthenticated;
 	public static boolean serverOnlineAndUserAuthenticated;
 
-	private Action tmpAction;
-	private Map<String, String> tmpProperties;
-	private List<ContextEvent> tmpContextEvents;
+	private Map<Integer, RequestHolder> mapOfPendingRequests;//String key is the hashID of the request object
 	
 	private String imei;
 	private String userName;
@@ -93,6 +93,8 @@ public class UserContextEventHandler {
         serverDetailedStatus = Statuses.OFFLINE;
         isUserAuthenticated = false;
         serverOnlineAndUserAuthenticated = false;
+        
+        mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
 	}
 	
 	/**
@@ -168,9 +170,8 @@ public class UserContextEventHandler {
                 
                 // temporary store the information so that the decision can be made after the server responded with 
                 // an database update (new policies are sent from the server to the client and stored in the database)
-                tmpAction = action;
-                tmpProperties = properties;
-                tmpContextEvents = contextEvents;
+                RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
+                mapOfPendingRequests.put(requestHolder.getId(), requestHolder);
 
                 // create the JSON request and send it to the server
                 JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
@@ -292,7 +293,7 @@ public class UserContextEventHandler {
         		contextEvents.add(contextEvent);
         	}
         	dbManager.closeDB();
-        	
+
         	// transform to JSON
         	JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
         	// send to server
@@ -348,10 +349,10 @@ public class UserContextEventHandler {
 	private class ConnectionCallback implements IConnectionCallbacks {
 
 		@Override
-		public int receiveCb(String receiveData) {
+		public int receiveCb(String receivedData) {
             Log.d(TAG, "called: receiveCb(String receiveData)");
-            if((receiveData != null) && (!receiveData.equals(""))) {
-                String requestType = JSONManager.getRequestType(receiveData);
+            if((receivedData != null) && (!receivedData.equals(""))) {
+                String requestType = JSONManager.getRequestType(receivedData);
 
                 if(requestType.equals(RequestType.ONLINE_DECISION)) {
                 	Log.d(APP_TAG, "RequestT type was " + RequestType.ONLINE_DECISION );
@@ -368,20 +369,19 @@ public class UserContextEventHandler {
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
                 	Log.d(APP_TAG, "RequestT type was " + RequestType.UPDATE_POLICIES );
                 	Log.d(APP_TAG, "Updating polices");
-                    RemotePolicyReceiver.getInstance().updateJSONPolicy(receiveData, context);
-                    if(tmpAction != null && tmpProperties != null && tmpContextEvents != null) {
-                    	send(tmpAction, tmpProperties, tmpContextEvents);
-                    }
-                    // reset temporary data
-                    tmpAction = null;
-                    tmpProperties = null;
-                    tmpContextEvents = null;
+                    RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
                     
+                    // look for the related request
+                    int requestId = JSONManager.getRequestId(receivedData);
+                    if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
+                    	RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
+                    	send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
+                    }
                 }
                 else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
                 	Log.d(APP_TAG, "RequestT type was " + RequestType.AUTH_RESPONSE );
                 	Log.d(APP_TAG, "Retreiving auth response from JSON");
-                	isUserAuthenticated = JSONManager.getAuthResult(receiveData);
+                	isUserAuthenticated = JSONManager.getAuthResult(receivedData);
                 	if(isUserAuthenticated) {
                 		serverStatus = Statuses.ONLINE;
                 		sendOfflineStoredContextEventsToServer();

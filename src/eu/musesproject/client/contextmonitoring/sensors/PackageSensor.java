@@ -158,6 +158,7 @@ public class PackageSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_APP_NAME, appName);
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, appVersion);
         contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps());
+        contextEvent.generateId();
         
         // just for debugging/testing purpose
 //        Iterator it = contextEvent.getProperties().entrySet().iterator();
