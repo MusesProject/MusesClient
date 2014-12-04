@@ -65,6 +65,7 @@ import eu.musesproject.contextmodel.ContextEvent;
 public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeoutHandler {
     private static final String TAG = UserContextEventHandler.class.getSimpleName();
     public static final String TAG_RQT = "REQUEST_TIMEOUT";
+    public static final String TAG_MUSES_AWARE = "MUSES_AWARE";
     private static final String APP_TAG = "APP_TAG";
 
     private static UserContextEventHandler userContextEventHandler = null;
@@ -157,6 +158,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param contextEvents {@link ContextEvent}
 	 */
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+		Log.d(TAG_MUSES_AWARE, "Action: " + action.getActionType());
         Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
         boolean onlineDecisionRequested = false;
 

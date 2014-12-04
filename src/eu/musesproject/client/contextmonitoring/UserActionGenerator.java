@@ -144,9 +144,6 @@ public class UserActionGenerator {
         else if(type.equals(ActionType.SEND_MAIL)) {
             return ActionType.SEND_MAIL;
         }
-        else if(type.equals(ActionType.VIRUS_FOUND)) {
-            return ActionType.VIRUS_FOUND;
-        }
         else if(type.equals(ActionType.OK)) {
             return ActionType.OK;
         }
@@ -155,6 +152,12 @@ public class UserActionGenerator {
         }
         else if(type.equals(ActionType.OPEN_ASSET)) {
         	return ActionType.OPEN_ASSET;
+        }
+        else if(type.equals(ActionType.VIRUS_FOUND)) {
+        	return ActionType.VIRUS_FOUND;
+        }
+        else if(type.equals(ActionType.VIRUS_CLEANED)) {
+        	return ActionType.VIRUS_CLEANED;
         }
         else {
             return null;

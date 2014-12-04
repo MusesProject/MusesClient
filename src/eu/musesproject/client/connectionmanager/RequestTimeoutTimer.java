@@ -2,7 +2,6 @@ package eu.musesproject.client.connectionmanager;
 
 import java.util.concurrent.TimeUnit;
 
-import android.os.AsyncTask;
 import android.os.CountDownTimer;
 import android.util.Log;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;

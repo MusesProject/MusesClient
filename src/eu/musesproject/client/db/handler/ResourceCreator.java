@@ -32,6 +32,14 @@ public class ResourceCreator {
 			}
 			else if(action.getActionType().equals(ActionType.VIRUS_FOUND)) {
 			}
+			else if(action.getActionType().equals(ActionType.VIRUS_CLEANED)) {
+				resType.setName(properties.get("name"));
+				res.setResourceType(resType);
+				res.setSeverity(properties.get("severity"));
+				res.setType(properties.get("clean_type"));
+				res.setPath(properties.get("path"));
+				res.setName(properties.get("name"));
+			}
 		}
 		
 		return res;
