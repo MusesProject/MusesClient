@@ -102,7 +102,7 @@ public class HttpResponseHandler {
 				break;
 			}
 		} else {
-			Log.d(TAG, "Server is OFFLINE .. Exception occured during communication with the server .. check the stacktrace to fix it!");
+			Log.d(APP_TAG, "Server is OFFLINE .. Exception occured during communication with the server .. check the stacktrace to fix it!");
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
 		}
 	}
