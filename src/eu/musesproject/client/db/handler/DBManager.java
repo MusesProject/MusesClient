@@ -556,11 +556,11 @@ public class DBManager {
             	configuration.setServerServletPath(cursor.getString(4));
             	configuration.setServerCertificate(cursor.getString(5));
             	configuration.setClientCertificate(cursor.getString(6));
-            	configuration.setTimeout(cursor.getInt(5));
-            	configuration.setPollTimeout(cursor.getInt(6));
-            	configuration.setSleepPollTimeout(cursor.getInt(7));
-            	configuration.setPollingEnabled(cursor.getInt(8));
-            	configuration.setLoginAttempts(cursor.getInt(9));
+            	configuration.setTimeout(cursor.getInt(7));
+            	configuration.setPollTimeout(cursor.getInt(8));
+            	configuration.setSleepPollTimeout(cursor.getInt(9));
+            	configuration.setPollingEnabled(cursor.getInt(10));
+            	configuration.setLoginAttempts(cursor.getInt(11));
             } while (cursor.moveToNext());
         }
         return configuration;
