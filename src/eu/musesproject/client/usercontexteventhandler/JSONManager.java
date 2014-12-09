@@ -262,7 +262,7 @@ public class JSONManager {
     		JSONObject fileJSON = policyJSON.getJSONObject("files");
     		JSONObject actionJSON = fileJSON.getJSONObject("action");
 
-    		requestId = actionJSON.getInt("requestid");
+    		requestId = actionJSON.getInt("request_id");
     	} catch (JSONException e) {
     		e.printStackTrace();
     	}

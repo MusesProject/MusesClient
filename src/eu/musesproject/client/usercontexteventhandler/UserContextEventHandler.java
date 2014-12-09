@@ -51,6 +51,7 @@ import eu.musesproject.client.decisionmaker.DecisionMaker;
 import eu.musesproject.client.model.RequestHolder;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.model.decisiontable.Resource;
@@ -159,7 +160,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
 		Log.d(TAG_MUSES_AWARE, "Action: " + action.getActionType());
-        Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
+		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
         boolean onlineDecisionRequested = false;
 
 		Log.d(APP_TAG, "Info DC, Calling decision maker");

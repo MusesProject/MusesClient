@@ -76,7 +76,7 @@ public class JSONManagerTest extends TestCase {
         successfulAuthenticationJSON = "{\"auth-message\":\"Successfully authenticated\",\"auth-result\":\"SUCCESS\",\"requesttype\":\"auth-response\"}";
         unSuccessfulAuthenticationJSON = "{\"auth-message\":\"Incorrect password\",\"auth-result\":\"FAIL\",\"requesttype\":\"auth-response\"}";
         
-        responseJSON = "{\"muses-device-policy\":{\"files\":{\"action\":{\"deny\":{\"id\":1,\"condition\":{\"noAttachments\":0},\"path\":\"//repository/projects/sandproject/offer/null\",\"riskTreatment\":\"Email action allowed\"},\"requestid\":3,\"type\":\"ACTION_SEND_MAIL\"}},\"revision\":1,\"schema-version\":1},\"requesttype\":\"update_policies\"}";
+        responseJSON = "{\"muses-device-policy\":{\"files\":{\"action\":{\"deny\":{\"id\":1,\"condition\":{\"noAttachments\":0},\"path\":\"//repository/projects/sandproject/offer/null\",\"riskTreatment\":\"Email action allowed\"},\"request_id\":3,\"type\":\"ACTION_SEND_MAIL\"}},\"revision\":1,\"schema-version\":1},\"requesttype\":\"update_policies\"}";
     }
 
     public void testCreateJSON() throws JSONException {
