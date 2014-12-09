@@ -40,6 +40,7 @@ import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.AlarmReceiver;
 import eu.musesproject.client.connectionmanager.ConnectionManager;
 import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
+import eu.musesproject.client.connectionmanager.RequestHolder;
 import eu.musesproject.client.connectionmanager.RequestTimeoutTimer;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
@@ -48,10 +49,8 @@ import eu.musesproject.client.db.entity.Property;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.ResourceCreator;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
-import eu.musesproject.client.model.RequestHolder;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
-import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.model.decisiontable.Resource;
@@ -162,7 +161,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		Log.d(TAG_MUSES_AWARE, "Action: " + action.getActionType());
 		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
         boolean onlineDecisionRequested = false;
-
+        
 		Log.d(APP_TAG, "Info DC, Calling decision maker");
         Decision decision = retrieveDecision(action, properties, contextEvents);
         
@@ -184,7 +183,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 handler.postDelayed(new Runnable() {
         	          @Override
         	          public void run() {
-        	        	  new RequestTimeoutTimer(UserContextEventHandler.this, requestHolder.getId()).start();
+        	        	  requestHolder.setRequestTimeoutTimer(new RequestTimeoutTimer(UserContextEventHandler.this, requestHolder.getId()));
+        	        	  requestHolder.getRequestTimeoutTimer().start();
         	          }
         	        }, 10 );
                 mapOfPendingRequests.put(requestHolder.getId(), requestHolder);
@@ -419,6 +419,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     }
                     if(mapOfPendingRequests.containsKey(requestId)) {
                     	RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
+                    	requestHolder.getRequestTimeoutTimer().cancel();
                     	mapOfPendingRequests.remove(requestId);
                     	send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
                     }
