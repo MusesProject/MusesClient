@@ -10,9 +10,9 @@ import junit.framework.TestCase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import eu.musesproject.client.connectionmanager.RequestHolder;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.model.JSONIdentifiers;
-import eu.musesproject.client.model.RequestHolder;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
