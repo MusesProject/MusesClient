@@ -232,23 +232,6 @@ public class JSONManager {
     }
     
     /**
-     * Method to get a decision which was made on the server from a JSON response 
-     * @param jsonString String. JSON string from the server
-     * @return String that contains a {@link eu.musesproject.client.model.RequestType}
-     */
-    public static Decision getDecision(String jsonString) {
-    	Decision decision = null;
-    	
-    	try {
-    		JSONObject decisionJSON = new JSONObject(jsonString);
-    	} catch (JSONException e) {
-    		e.printStackTrace();
-    	}
-    	
-    	return decision;
-    }
-    
-    /**
      * Method that returns the id of the request that was sent to the server.
      * 
      * @param jsonString response from server
