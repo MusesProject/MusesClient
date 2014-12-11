@@ -76,7 +76,7 @@ public class JSONManagerTest extends TestCase {
         successfulAuthenticationJSON = "{\"auth-message\":\"Successfully authenticated\",\"auth-result\":\"SUCCESS\",\"requesttype\":\"auth-response\"}";
         unSuccessfulAuthenticationJSON = "{\"auth-message\":\"Incorrect password\",\"auth-result\":\"FAIL\",\"requesttype\":\"auth-response\"}";
         
-        responseJSON = "{\"muses-device-policy\":{\"files\":{\"action\":{\"deny\":{\"id\":1,\"condition\":{\"noAttachments\":0},\"path\":\"//repository/projects/sandproject/offer/null\",\"riskTreatment\":\"Email action allowed\"},\"request_id\":3,\"type\":\"ACTION_SEND_MAIL\"}},\"revision\":1,\"schema-version\":1},\"requesttype\":\"update_policies\"}";
+        responseJSON = "{\"muses-device-policy\":{\"files\":{\"action\":{\"request_id\":-1627519220,\"deny\":{\"id\":0,\"condition\":{\"appname\":\"Wifi Analyzer\"},\"path\":\"Wifi Analyzer\",\"riskTreatment\":\"You are trying to open an application which is considered harmful.\nOther people can gain control over your device.\"},\"type\":\"open_application\"}},\"revision\":1,\"schema-version\":1},\"requesttype\":\"update_policies\"}";
     }
 
     public void testCreateJSON() throws JSONException {
@@ -145,7 +145,7 @@ public class JSONManagerTest extends TestCase {
     }
     
     public void testGetRequestId() {
-    	assertEquals(3, JSONManager.getRequestId(responseJSON));
+    	assertEquals(-1627519220, JSONManager.getRequestId(responseJSON));
     }
 
     @Override

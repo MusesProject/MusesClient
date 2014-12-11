@@ -201,10 +201,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
             	storeContextEvent(action, properties, contextEvents);
             }
-            else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
-            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
-            	storeContextEvent(action, properties, contextEvents);
-            }
         }
         // update context events even if a local decision was found.
         // Prevent sending context events again if they are already sent for a online decision
@@ -408,7 +404,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     ActuatorController.getInstance().showFeedback(decision);
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
-                	Log.d(APP_TAG, "RequestT type was " + RequestType.UPDATE_POLICIES );
+                	Log.d(APP_TAG, "Request type was " + RequestType.UPDATE_POLICIES );
                 	Log.d(APP_TAG, "Updating polices");
                     RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
                     
