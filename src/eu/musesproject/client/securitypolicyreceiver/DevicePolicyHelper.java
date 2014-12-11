@@ -321,6 +321,9 @@ public class DevicePolicyHelper {
 	public Resource updateResourceAction(JSONObject actionJSON, Context context){
 		Log.d(TAG, "updateResourceAction");
 		Resource resource = new Resource();
+		resource.setName("resourceName");
+		resource.setSeverity("severity");
+		resource.setType("type");
 		DBManager dbManager = new DBManager(context);
 	    dbManager.openDB();
 		try {
@@ -370,6 +373,7 @@ public class DevicePolicyHelper {
 	    dbManager.closeDB();
 		resource.setId((int)indexResource);
 		Log.d(TAG, "Resource index:"+ indexResource);
+		Log.d(TAG, "Resource name:"+ resource.getName());
 		//TODO Insert decision in db with the same description, if it does not exist
 		
 		
