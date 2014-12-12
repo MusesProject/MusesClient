@@ -410,6 +410,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     
                     // look for the related request
                     int requestId = JSONManager.getRequestId(receivedData);
+                    Log.d(TAG_RQT, "request_id from the json is " + requestId);
                     if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
                     	RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
                     	requestHolder.getRequestTimeoutTimer().cancel();
