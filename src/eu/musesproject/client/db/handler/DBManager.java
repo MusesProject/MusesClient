@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,7 +13,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
-import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.ContextEvent;
@@ -409,11 +407,11 @@ public class DBManager {
         return appsList;
 	}
 	
-    public void insertCredentials(){
+    public void insertCredentials(String deviceId, String userName, String password){
     	ContentValues values = new ContentValues();
-    	values.put(DEVICE_ID, new SettingsSensor(context).getIMEI());
-    	values.put(USERNAME, "muses");
-    	values.put(PASSWORD, "muses");
+    	values.put(DEVICE_ID, deviceId);
+    	values.put(USERNAME, userName);
+    	values.put(PASSWORD, password);
     	sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null	, values);
     }
     
