@@ -159,6 +159,21 @@ public class UserActionGenerator {
         else if(type.equals(ActionType.VIRUS_CLEANED)) {
         	return ActionType.VIRUS_CLEANED;
         }
+        else if(type.equals(ActionType.ENCRYPT_EVENT)) {
+        	return ActionType.ENCRYPT_EVENT;
+        }
+        else if(type.equals(ActionType.UPDATE)) {
+        	return ActionType.UPDATE;
+        }
+        else if(type.equals(ActionType.SECURITY_PROPERTY_CHANGED)) {
+        	return ActionType.SECURITY_PROPERTY_CHANGED;
+        }
+        else if(type.equals(ActionType.FILE_ATTACHED)) {
+        	return ActionType.FILE_ATTACHED;
+        }
+        else if(type.equals(ActionType.SAVE_ASSET)) {
+        	return ActionType.SAVE_ASSET;
+        }
         else {
             return null;
         }

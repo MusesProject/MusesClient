@@ -73,6 +73,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 //	private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server/commain";
 //  private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server-0.0.1-SNAPSHOT/commain";
 //  private static final String MUSES_SERVER_URL = "http://192.168.44.107:8080/server/commain";
+//  private static final String MUSES_SERVER_URL = "http://192.168.35.198/server/commain";
     private static final String MUSES_SERVER_URL = "https://172.17.3.5:8443/server/commain";
 	
 	private Context context;
@@ -91,6 +92,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	
 	private String imei;
 	private String userName;
+	private String tmpLoginUserName;
+	private String tmpLoginPassword;
+	private DBManager dbManager;
 	
 	private UserContextEventHandler() {
         connectionManager = new ConnectionManager();
@@ -139,7 +143,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
     }
 
 	private Configuration getServerConfigurationFromDB() {
-        DBManager dbManager = new DBManager(context);
+		if(dbManager == null) {
+			dbManager = new DBManager(context);
+		}
+			
         dbManager.openDB();
         Configuration config = dbManager.getConfigurations();
         dbManager.closeDB();
@@ -201,10 +208,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
             	storeContextEvent(action, properties, contextEvents);
             }
-            else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
-            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
-            	storeContextEvent(action, properties, contextEvents);
-            }
         }
         // update context events even if a local decision was found.
         // Prevent sending context events again if they are already sent for a online decision
@@ -262,23 +265,29 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void login(String userName, String password) {
         Log.d(TAG, "called: login(String userName, String password)");
-        String deviceId = "";
+        tmpLoginUserName = userName;
+        tmpLoginPassword = password;
         
-        DBManager dbManager = new DBManager(context);
+        if(dbManager == null) {
+			dbManager = new DBManager(context);
+		}
+        
+        String deviceId;
         dbManager.openDB();
-        dbManager.insertCredentials();
-        deviceId = dbManager.getDevId();
+        if((deviceId = dbManager.getDevId()) == null || deviceId.isEmpty()) {
+        	deviceId = getImei();
+        }
         dbManager.closeDB();
         
         if(serverStatus == Statuses.ONLINE) {
-    		Log.d(APP_TAG, "Info U, Authenticating user login to server with username:"+userName+" password:"+password);
-        	JSONObject requestObject = JSONManager.createLoginJSON(userName, password, deviceId);
+    		Log.d(APP_TAG, "Info U, Authenticating user login to server with username: "+tmpLoginUserName+" password: "+tmpLoginPassword + " deviceId: " +deviceId);
+        	JSONObject requestObject = JSONManager.createLoginJSON(tmpLoginUserName, tmpLoginPassword, deviceId);
         	sendRequestToServer(requestObject);
         } 
         else { // TODO add information to the callback with an explanation what happened
-    		Log.d(APP_TAG, "Info U, Authenticating login with username:"+userName+" password:"+password + "in localdatabase");
+    		Log.d(APP_TAG, "Info U, Authenticating login with username:"+tmpLoginUserName+" password:"+tmpLoginPassword + " deviceId: " + deviceId + " in localdatabase");
         	dbManager.openDB();
-        	ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), userName, password));
+        	ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword));
         	dbManager.closeDB();
         }
 	}
@@ -313,8 +322,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
         if(isUserAuthenticated) {
         	Log.d(APP_TAG, "Info SS, Sending offline stored context events to server if user authenticated.");
-        	// load context events from the database
-        	DBManager dbManager = new DBManager(context);
+        	if (dbManager == null) {
+        		dbManager = new DBManager(context);
+        	}
+        		
         	dbManager.openDB();
         	
         	List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
@@ -408,16 +419,14 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     ActuatorController.getInstance().showFeedback(decision);
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
-                	Log.d(APP_TAG, "RequestT type was " + RequestType.UPDATE_POLICIES );
+                	Log.d(APP_TAG, "Request type was " + RequestType.UPDATE_POLICIES );
                 	Log.d(APP_TAG, "Updating polices");
                     RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
                     
                     // look for the related request
                     int requestId = JSONManager.getRequestId(receivedData);
-                    if(mapOfPendingRequests == null) {
-                    	mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
-                    }
-                    if(mapOfPendingRequests.containsKey(requestId)) {
+                    Log.d(TAG_RQT, "request_id from the json is " + requestId);
+                    if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
                     	RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
                     	requestHolder.getRequestTimeoutTimer().cancel();
                     	mapOfPendingRequests.remove(requestId);
@@ -429,6 +438,16 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	Log.d(APP_TAG, "Retreiving auth response from JSON");
                 	isUserAuthenticated = JSONManager.getAuthResult(receivedData);
                 	if(isUserAuthenticated) {
+                		if(dbManager == null) {
+                			dbManager = new DBManager(context);
+                		}
+                		dbManager.openDB();
+                		dbManager.insertCredentials(getImei(), tmpLoginUserName, tmpLoginPassword);
+                		dbManager.closeDB();
+                		// clear the credentials in the fields
+                		tmpLoginUserName = "";
+                		tmpLoginPassword = "";
+                	        
                 		serverStatus = Statuses.ONLINE;
                 		sendOfflineStoredContextEventsToServer();
                 		updateServerOnlineAndUserAuthenticated();

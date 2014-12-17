@@ -26,9 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import android.accessibilityservice.AccessibilityService;
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.entity.SensorConfiguration;
@@ -61,6 +63,14 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	// apps
 	GmailObserver gmailObserver;
 	IBMNotesTravelerObserver notesTravelerObserver;
+	
+
+	// fields to hold the different keywords of each supported language 
+	private String[] to;
+	private String[] cc;
+	private String[] bcc;
+	private String[] subject;
+	private String[] send;
 
 	public InteractionSensor() {
 		init();
@@ -69,6 +79,13 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		Resources res = getResources();
+		to = res.getStringArray(R.array.mail_keyword_to);
+		cc = res.getStringArray(R.array.mail_keyword_cc);
+		bcc = res.getStringArray(R.array.mail_keyword_bcc);
+		subject = res.getStringArray(R.array.mail_keyword_subject);
+		send = res.getStringArray(R.array.mail_keyword_send);
 	}
 
 	public InteractionSensor(String appName) {
@@ -182,7 +199,14 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     		if(getAccessibilityNodeInfo() == null || getEvent() == null) {
     			return;
     		}
-    		if(getEventText(event).contains(InteractionDictionary.SEND_EN) || getEventText(event).contains(InteractionDictionary.SEND_DE)) {
+    		String eventText = getEventText(event);
+    		boolean sendButtonClicked = false;
+    		for (String text : send) {
+				if(eventText.equalsIgnoreCase(text)) {
+					sendButtonClicked = true;
+				}
+			}
+    		if(sendButtonClicked) {
 	    		content = new MailContent();
 	    		
 	    		// otherwise continue with the processing
@@ -194,19 +218,30 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     	                    if(nodeInfoRoot.getChild(i) != null) {
     	                        AccessibilityNodeInfo nodeInfoChild = nodeInfoRoot.getChild(i);
     	                        String childText = nodeInfoChild.getText() + "";
-    	                        if (childText.contains("To")) {
-    	                            System.out.println("to pos: " + nodeInfoRoot.getChild(i+1).getText());
-    	                            content.setTo(nodeInfoRoot.getChild(i+1).getText() + "");
-    	                        } else if (childText.contains("Cc")) {
-    	                            System.out.println("Cc pos: " + nodeInfoRoot.getChild(i+1).getText());
-    	                            content.setCc(nodeInfoRoot.getChild(i+1).getText() + "");
-    	                        } else if (childText.contains("Bcc")) {
-    	                            System.out.println("Bcc pos: " + nodeInfoRoot.getChild(i+1).getText());
-    	                            content.setBcc(nodeInfoRoot.getChild(i+1).getText() + "");
-    	                        } else if (childText.contains("Subject")) {
-    	                            System.out.println("Subject pos: " + nodeInfoRoot.getChild(i+1).getText());
-    	                            content.setSubject(nodeInfoRoot.getChild(i+1).getText() + "");
-    	                        }
+    	                        for (String keywordTo : to) {
+    	                        	if (childText.contains(keywordTo)) {
+        	                            System.out.println("to pos: " + nodeInfoRoot.getChild(i+1).getText());
+        	                            content.setTo(nodeInfoRoot.getChild(i+1).getText() + "");
+        	                        }
+								}
+    	                        for (String keywordCc : cc) {
+    	                        	if (childText.contains(keywordCc)) {
+        	                            System.out.println("Cc pos: " + nodeInfoRoot.getChild(i+1).getText());
+        	                            content.setCc(nodeInfoRoot.getChild(i+1).getText() + "");
+        	                        }
+								} 
+    	                        for (String keywordBcc : bcc) {
+    	                        	if (childText.contains(keywordBcc)) {
+        	                            System.out.println("Bcc pos: " + nodeInfoRoot.getChild(i+1).getText());
+        	                            content.setBcc(nodeInfoRoot.getChild(i+1).getText() + "");
+        	                        }
+								}
+    	                        for (String keywordSubject : subject) {
+    	                        	if (childText.contains(keywordSubject)) {
+    	                        		System.out.println("Subject pos: " + nodeInfoRoot.getChild(i+1).getText());
+    	                        		content.setSubject(nodeInfoRoot.getChild(i+1).getText() + "");
+    	                        	}
+								}
 
     	                        //check for attachments
     	                        if(nodeInfoChild.getClassName().equals("android.widget.LinearLayout")) {
