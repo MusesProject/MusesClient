@@ -123,8 +123,8 @@ public class DBManager {
 	
 	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 			  + "id INTEGER PRIMARY KEY," 
-			  //+ "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
-			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.1.11',"
+			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
+			  //+ "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.1.11',"
 			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
 			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
 			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain',"
@@ -467,8 +467,8 @@ public class DBManager {
     }
     
 	private String getMusesConf() {
-		//String settings = "192.168.44.101";
-		String settings = "192.168.1.11";
+		String settings = "192.168.44.101";
+		//String settings = "192.168.1.11";
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(
 					"/sdcard/muses.conf"));
