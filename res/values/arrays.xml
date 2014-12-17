@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  mail sensor keywords -->
+    <string-array name="mail_keyword_to">
+    	<item>To</item> <!-- en -->
+    	<item></item> <!-- de -->
+    	<item>A</item> <!-- es -->
+    </string-array>
+    
+    <string-array name="mail_keyword_cc">
+    	<item></item> <!-- en -->
+    	<item>Cc</item> <!-- de -->
+    	<item>Cc</item> <!-- es -->
+    </string-array>
+    
+    <string-array name="mail_keyword_bcc">
+    	<item></item> <!-- en -->
+    	<item>Bcc</item> <!-- de -->
+    	<item>Cco</item> <!-- es -->
+    </string-array>
+    
+    <string-array name="mail_keyword_subject">
+    	<item>subject</item> <!-- en -->
+    	<item>Betreff</item> <!-- de -->
+    	<item>Asunto</item> <!-- es -->
+    </string-array>
+    
+    <string-array name="mail_keyword_send">
+    	<item>Send</item> <!-- en -->
+    	<item>Senden</item> <!-- de -->
+    	<item>ENVIAR</item> <!-- es -->
+    </string-array>
+</resources>
