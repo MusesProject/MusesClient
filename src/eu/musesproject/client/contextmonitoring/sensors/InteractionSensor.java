@@ -79,6 +79,13 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
+		Resources res = getResources();
+		to = res.getStringArray(R.array.mail_keyword_to);
+		cc = res.getStringArray(R.array.mail_keyword_cc);
+		bcc = res.getStringArray(R.array.mail_keyword_bcc);
+		subject = res.getStringArray(R.array.mail_keyword_subject);
+		send = res.getStringArray(R.array.mail_keyword_send);
 	}
 
 	public InteractionSensor(String appName) {
@@ -92,13 +99,6 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 		contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
 		
 		notesTravelerObserver = new IBMNotesTravelerObserver();
-		
-		Resources res = getResources();
-		to = res.getStringArray(R.array.mail_keyword_to);
-		cc = res.getStringArray(R.array.mail_keyword_cc);
-		bcc = res.getStringArray(R.array.mail_keyword_bcc);
-		subject = res.getStringArray(R.array.mail_keyword_subject);
-		send = res.getStringArray(R.array.mail_keyword_send);
 	}
 
 	@Override
