@@ -125,8 +125,8 @@ public class DBManager {
 	
 	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 			  + "id INTEGER PRIMARY KEY," 
-			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
-			  //+ "server_ip VARCHAR(45) NOT NULL DEFAULT '172.17.3.5',"
+			  //+ "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
+			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.1.11',"
 			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
 			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
 			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain',"
@@ -212,7 +212,8 @@ public class DBManager {
 	private static final String ENABLED = "enabled";
 	private static final String LOGIN_ATTEMPTS = "login_attempts";
 	private static final String VERSION = "version";
-	private static final String UNIQUE_NAME = "unique_name";	
+	private static final String UNIQUE_NAME = "unique_name";
+	private static final String SEVERITY = "severity";
 	
 	
 	private Context context;
@@ -468,7 +469,8 @@ public class DBManager {
     }
     
 	private String getMusesConf() {
-		String settings = "192.168.44.101";
+		//String settings = "192.168.44.101";
+		String settings = "192.168.1.11";
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(
 					"/sdcard/muses.conf"));
@@ -1028,6 +1030,9 @@ public class DBManager {
     	values.put(RESOURCE_TYPE, resource.getResourcetype());
     	values.put(CONDITION, resource.getCondition());
     	values.put(MODIFICATION, "03-09-2011");
+    	values.put(NAME, resource.getName());
+    	values.put(SEVERITY, resource.getSeverity());
+    	values.put(TYPE, resource.getType());
     	
     	Resource resourceInDb = getResourceFromPathAndCondition(resource.getPath(), resource.getCondition());
     	Log.d(TAG, "Resource path: "+resource.getPath());
