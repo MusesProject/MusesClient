@@ -613,34 +613,34 @@ public class DecisionMaker {
 			defaultDecision.setName(Decision.DEFAULT_DENY_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"Decision denied by default, according to action: " + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.CANCEL)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.DELETE)){
 			defaultDecision.setName(Decision.DEFAULT_DENY_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"Decision denied by default, according to action: " + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.ENCRYPT_EVENT)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.FILE_ATTACHED)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.INSTALL)){
 			defaultDecision.setName(Decision.DEFAULT_DENY_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"Decision denied by default, according to action: " + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.OK)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.OPEN)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.OPEN_APPLICATION)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.OPEN_ASSET)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.SAVE_ASSET)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.SECURITY_PROPERTY_CHANGED)){
 			defaultDecision.setName(Decision.DEFAULT_DENY_ACCESS);
@@ -649,7 +649,7 @@ public class DecisionMaker {
 			defaultDecision.setName(Decision.DEFAULT_DENY_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"Decision denied by default, according to action: " + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.SEND_MAIL)){
-			defaultDecision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+			defaultDecision.setName(Decision.GRANTED_ACCESS);
 			riskTreatment = new eu.musesproject.server.risktrust.RiskTreatment(	"You are allowed to go on, under your own responsibility" + action.getActionType());
 		}else if (action.getActionType().equals(ActionType.UNINSTALL)){
 			defaultDecision.setName(Decision.DEFAULT_DENY_ACCESS);

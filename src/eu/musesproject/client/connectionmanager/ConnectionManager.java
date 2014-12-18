@@ -150,7 +150,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	 */
 	
 	public void poll() {
-		Log.d(APP_TAG, "Polling !!");
+		//Log.d(APP_TAG, "Polling !!");
 		if (NetworkChecker.isInternetConnected) {
 			if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) { 
 				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();

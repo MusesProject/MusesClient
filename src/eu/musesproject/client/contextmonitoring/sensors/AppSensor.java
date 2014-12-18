@@ -58,7 +58,7 @@ public class AppSensor implements ISensor {
     private static int OBSERVATION_INTERVALL = 1000;
 
     // maximal number of how many background services are stored if a context event is fired
-    private static final int MAX_SHOWN_BACKGROUND_SERVICES = 30;
+    private static final int MAX_SHOWN_BACKGROUND_SERVICES = 1;
 
     // context property keys
     public static final String PROPERTY_KEY_ID 					= "id";

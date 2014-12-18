@@ -165,15 +165,15 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param contextEvents {@link ContextEvent}
 	 */
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
-		Log.d(TAG_MUSES_AWARE, "Action: " + action.getActionType());
+		Log.d(APP_TAG, "Action: " + action.getActionType());
 		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
         boolean onlineDecisionRequested = false;
         
-		Log.d(APP_TAG, "Info DC, Calling decision maker");
         Decision decision = retrieveDecision(action, properties, contextEvents);
         
         if(decision != null) { // local decision found
         	Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
+        	Log.d(APP_TAG, "showFeedback1");
             ActuatorController.getInstance().showFeedback(decision);
         }
         else { // if there is no local decision, send a request to the server
@@ -193,7 +193,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         	        	  requestHolder.setRequestTimeoutTimer(new RequestTimeoutTimer(UserContextEventHandler.this, requestHolder.getId()));
         	        	  requestHolder.getRequestTimeoutTimer().start();
         	          }
-        	        }, 10 );
+        	        }, 0 );
                 mapOfPendingRequests.put(requestHolder.getId(), requestHolder);
 
                 // create the JSON request and send it to the server
@@ -205,6 +205,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             	storeContextEvent(action, properties, contextEvents);
             }
             else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
+            	Log.d(APP_TAG, "showFeedback2");
             	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
             	storeContextEvent(action, properties, contextEvents);
             }
@@ -344,12 +345,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         		contextEvents.add(contextEvent);
         	}
         	dbManager.closeDB();
-
-        	// transform to JSON
-        	RequestHolder requestHolder = new RequestHolder(null, null, contextEvents);
-        	JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.UPDATE_CONTEXT_EVENTS, null, null, contextEvents);
-        	// send to server
-        	sendRequestToServer(requestObject);
         }
     }
 
@@ -416,6 +411,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     decision.setName(Decision.GRANTED_ACCESS);
                     Log.d(APP_TAG, "Info DC, Hardcoding decision to GRANT_ACCESS");
                     Log.d(APP_TAG, "Info CT, calling actuator to showFeedback");
+                    Log.d(APP_TAG, "showFeedback3");
                     ActuatorController.getInstance().showFeedback(decision);
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
@@ -436,6 +432,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
                 	Log.d(APP_TAG, "RequestT type was " + RequestType.AUTH_RESPONSE );
                 	Log.d(APP_TAG, "Retreiving auth response from JSON");
+                	
                 	isUserAuthenticated = JSONManager.getAuthResult(receivedData);
                 	if(isUserAuthenticated) {
                 		if(dbManager == null) {
@@ -512,8 +509,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		// 3. perform default decision
 
 		// -> 1.
-		RequestHolder requestHolder = new RequestHolder();
-		requestHolder = mapOfPendingRequests.get(requestId);
+		RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
 		// -> 2.
 		removeRequestById(requestId);
 		// -> 3.
@@ -521,6 +517,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			decisionMaker = new DecisionMaker();
 		}
 		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
+		Log.d(APP_TAG, "showFeedback4");
 		ActuatorController.getInstance().showFeedback(decision);
 	}
 }
