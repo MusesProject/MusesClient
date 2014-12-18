@@ -209,6 +209,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
             	storeContextEvent(action, properties, contextEvents);
             }
+            else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
+            	storeContextEvent(action, properties, contextEvents);
+            }
         }
         // update context events even if a local decision was found.
         // Prevent sending context events again if they are already sent for a online decision
