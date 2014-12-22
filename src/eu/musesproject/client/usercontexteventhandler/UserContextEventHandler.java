@@ -295,6 +295,14 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         	dbManager.closeDB();
         }
 	}
+	
+	/**
+	 * Method to logout the user, so that no more events are send to the server in his/her name
+	 */
+	public void logout() {
+		isUserAuthenticated = false;
+		updateServerOnlineAndUserAuthenticated();
+	}
 
     /**
      * Method to store a context event in the database if
