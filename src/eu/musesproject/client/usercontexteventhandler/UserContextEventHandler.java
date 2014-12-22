@@ -100,7 +100,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         connectionManager = new ConnectionManager();
         connectionCallback = new ConnectionCallback();
 
-        serverStatus = Statuses.OFFLINE;
+        serverStatus = Statuses.CURRENT_STATUS;
         serverDetailedStatus = Statuses.OFFLINE;
         isUserAuthenticated = false;
         serverOnlineAndUserAuthenticated = false;
