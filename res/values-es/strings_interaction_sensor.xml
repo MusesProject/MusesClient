@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- IBM Notes Traveler -->
+	<!-- ES -->
+		<!-- fields -->
+		<string name="mail_keyword_to">A</string>
+		<string name="mail_keyword_cc">Cc</string>
+		<string name="mail_keyword_bcc">Cco</string>
+		<string name="mail_keyword_subject">Asunto</string>
+		<!-- buttons -->
+		<string name="mail_keyword_button_send">ENVIAR</string>
+		<string name="mail_keyword_button_attach">ADJUNTAR</string>
+</resources>

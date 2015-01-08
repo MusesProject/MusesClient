@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
@@ -261,6 +262,7 @@ public class SensorController {
         	// if an app is active that should be observed inform the interaction sensor
         	if(contextEvent != null && contextEvent.getType().equals(AppSensor.TYPE)) {
         		// if the app is gmail in this case //TODO must be configurable
+        		Log.d(TAG, contextEvent.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME));
         		if(contextEvent.getProperties().get(AppSensor.PROPERTY_KEY_APP_NAME).equals(InteractionObservedApps.OBSERVED_GMAIL)) {
         			if (activeSensors != null && activeSensors.containsKey(InteractionSensor.TYPE)) {
         				((InteractionSensor) activeSensors.get(InteractionSensor.TYPE)).setAppName(InteractionObservedApps.OBSERVED_GMAIL);

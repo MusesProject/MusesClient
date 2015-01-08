@@ -281,6 +281,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         if((deviceId = dbManager.getDevId()) == null || deviceId.isEmpty()) {
         	deviceId = getImei();
         }
+        dbManager.insertCredentials(getImei(), "muses", "muses");
         dbManager.closeDB();
         
         if(serverStatus == Statuses.ONLINE) {

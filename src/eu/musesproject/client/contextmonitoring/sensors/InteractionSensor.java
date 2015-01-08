@@ -66,11 +66,11 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	
 
 	// fields to hold the different keywords of each supported language 
-	private String[] to;
-	private String[] cc;
-	private String[] bcc;
-	private String[] subject;
-	private String[] send;
+	private String to;
+	private String cc;
+	private String bcc;
+	private String subject;
+	private String send;
 
 	public InteractionSensor() {
 		init();
@@ -81,11 +81,17 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 		super.onCreate();
 		
 		Resources res = getResources();
-		to = res.getStringArray(R.array.mail_keyword_to);
-		cc = res.getStringArray(R.array.mail_keyword_cc);
-		bcc = res.getStringArray(R.array.mail_keyword_bcc);
-		subject = res.getStringArray(R.array.mail_keyword_subject);
-		send = res.getStringArray(R.array.mail_keyword_send);
+		to = res.getString(R.string.mail_keyword_to);
+		cc = res.getString(R.string.mail_keyword_cc);
+		bcc = res.getString(R.string.mail_keyword_bcc);
+		subject = res.getString(R.string.mail_keyword_subject);
+		send = res.getString(R.string.mail_keyword_button_send);
+		
+		Log.d(TAG, "init to: " + to);
+		Log.d(TAG, "init cc: " + cc);
+		Log.d(TAG, "init bcc: " + bcc);
+		Log.d(TAG, "init subject: " + subject);
+		Log.d(TAG, "init send: " + send);
 	}
 
 	public InteractionSensor(String appName) {
@@ -136,6 +142,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
+		Log.d(TAG, "onAccessibilityEvent(AccessibilityEvent event) ||| package name: " + event.getPackageName());
 		String pckName = (String) event.getPackageName();
 		if(pckName != null && pckName.equals("com.google.android.gm")) {
 			new GmailObserver(getRootInActiveWindow(), event);
@@ -195,17 +202,17 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     	private MailContent content;
 
     	public void observe() {
+    		Log.d(TAG, "observer");
     		// stop processing if one of the necessary objects is null
     		if(getAccessibilityNodeInfo() == null || getEvent() == null) {
     			return;
     		}
     		String eventText = getEventText(event);
     		boolean sendButtonClicked = false;
-    		for (String text : send) {
-				if(eventText.equalsIgnoreCase(text)) {
-					sendButtonClicked = true;
-				}
+			if(eventText.equalsIgnoreCase(send)) {
+				sendButtonClicked = true;
 			}
+    		Log.d(TAG, "send button clicked: " + sendButtonClicked + "| event text: " +eventText);
     		if(sendButtonClicked) {
 	    		content = new MailContent();
 	    		
@@ -218,30 +225,22 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     	                    if(nodeInfoRoot.getChild(i) != null) {
     	                        AccessibilityNodeInfo nodeInfoChild = nodeInfoRoot.getChild(i);
     	                        String childText = nodeInfoChild.getText() + "";
-    	                        for (String keywordTo : to) {
-    	                        	if (childText.contains(keywordTo)) {
-        	                            System.out.println("to pos: " + nodeInfoRoot.getChild(i+1).getText());
-        	                            content.setTo(nodeInfoRoot.getChild(i+1).getText() + "");
-        	                        }
-								}
-    	                        for (String keywordCc : cc) {
-    	                        	if (childText.contains(keywordCc)) {
-        	                            System.out.println("Cc pos: " + nodeInfoRoot.getChild(i+1).getText());
-        	                            content.setCc(nodeInfoRoot.getChild(i+1).getText() + "");
-        	                        }
-								} 
-    	                        for (String keywordBcc : bcc) {
-    	                        	if (childText.contains(keywordBcc)) {
-        	                            System.out.println("Bcc pos: " + nodeInfoRoot.getChild(i+1).getText());
-        	                            content.setBcc(nodeInfoRoot.getChild(i+1).getText() + "");
-        	                        }
-								}
-    	                        for (String keywordSubject : subject) {
-    	                        	if (childText.contains(keywordSubject)) {
-    	                        		System.out.println("Subject pos: " + nodeInfoRoot.getChild(i+1).getText());
-    	                        		content.setSubject(nodeInfoRoot.getChild(i+1).getText() + "");
-    	                        	}
-								}
+	                        	if (childText.contains(to)) {
+    	                            Log.d(TAG, "to pos: " + nodeInfoRoot.getChild(i+1).getText());
+    	                            content.setTo(nodeInfoRoot.getChild(i+1).getText() + "");
+    	                        }
+	                        	if (childText.contains(cc)) {
+	                        		Log.d(TAG, "Cc pos: " + nodeInfoRoot.getChild(i+1).getText());
+    	                            content.setCc(nodeInfoRoot.getChild(i+1).getText() + "");
+    	                        }
+	                        	if (childText.contains(bcc)) {
+	                        		Log.d(TAG, "Bcc pos: " + nodeInfoRoot.getChild(i+1).getText());
+    	                            content.setBcc(nodeInfoRoot.getChild(i+1).getText() + "");
+    	                        }
+	                        	if (childText.contains(subject)) {
+	                        		Log.d(TAG, "Subject pos: " + nodeInfoRoot.getChild(i+1).getText());
+	                        		content.setSubject(nodeInfoRoot.getChild(i+1).getText() + "");
+	                        	}
 
     	                        //check for attachments
     	                        if(nodeInfoChild.getClassName().equals("android.widget.LinearLayout")) {
@@ -259,7 +258,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     	                                }
     	                                content.addMailAttachmentItem(attachment);
     	                                
-    	                                System.out.println(nodeInfoAttachment.getClassName() + " " + nodeInfoAttachment.getText());
+    	                                Log.d(TAG, nodeInfoAttachment.getClassName() + " " + nodeInfoAttachment.getText());
     	                            }
     	                        }
     	                    }
