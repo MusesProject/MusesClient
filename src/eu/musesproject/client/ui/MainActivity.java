@@ -18,8 +18,6 @@ package eu.musesproject.client.ui;
  * limitations under the License.
  * #L%
  */
-import java.util.List;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -43,8 +41,6 @@ import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
-import eu.musesproject.client.db.entity.Configuration;
-import eu.musesproject.client.db.entity.RequiredApp;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.MockUpHandler;
 import eu.musesproject.client.model.contextmonitoring.UISource;
@@ -84,7 +80,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.muses_main);
 		context = getApplicationContext();
-		setConfiguration();
+		setStartUpConfiguration();
 		
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
 		loginListBtn = (Button) findViewById(R.id.login_list_button);
@@ -114,45 +110,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		new MockUpHandler(this).createMockUpSensorConfiguration();
 	}
 	
-	private void setConfiguration(){
+	
+	private void setStartUpConfiguration(){
         DBManager dbManager = new DBManager(context);
         dbManager.openDB();
         dbManager.insertConnectionProperties();
         dbManager.inserRequiredAppList();
-        Configuration configuration = dbManager.getConfigurations();
-        List<RequiredApp> requiredApps = dbManager.getRequiredAppList();
         dbManager.closeDB();
 	}
 	
-//	private void setAppIconOnStatusBar() {
-//		Notification.Builder mBuilder =
-//		        new Notification.Builder(this)
-//		        .setSmallIcon(R.drawable.muses_main)
-//		        .setContentTitle("")
-//		        .setContentText("");
-//		// Creates an explicit intent for an Activity in your app
-//		Intent resultIntent = new Intent(this, MainActivity.class);
-//
-//		// The stack builder object will contain an artificial back stack for the
-//		// started Activity.
-//		// This ensures that navigating backward from the Activity leads out of
-//		// your application to the Home screen.
-//		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-//		// Adds the back stack for the Intent (but not the Intent itself)
-//		stackBuilder.addParentStack(MainActivity.class);
-//		// Adds the Intent that starts the Activity to the top of the stack
-//		stackBuilder.addNextIntent(resultIntent);
-//		PendingIntent resultPendingIntent =
-//		        stackBuilder.getPendingIntent(
-//		            0,
-//		            PendingIntent.FLAG_UPDATE_CURRENT
-//		        );
-//		mBuilder.setContentIntent(resultPendingIntent);
-//		NotificationManager mNotificationManager =
-//		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//		// mId allows you to update the notification later on.
-//		mNotificationManager.notify(1, mBuilder.build());
-//	}
+	
 
 	@Override
 	protected void onPause() {
@@ -544,5 +511,34 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 
 	}
+//	private void setAppIconOnStatusBar() {
+//		Notification.Builder mBuilder =
+//		        new Notification.Builder(this)
+//		        .setSmallIcon(R.drawable.muses_main)
+//		        .setContentTitle("")
+//		        .setContentText("");
+//		// Creates an explicit intent for an Activity in your app
+//		Intent resultIntent = new Intent(this, MainActivity.class);
+//
+//		// The stack builder object will contain an artificial back stack for the
+//		// started Activity.
+//		// This ensures that navigating backward from the Activity leads out of
+//		// your application to the Home screen.
+//		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+//		// Adds the back stack for the Intent (but not the Intent itself)
+//		stackBuilder.addParentStack(MainActivity.class);
+//		// Adds the Intent that starts the Activity to the top of the stack
+//		stackBuilder.addNextIntent(resultIntent);
+//		PendingIntent resultPendingIntent =
+//		        stackBuilder.getPendingIntent(
+//		            0,
+//		            PendingIntent.FLAG_UPDATE_CURRENT
+//		        );
+//		mBuilder.setContentIntent(resultPendingIntent);
+//		NotificationManager mNotificationManager =
+//		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//		// mId allows you to update the notification later on.
+//		mNotificationManager.notify(1, mBuilder.build());
+//	}
 
 }
