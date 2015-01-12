@@ -48,7 +48,8 @@ public abstract class HttpConnectionsHelper {
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
 	public static final String DISCONNECT = "disconnect";
-	private static final int TIMEOUT = 5000;
+	public static int TIMEOUT = 5000;
+	public static int POLLING_ENABLED = 1;
 	private static final String TAG = HttpConnectionsHelper.class.getSimpleName(); 
 	
 	/**

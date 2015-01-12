@@ -31,6 +31,8 @@ public interface IConnectionManager {
 
 	void connect (String url, int pollInterval, int sleepPollInterval, IConnectionCallbacks callbacks, Context context);
 	void setPollTimeOuts (int pollInterval, int sleepPollInterval);
+	void setTimeout(int timeout);
+	void setPolling(int polling);
 	void sendData (String data);
 	void disconnect ();
 }
