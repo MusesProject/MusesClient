@@ -10,21 +10,27 @@ import junit.framework.TestCase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.test.AndroidTestCase;
 import android.util.Log;
 import eu.musesproject.client.connectionmanager.RequestHolder;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
+import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.JSONManager;
+import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
  * Created by christophstanik on 3/12/14.
  */
-public class JSONManagerTest extends TestCase {
+public class JSONManagerTest extends AndroidTestCase {
+	private Context context;
+	
     private Action action;
     private Map<String, String> actionProperties;
     private List<ContextEvent> contextEvents;
@@ -46,6 +52,8 @@ public class JSONManagerTest extends TestCase {
         super.setUp();
 
         // create dummy data
+        context = getContext();
+        
         requestType = RequestType.UPDATE_CONTEXT_EVENTS;
 
         deviceId = "123456";
@@ -80,7 +88,7 @@ public class JSONManagerTest extends TestCase {
         unSuccessfulAuthenticationJSON = "{\"auth-message\":\"Incorrect password\",\"auth-result\":\"FAIL\",\"requesttype\":\"auth-response\"}";
         
         responseJSON = "{\"muses-device-policy\":{\"files\":{\"action\":{\"request_id\":-1627519220,\"deny\":{\"id\":0,\"condition\":{\"appname\":\"Wifi Analyzer\"},\"path\":\"Wifi Analyzer\",\"riskTreatment\":\"You are trying to open an application which is considered harmful.\nOther people can gain control over your device.\"},\"type\":\"open_application\"}},\"revision\":1,\"schema-version\":1},\"requesttype\":\"update_policies\"}";
-        configUpdateJSON = "{ \"sensor-configuration\":\n {\"sensor-property\":[\n {\"value\":\"avast! Mobile Security\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":\"Mobile Security & Antivirus\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":\"Avira Antivirus Security\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":\"Norton Security & Antivirus\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":\"CM Security & Find My Phone\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":10,\"key\":\"mindistance\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n {\"value\":400,\"key\":\"mindtime\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n {\"value\":12,\"key\":\"radius\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n {\"value\":\"/SWE/\",\"key\":\"path\",\"sensor-type\":\"CONTEXT_SENSOR_FILEOBSERVER\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_FILEOBSERVER\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_APP\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_CONNECTIVITY\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_INTERACTION\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_PACKAGE\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_SETTINGS\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_NOTIFICATION\"}\n ]},\n \"muses-config\":{\n \"config-name\":\"SILENT configuration\",\n \"silent-mode\":true\n },\n \"requesttype\":\"config_update\"}";
+        configUpdateJSON = "{\"sensor-configuration\":{\n\t\"sensor-property\":[{\n\t\t\"value\":\"avast! Mobile Security\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":\"Mobile Security & Antivirus\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":\"Avira Antivirus Security\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":\"Norton Security & Antivirus\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":\"CM Security & Find My Phone\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":10,\"key\":\"mindistance\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n\t\t{\"value\":400,\"key\":\"mindtime\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n\t\t{\"value\":12,\"key\":\"radius\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n\t\t{\"value\":\"/SWE/\",\"key\":\"path\",\"sensor-type\":\"CONTEXT_SENSOR_FILEOBSERVER\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_FILEOBSERVER\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_APP\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_CONNECTIVITY\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_INTERACTION\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_PACKAGE\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_SETTINGS\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_NOTIFICATION\"}]},\n\"connection-config\":{\n\t\t\"sleep_poll_timeout\":60000,\n\t\t\"poll_timeout\":10000,\n\t\t\"login_attempts\":5,\n\t\t\"polling_enabled\":1,\n\t\t\"timeout\":5000\n\t\t},\n\"muses-config\":{\n\t\"config-name\":\"SILENT\",\n\t\"silent-mode\":true\n\t},\n\"requesttype\":\"config_update\"\n}";
     }
 
     public void testCreateJSON() throws JSONException {
@@ -162,6 +170,22 @@ public class JSONManagerTest extends TestCase {
     	for (SensorConfiguration item : configList) {
 			Log.d("JUnit", "key: " + item.getKey() + " value: " + item.getValue() + " sensorType: " + item.getSensorType());
 		}
+    }
+    
+    public void testGetConnectionConfiguration() {
+    	Configuration connectionConfig = JSONManager.getConnectionConfiguration(configUpdateJSON, context);
+    	assertNotNull(connectionConfig);
+    	assertEquals(connectionConfig.getServerIP(), MusesUtils.getMusesConf());
+    	assertEquals(connectionConfig.getServerPort(), 8443);
+    	assertEquals(connectionConfig.getServerServletPath(), "/commain");
+    	assertEquals(connectionConfig.getServerContextPath(), "/server");
+    	assertEquals(connectionConfig.getServerCertificate(), MusesUtils.getCertificateFromSDCard(context));
+    	assertEquals(connectionConfig.getClientCertificate(), "");
+    	assertEquals(connectionConfig.getTimeout(), 5000);
+    	assertEquals(connectionConfig.getPollTimeout(), 10000);
+    	assertEquals(connectionConfig.getSleepPollTimeout(), 60000);
+    	assertEquals(connectionConfig.getPollingEnabled(), 1);
+    	assertEquals(connectionConfig.getLoginAttempts(), 5);
     }
 
     @Override
