@@ -212,5 +212,15 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
     	}
 
     }
+
+	@Override
+	public void setTimeout(int timeout) {
+		TIMEOUT = timeout;
+	}
+
+	@Override
+	public void setPolling(int polling) {
+		POLLING_ENABLED = polling;
+	}
 	
 }
