@@ -498,18 +498,19 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	// 3.1 load config from JSON
                 	// 3.2 insert new config in the db
                 	
-//                	Configuration config = new Configuration();
-//                	config.setServerIP(MusesUtils.getMusesConf());
-//                	config.setServerPort(8443);
-//                	config.setServerServletPath("/commain")
-//                	config.setServerContextPath("/server");
-//                	config.setServerCertificate(MusesUtils.getCertificateFromSDCard(context));
-//                	config.setClientCertificate("");
-//                	config.setTimeout();
-//                	config.setPollTimeout
-//                	config.setSleepTimeout
-//                	config.setPollingEnabled()
-//                	config.setLoginAttempts();
+//                	Configuration connectionConfig = new Configuration();
+//                	connectionConfig.setServerIP(MusesUtils.getMusesConf());
+//                	connectionConfig.setServerPort(8443);
+//                	connectionConfig.setServerServletPath("/commain")
+//                	connectionConfig.setServerContextPath("/server");
+//                	connectionConfig.setServerCertificate(MusesUtils.getCertificateFromSDCard(context));
+//                	connectionConfig.setClientCertificate("");
+//                	connectionConfig.setTimeout();
+//                	connectionConfig.setPollTimeout
+//                	connectionConfig.setSleepTimeout
+//                	connectionConfig.setPollingEnabled()
+//                	connectionConfig.setLoginAttempts();
+//                	dbManager.insertConfiguration(connectionConfig);
                 }
             }
 			return 0;

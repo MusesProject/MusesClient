@@ -570,6 +570,25 @@ public class DBManager {
     }
     
     
+    public boolean isSilentModeActive() {
+    	boolean isSilentModeActive = false;
+    	
+    	// Select All Query
+        String selectQuery = "select silent_mode from " + TABLE_CONFIGURATION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        
+        if (cursor.moveToFirst()) {
+            do {
+            	isSilentModeActive = cursor.getInt(12) == 1;
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        
+        return isSilentModeActive;
+        
+    }
+    
+    
     // Decision Maker related queries
     /**
      * Adds decision table in the DB
