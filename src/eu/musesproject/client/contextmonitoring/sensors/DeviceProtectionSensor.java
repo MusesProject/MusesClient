@@ -313,6 +313,11 @@ public class DeviceProtectionSensor implements ISensor {
 		}
 	}
 
+	@Override
+	public String getSensorType() {
+		return TYPE;
+	}
+
 	private class CreateContextEventAsync extends AsyncTask<Void, Void, Void> {
 
 		@Override

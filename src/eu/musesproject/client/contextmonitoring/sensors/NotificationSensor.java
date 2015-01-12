@@ -136,4 +136,9 @@ public class NotificationSensor implements
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String getSensorType() {
+		return TYPE;
+	}
 }

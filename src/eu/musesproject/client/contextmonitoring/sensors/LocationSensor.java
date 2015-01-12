@@ -221,4 +221,9 @@ public class LocationSensor implements ISensor, LocationListener {
 	@Override
 	public void onProviderDisabled(String provider) {
 	}
+
+	@Override
+	public String getSensorType() {
+		return TYPE;
+	}
 }

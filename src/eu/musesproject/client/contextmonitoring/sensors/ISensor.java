@@ -65,4 +65,9 @@ public interface ISensor {
      * @param config {@link SensorConfiguration}
      */
     void configure(List<SensorConfiguration> config);
+
+    /**
+     * Method to get the SensorType
+     */
+    String getSensorType();
 }

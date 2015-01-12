@@ -293,4 +293,9 @@ public class PackageSensor implements ISensor {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String getSensorType() {
+		return TYPE;
+	}
 }

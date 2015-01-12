@@ -266,4 +266,9 @@ public class ConnectivitySensor implements ISensor {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String getSensorType() {
+		return TYPE;
+	}
 }

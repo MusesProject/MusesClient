@@ -227,6 +227,11 @@ public class RecursiveFileSensor implements ISensor {
 			}
 		}
 	}
+
+	@Override
+	public String getSensorType() {
+		return TYPE;
+	}
 	
 	public class FileSensor extends FileObserver {
 		 // these variables are needed to prevent the context event creation multiple times a second.
