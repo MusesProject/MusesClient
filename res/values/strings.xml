@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">_MUSES</string>
+    <string name="app_name">MUSES</string>
     <string name="login_list_button_txt">L o g i n</string>
     <string name="security_info_button_txt">My Security Policies</string>
     <string name="security_points_button_txt">Security Points</string>
