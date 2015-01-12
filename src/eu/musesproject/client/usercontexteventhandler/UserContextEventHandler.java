@@ -412,6 +412,11 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		public int receiveCb(String receivedData) {
             Log.d(TAG, "called: receiveCb(String receivedData)");
             if((receivedData != null) && (!receivedData.equals(""))) {
+            	if(dbManager == null) {
+        			dbManager = new DBManager(context);
+        		}
+            	
+            	// identify the request type
                 String requestType = JSONManager.getRequestType(receivedData);
             	Log.d(APP_TAG, "Request type was " + requestType);
 
@@ -445,9 +450,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	
                 	isUserAuthenticated = JSONManager.getAuthResult(receivedData);
                 	if(isUserAuthenticated) {
-                		if(dbManager == null) {
-                			dbManager = new DBManager(context);
-                		}
                 		dbManager.openDB();
                 		dbManager.insertCredentials(getImei(), tmpLoginUserName, tmpLoginPassword);
                 		dbManager.closeDB();
@@ -462,11 +464,40 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
                 }
                 else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
+                	/*
+                	 *  sensor configuration
+                	 *  1.1 load config items from JSON
+                	 *  1.2 insert config items in db
+                	 *  1.3 notify sensors about the new configuration
+                	 */
+                	// 1.1 load config items from JSON
                 	List<SensorConfiguration> configList = JSONManager.getSensorConfig(receivedData);
+                	// 1.2 insert config items in db
+            		dbManager.openDB();
+            		for(SensorConfiguration configItem : configList) {
+            			dbManager.insertSensorConfiguration(configItem);
+            		}
+            		dbManager.closeDB();
+            		// 1.3 notify sensors about the new configuration
+            		
+                	
+                	/*
+                	 *  trials configuration
+                	 *  2.1 load config from JSON
+                	 */
+            		// 2.1
                 	boolean isSilentModeActivated = JSONManager.isSilentModeActivated(receivedData);
                 	
                 	
-                	// connection configuration
+                	/*
+                	 *  connection configuration
+                	 *  3.1 load config from JSON
+                	 *  3.2 insert new config in the db
+                	 *  3.3 update the connection manager 
+                	 */
+                	// 3.1 load config from JSON
+                	// 3.2 insert new config in the db
+                	
 //                	Configuration config = new Configuration();
 //                	config.setServerIP(MusesUtils.getMusesConf());
 //                	config.setServerPort(8443);
