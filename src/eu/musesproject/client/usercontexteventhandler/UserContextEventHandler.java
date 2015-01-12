@@ -391,7 +391,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	}
 	
 
-
 	public static boolean isServerOnlineAndUserAuthenticated() {
 		return serverOnlineAndUserAuthenticated;
 	}
@@ -412,10 +411,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             Log.d(TAG, "called: receiveCb(String receiveData)");
             if((receivedData != null) && (!receivedData.equals(""))) {
                 String requestType = JSONManager.getRequestType(receivedData);
+            	Log.d(APP_TAG, "Request type was " + requestType);
 
                 if(requestType.equals(RequestType.ONLINE_DECISION)) {
-                	Log.d(APP_TAG, "RequestT type was " + RequestType.ONLINE_DECISION );
-                	
                     // TODO get decision from the json
                     // send decision to the actuator controller
                     // dummy data
@@ -427,7 +425,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     ActuatorController.getInstance().showFeedback(decision);
                 }
                 else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
-                	Log.d(APP_TAG, "Request type was " + RequestType.UPDATE_POLICIES );
                 	Log.d(APP_TAG, "Updating polices");
                     RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
                     
@@ -442,7 +439,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     }
                 }
                 else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
-                	Log.d(APP_TAG, "RequestT type was " + RequestType.AUTH_RESPONSE );
                 	Log.d(APP_TAG, "Retreiving auth response from JSON");
                 	
                 	isUserAuthenticated = JSONManager.getAuthResult(receivedData);
@@ -462,6 +458,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 		updateServerOnlineAndUserAuthenticated();
                 	}
             		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
+                }
+                else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
+                	
                 }
             }
 			return 0;
