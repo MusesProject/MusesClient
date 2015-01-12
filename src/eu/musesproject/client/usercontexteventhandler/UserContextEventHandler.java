@@ -484,6 +484,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	/*
                 	 *  trials configuration
                 	 *  2.1 load config from JSON
+                	 *  2.2 insert into the database
                 	 */
             		// 2.1
                 	boolean isSilentModeActivated = JSONManager.isSilentModeActivated(receivedData);
@@ -498,7 +499,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	// 3.1 load config from JSON
                 	Configuration connectionConfig = JSONManager.getConnectionConfiguration(receivedData, getContext());
                 	connectionConfig.setSilentMode(isSilentModeActivated ? 1 : 0);
-                	// 3.2 insert new config in the db
+                	// 2.2 & 3.2 insert new config in the db
                 	if(connectionConfig != null) {
                 		dbManager.openDB();
                 		dbManager.insertConfiguration(connectionConfig);
