@@ -46,6 +46,7 @@ import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.Property;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.ResourceCreator;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
@@ -55,6 +56,7 @@ import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.model.decisiontable.Resource;
 import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
+import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -408,7 +410,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		@Override
 		public int receiveCb(String receivedData) {
-            Log.d(TAG, "called: receiveCb(String receiveData)");
+            Log.d(TAG, "called: receiveCb(String receivedData)");
             if((receivedData != null) && (!receivedData.equals(""))) {
                 String requestType = JSONManager.getRequestType(receivedData);
             	Log.d(APP_TAG, "Request type was " + requestType);
@@ -460,7 +462,23 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
                 }
                 else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
+                	List<SensorConfiguration> configList = JSONManager.getSensorConfig(receivedData);
+                	boolean isSilentModeActivated = JSONManager.isSilentModeActivated(receivedData);
                 	
+                	
+                	// connection configuration
+//                	Configuration config = new Configuration();
+//                	config.setServerIP(MusesUtils.getMusesConf());
+//                	config.setServerPort(8443);
+//                	config.setServerServletPath("/commain")
+//                	config.setServerContextPath("/server");
+//                	config.setServerCertificate(MusesUtils.getCertificateFromSDCard(context));
+//                	config.setClientCertificate("");
+//                	config.setTimeout();
+//                	config.setPollTimeout
+//                	config.setSleepTimeout
+//                	config.setPollingEnabled()
+//                	config.setLoginAttempts();
                 }
             }
 			return 0;
