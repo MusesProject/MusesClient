@@ -497,9 +497,12 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	 */
                 	// 3.1 load config from JSON
                 	Configuration connectionConfig = JSONManager.getConnectionConfiguration(receivedData, getContext());
+                	connectionConfig.setSilentMode(isSilentModeActivated ? 1 : 0);
                 	// 3.2 insert new config in the db
                 	if(connectionConfig != null) {
+                		dbManager.openDB();
                 		dbManager.insertConfiguration(connectionConfig);
+                		dbManager.closeDB();
                 		// 3.3 update the connection manager 
                 		connectionManager.setTimeout(connectionConfig.getTimeout());
                 		connectionManager.setPolling(connectionConfig.getPollingEnabled());
