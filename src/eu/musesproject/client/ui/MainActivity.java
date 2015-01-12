@@ -81,6 +81,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		setContentView(R.layout.muses_main);
 		context = getApplicationContext();
 		setStartUpConfiguration();
+		getActionBar().setDisplayShowTitleEnabled(false);
 		
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
 		loginListBtn = (Button) findViewById(R.id.login_list_button);
