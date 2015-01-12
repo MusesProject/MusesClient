@@ -43,6 +43,7 @@ import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
 import eu.musesproject.client.connectionmanager.RequestHolder;
 import eu.musesproject.client.connectionmanager.RequestTimeoutTimer;
 import eu.musesproject.client.connectionmanager.Statuses;
+import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.Property;
@@ -56,7 +57,6 @@ import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.model.decisiontable.Resource;
 import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
-import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -479,7 +479,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             		}
             		dbManager.closeDB();
             		// 1.3 notify sensors about the new configuration
-            		
+            		UserContextMonitoringController.getInstance(getContext()).onSensorConfigurationChanged();
                 	
                 	/*
                 	 *  trials configuration
@@ -496,21 +496,14 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	 *  3.3 update the connection manager 
                 	 */
                 	// 3.1 load config from JSON
+                	Configuration connectionConfig = JSONManager.getConnectionConfiguration(receivedData, getContext());
                 	// 3.2 insert new config in the db
-                	
-//                	Configuration connectionConfig = new Configuration();
-//                	connectionConfig.setServerIP(MusesUtils.getMusesConf());
-//                	connectionConfig.setServerPort(8443);
-//                	connectionConfig.setServerServletPath("/commain")
-//                	connectionConfig.setServerContextPath("/server");
-//                	connectionConfig.setServerCertificate(MusesUtils.getCertificateFromSDCard(context));
-//                	connectionConfig.setClientCertificate("");
-//                	connectionConfig.setTimeout();
-//                	connectionConfig.setPollTimeout
-//                	connectionConfig.setSleepTimeout
-//                	connectionConfig.setPollingEnabled()
-//                	connectionConfig.setLoginAttempts();
-//                	dbManager.insertConfiguration(connectionConfig);
+                	if(connectionConfig != null) {
+                		dbManager.insertConfiguration(connectionConfig);
+                		// 3.3 update the connection manager 
+                		connectionManager.setTimeout(connectionConfig.getTimeout());
+                		connectionManager.setPolling(connectionConfig.getPollingEnabled());
+                	}
                 }
             }
 			return 0;
