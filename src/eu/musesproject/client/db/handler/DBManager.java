@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -28,6 +27,7 @@ import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.entity.Role;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.entity.Subject;
+import eu.musesproject.client.utils.MusesUtils;
 
 public class DBManager {
 	private static final String TAG = DBManager.class.getSimpleName();
@@ -134,7 +134,8 @@ public class DBManager {
 			  + "poll_timeout INTEGER NOT NULL DEFAULT 10000,"
 			  + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000,"
 			  + "polling_enabled INTEGER NOT NULL DEFAULT 1,"
-			  + "login_attempts INTEGER NOT NULL DEFAULT 5);";
+			  + "login_attempts INTEGER NOT NULL DEFAULT 5),"
+			  + "silent_mode INTEGER NOT NULL DEFAULT 0;";
 
 //	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 //			  + "id INTEGER PRIMARY KEY," 
@@ -451,12 +452,12 @@ public class DBManager {
     // Configuration related queries
     public void insertConnectionProperties(){
     	ContentValues values = new ContentValues();
-    	values.put(SERVER_IP, getMusesConf());
+    	values.put(SERVER_IP, MusesUtils.getMusesConf());
     	//   values.put(SERVER_IP, "172.17.3.5");
     	values.put(SERVER_PORT, 8443);
     	values.put(SERVER_CONTEXT_PATH, "/server");
     	values.put(SERVER_SERVLET_PATH, "/commain");
-    	values.put(SERVER_CERTIFICATE, "");
+    	values.put(SERVER_CERTIFICATE, MusesUtils.getCertificateFromSDCard(context));
     	values.put(CLIENT_CERTIFICATE, "");
     	values.put(TIMEOUT, 5000);
     	values.put(POLL_TIMEOUT, 5000);
@@ -466,53 +467,8 @@ public class DBManager {
     	sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
     }
     
-	private String getMusesConf() {
-		String settings = "192.168.44.101";
-		//String settings = "192.168.1.11";
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(
-					"/sdcard/muses.conf"));
-			settings = reader.readLine();
-			reader.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return settings;
-	}
-    
-    
     public void deleteConnectionProperties(int id){
     	sqLiteDatabase.delete(TABLE_CONFIGURATION, "id="+id, null);
-    }
-    
-    public void insertServerCertificate(String certificate){
-    	certificate = "-----BEGIN CERTIFICATE-----";
-//					+ "MIID2DCCA0GgAwIBAgIBATANBgkqhkiG9w0BAQUFADCBvTELMAkGA1UEBhMCU1Yx"
-//					+ "EjAQBgNVBAgMCVN0b2NraG9sbTEXMBUGA1UEBwwOU3RvY2tob2xtIENpdHkxHzAd"
-//					+ "BgNVBAoMFlN3ZWRlbiBDb25uZWN0aXZpdHkgQUIxHzAdBgNVBAsMFkluZm9ybWF0"
-//					+ "aW9uIFRlY2hub2xvZ3kxDjAMBgNVBAMMBUFkbWluMS8wLQYJKoZIhvcNAQkBFiB5"
-//					+ "YXNpci5hbGlAc3dlZGVuY29ubmVjdGl2aXR5LmNvbTAeFw0xMzEwMjEwNzU4MTNa"
-//					+ "Fw0xNDEwMjEwNzU4MTNaMIGkMQswCQYDVQQGEwJTVjESMBAGA1UECAwJU3RvY2to"
-//					+ "b2xtMR8wHQYDVQQKDBZTd2VkZW4gQ29ubmVjdGl2aXR5IEFCMR8wHQYDVQQLDBZJ"
-//					+ "bmZvcm1hdGlvbiBUZWNobm9sb2d5MQ4wDAYDVQQDDAVBZG1pbjEvMC0GCSqGSIb3"
-//					+ "DQEJARYgeWFzaXIuYWxpQHN3ZWRlbmNvbm5lY3Rpdml0eS5jb20wggEiMA0GCSqG"
-//					+ "SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCkCpYMjTdaRuPWRH8olEn8172ZDlxLBKeg"
-//					+ "ZhPijRJp0fKUK/UDq+1uccPvCL/CG3fie+w6VJGCMYnm+FZlWc8/6hZEb0Cn6Upy"
-//					+ "fg9SwP7bgiXzHBlpv9UoD40nQ9LVzM/GZyCaThFRXIhQPGstuJv5JufjXHT9BGm5"
-//					+ "/9ijQWinipwbrIBMxor5ZIJGS4lvJF+Lyo2N0zBXIi4nZfjDPbFWrpbx6tuHCdy0"
-//					+ "4VpLw9Qd7Os4M1uD7NXKNcZrMOb6zS7Z2n3M5fosdEeojhCSe0wPTEQMmbeyXDJJ"
-//					+ "urbcQQQ6JwLSJ/X00rHeRSb9HaJvehLZ1Lr+vevTTJ/TOz958JSRAgMBAAGjezB5"
-//					+ "MAkGA1UdEwQCMAAwLAYJYIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENl"
-//					+ "cnRpZmljYXRlMB0GA1UdDgQWBBR3cFVlprhgomG3Ekpfv1vpjaPXgTAfBgNVHSME"
-//					+ "GDAWgBRDB0qWULr2wI/yUbCpnwjwBZQsZzANBgkqhkiG9w0BAQUFAAOBgQBbkN+F"
-//					+ "sd7JVDBRXU242iWJ3KO6XSQnLn2P90mZE2Y2L7amJgFEYSZOfjL2BzgePVcP94An"
-//					+ "LYlbYm+iPMK5dpplbuGrGiLK7HRx3rfrjimLtbqrLMLnGUzv7YdL0c110iVf29Lq"
-//					+ "lwKeHb+x0NgwdzCLcLfyC59rr55EII1U58cf3Q=="
-//					+ "-----END CERTIFICATE-----";
-		;
-    	ContentValues values = new ContentValues();
-    	values.put(SERVER_CERTIFICATE, certificate);
-    	sqLiteDatabase.insert(TABLE_CONFIGURATION, null, values);
     }
     
     public String getServerCertificate() {
@@ -561,6 +517,7 @@ public class DBManager {
             	configuration.setSleepPollTimeout(cursor.getInt(9));
             	configuration.setPollingEnabled(cursor.getInt(10));
             	configuration.setLoginAttempts(cursor.getInt(11));
+            	configuration.setSilentMode(cursor.getInt(12));
             } while (cursor.moveToNext());
         }
         return configuration;
@@ -578,17 +535,18 @@ public class DBManager {
         if (cursor.moveToFirst()) {
             do {
             	// configuration.setId(cursor.getInt(0)); FIXME commented for time being
-            	configuration.setId(cursor.getInt(0));
             	configuration.setServerIP(cursor.getString(1));
             	configuration.setServerPort(cursor.getInt(2));
             	configuration.setServerContextPath(cursor.getString(3));
             	configuration.setServerServletPath(cursor.getString(4));
             	configuration.setServerCertificate(cursor.getString(5));
             	configuration.setClientCertificate(cursor.getString(6));
-            	configuration.setTimeout(cursor.getInt(5));
-            	configuration.setPollTimeout(cursor.getInt(6));
-            	configuration.setSleepPollTimeout(cursor.getInt(7));
-            	configuration.setPollingEnabled(cursor.getInt(8));
+            	configuration.setTimeout(cursor.getInt(7));
+            	configuration.setPollTimeout(cursor.getInt(8));
+            	configuration.setSleepPollTimeout(cursor.getInt(9));
+            	configuration.setPollingEnabled(cursor.getInt(10));
+            	configuration.setLoginAttempts(cursor.getInt(11));
+            	configuration.setSilentMode(cursor.getInt(12));
             	
             	conList.add(configuration);
             } while (cursor.moveToNext());

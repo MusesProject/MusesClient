@@ -19,38 +19,78 @@ package eu.musesproject.client.utils;
  * limitations under the License.
  * #L%
  */
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 
 import android.content.Context;
-import android.content.res.AssetManager;
+import android.os.Environment;
 
 public class MusesUtils {
 	static Context sContext;
-
-	public static String getCertificateFromAssets(Context context) {
-		String certificate = "";
-		AssetManager assetManager = context.getAssets();
-		InputStream input;
+	public static String serverCertificate = "";
+	public static String getCertificateFromSDCard(Context context)  {
+		serverCertificate = "";
+		String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+		String certificateName = "localhost.crt";
 		try {
-			input = assetManager.open("localhost.crt");
-
-			int size = input.available();
-			byte[] buffer = new byte[size];
-			input.read(buffer);
-			input.close();
-
-			// byte buffer into a string
-			certificate = new String(buffer);
-
+			InputStream in = new BufferedInputStream(new FileInputStream(baseDir + File.separator + certificateName));
+			serverCertificate = inputStreamToString(in);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		return certificate;
+		return serverCertificate;
 			
 	}
+	
+	public static String getCertificate(){
+		return serverCertificate;
+	}
+	
+	private static String inputStreamToString(InputStream is) throws IOException {
+		ByteArrayOutputStream byeArrayOutputStream = new ByteArrayOutputStream(8192);
+		byte[] buffer = new byte[8192];
+		int count = 0;
+		try {
+		  while ((count = is.read(buffer)) != -1) {
+		    byeArrayOutputStream.write(buffer, 0, count);
+		  }
+		}
+		finally {
+		  try {
+		    is.close();
+		  }
+		  catch (Exception ignore) {
+		  }
+		}
+
+		String charset = "UTF-8";
+		String resultString = byeArrayOutputStream.toString(charset);
+		return resultString;
+	}
+	
+	public static  String getMusesConf() {
+		String settings = "192.168.44.101";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(
+					"/sdcard/muses.conf"));
+			settings = reader.readLine();
+			reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return settings;
+	}
+    
+    
 	
 	public static Context getMusesAppContext(){
 		return sContext;

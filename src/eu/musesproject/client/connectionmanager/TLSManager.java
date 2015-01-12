@@ -18,14 +18,11 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
-
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
@@ -40,9 +37,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-
-import android.os.Environment;
 import android.util.Log;
+import eu.musesproject.client.utils.MusesUtils;
 
 /**
  * Handle TLS/SSL communication with the server
@@ -74,12 +70,10 @@ public class TLSManager {
 	 * Create SSLFactory object using certificate saved in the device
 	 * @return SSLSocketFactory
 	 */
-	
+		
 	private SSLSocketFactory newSslSocketFactory() {
 		try {
-			String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-			String certificateName = "localhost.crt";
-			InputStream in = new BufferedInputStream(new FileInputStream(baseDir + File.separator + certificateName));
+			InputStream in = new ByteArrayInputStream(MusesUtils.getCertificate().getBytes());
 			KeyStore trustedStore = null;
 
 			if (in != null){
@@ -98,6 +92,7 @@ public class TLSManager {
 	 * Convert local certificate to BKS
 	 * @param cerStream
 	 * @param alias
+	 * 	
 	 * @param password
 	 * @return keyStore
 	 */
@@ -132,6 +127,8 @@ public class TLSManager {
 
 	    return new DefaultHttpClient(conMgr, params);
 	}
+	
+	
 	
 }
 
