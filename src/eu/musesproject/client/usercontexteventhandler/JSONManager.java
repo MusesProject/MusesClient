@@ -30,10 +30,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -298,5 +301,34 @@ public class JSONManager {
 			e.printStackTrace();
 		}
 		return isSilentModeActive;
+	}
+	
+	/**
+	 * Method that returns the id of the request that was sent to the server.
+	 * 
+	 * @param jsonString response from server
+	 * @return true or false whether the silent mode should be active
+	 */
+	public static Configuration getConnectionConfiguration(String jsonString, Context context) {
+		Configuration connectionConfig = new Configuration();
+		try {
+			JSONObject responseJSON = new JSONObject(jsonString);
+			JSONObject connectionConfigJSON = responseJSON.getJSONObject("connection-config");
+			
+        	connectionConfig.setServerIP(MusesUtils.getMusesConf());
+        	connectionConfig.setServerPort(8443);
+        	connectionConfig.setServerServletPath("/commain");
+        	connectionConfig.setServerContextPath("/server");
+        	connectionConfig.setServerCertificate(MusesUtils.getCertificateFromSDCard(context));
+        	connectionConfig.setClientCertificate("");
+        	connectionConfig.setTimeout(connectionConfigJSON.getInt("timeout"));
+        	connectionConfig.setPollTimeout(connectionConfigJSON.getInt("poll_timeout"));
+        	connectionConfig.setSleepPollTimeout(connectionConfigJSON.getInt("sleep_poll_timeout"));
+        	connectionConfig.setPollingEnabled(connectionConfigJSON.getInt("polling_enabled"));
+        	connectionConfig.setLoginAttempts(connectionConfigJSON.getInt("login_attempts"));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return connectionConfig;
 	}
 }
