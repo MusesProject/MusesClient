@@ -21,6 +21,7 @@ package eu.musesproject.client.actuators;
  */
 
 import android.util.Log;
+import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
@@ -38,10 +39,13 @@ public class ActuatorController implements IActuatorController {
 
     private FeedbackActuator feedbackActuator;
     private IBlockActuator blockActuator;
+    
+    private DBManager dbManager;
 
     public ActuatorController() {
         this.feedbackActuator = new FeedbackActuator();
         this.blockActuator = new BlockActuator(uceHandler.getContext());
+        this.dbManager = new DBManager(uceHandler.getContext());
     }
 
     public static ActuatorController getInstance() {
@@ -53,6 +57,19 @@ public class ActuatorController implements IActuatorController {
 
     public void showFeedback(Decision decision) {
         Log.d(TAG, "called: showFeedback(Decision decision)");
+        
+        //check for silent mode
+        if(dbManager == null) {
+        	dbManager = new DBManager(uceHandler.getContext());
+        }
+        dbManager.openDB();
+        boolean isSilentModeActive = dbManager.isSilentModeActive();
+        dbManager.closeDB();
+		if(isSilentModeActive) {
+        	decision.setName(Decision.GRANTED_ACCESS);
+        }
+        
+		// show feedback
         feedbackActuator.showFeedback(decision);
     }
 
