@@ -133,8 +133,8 @@ public class DBManager {
 			  + "poll_timeout INTEGER NOT NULL DEFAULT 10000,"
 			  + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000,"
 			  + "polling_enabled INTEGER NOT NULL DEFAULT 1,"
-			  + "login_attempts INTEGER NOT NULL DEFAULT 5),"
-			  + "silent_mode INTEGER NOT NULL DEFAULT 0;";
+			  + "login_attempts INTEGER NOT NULL DEFAULT 5,"
+			  + "silent_mode INTEGER NOT NULL DEFAULT 0);";
 
 //	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 //			  + "id INTEGER PRIMARY KEY," 
@@ -452,7 +452,6 @@ public class DBManager {
     public void insertConnectionProperties(){
     	ContentValues values = new ContentValues();
     	values.put(SERVER_IP, MusesUtils.getMusesConf());
-    	//   values.put(SERVER_IP, "172.17.3.5");
     	values.put(SERVER_PORT, 8443);
     	values.put(SERVER_CONTEXT_PATH, "/server");
     	values.put(SERVER_SERVLET_PATH, "/commain");
@@ -463,6 +462,22 @@ public class DBManager {
     	values.put(SLEEP_POLL_TIMEOUT, 10000);
     	values.put(POLLING_ENABLED, 1);
     	values.put(LOGIN_ATTEMPTS, 5);
+    	sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
+    }
+
+    public void insertConfiguration(Configuration configuration){
+    	ContentValues values = new ContentValues();
+    	values.put(SERVER_IP, configuration.getServerIP());
+    	values.put(SERVER_PORT, configuration.getServerPort());
+    	values.put(SERVER_CONTEXT_PATH, configuration.getServerContextPath());
+    	values.put(SERVER_SERVLET_PATH, configuration.getServerServletPath());
+    	values.put(SERVER_CERTIFICATE, configuration.getServerCertificate());
+    	values.put(CLIENT_CERTIFICATE, configuration.getClientCertificate());
+    	values.put(TIMEOUT, configuration.getTimeout());
+    	values.put(POLL_TIMEOUT, configuration.getPollTimeout());
+    	values.put(SLEEP_POLL_TIMEOUT, configuration.getSleepPollTimeout());
+    	values.put(POLLING_ENABLED, configuration.getPollingEnabled());
+    	values.put(LOGIN_ATTEMPTS, configuration.getLoginAttempts());
     	sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
     }
     
