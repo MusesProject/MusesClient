@@ -3,18 +3,23 @@ package eu.musesproject.client.db.entity;
 public class SensorConfiguration {
 	
 	private int id;
-	private String sensor_type;
+	private String sensorType;
 	private String key;
 	private String value;
 	
 	public SensorConfiguration() {
 
 	}
-	public SensorConfiguration(int id, String sensor_type, int enabled,
-			String key, String value) {
-		super();
+	
+	public SensorConfiguration(String sensorType, String key, String value) {
+		this.sensorType = sensorType;
+		this.key = key;
+		this.value = value;
+	}
+	
+	public SensorConfiguration(int id, String sensorType, String key, String value) {
 		this.id = id;
-		this.sensor_type = sensor_type;
+		this.sensorType = sensorType;
 		this.key = key;
 		this.value = value;
 	}
@@ -27,12 +32,12 @@ public class SensorConfiguration {
 		this.id = id;
 	}
 
-	public String getSensor_type() {
-		return sensor_type;
+	public String getSensorType() {
+		return sensorType;
 	}
 
-	public void setSensor_type(String sensor_type) {
-		this.sensor_type = sensor_type;
+	public void setSensorType(String sensor_type) {
+		this.sensorType = sensor_type;
 	}
 
 	public String getKey() {
@@ -53,11 +58,8 @@ public class SensorConfiguration {
 
 	@Override
 	public String toString() {
-		return "SensorConfiguration [id=" + id + ", sensor_type=" + sensor_type
+		return "SensorConfiguration [id=" + id + ", sensor_type=" + sensorType
 				+ ", key=" + key + ", value=" + value
 				+ "]";
 	}
-	
-	
-	
 }

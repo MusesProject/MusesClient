@@ -21,17 +21,19 @@ package eu.musesproject.client.usercontexteventhandler;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
-import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.contextmodel.ContextEvent;
 
 /**
@@ -251,4 +253,50 @@ public class JSONManager {
     	}
     	return requestId;
     }
+
+	/**
+	 * Method that returns all received config items of each sensor
+	 * 
+	 * @param jsonString response from server
+	 * @return List of config items
+	 */
+	public static List<SensorConfiguration>  getSensorConfig(String jsonString) {
+		List<SensorConfiguration> configList = new ArrayList<SensorConfiguration>();
+		try {
+			JSONObject responseJSON = new JSONObject(jsonString);
+			JSONObject sensorConfigJSON = responseJSON.getJSONObject("sensor-configuration");
+			JSONArray configProperties = sensorConfigJSON.getJSONArray("sensor-property");
+			for (int i = 0; i < configProperties.length(); i++) {
+				JSONObject item = configProperties.getJSONObject(i);
+				String sensorType = item.getString("sensor-type");
+				String value = item.getString("value");
+				String key = item.getString("key");
+				
+				configList.add(new SensorConfiguration(sensorType, key, value));
+			}
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return configList;
+	}
+	
+	/**
+	 * Method that returns the id of the request that was sent to the server.
+	 * 
+	 * @param jsonString response from server
+	 * @return true or false whether the silent mode should be active
+	 */
+	public static boolean isSilentModeActivated(String jsonString) {
+		boolean isSilentModeActive = false;
+		try {
+			JSONObject responseJSON = new JSONObject(jsonString);
+			JSONObject musesConfigJSON = responseJSON.getJSONObject("muses-config");
+			
+			isSilentModeActive = musesConfigJSON.getBoolean("silent-mode");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return isSilentModeActive;
+	}
 }

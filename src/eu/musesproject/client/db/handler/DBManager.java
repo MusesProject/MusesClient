@@ -1,10 +1,9 @@
 package eu.musesproject.client.db.handler;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -314,7 +313,7 @@ public class DBManager {
     public void insertSensorConfiguration(SensorConfiguration sensorConfiguration){
     	if(!sensorConfigExists(sensorConfiguration)) {
     		ContentValues values = new ContentValues();
-    		values.put(SENSOR_TYPE, sensorConfiguration.getSensor_type());
+    		values.put(SENSOR_TYPE, sensorConfiguration.getSensorType());
     		values.put(KEY, sensorConfiguration.getKey());
     		values.put(VALUE, sensorConfiguration.getValue());
     		sqLiteDatabase.insert(TABLE_SENSOR_CONFIGURATION, null	, values);
@@ -329,7 +328,7 @@ public class DBManager {
                 SENSOR_TYPE + "=? AND " + 
         			KEY + "=? AND " +
         			VALUE + "=?", // where identifier
-                new String[] {sensorConfiguration.getSensor_type(), sensorConfiguration.getKey(), sensorConfiguration.getValue()}, // where args
+                new String[] {sensorConfiguration.getSensorType(), sensorConfiguration.getKey(), sensorConfiguration.getValue()}, // where args
                 null,null,null,null);
     	
     	if (cursor != null && cursor.moveToFirst()) {
@@ -353,7 +352,7 @@ public class DBManager {
             do {
             	SensorConfiguration configuration = new SensorConfiguration();
             	configuration.setId(cursor.getInt(0));
-                configuration.setSensor_type(cursor.getString(1));
+                configuration.setSensorType(cursor.getString(1));
                 configuration.setKey(cursor.getString(2));
                 configuration.setValue(cursor.getString(3));
                 
@@ -1553,7 +1552,7 @@ public class DBManager {
     	if (cursor != null && cursor.moveToFirst()) {
     		while (!cursor.isAfterLast()) {
     			SensorConfiguration configItem = new SensorConfiguration();
-    			configItem.setSensor_type(type);
+    			configItem.setSensorType(type);
     			configItem.setKey(cursor.getString(0));
     			configItem.setValue(cursor.getString(1));
     			

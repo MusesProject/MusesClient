@@ -30,37 +30,37 @@ public class MockUpHandler {
 		 *  device protection sensor
 		 */
 		SensorConfiguration deviceProtectionConfig = new SensorConfiguration();
-		deviceProtectionConfig.setSensor_type(DeviceProtectionSensor.TYPE);
+		deviceProtectionConfig.setSensorType(DeviceProtectionSensor.TYPE);
 		deviceProtectionConfig.setKey(DeviceProtectionSensor.CONFIG_KEY_TRUSTED_AV);
 		deviceProtectionConfig.setValue("CM Security AppLock &AntiVirus");
 		configList.add(deviceProtectionConfig);
 
 		deviceProtectionConfig = new SensorConfiguration();
-		deviceProtectionConfig.setSensor_type(DeviceProtectionSensor.TYPE);
+		deviceProtectionConfig.setSensorType(DeviceProtectionSensor.TYPE);
 		deviceProtectionConfig.setKey(DeviceProtectionSensor.CONFIG_KEY_TRUSTED_AV);
 		deviceProtectionConfig.setValue("Mobile Security & Antivirus");
 		configList.add(deviceProtectionConfig);
 
 		deviceProtectionConfig = new SensorConfiguration();
-		deviceProtectionConfig.setSensor_type(DeviceProtectionSensor.TYPE);
+		deviceProtectionConfig.setSensorType(DeviceProtectionSensor.TYPE);
 		deviceProtectionConfig.setKey(DeviceProtectionSensor.CONFIG_KEY_TRUSTED_AV);
 		deviceProtectionConfig.setValue("Avira Antivirus Security");
 		configList.add(deviceProtectionConfig);
 
 		deviceProtectionConfig = new SensorConfiguration();
-		deviceProtectionConfig.setSensor_type(DeviceProtectionSensor.TYPE);
+		deviceProtectionConfig.setSensorType(DeviceProtectionSensor.TYPE);
 		deviceProtectionConfig.setKey(DeviceProtectionSensor.CONFIG_KEY_TRUSTED_AV);
 		deviceProtectionConfig.setValue("Norton Security & Antivirus");
 		configList.add(deviceProtectionConfig);
 
 		deviceProtectionConfig = new SensorConfiguration();
-		deviceProtectionConfig.setSensor_type(DeviceProtectionSensor.TYPE);
+		deviceProtectionConfig.setSensorType(DeviceProtectionSensor.TYPE);
 		deviceProtectionConfig.setKey(DeviceProtectionSensor.CONFIG_KEY_TRUSTED_AV);
 		deviceProtectionConfig.setValue("CM Security & Find My Phone");
 		configList.add(deviceProtectionConfig);
 
 		deviceProtectionConfig = new SensorConfiguration();
-		deviceProtectionConfig.setSensor_type(DeviceProtectionSensor.TYPE);
+		deviceProtectionConfig.setSensorType(DeviceProtectionSensor.TYPE);
 		deviceProtectionConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		deviceProtectionConfig.setValue("true");
 		configList.add(deviceProtectionConfig);
@@ -69,25 +69,25 @@ public class MockUpHandler {
 		 * Location sensor
 		 */
 		SensorConfiguration locationConfig = new SensorConfiguration();
-		locationConfig.setSensor_type(LocationSensor.TYPE);
+		locationConfig.setSensorType(LocationSensor.TYPE);
 		locationConfig.setKey(LocationSensor.CONFIG_KEY_MIN_DIS);
 		locationConfig.setValue("10");
 		configList.add(locationConfig);
 		
 		locationConfig = new SensorConfiguration();
-		locationConfig.setSensor_type(LocationSensor.TYPE);
+		locationConfig.setSensorType(LocationSensor.TYPE);
 		locationConfig.setKey(LocationSensor.CONFIG_KEY_MIN_TIME);
 		locationConfig.setValue("400");
 		configList.add(locationConfig);
 		
 		locationConfig = new SensorConfiguration();
-		locationConfig.setSensor_type(LocationSensor.TYPE);
+		locationConfig.setSensorType(LocationSensor.TYPE);
 		locationConfig.setKey(LocationSensor.CONFIG_KEY_SECURE_ZONE_RADIUS);
 		locationConfig.setValue("12.0");
 		configList.add(locationConfig);
 		
 		locationConfig = new SensorConfiguration();
-		locationConfig.setSensor_type(LocationSensor.TYPE);
+		locationConfig.setSensorType(LocationSensor.TYPE);
 		locationConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		locationConfig.setValue("true");
 		configList.add(locationConfig);
@@ -96,13 +96,13 @@ public class MockUpHandler {
 		 * File sensor
 		 */
 		SensorConfiguration fileConfig = new SensorConfiguration();
-		fileConfig.setSensor_type(RecursiveFileSensor.TYPE);
+		fileConfig.setSensorType(RecursiveFileSensor.TYPE);
 		fileConfig.setKey(RecursiveFileSensor.CONFIG_KEY_PATH);
 		fileConfig.setValue("/Swe/");
 		configList.add(fileConfig);
 		
 		fileConfig = new SensorConfiguration();
-		fileConfig.setSensor_type(RecursiveFileSensor.TYPE);
+		fileConfig.setSensorType(RecursiveFileSensor.TYPE);
 		fileConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		fileConfig.setValue("true");
 		configList.add(fileConfig);
@@ -111,7 +111,7 @@ public class MockUpHandler {
 		 * App sensor
 		 */
 		SensorConfiguration appConfig = new SensorConfiguration();
-		appConfig.setSensor_type(AppSensor.TYPE);
+		appConfig.setSensorType(AppSensor.TYPE);
 		appConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		appConfig.setValue("true");
 		configList.add(appConfig);
@@ -120,7 +120,7 @@ public class MockUpHandler {
 		 * Connectivity sensor
 		 */
 		SensorConfiguration connectivityConfig = new SensorConfiguration();
-		connectivityConfig.setSensor_type(ConnectivitySensor.TYPE);
+		connectivityConfig.setSensorType(ConnectivitySensor.TYPE);
 		connectivityConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		connectivityConfig.setValue("true");
 		configList.add(connectivityConfig);
@@ -130,7 +130,7 @@ public class MockUpHandler {
 		 * Interaction sensor
 		 */
 		SensorConfiguration interactionConfig = new SensorConfiguration();
-		interactionConfig.setSensor_type(InteractionSensor.TYPE);
+		interactionConfig.setSensorType(InteractionSensor.TYPE);
 		interactionConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		interactionConfig.setValue("true");
 		configList.add(interactionConfig);
@@ -139,7 +139,7 @@ public class MockUpHandler {
 		 * Package sensor
 		 */
 		SensorConfiguration packageConfig = new SensorConfiguration();
-		packageConfig.setSensor_type(PackageSensor.TYPE);
+		packageConfig.setSensorType(PackageSensor.TYPE);
 		packageConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		packageConfig.setValue("true");
 		configList.add(packageConfig);
@@ -148,7 +148,7 @@ public class MockUpHandler {
 		 * Settings sensor
 		 */
 		SensorConfiguration settingsConfig = new SensorConfiguration();
-		settingsConfig.setSensor_type(SettingsSensor.TYPE);
+		settingsConfig.setSensorType(SettingsSensor.TYPE);
 		settingsConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		settingsConfig.setValue("true");
 		configList.add(settingsConfig);
@@ -157,7 +157,7 @@ public class MockUpHandler {
 		 * Notification sensor
 		 */
 		SensorConfiguration notificationConfig = new SensorConfiguration();
-		notificationConfig.setSensor_type(NotificationSensor.TYPE);
+		notificationConfig.setSensorType(NotificationSensor.TYPE);
 		notificationConfig.setKey(ISensor.CONFIG_KEY_ENABLED);
 		notificationConfig.setValue("true");
 		configList.add(notificationConfig);
