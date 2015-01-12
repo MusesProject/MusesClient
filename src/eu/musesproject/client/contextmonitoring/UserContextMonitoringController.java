@@ -20,13 +20,11 @@ package eu.musesproject.client.contextmonitoring;
  * #L%
  */
 
-import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
-import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
@@ -122,12 +120,11 @@ public class UserContextMonitoringController implements
 		uceHandler.sendUserBehavior(action);
 	}
 
-    @Override
-    public void changeSettings(List<Setting> settings) {
-        for (Setting setting : settings) {
-            SensorController.getInstance(context).changeSetting(setting);
-        }
-    }
+
+	@Override
+	public void onSensorConfigurationChanged() {
+		SensorController.getInstance(context).onSensorConfigurationChanged();
+	}
 
     @Override
     public void login(String userName, String password) {

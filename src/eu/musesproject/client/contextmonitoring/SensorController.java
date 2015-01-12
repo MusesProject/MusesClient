@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
@@ -42,7 +41,6 @@ import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.actuators.Setting;
-import eu.musesproject.client.model.actuators.Setting.SettingType;
 import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
@@ -135,41 +133,10 @@ public class SensorController {
     		List<SensorConfiguration> configItems = dbManager.getAllSensorConfigItemsBySensorType(sensorType);
         	dbManager.closeDB();
     		
-    		if(sensorType.equals(AppSensor.TYPE)) {
-    			sensor = new AppSensor(context);
-    		}
-    		else if(sensorType.equals(ConnectivitySensor.TYPE)) {
-    			sensor = new ConnectivitySensor(context);
-    		}
-    		else if(sensorType.equals(SettingsSensor.TYPE)) {
-    			sensor = new SettingsSensor(context);
-    		}
-    		else if(sensorType.equals(RecursiveFileSensor.TYPE)) {
-    			sensor = new RecursiveFileSensor();
-    		}
-    		else if(sensorType.equals(PackageSensor.TYPE)) {
-    			sensor = new PackageSensor(context);
-    		}
-    		else if(sensorType.equals(DeviceProtectionSensor.TYPE)) {
-    			sensor = new DeviceProtectionSensor(context);
-    		}
-    		else if(sensorType.equals(LocationSensor.TYPE)) {
-    			sensor = new LocationSensor(context);
-    		}
-    		else if(sensorType.equals(InteractionSensor.TYPE)) {
-    			sensor = new InteractionSensor();
-    		}
-    		else if(sensorType.equals(NotificationSensor.TYPE)) {
-    			 if (Build.VERSION.SDK_INT > 17){
-    				 sensor = new NotificationSensor(context);
-    			 } 
-    			 else {
-    				 continue;
-    			 }
-    		}
-    		else {
-    			continue;
-    		}
+        	sensor = createSensor(sensorType);
+        	if(sensor == null) {
+        		continue;
+        	}
 
     		Log.d(TAG, "config test: sensor type="+sensor.getClass().getSimpleName() + ", no. config items="+configItems.size());
     		sensor.configure(configItems);
@@ -185,6 +152,47 @@ public class SensorController {
     }
 
     /**
+     * Method to create a new instance of a sensor based on the sensorType
+     * @param sensorType, variable to determine which concrete sensor should be created
+     * @return ISensor
+     */
+    private ISensor createSensor(String sensorType) {
+    	ISensor sensor = null;
+    	if(sensorType.equals(AppSensor.TYPE)) {
+			sensor = new AppSensor(context);
+		}
+		else if(sensorType.equals(ConnectivitySensor.TYPE)) {
+			sensor = new ConnectivitySensor(context);
+		}
+		else if(sensorType.equals(SettingsSensor.TYPE)) {
+			sensor = new SettingsSensor(context);
+		}
+		else if(sensorType.equals(RecursiveFileSensor.TYPE)) {
+			sensor = new RecursiveFileSensor();
+		}
+		else if(sensorType.equals(PackageSensor.TYPE)) {
+			sensor = new PackageSensor(context);
+		}
+		else if(sensorType.equals(DeviceProtectionSensor.TYPE)) {
+			sensor = new DeviceProtectionSensor(context);
+		}
+		else if(sensorType.equals(LocationSensor.TYPE)) {
+			sensor = new LocationSensor(context);
+		}
+		else if(sensorType.equals(InteractionSensor.TYPE)) {
+			sensor = new InteractionSensor();
+		}
+		else if(sensorType.equals(NotificationSensor.TYPE)) {
+			 if (Build.VERSION.SDK_INT > 17){
+				 sensor = new NotificationSensor(context);
+			 } 
+		}
+    	Log.d("STARTED_SENSOR_TEST", sensor.getSensorType());
+    	
+    	return sensor;
+    }
+
+    /**
      * stops every enabled sensor
      */
     public void stopAllSensors() {
@@ -197,34 +205,27 @@ public class SensorController {
     }
 
     /**
-     * Method that performs the action of the setting which contains
-     * enabling or disabling a specific sensor
+     * Method that updates the configuration of the sensors
+     * 1. stop sensors
+     * 2. update configuration
+     * 3. re-enable sensors
      *
      * @param setting {@link Setting}
      */
-    public void changeSetting(Setting setting) {
-        ISensor sensor;
-        // load sensor that is effected by the setting
-        String sensorType = setting.getValue();
-        if (activeSensors != null && activeSensors.containsKey(sensorType)) {
-            sensor = activeSensors.get(sensorType);
-
-            // perform the action described in Setting.java
-            if (sensor != null) {
-                if(setting.getSettingType() == SettingType.SETTING_SENSOR_ENABLE) {
-                    sensor.enable();
-                    // add sensor to the map of enabled sensors if not already set there
-                    activeSensors.put(sensorType, sensor);
-                    Log.d(TAG, "Sensor: " + sensor.getClass().getSimpleName() + " enabled");
-                }
-                else if(setting.getSettingType() == SettingType.SETTING_SENSOR_DISABLE) {
-                    sensor.disable();
-                    // remove the sensor of the map of enabled sensors
-                    activeSensors.remove(sensorType);
-                    Log.d(TAG, "Sensor: " + sensor.getClass().getSimpleName() + " disabled");
-                }
+    public void onSensorConfigurationChanged() {
+    	// 1. stop sensors
+    	if (activeSensors != null) {
+            for (ISensor sensor : activeSensors.values()) {
+            	sensor.disable();
+            	activeSensors.remove(sensor.getSensorType());
+            	sensor = null;
             }
         }
+    	/*
+    	 *  2. update configuration
+    	 *  3. re-enable sensors
+    	 */
+    	startSensors();
     }
 
     /**

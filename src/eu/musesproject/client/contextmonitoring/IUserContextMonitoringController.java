@@ -20,12 +20,10 @@ package eu.musesproject.client.contextmonitoring;
  * #L%
  */
 
-import java.util.List;
 import java.util.Map;
 
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
-import eu.musesproject.client.model.actuators.Setting;
 
 public interface IUserContextMonitoringController {
     /**
@@ -47,9 +45,10 @@ public interface IUserContextMonitoringController {
     /**
      * Method to change the settings / configuration of the sensors
      * ({@link eu.musesproject.client.contextmonitoring.sensors.ISensor})
-     * @param settings {@link java.util.List} of settings
+     * 
+     * loads sensor configuration from the database
      */
-    void changeSettings(List<Setting> settings);
+    void onSensorConfigurationChanged();
 
     /**
      * Method to forward the login data to the {@link eu.musesproject.client.usercontexteventhandler.UserContextEventHandler}
