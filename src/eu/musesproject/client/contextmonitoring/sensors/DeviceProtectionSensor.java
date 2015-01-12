@@ -236,7 +236,10 @@ public class DeviceProtectionSensor implements ISensor {
 		PackageManager packageManager = context.getPackageManager();
 		List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
 		for (ApplicationInfo appInfo : installedApps) {
-			String appName = appInfo.loadLabel(packageManager).toString();
+			if(appInfo.packageName.equals("com.android.keyguard")) {
+				continue; // implemented to avoid that the log cat is flooded with warnings, because there is no app name for this package
+			}
+			String appName = (String) (appInfo != null ? packageManager.getApplicationLabel(appInfo) : "(unknown)");
 
 			for (String trustedAVName : trustedAVs) {
 				if (trustedAVName.equals(appName)) {

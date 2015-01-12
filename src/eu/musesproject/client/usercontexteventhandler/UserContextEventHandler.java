@@ -274,9 +274,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         tmpLoginUserName = userName;
         tmpLoginPassword = password;
         
-        if(dbManager == null) {
-			dbManager = new DBManager(context);
-		}
+       
         
         String deviceId;
         dbManager.openDB();
@@ -318,7 +316,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
     public void storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
         Log.d(TAG, "called: storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
         if((action == null) && (properties == null) && (contextEvents != null)) {
-            DBManager dbManager = new DBManager(context);
+        	 if(dbManager == null) {
+     			dbManager = new DBManager(context);
+     		}
             dbManager.openDB();
             for(ContextEvent contextEvent : contextEvents){
                 long contextEventId = dbManager.addContextEvent(DBEntityParser.transformContextEvent(contextEvent));
