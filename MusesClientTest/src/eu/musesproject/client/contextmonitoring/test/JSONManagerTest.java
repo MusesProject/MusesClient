@@ -10,8 +10,10 @@ import junit.framework.TestCase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
 import eu.musesproject.client.connectionmanager.RequestHolder;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
@@ -37,6 +39,7 @@ public class JSONManagerTest extends TestCase {
     private String successfulAuthenticationJSON;
     private String unSuccessfulAuthenticationJSON;
     private String responseJSON;
+    private String configUpdateJSON;
 
     @Override
     protected void setUp() throws Exception {
@@ -77,6 +80,7 @@ public class JSONManagerTest extends TestCase {
         unSuccessfulAuthenticationJSON = "{\"auth-message\":\"Incorrect password\",\"auth-result\":\"FAIL\",\"requesttype\":\"auth-response\"}";
         
         responseJSON = "{\"muses-device-policy\":{\"files\":{\"action\":{\"request_id\":-1627519220,\"deny\":{\"id\":0,\"condition\":{\"appname\":\"Wifi Analyzer\"},\"path\":\"Wifi Analyzer\",\"riskTreatment\":\"You are trying to open an application which is considered harmful.\nOther people can gain control over your device.\"},\"type\":\"open_application\"}},\"revision\":1,\"schema-version\":1},\"requesttype\":\"update_policies\"}";
+        configUpdateJSON = "{ \"sensor-configuration\":\n {\"sensor-property\":[\n {\"value\":\"avast! Mobile Security\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":\"Mobile Security & Antivirus\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":\"Avira Antivirus Security\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":\"Norton Security & Antivirus\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":\"CM Security & Find My Phone\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n {\"value\":10,\"key\":\"mindistance\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n {\"value\":400,\"key\":\"mindtime\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n {\"value\":12,\"key\":\"radius\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n {\"value\":\"/SWE/\",\"key\":\"path\",\"sensor-type\":\"CONTEXT_SENSOR_FILEOBSERVER\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_FILEOBSERVER\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_APP\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_CONNECTIVITY\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_INTERACTION\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_PACKAGE\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_SETTINGS\"},\n {\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_NOTIFICATION\"}\n ]},\n \"muses-config\":{\n \"config-name\":\"SILENT configuration\",\n \"silent-mode\":true\n },\n \"requesttype\":\"config_update\"}";
     }
 
     public void testCreateJSON() throws JSONException {
@@ -146,6 +150,18 @@ public class JSONManagerTest extends TestCase {
     
     public void testGetRequestId() {
     	assertEquals(-1627519220, JSONManager.getRequestId(responseJSON));
+    }
+    
+    public void testIsSilentModeActivated() {
+    	assertEquals(true, JSONManager.isSilentModeActivated(configUpdateJSON));
+    }
+    
+    public void testGetSensorConfig() {
+    	List<SensorConfiguration> configList = JSONManager.getSensorConfig(configUpdateJSON);
+    	assertEquals(18, configList.size());
+    	for (SensorConfiguration item : configList) {
+			Log.d("JUnit", "key: " + item.getKey() + " value: " + item.getValue() + " sensorType: " + item.getSensorType());
+		}
     }
 
     @Override

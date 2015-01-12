@@ -34,7 +34,6 @@ import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.entity.SensorConfiguration;
-import eu.musesproject.client.model.contextmonitoring.InteractionDictionary;
 import eu.musesproject.client.model.contextmonitoring.MailAttachment;
 import eu.musesproject.client.model.contextmonitoring.MailContent;
 import eu.musesproject.client.model.contextmonitoring.MailProperties;
@@ -71,6 +70,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	private String bcc;
 	private String subject;
 	private String send;
+	private String attach;
 
 	public InteractionSensor() {
 		init();
@@ -86,6 +86,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 		bcc = res.getString(R.string.mail_keyword_bcc);
 		subject = res.getString(R.string.mail_keyword_subject);
 		send = res.getString(R.string.mail_keyword_button_send);
+		attach = res.getString(R.string.mail_keyword_button_attach); 
 		
 		Log.d(TAG, "init to: " + to);
 		Log.d(TAG, "init cc: " + cc);
@@ -330,7 +331,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			String eventText = getEventText(event);
 			
 			if(event.getEventType() == AccessibilityEvent.TYPE_VIEW_CLICKED) {
-				if(eventText.contains(InteractionDictionary.ATTACH_FILE_EN) || eventText.contains(InteractionDictionary.ATTACH_FILE_DE)) {
+				if(eventText.contains(attach)) {
 					Log.d(TAG, "mail test : attach file");
 					Action action = new Action();
 					action.setActionType(ActionType.FILE_ATTACHED);
@@ -339,7 +340,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 					createUserAction(action, null);
 				}
 	
-				if(eventText.contains(InteractionDictionary.SEND_EN) || eventText.contains(InteractionDictionary.SEND_DE)) {
+				if(eventText.contains(send)) {
 					Log.d(TAG, "mail test : send clicked");
 					content = null;
 					content = new MailContent();
