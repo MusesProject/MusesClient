@@ -507,6 +507,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 		// 3.3 update the connection manager 
                 		connectionManager.setTimeout(connectionConfig.getTimeout());
                 		connectionManager.setPolling(connectionConfig.getPollingEnabled());
+                		connectionManager.setPollTimeOuts(connectionConfig.getPollTimeout(), connectionConfig.getSleepPollTimeout());
                 	}
                 }
             }
