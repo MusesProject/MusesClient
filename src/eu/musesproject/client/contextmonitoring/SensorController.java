@@ -187,7 +187,6 @@ public class SensorController {
 				 sensor = new NotificationSensor(context);
 			 } 
 		}
-    	Log.d("STARTED_SENSOR_TEST", sensor.getSensorType());
     	
     	return sensor;
     }
