@@ -3,6 +3,7 @@ package eu.musesproject.client.db.entity;
 public class ContextEvent {
 	
 	private int id;
+	private int actionId;
 	private String type;
 	private String timestamp;
 
@@ -10,6 +11,12 @@ public class ContextEvent {
 	}
 	public ContextEvent(int id, String type, String timestamp) {
 		this.id = id;
+		this.type = type;
+		this.timestamp = timestamp;
+	}
+	public ContextEvent(int id, int actionId, String type, String timestamp) {
+		this.id = id;
+		this.actionId = actionId;
 		this.type = type;
 		this.timestamp = timestamp;
 	}
@@ -22,6 +29,13 @@ public class ContextEvent {
 		this.id = id;
 	}
 
+	public int getActionId() {
+		return actionId;
+	}
+	public void setActionId(int actionId) {
+		this.actionId = actionId;
+	}
+	
 	public String getType() {
 		return type;
 	}
@@ -43,7 +57,4 @@ public class ContextEvent {
 		return "ContextEvent [id=" + id + ", type=" + type + ", timestamp="
 				+ timestamp + "]";
 	} 
-	
-	
-	
 }
