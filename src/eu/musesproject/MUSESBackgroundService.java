@@ -20,6 +20,7 @@ package eu.musesproject;
  * #L%
  */
 
+import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.MusesServiceProvider;
 import android.app.Service;
@@ -27,6 +28,9 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.ActionType;
+import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 /**
  * This class is responsible to start the background
@@ -38,17 +42,23 @@ import android.widget.Toast;
  */
 public class MUSESBackgroundService extends Service {
 	private static final String TAG = MUSESBackgroundService.class.getSimpleName();
-	
+
+	private UserContextEventHandler userContextEventHandler;
+
 	private boolean isAppInitialized;
 
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
+
 	@Override
 	public void onCreate() {
 		isAppInitialized = false;
 		UserContextMonitoringController.getInstance(this);
+		userContextEventHandler = UserContextEventHandler.getInstance();
+		userContextEventHandler.setContext(this);
+
 		super.onCreate();
 	}
 	
@@ -59,6 +69,10 @@ public class MUSESBackgroundService extends Service {
 			Toast.makeText(this, "MUSES started", Toast.LENGTH_LONG).show();
 			isAppInitialized = true;
 			UserContextMonitoringController.getInstance(this).startContextObservation();
+
+			// send status of the service
+			String actionDescription = getString(R.string.action_description_started);
+			userContextEventHandler.send(createAction(actionDescription), null, null);
 		}
 		startService(new Intent(this, MusesServiceProvider.class));
 
@@ -68,6 +82,20 @@ public class MUSESBackgroundService extends Service {
 	@Override
 	public void onDestroy() {
 		isAppInitialized = false;
+
+		// send status of the service
+		String actionDescription = getString(R.string.action_description_stopped);
+		userContextEventHandler.send(createAction(actionDescription), null, null);
+
 		super.onDestroy();
+	}
+
+	private Action createAction(String description) {
+		Action action = new Action();
+		action.setActionType(ActionType.MUSES_BACKGROUND_SERVICE);
+		action.setTimestamp(System.currentTimeMillis());
+		action.setDescription(description);
+
+		return action;
 	}
 }

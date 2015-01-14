@@ -49,14 +49,14 @@ public class UserContextMonitoringController implements
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
     private Context context;
-    
+
     private boolean requestByMusesAwareApp;
 
     private UserContextMonitoringController(Context context) {
         this.context = context;
         uceHandler.setContext(context);
         uceHandler.connectToServer();
-        
+
         requestByMusesAwareApp = false;
     }
 
@@ -80,6 +80,7 @@ public class UserContextMonitoringController implements
      */
     public void stopContextObservation() {
         SensorController.getInstance(context).stopAllSensors();
+        uceHandler.autoLogin();
     }
 
     @Override
@@ -99,32 +100,32 @@ public class UserContextMonitoringController implements
                 riskTreatment = new RiskTreatment("action denied because of...");
             }
             if(requestByMusesAwareApp) {
-            	new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+                new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
             }
             // send the user decision back to the server
             sendUserBehavior(action);
         }
         else if(src == UISource.MUSES_AWARE_APP_UI) {
-        	requestByMusesAwareApp = true;
+            requestByMusesAwareApp = true;
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
         else if(src == UISource.INTERNAL) {
-        	requestByMusesAwareApp = false;
-        	uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
+            requestByMusesAwareApp = false;
+            uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
     }
 
 
-	@Override
-	public void sendUserBehavior(Action action) {
-		uceHandler.sendUserBehavior(action);
-	}
+    @Override
+    public void sendUserBehavior(Action action) {
+        uceHandler.sendUserBehavior(action);
+    }
 
 
-	@Override
-	public void onSensorConfigurationChanged() {
-		SensorController.getInstance(context).onSensorConfigurationChanged();
-	}
+    @Override
+    public void onSensorConfigurationChanged() {
+        SensorController.getInstance(context).onSensorConfigurationChanged();
+    }
 
     @Override
     public void login(String userName, String password) {

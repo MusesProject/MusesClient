@@ -11,7 +11,7 @@ package eu.musesproject.client.usercontexteventhandler;
  * Copyright (C) 2013 - 2014 HITEC
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms stoof the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  * 
@@ -65,53 +65,53 @@ import eu.musesproject.contextmodel.ContextEvent;
  * @version 28 feb 2014
  */
 public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeoutHandler {
-    private static final String TAG = UserContextEventHandler.class.getSimpleName();
-    public static final String TAG_RQT = "REQUEST_TIMEOUT";
-    public static final String TAG_MUSES_AWARE = "MUSES_AWARE";
-    private static final String APP_TAG = "APP_TAG";
+	private static final String TAG = UserContextEventHandler.class.getSimpleName();
+	public static final String TAG_RQT = "REQUEST_TIMEOUT";
+	public static final String TAG_MUSES_AWARE = "MUSES_AWARE";
+	private static final String APP_TAG = "APP_TAG";
 
-    private static UserContextEventHandler userContextEventHandler = null;
-//	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
+	private static UserContextEventHandler userContextEventHandler = null;
+	//	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
 //	private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server/commain";
 //  private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server-0.0.1-SNAPSHOT/commain";
 //  private static final String MUSES_SERVER_URL = "http://192.168.44.107:8080/server/commain";
 //  private static final String MUSES_SERVER_URL = "http://192.168.35.198/server/commain";
-    private static final String MUSES_SERVER_URL = "https://172.17.3.5:8443/server/commain";
-	
+	private static final String MUSES_SERVER_URL = "https://172.17.3.5:8443/server/commain";
+
 	private Context context;
 
-    // connection fields
-    private ConnectionManager connectionManager;
-    private IConnectionCallbacks connectionCallback;
+	// connection fields
+	private ConnectionManager connectionManager;
+	private IConnectionCallbacks connectionCallback;
 	public int serverStatus;
 	private int serverDetailedStatus;
 	private boolean isUserAuthenticated;
 	public static boolean serverOnlineAndUserAuthenticated;
-	
-	private DecisionMaker decisionMaker; 
+
+	private DecisionMaker decisionMaker;
 
 	private Map<Integer, RequestHolder> mapOfPendingRequests;//String key is the hashID of the request object
-	
+
 	private String imei;
 	private String userName;
 	private String tmpLoginUserName;
 	private String tmpLoginPassword;
 	private DBManager dbManager;
-	
-	private UserContextEventHandler() {
-        connectionManager = new ConnectionManager();
-        connectionCallback = new ConnectionCallback();
 
-        serverStatus = Statuses.CURRENT_STATUS;
-        serverDetailedStatus = Statuses.OFFLINE;
-        isUserAuthenticated = false;
-        serverOnlineAndUserAuthenticated = false;
-        
-        decisionMaker = new DecisionMaker();
-        
-        mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
+	private UserContextEventHandler() {
+		connectionManager = new ConnectionManager();
+		connectionCallback = new ConnectionCallback();
+
+		serverStatus = Statuses.CURRENT_STATUS;
+		serverDetailedStatus = Statuses.OFFLINE;
+		isUserAuthenticated = false;
+		serverOnlineAndUserAuthenticated = false;
+
+		decisionMaker = new DecisionMaker();
+
+		mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
 	}
-	
+
 	/**
 	 * Method to get the current server status (online, offline)
 	 * @return int. {@link Statuses} online: 1; offline:0
@@ -119,7 +119,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public int getServerStatus() {
 		return serverStatus;
 	}
-	
+
 	public static UserContextEventHandler getInstance() {
 		if (userContextEventHandler == null) {
 			userContextEventHandler = new UserContextEventHandler();
@@ -127,40 +127,40 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		return userContextEventHandler;
 	}
 
-    /**
-     * connects to the MUSES server
-     */
-    public void connectToServer() {
-    	Configuration config = getServerConfigurationFromDB();
-    	String url = "https://" + config.getServerIP() + ":" + config.getServerPort() + config.getServerContextPath() + config.getServerServletPath();
-    	AlarmReceiver.DEFAULT_POLL_INTERVAL = config.getPollTimeout();
-    	AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL = config.getSleepPollTimeout();
-        connectionManager.connect(	
-                url,
-                AlarmReceiver.DEFAULT_POLL_INTERVAL,
-                AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
-                connectionCallback,
-                context
-        );
-    }
+	/**
+	 * connects to the MUSES server
+	 */
+	public void connectToServer() {
+		Configuration config = getServerConfigurationFromDB();
+		String url = "https://" + config.getServerIP() + ":" + config.getServerPort() + config.getServerContextPath() + config.getServerServletPath();
+		AlarmReceiver.DEFAULT_POLL_INTERVAL = config.getPollTimeout();
+		AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL = config.getSleepPollTimeout();
+		connectionManager.connect(
+				url,
+				AlarmReceiver.DEFAULT_POLL_INTERVAL,
+				AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
+				connectionCallback,
+				context
+		);
+	}
 
 	private Configuration getServerConfigurationFromDB() {
 		if(dbManager == null) {
 			dbManager = new DBManager(context);
 		}
-			
-        dbManager.openDB();
-        Configuration config = dbManager.getConfigurations();
-        dbManager.closeDB();
-        return config;
-	}	 
+
+		dbManager.openDB();
+		Configuration config = dbManager.getConfigurations();
+		dbManager.closeDB();
+		return config;
+	}
 
 	/**
 	 *  Method to first check the local decision maker for a decision to the corresponding
-     *      {@link eu.musesproject.client.contextmonitoring.service.aidl.Action}
-     *
-     *  Sends request to the server if there is no local stored decision /
-     *      perform default procedure if the server is not reachable
+	 *      {@link eu.musesproject.client.contextmonitoring.service.aidl.Action}
+	 *
+	 *  Sends request to the server if there is no local stored decision /
+	 *      perform default procedure if the server is not reachable
 	 *
 	 * @param action {@link Action}
 	 * @param properties {@link Map}<String, String>
@@ -169,87 +169,90 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
 		Log.d(APP_TAG, "Action: " + action.getActionType());
 		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
-        boolean onlineDecisionRequested = false;
-        
-        Decision decision = retrieveDecision(action, properties, contextEvents);
-        
-        if(decision != null) { // local decision found
-        	Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
-        	Log.d(APP_TAG, "showFeedback1");
-            ActuatorController.getInstance().showFeedback(decision);
-        }
-        else { // if there is no local decision, send a request to the server
-            if(serverStatus == Statuses.ONLINE && isUserAuthenticated) { // if the server is online, request a decision
-            	// flag that an online decision is requested
-                onlineDecisionRequested = true;
-                
-                // temporary store the information so that the decision can be made after the server responded with 
-                // an database update (new policies are sent from the server to the client and stored in the database)
-                // In addition, add a timeout to every request
-                final RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
-                Log.d(TAG_RQT, "1. send: request_id: " + requestHolder.getId());
-                Handler handler = new Handler(Looper.getMainLooper()); 
-                handler.postDelayed(new Runnable() {
-        	          @Override
-        	          public void run() {
-        	        	  requestHolder.setRequestTimeoutTimer(new RequestTimeoutTimer(UserContextEventHandler.this, requestHolder.getId()));
-        	        	  requestHolder.getRequestTimeoutTimer().start();
-        	          }
-        	        }, 0 );
-                mapOfPendingRequests.put(requestHolder.getId(), requestHolder);
+		boolean onlineDecisionRequested = false;
 
-                // create the JSON request and send it to the server
-                JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
-                Log.d(APP_TAG, "Info DC, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
-                sendRequestToServer(requestObject);
-            }
-            else if(serverStatus == Statuses.ONLINE && !isUserAuthenticated) {
-            	storeContextEvent(action, properties, contextEvents);
-            }
-            else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
-            	Log.d(APP_TAG, "showFeedback2");
-            	ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
-            	storeContextEvent(action, properties, contextEvents);
-            }
-            else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
-            	storeContextEvent(action, properties, contextEvents);
-            }
-        }
-        // update context events even if a local decision was found.
-        // Prevent sending context events again if they are already sent for a online decision
-        if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE) && isUserAuthenticated) {
-    		Log.d(APP_TAG, "Info DB, update context events even if a local decision was found.");
+		Decision decision = retrieveDecision(action, properties, contextEvents);
 
-            RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
-            JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.LOCAL_DECISION, action, properties, contextEvents);
-            sendRequestToServer(requestObject);
-        }
+		if(decision != null) { // local decision found
+			Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
+			Log.d(APP_TAG, "showFeedback1");
+			ActuatorController.getInstance().showFeedback(decision);
+		}
+		else { // if there is no local decision, send a request to the server
+			if(serverStatus == Statuses.ONLINE && isUserAuthenticated) { // if the server is online, request a decision
+				// flag that an online decision is requested
+				onlineDecisionRequested = true;
+
+				// temporary store the information so that the decision can be made after the server responded with
+				// an database update (new policies are sent from the server to the client and stored in the database)
+				// In addition, add a timeout to every request
+				final RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
+				Log.d(TAG_RQT, "1. send: request_id: " + requestHolder.getId());
+				Handler handler = new Handler(Looper.getMainLooper());
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						requestHolder.setRequestTimeoutTimer(new RequestTimeoutTimer(UserContextEventHandler.this, requestHolder.getId()));
+						requestHolder.getRequestTimeoutTimer().start();
+					}
+				}, 0 );
+				mapOfPendingRequests.put(requestHolder.getId(), requestHolder);
+
+				// create the JSON request and send it to the server
+				JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
+				Log.d(APP_TAG, "Info DC, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
+				sendRequestToServer(requestObject);
+			}
+			else if(serverStatus == Statuses.ONLINE && !isUserAuthenticated) {
+				storeContextEvent(action, properties, contextEvents);
+			}
+			else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
+				Log.d(APP_TAG, "showFeedback2");
+				ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
+				storeContextEvent(action, properties, contextEvents);
+			}
+			else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
+				storeContextEvent(action, properties, contextEvents);
+			}
+		}
+		// update context events even if a local decision was found.
+		// Prevent sending context events again if they are already sent for a online decision
+		if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE) && isUserAuthenticated) {
+			Log.d(APP_TAG, "Info DB, update context events even if a local decision was found.");
+
+			RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
+			JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.LOCAL_DECISION, action, properties, contextEvents);
+			sendRequestToServer(requestObject);
+		}
 	}
-	
+
 	/**
 	 * Method that handles the necessary steps to retrieve a decision from the decision maker
 	 * 1. Generate the {@link Resource}
 	 * 2. Generate the {@link Request}
 	 * 3. Make sure that the {@link DecisionMaker} is initialized
 	 * 4. Request a decision from the {@link DecisionMaker}
-	 * 
+	 *
 	 * @param action
 	 * @param properties
 	 * @param contextEvents
 	 * @return
 	 */
 	private Decision retrieveDecision(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+		if(action == null || properties == null || contextEvents == null) {
+			return null;
+		}
 		Resource resource = ResourceCreator.create(action, properties);
 		Request request = new Request(action, resource);
 		Log.d(APP_TAG, "Info DC, Calling decision maker");
 		if(decisionMaker == null) {
 			decisionMaker = new DecisionMaker();
 		}
-        return decisionMaker.makeDecision(request, contextEvents, properties);
+		return decisionMaker.makeDecision(request, contextEvents, properties);
 	}
-	
+
 	/**
-	 * Method that takes an {@link eu.musesproject.client.model.decisiontable.Action} 
+	 * Method that takes an {@link eu.musesproject.client.model.decisiontable.Action}
 	 * which contains the decision taken by the user on the MUSES UI.
 	 * This behavior will be send to the server
 	 * @param action
@@ -258,45 +261,52 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		Log.d(APP_TAG, "Info U, sending user behavior to server with action");
 		JSONObject userBehaviorJSON = JSONManager.createUserBehaviorJSON(getImei(), getUserName(), action.getActionType());
 		sendRequestToServer(userBehaviorJSON);
-		
 	}
-	
+
 	/**
 	 * Method to log in to MUSES.
 	 * Necessary to establish server communication and for 
 	 * using this application
-	 * 
+	 *
 	 * @param userName
 	 * @param password
 	 */
 	public void login(String userName, String password) {
-        Log.d(TAG, "called: login(String userName, String password)");
-        tmpLoginUserName = userName;
-        tmpLoginPassword = password;
-        
-       
-        
-        String deviceId;
-        dbManager.openDB();
-        if((deviceId = dbManager.getDevId()) == null || deviceId.isEmpty()) {
-        	deviceId = getImei();
-        }
-        dbManager.insertCredentials(getImei(), "muses", "muses");
-        dbManager.closeDB();
-        
-        if(serverStatus == Statuses.ONLINE) {
-    		Log.d(APP_TAG, "Info U, Authenticating user login to server with username: "+tmpLoginUserName+" password: "+tmpLoginPassword + " deviceId: " +deviceId);
-        	JSONObject requestObject = JSONManager.createLoginJSON(tmpLoginUserName, tmpLoginPassword, deviceId);
-        	sendRequestToServer(requestObject);
-        } 
-        else { // TODO add information to the callback with an explanation what happened
-    		Log.d(APP_TAG, "Info U, Authenticating login with username:"+tmpLoginUserName+" password:"+tmpLoginPassword + " deviceId: " + deviceId + " in localdatabase");
-        	dbManager.openDB();
-        	ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword));
-        	dbManager.closeDB();
-        }
+		Log.d(TAG, "called: login(String userName, String password)");
+		tmpLoginUserName = userName;
+		tmpLoginPassword = password;
+
+
+		String deviceId;
+		dbManager.openDB();
+		if((deviceId = dbManager.getDevId()) == null || deviceId.isEmpty()) {
+			deviceId = getImei();
+		}
+		dbManager.insertCredentials(getImei(), "muses", "muses");
+		dbManager.closeDB();
+
+		if(serverStatus == Statuses.ONLINE) {
+			Log.d(APP_TAG, "Info U, Authenticating user login to server with username: "+tmpLoginUserName+" password: "+tmpLoginPassword + " deviceId: " +deviceId);
+			JSONObject requestObject = JSONManager.createLoginJSON(tmpLoginUserName, tmpLoginPassword, deviceId);
+			sendRequestToServer(requestObject);
+		}
+		else { // TODO add information to the callback with an explanation what happened
+			Log.d(APP_TAG, "Info U, Authenticating login with username:"+tmpLoginUserName+" password:"+tmpLoginPassword + " deviceId: " + deviceId + " in localdatabase");
+			dbManager.openDB();
+			ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword));
+			dbManager.closeDB();
+		}
 	}
-	
+
+	/**
+	 * Method to try to login with existing credentials in the database
+	 */
+	public void autoLogin() {
+//		dbManager.openDB();
+//		ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword));
+//		dbManager.closeDB();
+	}
+
 	/**
 	 * Method to logout the user, so that no more events are send to the server in his/her name
 	 */
@@ -305,80 +315,80 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		updateServerOnlineAndUserAuthenticated();
 	}
 
-    /**
-     * Method to store a context event in the database if
-     * there is no connection to the server
-     *
-     * @param action {@link Action}
-     * @param properties {@link Map}<String, String>
-     * @param contextEvents {@link ContextEvent}
-     */
-    public void storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
-        Log.d(TAG, "called: storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
-        if((action == null) && (properties == null) && (contextEvents != null)) {
-        	 if(dbManager == null) {
-     			dbManager = new DBManager(context);
-     		}
-            dbManager.openDB();
-            for(ContextEvent contextEvent : contextEvents){
-                long contextEventId = dbManager.addContextEvent(DBEntityParser.transformContextEvent(contextEvent));
-                for(Property property : DBEntityParser.transformProperty(contextEventId, contextEvent)) {
-                    dbManager.addProperty(property);
-                }
-            }
-            dbManager.closeDB();
-        }
-    }
+	/**
+	 * Method to store a context event in the database if
+	 * there is no connection to the server
+	 *
+	 * @param action {@link Action}
+	 * @param properties {@link Map}<String, String>
+	 * @param contextEvents {@link ContextEvent}
+	 */
+	public void storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+		Log.d(TAG, "called: storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
+		if((action == null) && (properties == null) && (contextEvents != null)) {
+			if(dbManager == null) {
+				dbManager = new DBManager(context);
+			}
+			dbManager.openDB();
+			for(ContextEvent contextEvent : contextEvents){
+				long contextEventId = dbManager.addContextEvent(DBEntityParser.transformContextEvent(contextEvent));
+				for(Property property : DBEntityParser.transformProperty(contextEventId, contextEvent)) {
+					dbManager.addProperty(property);
+				}
+			}
+			dbManager.closeDB();
+		}
+	}
 
-    /**
-     * Method to send locally stored data to the server
-     */
-    public void sendOfflineStoredContextEventsToServer() {
-        Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
-        if(isUserAuthenticated) {
-        	Log.d(APP_TAG, "Info SS, Sending offline stored context events to server if user authenticated.");
-        	if (dbManager == null) {
-        		dbManager = new DBManager(context);
-        	}
-        		
-        	dbManager.openDB();
-        	
-        	List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
-        	// get all db entity ContextEvents and Properties from the related tables and
-        	// transform those tables to proper objects
-        	for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent : dbManager.getAllStoredContextEvents()) {
-        		ContextEvent contextEvent = new ContextEvent();
-        		contextEvent.setType(dbContextEvent.getType());
-        		contextEvent.setTimestamp(Long.valueOf(dbContextEvent.getTimestamp()));
-        		
-        		List<Property> properties = dbManager.getAllProperties(/*ID as param*/);
-        		for(Property property: properties) {
-        			contextEvent.addProperty(property.getKey(), property.getValue());
-        		}
-        		
-        		contextEvents.add(contextEvent);
-        	}
-        	dbManager.closeDB();
-        }
-    }
+	/**
+	 * Method to send locally stored data to the server
+	 */
+	public void sendOfflineStoredContextEventsToServer() {
+		Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
+		if(isUserAuthenticated) {
+			Log.d(APP_TAG, "Info SS, Sending offline stored context events to server if user authenticated.");
+			if (dbManager == null) {
+				dbManager = new DBManager(context);
+			}
 
-    /**
-     * Info SS
-     *
-     * Method to send a request to the server
-     *
-     * @param requestJSON {@link org.json.JSONObject}
-     */
-    public void sendRequestToServer(JSONObject requestJSON) {
-        Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
-        if (requestJSON != null) {
-            if(serverStatus == Statuses.ONLINE) {
-                String sendData  = requestJSON.toString();
-                Log.d(TAG, "sendData:"+sendData);//Demo Debug
-                connectionManager.sendData(sendData);
-            }
-        }
-    }
+			dbManager.openDB();
+
+			List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
+			// get all db entity ContextEvents and Properties from the related tables and
+			// transform those tables to proper objects
+			for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent : dbManager.getAllStoredContextEvents()) {
+				ContextEvent contextEvent = new ContextEvent();
+				contextEvent.setType(dbContextEvent.getType());
+				contextEvent.setTimestamp(Long.valueOf(dbContextEvent.getTimestamp()));
+
+				List<Property> properties = dbManager.getAllProperties(/*ID as param*/);
+				for(Property property: properties) {
+					contextEvent.addProperty(property.getKey(), property.getValue());
+				}
+
+				contextEvents.add(contextEvent);
+			}
+			dbManager.closeDB();
+		}
+	}
+
+	/**
+	 * Info SS
+	 *
+	 * Method to send a request to the server
+	 *
+	 * @param requestJSON {@link org.json.JSONObject}
+	 */
+	public void sendRequestToServer(JSONObject requestJSON) {
+		Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
+		if (requestJSON != null) {
+			if(serverStatus == Statuses.ONLINE) {
+				String sendData  = requestJSON.toString();
+				Log.d(TAG, "sendData:"+sendData);//Demo Debug
+				connectionManager.sendData(sendData);
+			}
+		}
+	}
 
 	/**
 	 * Should be called when the background service is created
@@ -387,11 +397,11 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public void setContext(Context context) {
 		this.context = context;
 	}
-	
+
 	public Context getContext(){
 		return this.context;
 	}
-	
+
 
 	public static boolean isServerOnlineAndUserAuthenticated() {
 		return serverOnlineAndUserAuthenticated;
@@ -405,89 +415,89 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			serverOnlineAndUserAuthenticated= false;
 		}
 	}
-	
+
 	private class ConnectionCallback implements IConnectionCallbacks {
 
 		@Override
 		public int receiveCb(String receivedData) {
-            Log.d(TAG, "called: receiveCb(String receivedData)");
-            if((receivedData != null) && (!receivedData.equals(""))) {
-            	if(dbManager == null) {
-        			dbManager = new DBManager(context);
-        		}
-            	
-            	// identify the request type
-                String requestType = JSONManager.getRequestType(receivedData);
-            	Log.d(APP_TAG, "Request type was " + requestType);
+			Log.d(TAG, "called: receiveCb(String receivedData)");
+			if((receivedData != null) && (!receivedData.equals(""))) {
+				if(dbManager == null) {
+					dbManager = new DBManager(context);
+				}
 
-                if(requestType.equals(RequestType.ONLINE_DECISION)) {
-                    // TODO get decision from the json
-                    // send decision to the actuator controller
-                    // dummy data
-                    Decision decision = new Decision();
-                    decision.setName(Decision.GRANTED_ACCESS);
-                    Log.d(APP_TAG, "Info DC, Hardcoding decision to GRANT_ACCESS");
-                    Log.d(APP_TAG, "Info CT, calling actuator to showFeedback");
-                    Log.d(APP_TAG, "showFeedback3");
-                    ActuatorController.getInstance().showFeedback(decision);
-                }
-                else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
-                	Log.d(APP_TAG, "Updating polices");
-                    RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
-                    
-                    // look for the related request
-                    int requestId = JSONManager.getRequestId(receivedData);
-                    Log.d(TAG_RQT, "request_id from the json is " + requestId);
-                    if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
-                    	RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
-                    	requestHolder.getRequestTimeoutTimer().cancel();
-                    	mapOfPendingRequests.remove(requestId);
-                    	send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
-                    }
-                }
-                else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
-                	Log.d(APP_TAG, "Retreiving auth response from JSON");
-                	
-                	isUserAuthenticated = JSONManager.getAuthResult(receivedData);
-                	if(isUserAuthenticated) {
-                		dbManager.openDB();
-                		dbManager.insertCredentials(getImei(), tmpLoginUserName, tmpLoginPassword);
-                		dbManager.closeDB();
-                		// clear the credentials in the fields
-                		tmpLoginUserName = "";
-                		tmpLoginPassword = "";
-                	        
-                		serverStatus = Statuses.ONLINE;
-                		sendOfflineStoredContextEventsToServer();
-                		updateServerOnlineAndUserAuthenticated();
-                	}
-            		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
-                }
-                else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
+				// identify the request type
+				String requestType = JSONManager.getRequestType(receivedData);
+				Log.d(APP_TAG, "Request type was " + requestType);
+
+				if(requestType.equals(RequestType.ONLINE_DECISION)) {
+					// TODO get decision from the json
+					// send decision to the actuator controller
+					// dummy data
+					Decision decision = new Decision();
+					decision.setName(Decision.GRANTED_ACCESS);
+					Log.d(APP_TAG, "Info DC, Hardcoding decision to GRANT_ACCESS");
+					Log.d(APP_TAG, "Info CT, calling actuator to showFeedback");
+					Log.d(APP_TAG, "showFeedback3");
+					ActuatorController.getInstance().showFeedback(decision);
+				}
+				else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
+					Log.d(APP_TAG, "Updating polices");
+					RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
+
+					// look for the related request
+					int requestId = JSONManager.getRequestId(receivedData);
+					Log.d(TAG_RQT, "request_id from the json is " + requestId);
+					if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
+						RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
+						requestHolder.getRequestTimeoutTimer().cancel();
+						mapOfPendingRequests.remove(requestId);
+						send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
+					}
+				}
+				else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
+					Log.d(APP_TAG, "Retreiving auth response from JSON");
+
+					isUserAuthenticated = JSONManager.getAuthResult(receivedData);
+					if(isUserAuthenticated) {
+						dbManager.openDB();
+						dbManager.insertCredentials(getImei(), tmpLoginUserName, tmpLoginPassword);
+						dbManager.closeDB();
+						// clear the credentials in the fields
+						tmpLoginUserName = "";
+						tmpLoginPassword = "";
+
+						serverStatus = Statuses.ONLINE;
+						sendOfflineStoredContextEventsToServer();
+						updateServerOnlineAndUserAuthenticated();
+					}
+					ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
+				}
+				else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
                 	/*
                 	 *  sensor configuration
                 	 *  1.1 load config items from JSON
                 	 *  1.2 insert config items in db
                 	 *  1.3 notify sensors about the new configuration
                 	 */
-                	// 1.1 load config items from JSON
-                	List<SensorConfiguration> configList = JSONManager.getSensorConfig(receivedData);
-                	// 1.2 insert config items in db
-            		dbManager.openDB();
-            		for(SensorConfiguration configItem : configList) {
-            			dbManager.insertSensorConfiguration(configItem);
-            		}
-            		dbManager.closeDB();
-            		// 1.3 notify sensors about the new configuration
-            		UserContextMonitoringController.getInstance(getContext()).onSensorConfigurationChanged();
+					// 1.1 load config items from JSON
+					List<SensorConfiguration> configList = JSONManager.getSensorConfig(receivedData);
+					// 1.2 insert config items in db
+					dbManager.openDB();
+					for(SensorConfiguration configItem : configList) {
+						dbManager.insertSensorConfiguration(configItem);
+					}
+					dbManager.closeDB();
+					// 1.3 notify sensors about the new configuration
+					UserContextMonitoringController.getInstance(getContext()).onSensorConfigurationChanged();
                 	
                 	/*
                 	 *  trials configuration
                 	 *  2.1 load config from JSON
                 	 *  2.2 insert into the database
                 	 */
-            		// 2.1
-                	boolean isSilentModeActivated = JSONManager.isSilentModeActivated(receivedData);
+					// 2.1
+					boolean isSilentModeActivated = JSONManager.isSilentModeActivated(receivedData);
                 	
                 	
                 	/*
@@ -496,42 +506,42 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	 *  3.2 insert new config in the db
                 	 *  3.3 update the connection manager 
                 	 */
-                	// 3.1 load config from JSON
-                	Configuration connectionConfig = JSONManager.getConnectionConfiguration(receivedData, getContext());
-                	connectionConfig.setSilentMode(isSilentModeActivated ? 1 : 0);
-                	// 2.2 & 3.2 insert new config in the db
-                	if(connectionConfig != null) {
-                		dbManager.openDB();
-                		dbManager.insertConfiguration(connectionConfig);
-                		dbManager.closeDB();
-                		// 3.3 update the connection manager 
-                		connectionManager.setTimeout(connectionConfig.getTimeout());
-                		connectionManager.setPolling(connectionConfig.getPollingEnabled());
-                		connectionManager.setPollTimeOuts(connectionConfig.getPollTimeout(), connectionConfig.getSleepPollTimeout());
-                	}
-                }
-            }
+					// 3.1 load config from JSON
+					Configuration connectionConfig = JSONManager.getConnectionConfiguration(receivedData, getContext());
+					connectionConfig.setSilentMode(isSilentModeActivated ? 1 : 0);
+					// 2.2 & 3.2 insert new config in the db
+					if(connectionConfig != null) {
+						dbManager.openDB();
+						dbManager.insertConfiguration(connectionConfig);
+						dbManager.closeDB();
+						// 3.3 update the connection manager
+						connectionManager.setTimeout(connectionConfig.getTimeout());
+						connectionManager.setPolling(connectionConfig.getPollingEnabled());
+						connectionManager.setPollTimeOuts(connectionConfig.getPollTimeout(), connectionConfig.getSleepPollTimeout());
+					}
+				}
+			}
 			return 0;
 		}
 
 		@Override
 		public int statusCb(int status, int detailedStatus) {
-            Log.d(TAG, "called: statusCb(int status, int detailedStatus)");
-            // detect if server is back online after an offline status
-            if(status == Statuses.ONLINE ) {
-                if(serverStatus == Statuses.OFFLINE) {
-                	Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
-                    sendOfflineStoredContextEventsToServer();
-                    isUserAuthenticated = false;
-                    updateServerOnlineAndUserAuthenticated();
-                }
-                serverStatus = status;
-                updateServerOnlineAndUserAuthenticated();
-            }
-            else if(status == Statuses.OFFLINE) {
-			    serverStatus = status;
-			    updateServerOnlineAndUserAuthenticated();
-            }
+			Log.d(TAG, "called: statusCb(int status, int detailedStatus)");
+			// detect if server is back online after an offline status
+			if(status == Statuses.ONLINE ) {
+				if(serverStatus == Statuses.OFFLINE) {
+					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
+					sendOfflineStoredContextEventsToServer();
+					isUserAuthenticated = false;
+					updateServerOnlineAndUserAuthenticated();
+				}
+				serverStatus = status;
+				updateServerOnlineAndUserAuthenticated();
+			}
+			else if(status == Statuses.OFFLINE) {
+				serverStatus = status;
+				updateServerOnlineAndUserAuthenticated();
+			}
 			serverDetailedStatus = detailedStatus;
 			return 0;
 		}
@@ -551,7 +561,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 		return "muses";
 	}
-	
+
 	public void removeRequestById(int requestId) {
 		Log.d(TAG_RQT, "6. removeRequestById map size: " + mapOfPendingRequests.size());
 		if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
