@@ -47,7 +47,9 @@
     <string name="empty_login_fields_msg">You can\'t leave UserID or Password fields empty ..</string>
     <string name="no_internet_connection_msg">You don\'t have any Internet connection on your device, Please check your Wi-Fi settigns ..</string>
     <string name="logout_successfully_msg">Logged out successfully ..</string>
-
+    <string name="crash_toast_text">Sending crash report..</string>
+    
+    
     <!-- Copied strings -->
     <string name="decent_protection"> Descent protection</string>
     <string name="ok_level_btn">OK (Level X)</string>
