@@ -50,7 +50,7 @@ import eu.musesproject.contextmodel.ContextEvent;
 
 /**
  * @author christophstanik
- * 
+ *
  *         Class to collect information about the device configuration
  */
 
@@ -60,9 +60,9 @@ public class DeviceProtectionSensor implements ISensor {
 	// sensor identifier
 	public static final String TYPE = "CONTEXT_SENSOR_DEVICE_PROTECTION";
 
-    // time in milliseconds when the sensor polls information
-    private static int OBSERVATION_INTERVALL = 10000;
-    
+	// time in milliseconds when the sensor polls information
+	private static int OBSERVATION_INTERVALL = 10000;
+
 	// context property keys
 	public static final String PROPERTY_KEY_ID 							= "id";
 	public static final String PROPERTY_KEY_IS_ROOTED 					= "isrooted";
@@ -73,9 +73,9 @@ public class DeviceProtectionSensor implements ISensor {
 	public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED 	= "istrustedantivirusinstalled";
 	public static final String PROPERTY_KEY_MUSES_DATABASE_EXISTS 		= "musesdatabaseexists";
 	public static final String PROPERTY_KEY_ACCESSIBILITY_ENABLED 		= "accessibilityenabled";
-	
+
 	// config keys
-    public static final String CONFIG_KEY_TRUSTED_AV = "trustedav";
+	public static final String CONFIG_KEY_TRUSTED_AV = "trustedav";
 
 	private Context context;
 	private ContextListener listener;
@@ -128,22 +128,22 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_ACCESSIBILITY_ENABLED, String.valueOf(isAccessibilityForMusesEnabled()));
 		contextEvent.generateId();
 
-		
+
 		if(contextEventHistory.size() > 0) {
-            ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
-            // fire new context event if a connectivity context field changed
-            if(!identicalContextEvent(previousContext, contextEvent)) {
-        		// add context event to the context event history
-                contextEventHistory.add(contextEvent);
-                if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
-                    contextEventHistory.remove(0);
-                }
-                
-                if (contextEvent != null && listener != null) {
-                	debug(contextEvent);
-    				listener.onEvent(contextEvent);
-    			}
-            }
+			ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
+			// fire new context event if a connectivity context field changed
+			if(!identicalContextEvent(previousContext, contextEvent)) {
+				// add context event to the context event history
+				contextEventHistory.add(contextEvent);
+				if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
+					contextEventHistory.remove(0);
+				}
+
+				if (contextEvent != null && listener != null) {
+					debug(contextEvent);
+					listener.onEvent(contextEvent);
+				}
+			}
 		}
 		else {
 			contextEventHistory.add(contextEvent);
@@ -154,7 +154,7 @@ public class DeviceProtectionSensor implements ISensor {
 		}
 
 	}
-	
+
 	public void debug(ContextEvent contextEvent) {
 		for (Entry<String, String> set : contextEvent.getProperties().entrySet()) {
 			Log.d(TAG, set.getKey() + " = " + set.getValue());
@@ -162,25 +162,25 @@ public class DeviceProtectionSensor implements ISensor {
 
 		Log.d(TAG, " ");
 	}
-	
-	private boolean identicalContextEvent(ContextEvent oldEvent, ContextEvent newEvent) {
-        Map<String, String> oldProperties = oldEvent.getProperties();
-        oldProperties.remove(PROPERTY_KEY_ID);
-        Map<String, String> newProperties = newEvent.getProperties();
-        newProperties.remove(PROPERTY_KEY_ID);
-        for (Entry<String, String> set : newProperties.entrySet()) {
-        	String oldValue = oldProperties.get(set.getKey());
-        	String newValue = newProperties.get(set.getKey());
-//        	Log.d(TAG, oldValue + " " + newValue);
-        	if(!oldValue.equals(newValue)) {
-//            	Log.d(TAG, "FALSE: " + oldValue + " " + newValue);
-        		return false;
-        	}
-        }
 
-        return true;
-    }
-	
+	private boolean identicalContextEvent(ContextEvent oldEvent, ContextEvent newEvent) {
+		Map<String, String> oldProperties = oldEvent.getProperties();
+		oldProperties.remove(PROPERTY_KEY_ID);
+		Map<String, String> newProperties = newEvent.getProperties();
+		newProperties.remove(PROPERTY_KEY_ID);
+		for (Entry<String, String> set : newProperties.entrySet()) {
+			String oldValue = oldProperties.get(set.getKey());
+			String newValue = newProperties.get(set.getKey());
+//        	Log.d(TAG, oldValue + " " + newValue);
+			if(!oldValue.equals(newValue)) {
+//            	Log.d(TAG, "FALSE: " + oldValue + " " + newValue);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public boolean checkDeviceRooted() {
 		return RootTools.isRootAvailable();
 	}
@@ -218,7 +218,7 @@ public class DeviceProtectionSensor implements ISensor {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 
+		}
 		return "";
 	}
 
@@ -249,37 +249,37 @@ public class DeviceProtectionSensor implements ISensor {
 		}
 		return false;
 	}
-	
+
 	public boolean musesDatabaseExist(Context context, String dbName) {
-	    File dbFile = context.getDatabasePath(dbName);
-	    return dbFile.exists();
+		File dbFile = context.getDatabasePath(dbName);
+		return dbFile.exists();
 	}
 
 	private boolean isAccessibilityForMusesEnabled() {
 		int accessibilityEnabled = 0;
 		try {
-	        accessibilityEnabled = Settings.Secure.getInt(context.getContentResolver(), android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
-	    } catch (SettingNotFoundException e) {
-	        Log.d(TAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
-	    }
-		
+			accessibilityEnabled = Settings.Secure.getInt(context.getContentResolver(), android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+		} catch (SettingNotFoundException e) {
+			Log.d(TAG, "Error finding setting, default accessibility to not found: " + e.getMessage());
+		}
+
 		if (accessibilityEnabled==1){
-	        String settingValue = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-	         
-	         for (String name : settingValue.split(":")) {
-	        	 if(name.contains(InteractionSensor.class.getName())) {
-	        		 return true;
-	        	 }
-	        	 Log.d(TAG, name);
+			String settingValue = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+
+			for (String name : settingValue.split(":")) {
+				if(name.contains(InteractionSensor.class.getName())) {
+					return true;
+				}
+				Log.d(TAG, name);
 			}
 		}
 		else {
-	        return false;
+			return false;
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public void configure(List<SensorConfiguration> config) {
 		for (SensorConfiguration item : config) {
@@ -327,7 +327,7 @@ public class DeviceProtectionSensor implements ISensor {
 		protected Void doInBackground(Void... params) {
 			while (sensorEnabled) {
 				createContextEvent();
-				
+
 				try {
 					TimeUnit.MILLISECONDS.sleep(OBSERVATION_INTERVALL);
 				} catch (InterruptedException e) {
