@@ -102,6 +102,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			Log.v(TAG, "muses service started ...");
 		}
 		
+		setCredentialsIfSaved();
+		
 		loginView = new LoginView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
@@ -112,6 +114,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 	
 	
+	private void setCredentialsIfSaved() {
+	// TODO Auto-generated method stub
+	
+}
+
+
 	private void setStartUpConfiguration(){
         DBManager dbManager = new DBManager(context);
         dbManager.openDB();
@@ -178,7 +186,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (loginView != null) loginView = new LoginView(context);
+		if (loginView == null) {
+			loginView = new LoginView(context);
+		}
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
 	}
@@ -360,11 +370,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			inflate(context, R.layout.login_view, this);
 			userNameTxt = (EditText) findViewById(R.id.username_text);
 			passwordTxt = (EditText) findViewById(R.id.pass_text);
-			
-			userNameTxt.setText("muses");
-			passwordTxt.setText("muses");			userName = userNameTxt.getText().toString();
+			userName = userNameTxt.getText().toString();
 			password = passwordTxt.getText().toString();
-			
 			loginDetailTextView = (TextView) findViewById(R.id.login_detail_text_view);
 			rememberCheckBox = (CheckBox) findViewById(R.id.remember_checkbox);
 			rememberCheckBox.setOnCheckedChangeListener(this);
@@ -433,10 +440,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					userName = userNameTxt.getText().toString();
 					password = passwordTxt.getText().toString();
 					doLogin(userName, password);
-//					if (NetworkChecker.isInternetConnected){ //FIXME commented for testing in ui-automator
-//					} else toastMessage(getResources().getString(R.string.no_internet_connection_msg));
-				
-				} else toastMessage(getResources().getString(R.string.make_sure_privacy_policy_read_txt));
+				} else {
+					toastMessage(getResources().getString(R.string.make_sure_privacy_policy_read_txt));
+				}
 				break;
 			case R.id.logout_button:
 				logoutBtn.setVisibility(View.GONE);
@@ -467,7 +473,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				password = prefs.getString(PASSWORD, "");
 				userNameTxt.setText(userName);
 				passwordTxt.setText(password);
+				rememberCheckBox.setChecked(true);
 			} else {
+				userNameTxt.setText("");
+				passwordTxt.setText("");
+				rememberCheckBox.setChecked(false);
 				Log.d(TAG, "No username-pass found in preferences");
 			}
 		}
