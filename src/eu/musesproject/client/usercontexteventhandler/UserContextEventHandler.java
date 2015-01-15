@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.SharedPreferences;
+import eu.musesproject.client.ui.MainActivity;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -79,6 +81,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	private static final String MUSES_SERVER_URL = "https://172.17.3.5:8443/server/commain";
 
 	private Context context;
+
+	private SharedPreferences prefs;
 
 	// connection fields
 	private ConnectionManager connectionManager;
@@ -302,9 +306,20 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to try to login with existing credentials in the database
 	 */
 	public void autoLogin() {
-//		dbManager.openDB();
-//		ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword));
-//		dbManager.closeDB();
+		if(prefs == null) {
+			prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+					Context.MODE_PRIVATE);
+		}
+		String userName = prefs.getString(MainActivity.USERNAME, "");
+		String password = prefs.getString(MainActivity.PASSWORD, "");
+
+
+		dbManager.openDB();
+		isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), userName, password);
+		dbManager.closeDB();
+		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
+
+		updateServerOnlineAndUserAuthenticated();
 	}
 
 	/**
