@@ -41,7 +41,7 @@ public class DBEntityParser {
         ContextEvent contextEvent = new ContextEvent();
         contextEvent.setId(0);
         contextEvent.setType(oldEvent.getType());
-        contextEvent.setTimestamp(String.valueOf(oldEvent.getTimestamp()));
+        contextEvent.setTimestamp(oldEvent.getTimestamp());
         return contextEvent;
     }
 

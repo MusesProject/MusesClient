@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.db.entity.Action;
+import eu.musesproject.client.db.entity.ActionProperty;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.ContextEvent;
 import eu.musesproject.client.db.entity.Decision;
@@ -35,7 +36,6 @@ public class DBManager {
 	public static final String DATABASE_NAME = "muses_client_db";
 	
 	// Creating tables queries run at the start
-	private static final String CREATE_POLICIES_TABLE_QUERY = "";
 	private static final String CREATE_DECISIONTABLE_TABLE_QUERY = "CREATE TABLE decisiontable ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "action_id INT NOT NULL,"   // fk action.id 
@@ -47,7 +47,13 @@ public class DBManager {
 	private static final String CREATE_ACTION_TABLE_QUERY = "CREATE TABLE action ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "description VARCHAR(45) NOT NULL,"
-																	  + "modification TIMESTAMP NOT NULL);";
+																	  + "action_type VARCHAR(45) NOT NULL,"
+																	  + "timestamp TIMESTAMP NOT NULL);";
+	private static final String CREATE_ACTION_PROPERTY_TABLE_QUERY = "CREATE TABLE action_property ( "
+			  														  + "id INTEGER PRIMARY KEY,"
+			  														  + "action_id INT NOT NULL,"
+			  														  + "key VARCHAR(45) NOT NULL,"
+			  														  + "value VARCHAR(500) NOT NULL);";
 	private static final String CREATE_RESOURCE_TABLE_QUERY ="CREATE TABLE resource ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "description VARCHAR(45) NOT NULL,"
@@ -91,14 +97,10 @@ public class DBManager {
 	//  MusDM
 	private static final String CREATE_CONTEXT_EVENTS_TABLE_QUERY =  "CREATE TABLE contextevent	 ( "
 																	  + "id INTEGER PRIMARY KEY," 
+																	  + "action_id INT NOT NULL,"  // fk to action table
 																	  + "type VARCHAR(45) NOT NULL,"
 																	  + "timestamp TIMESTAMP NOT NULL);";
 	private static final String CREATE_PROPERTY_TABLE_QUERY =  "CREATE TABLE property	 ( "
-																	  + "id INTEGER PRIMARY KEY," 
-																	  + "contextevent_id INT NOT NULL,"
-																	  + "key VARCHAR(45) NOT NULL,"
-																	  + "value VARCHAR(45) NOT NULL);";
-	private static final String CREATE_SERVER_CERT_TABLE_QUERY =  "CREATE TABLE server_certificate	 ( "
 																	  + "id INTEGER PRIMARY KEY," 
 																	  + "contextevent_id INT NOT NULL,"
 																	  + "key VARCHAR(45) NOT NULL,"
@@ -123,7 +125,6 @@ public class DBManager {
 	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
 			  + "id INTEGER PRIMARY KEY," 
 			  + "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
-			  //+ "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.1.11',"
 			  + "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
 			  + "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
 			  + "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain',"
@@ -136,21 +137,6 @@ public class DBManager {
 			  + "login_attempts INTEGER NOT NULL DEFAULT 5,"
 			  + "silent_mode INTEGER NOT NULL DEFAULT 0);";
 
-//	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
-//			  + "id INTEGER PRIMARY KEY," 
-//			  + "server_ip VARCHAR(45) NOT NULL,"
-//			  + "server_port VARCHAR(45) NOT NULL,"
-//			  + "server_context_path VARCHAR(45) NOT NULL,"
-//			  + "server_servlet_path VARCHAR(45) NOT NULL,"
-//			  + "server_certificate VARCHAR(4500) NOT NULL,"
-//			  + "client_certificate VARCHAR(4500) NOT NULL,"
-//			  + "timeout INTEGER NOT NULL,"
-//			  + "poll_timeout INTEGER NOT NULL,"
-//			  + "sleep_poll_timeout INTEGER NOT NULL,"
-//			  + "polling_enabled INTEGER NOT NULL);";
-
-
-	
 	// Tables name 
 	public static final String TABLE_POLICES = "polices";
 	public static final String TABLE_DECISIONTABLE = "decisiontable";
@@ -161,6 +147,7 @@ public class DBManager {
 	public static final String TABLE_RESOURCE_TYPE = "resourcetype";
 	public static final String TABLE_RESOURCE_PROPERTY = "resource_property";
 	public static final String TABLE_ACTION = "action";
+	public static final String TABLE_ACTION_PROPERTY = "action_property";
 	public static final String TABLE_RISK_TREATMENT = "risktreatment";
 	public static final String TABLE_RISK_COMMUNICATION = "riskcommunication";
 	public static final String TABLE_CONTEXT_EVENT = "contextevent";
@@ -172,7 +159,6 @@ public class DBManager {
 	
 	// Columns name
 	private static final String ID = "id";
-	//private static final String _ID = "_id";
 	private static final String ACTION_ID = "action_id";
 	private static final String RESOURCE_ID = "resource_id";
 	private static final String DECISION_ID = "decision_id";
@@ -212,7 +198,7 @@ public class DBManager {
 	private static final String VERSION = "version";
 	private static final String UNIQUE_NAME = "unique_name";
 	private static final String SEVERITY = "severity";
-	
+	private static final String ACTION_TYPE = "action_type";
 	
 	private Context context;
 	private DatabaseHelper databaseHelper;
@@ -264,6 +250,7 @@ public class DBManager {
         	Log.d( TAG,"Creating the DB" );
         	
         	db.execSQL(CREATE_ACTION_TABLE_QUERY);
+        	db.execSQL(CREATE_ACTION_PROPERTY_TABLE_QUERY);
         	db.execSQL(CREATE_DECISIONTABLE_TABLE_QUERY);
         	db.execSQL(CREATE_DECISION_TABLE_QUERY);
         	db.execSQL(CREATE_RESOURCE_TABLE_QUERY);
@@ -302,6 +289,7 @@ public class DBManager {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONFIGURATION);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_SENSOR_CONFIGURATION);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_REQUIRED_APPS_CONFIGURATION);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTION_PROPERTY);
             onCreate(db);
             
         }
@@ -486,7 +474,6 @@ public class DBManager {
     }
     
     public String getServerCertificate() {
-    	// Select All Query
     	String certificate = "";
         String selectQuery = "select  * from " + TABLE_CONFIGURATION;
         Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -499,7 +486,6 @@ public class DBManager {
 	}
     
     public String getClientCertificate() {
-    	// Select All Query
     	String certificate = "";
         String selectQuery = "select  * from " + TABLE_CONFIGURATION;
         Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -512,14 +498,12 @@ public class DBManager {
 	}
 
     public Configuration getConfigurations(){
-    	// Select All Query
         String selectQuery = "select  * from " + TABLE_CONFIGURATION;
         Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
         Configuration configuration = new Configuration();
         
         if (cursor.moveToFirst()) {
             do {
-            	// configuration.setId(cursor.getInt(0)); FIXME commented for time being
             	configuration.setServerIP(cursor.getString(1));
             	configuration.setServerPort(cursor.getInt(2));
             	configuration.setServerContextPath(cursor.getString(3));
@@ -540,15 +524,12 @@ public class DBManager {
     
     public List<Configuration> getConfiguration(){
     	List<Configuration> conList = new ArrayList<Configuration>();
-    	
-    	// Select All Query
         String selectQuery = "select  * from " + TABLE_CONFIGURATION;
         Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
         Configuration configuration = new Configuration();
         
         if (cursor.moveToFirst()) {
             do {
-            	// configuration.setId(cursor.getInt(0)); FIXME commented for time being
             	configuration.setServerIP(cursor.getString(1));
             	configuration.setServerPort(cursor.getInt(2));
             	configuration.setServerContextPath(cursor.getString(3));
@@ -615,25 +596,23 @@ public class DBManager {
      * @return list of Decision tables
      */
     
-    public List<DecisionTable> getAllDecisionTables(){ // FIXME not right, there should be some criteria
+    public List<DecisionTable> getAllDecisionTables(){
     	
     	List<DecisionTable> decisionTableList = new ArrayList<DecisionTable>();
-    	
-    	// Select All Query
         String selectQuery = "select  * from " + TABLE_DECISIONTABLE;
         Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
         
         if (cursor.moveToFirst()) {
             do {
                 DecisionTable decisionTable = new DecisionTable();
-                String id = cursor.getString(0);  // These values should in the DecisionTable object
-                String action_id = cursor.getString(0);
-                String resource_id = cursor.getString(0);
-                String decision_id = cursor.getString(0);
-                String subject_id = cursor.getString(0);
-                String modification = cursor.getString(0);
-
-                decisionTableList.add(null); // add created object here
+                decisionTable.setId(cursor.getInt(0));
+                decisionTable.setAction_id(cursor.getInt(1));
+                decisionTable.setResource_id(cursor.getInt(2));
+                decisionTable.setDecision_id(cursor.getInt(3));
+                decisionTable.setSubject_id(cursor.getInt(4));
+                decisionTable.setRiskcommunication_id(cursor.getInt(5));
+                decisionTable.setModification(cursor.getInt(6));
+                decisionTableList.add(decisionTable);
             } while (cursor.moveToNext());
         }
         
@@ -899,7 +878,8 @@ public class DBManager {
     	
     	ContentValues values = new ContentValues();
     	values.put(DESCRIPTION, action.getDescription());
-    	values.put(MODIFICATION, "09-08-2012");
+    	values.put(ACTION_TYPE, action.getActionType());
+    	values.put(TIME_STAMP, action.getTimestamp());
     	
     	Action actionInDb = getActionFromDescription(action.getDescription());
     	if (actionInDb.getId()==0){
@@ -911,6 +891,79 @@ public class DBManager {
     	}
     }
     
+    public long addActionProperty(ActionProperty actionProperty) {
+    	ContentValues values = new ContentValues();
+    	values.put(ACTION_ID, actionProperty.getActionId());
+    	values.put(KEY, actionProperty.getKey());
+    	values.put(VALUE, actionProperty.getValue());
+    	return sqLiteDatabase.insert(TABLE_ACTION_PROPERTY, null, values);
+    }
+
+    public List<ActionProperty> getActionPropertyList() {
+    	List<ActionProperty> actionPropertyList = new ArrayList<ActionProperty>();
+        String selectQuery = "select  * from " + TABLE_ACTION_PROPERTY;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        
+        if (cursor.moveToFirst()) {
+            do {
+                ActionProperty actionProperty = new ActionProperty();
+                actionProperty.setId(cursor.getInt(0));
+                actionProperty.setActionId(cursor.getInt(1));
+                actionProperty.setKey(cursor.getString(2));
+                actionProperty.setValue(cursor.getString(3));
+                actionPropertyList.add(actionProperty);
+            } while (cursor.moveToNext());
+        }
+        
+        return actionPropertyList;
+    }
+    
+    public List<ActionProperty> getActionPropertiesOfAction(int actionId) {
+    	Cursor cursor = sqLiteDatabase.query(TABLE_ACTION_PROPERTY, new String [] {
+    			ID, 
+    			ACTION_ID,
+    			KEY,
+    			VALUE}, 
+    			
+    			ACTION_ID + " LIKE '" + actionId + "'",
+				null,			
+				null, 
+				null, 
+				null);
+    	List<ActionProperty> actionPropertyList = new ArrayList<ActionProperty>();
+    	ActionProperty actionProperty = new ActionProperty();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()){
+				actionProperty.setId(cursor.getInt(0));
+				actionProperty.setActionId(actionId);
+				actionProperty.setKey(cursor.getString(2));
+				actionProperty.setValue(cursor.getString(3));
+				actionPropertyList.add(actionProperty);
+				cursor.moveToNext();
+			}	
+		}
+		return actionPropertyList;
+    }
+    
+    public List<Action> getActionList() {
+    	List<Action> actionList = new ArrayList<Action>();
+        String selectQuery = "select  * from " + TABLE_ACTION;
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+        
+        if (cursor.moveToFirst()) {
+            do {
+                Action action = new Action();
+                action.setId(cursor.getInt(0));
+                action.setDescription(cursor.getString(1));
+                action.setActionType(cursor.getString(2));
+                action.setTimestamp(cursor.getInt(3));
+                actionList.add(action);
+            } while (cursor.moveToNext());
+        }
+        
+        return actionList;
+    }
     
     private Action getActionFromDescription(String description) {
     	Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
@@ -930,8 +983,10 @@ public class DBManager {
 			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
 			while (!cursor.isAfterLast()){
 				Log.d(TAG, cursor.getString(0));
-				action.setId(Integer.parseInt(cursor.getString(0)));
+				action.setId(cursor.getInt(0));
 				action.setDescription(cursor.getString(1));
+				action.setActionType(cursor.getString(2));
+				action.setTimestamp(cursor.getInt(3));
 				cursor.moveToNext();
 			}	
 		}
@@ -1195,6 +1250,7 @@ public class DBManager {
     
     public long addContextEvent(ContextEvent event) {
     	ContentValues values = new ContentValues();
+    	values.put(ACTION_ID, event.getActionId());
     	values.put(TYPE, event.getType());
     	values.put(TIME_STAMP, event.getTimestamp());
     	return sqLiteDatabase.insert(TABLE_CONTEXT_EVENT, null	, values);    
@@ -1241,6 +1297,7 @@ public class DBManager {
     public ContextEvent getStoredContextEvent(String id) {
     	Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String [] {
     			ID, 
+    			ACTION_ID,
     			TYPE, 
     			TIME_STAMP}, 
     			
@@ -1254,9 +1311,10 @@ public class DBManager {
 		if (cursor != null) {
 			cursor.moveToFirst();
 			// Now create the decision table object from the cursor
-            contextEvent.setId(Integer.parseInt(cursor.getString(0)));
-            contextEvent.setType(cursor.getString(1));
-            contextEvent.setTimestamp(cursor.getString(2));
+            contextEvent.setId(cursor.getInt(0));
+            contextEvent.setActionId(cursor.getInt(1));
+            contextEvent.setType(cursor.getString(2));
+            contextEvent.setTimestamp(cursor.getInt(3));
 		}
 		return contextEvent;
 
@@ -1286,9 +1344,10 @@ public class DBManager {
         if (cursor.moveToFirst()) {
             do {
                 ContextEvent contextEvent = new ContextEvent();
-                contextEvent.setId(Integer.parseInt(cursor.getString(0)));
-                contextEvent.setType(cursor.getString(1));
-                contextEvent.setTimestamp(cursor.getString(2));
+                contextEvent.setId(cursor.getInt(0));
+                contextEvent.setActionId(cursor.getInt(1));
+                contextEvent.setType(cursor.getString(2));
+                contextEvent.setTimestamp(cursor.getLong(3));
                 contextEventsList.add(contextEvent);
             } while (cursor.moveToNext());
         }
@@ -1569,8 +1628,10 @@ public class DBManager {
 			cursor.moveToFirst();
 			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
 			while (!cursor.isAfterLast()){
-				action.setId(Integer.parseInt(cursor.getString(0)));
+				action.setId(cursor.getInt(0));
 				action.setDescription(cursor.getString(1));
+				action.setActionType(cursor.getString(2));
+				action.setTimestamp(cursor.getLong(3));
 				cursor.moveToNext();
 			}	
 		}
