@@ -59,9 +59,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String DECISION_OK = "ok";
 	public static final String DECISION_CANCEL = "cancel";
 	public static final String DECISION_KEY = "decision";
-	private static final String USERNAME = "username";
-	private static final String PASSWORD = "password";
-	private static final String PREFERENCES_KEY = "eu.musesproject.client";
+	public static final String USERNAME = "username";
+	public static final String PASSWORD = "password";
+	public static final String PREFERENCES_KEY = "eu.musesproject.client";
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private LinearLayout topLayout;
 	private Button loginListBtn, securityInformationListbtn;
