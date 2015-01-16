@@ -966,7 +966,9 @@ public class DBManager {
 		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
 						ID,
 						DESCRIPTION,
-						MODIFICATION},
+						ACTION_TYPE,
+						TIME_STAMP
+						},
 
 				DESCRIPTION + " LIKE '" + description + "'",
 				null,
@@ -1645,7 +1647,8 @@ public class DBManager {
 		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
 						ID,
 						DESCRIPTION,
-						MODIFICATION},
+						ACTION_TYPE,
+						TIME_STAMP},
 
 				DESCRIPTION + " LIKE '" + type + "'",
 				null,
