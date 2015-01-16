@@ -462,7 +462,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginLayout2.setVisibility(View.GONE);
 			logoutBtn.setVisibility(View.VISIBLE);
 			loginDetailTextView.setText(String.format("%s %s", getResources()
-					.getString(R.string.logged_in_info_txt), userName));
+					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
 			setUsernamePasswordIfSaved();
 		}
 
