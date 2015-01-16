@@ -70,6 +70,9 @@ public class MUSESBackgroundService extends Service {
 			isAppInitialized = true;
 			UserContextMonitoringController.getInstance(this).startContextObservation();
 
+			// try to auto login user
+			userContextEventHandler.autoLogin();
+
 			// send status of the service
 			String actionDescription = getString(R.string.action_description_started);
 			userContextEventHandler.send(createAction(actionDescription), null, null);
