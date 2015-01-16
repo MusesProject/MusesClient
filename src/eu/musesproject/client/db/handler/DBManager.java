@@ -879,7 +879,7 @@ public class DBManager {
 		values.put(TIME_STAMP, action.getTimestamp());
 
 		Action actionInDb = getActionFromDescription(action.getDescription());
-		if (actionInDb.getId()==0){
+		if (actionInDb == null ||actionInDb.getId() == 0){
 			Log.d(TAG,"Action not found, inserting a new one...");
 			return sqLiteDatabase.insert(TABLE_ACTION, null, values);
 		}else{
