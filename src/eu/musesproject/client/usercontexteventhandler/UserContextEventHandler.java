@@ -351,7 +351,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			dbManager.openDB();
 
 			int actionId = (int) dbManager.addAction(DBEntityParser.transformActionToEntityAction(action));
-			Log.d("properties_test", "action id: " + actionId);
 			for(Map.Entry<String, String> entry : properties.entrySet()) {
 				// transform to action property
 				ActionProperty actionProperty = new ActionProperty();
@@ -359,8 +358,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				actionProperty.setKey(entry.getKey());
 				actionProperty.setValue(entry.getValue());
 
-				long propId = dbManager.addActionProperty(actionProperty);
-				Log.d("properties_test","prop id: " + propId);
+				dbManager.addActionProperty(actionProperty);
 			}
 
 			for(ContextEvent contextEvent : contextEvents){
