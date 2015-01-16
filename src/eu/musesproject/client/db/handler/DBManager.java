@@ -931,7 +931,6 @@ public class DBManager {
 					actionProperty.setValue(cursor.getString(3));
 
 					actionPropertyList.add(actionProperty);
-					cursor.moveToNext();
 				} while (cursor.moveToNext());
 			}
 		}
