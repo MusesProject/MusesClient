@@ -871,21 +871,13 @@ public class DBManager {
 
 
 	public long addAction(Action action){
-		//TODO Manage the insertion or update, avoiding duplicated entries
-
 		ContentValues values = new ContentValues();
 		values.put(DESCRIPTION, action.getDescription());
 		values.put(ACTION_TYPE, action.getActionType());
 		values.put(TIME_STAMP, action.getTimestamp());
+		Log.d(TAG, "action type: " + action.getActionType() + " description: " + action.getDescription());
 
-		Action actionInDb = getActionFromDescription(action.getDescription());
-		if (actionInDb == null ||actionInDb.getId() == 0){
-			Log.d(TAG,"Action not found, inserting a new one...");
-			return sqLiteDatabase.insert(TABLE_ACTION, null, values);
-		}else{
-			Log.d(TAG,"Action found, returning the existing one..."+actionInDb.getId());
-			return actionInDb.getId();
-		}
+		return sqLiteDatabase.insert(TABLE_ACTION, null, values);
 	}
 
 	public long addActionProperty(ActionProperty actionProperty) {
@@ -922,24 +914,28 @@ public class DBManager {
 						KEY,
 						VALUE},
 
-				ACTION_ID + " LIKE '" + actionId + "'",
+				ACTION_ID + " = " + actionId,
 				null,
 				null,
 				null,
 				null);
 		List<ActionProperty> actionPropertyList = new ArrayList<ActionProperty>();
-		ActionProperty actionProperty = new ActionProperty();
+		ActionProperty actionProperty;
 		if (cursor != null) {
-			cursor.moveToFirst();
-			while (!cursor.isAfterLast()){
-				actionProperty.setId(cursor.getInt(0));
-				actionProperty.setActionId(actionId);
-				actionProperty.setKey(cursor.getString(2));
-				actionProperty.setValue(cursor.getString(3));
-				actionPropertyList.add(actionProperty);
-				cursor.moveToNext();
+			if(cursor.moveToFirst()) {
+				do {
+					actionProperty = new ActionProperty();
+					actionProperty.setId(cursor.getInt(0));
+					actionProperty.setActionId(actionId);
+					actionProperty.setKey(cursor.getString(2));
+					actionProperty.setValue(cursor.getString(3));
+
+					actionPropertyList.add(actionProperty);
+					cursor.moveToNext();
+				} while (cursor.moveToNext());
 			}
 		}
+
 		return actionPropertyList;
 	}
 
