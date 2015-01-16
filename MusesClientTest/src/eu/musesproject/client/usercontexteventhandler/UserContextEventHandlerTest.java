@@ -81,9 +81,9 @@ public class UserContextEventHandlerTest extends AndroidTestCase {
         List<ActionProperty> dbActionProperties = dbManager.getActionPropertiesOfAction(action.getId());
         assertNotNull(dbActionProperties);
         assertEquals(3, dbActionProperties.size());
-        assertEquals("pop1", dbActionProperties.get(0).getValue());
-        assertEquals("pop2", dbActionProperties.get(1).getValue());
-        assertEquals("pop3", dbActionProperties.get(2).getValue());
+        assertEquals("prop1", dbActionProperties.get(0).getValue());
+        assertEquals("prop2", dbActionProperties.get(1).getValue());
+        assertEquals("prop3", dbActionProperties.get(2).getValue());
 
 
         // context events in general

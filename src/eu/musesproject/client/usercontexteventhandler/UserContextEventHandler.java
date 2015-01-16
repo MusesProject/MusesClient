@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.SharedPreferences;
+import eu.musesproject.client.db.entity.ActionProperty;
+import eu.musesproject.client.model.JSONIdentifiers;
+import eu.musesproject.client.model.decisiontable.*;
 import eu.musesproject.client.ui.MainActivity;
 import org.json.JSONObject;
 
@@ -54,10 +57,6 @@ import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.ResourceCreator;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
 import eu.musesproject.client.model.RequestType;
-import eu.musesproject.client.model.decisiontable.Action;
-import eu.musesproject.client.model.decisiontable.Decision;
-import eu.musesproject.client.model.decisiontable.Request;
-import eu.musesproject.client.model.decisiontable.Resource;
 import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -313,6 +312,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		String userName = prefs.getString(MainActivity.USERNAME, "");
 		String password = prefs.getString(MainActivity.PASSWORD, "");
 
+		if(userName.isEmpty() || password.isEmpty()) {
+			Log.d("auto_login_test", "cannot auto login");
+			return; // user wasn't logged in before
+		}
 
 		dbManager.openDB();
 		isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), userName, password);
@@ -340,13 +343,28 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
 		Log.d(TAG, "called: storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
-		if((action == null) && (properties == null) && (contextEvents != null)) {
+		// TODO maybe remove this: (properties != null) && (contextEvents != null) because a user behavior doesn't contain this information
+		if((action != null) && (properties != null) && (contextEvents != null)) {
 			if(dbManager == null) {
 				dbManager = new DBManager(context);
 			}
 			dbManager.openDB();
+
+			int actionId = (int) dbManager.addAction(DBEntityParser.transformActionToEntityAction(action));
+			Log.d("properties_test", "action id: " + actionId);
+			for(Map.Entry<String, String> entry : properties.entrySet()) {
+				// transform to action property
+				ActionProperty actionProperty = new ActionProperty();
+				actionProperty.setActionId(actionId);
+				actionProperty.setKey(entry.getKey());
+				actionProperty.setValue(entry.getValue());
+
+				long propId = dbManager.addActionProperty(actionProperty);
+				Log.d("properties_test","prop id: " + propId);
+			}
+
 			for(ContextEvent contextEvent : contextEvents){
-				long contextEventId = dbManager.addContextEvent(DBEntityParser.transformContextEvent(contextEvent));
+				long contextEventId = dbManager.addContextEvent(DBEntityParser.transformContextEvent(actionId, contextEvent));
 				for(Property property : DBEntityParser.transformProperty(contextEventId, contextEvent)) {
 					dbManager.addProperty(property);
 				}
@@ -360,28 +378,56 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void sendOfflineStoredContextEventsToServer() {
 		Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
+		/*
+		 * 1. check if the user is authenticated
+		 * 2. check if the dbManager object is null
+		 * 3. get a list of all stored actions
+		 * 4. for each action do:
+		 * 4.1 get all related properties of that action
+		 * 4.2 get all context events of that action
+		 * 4.3 for each context event:
+		 * 4.3.1 get all related properties to that action
+		 * 4.4. create a json for
+		 * 4.5. send this json to the server
+		 */
+
+		//1. check if the user is authenticated
 		if(isUserAuthenticated) {
 			Log.d(APP_TAG, "Info SS, Sending offline stored context events to server if user authenticated.");
+			// 2. check if the dbManager object is null
 			if (dbManager == null) {
 				dbManager = new DBManager(context);
 			}
 
 			dbManager.openDB();
 
-			List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
-			// get all db entity ContextEvents and Properties from the related tables and
-			// transform those tables to proper objects
-			for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent : dbManager.getAllStoredContextEvents()) {
-				ContextEvent contextEvent = new ContextEvent();
-				contextEvent.setType(dbContextEvent.getType());
-				contextEvent.setTimestamp(Long.valueOf(dbContextEvent.getTimestamp()));
+			// 3. get a list of all stored actions
+			for (eu.musesproject.client.db.entity.Action entityAction : dbManager.getActionList()) {
+				Action action = DBEntityParser.transformAction(entityAction);
 
-				List<Property> properties = dbManager.getAllProperties(/*ID as param*/);
-				for(Property property: properties) {
-					contextEvent.addProperty(property.getKey(), property.getValue());
+				//  4.1 get all related properties of that action
+				List<ActionProperty> entityActionProperties = dbManager.getActionPropertiesOfAction(entityAction.getId());
+				Map<String, String> actionProperties = DBEntityParser.transformActionPropertyToMap(entityActionProperties);
+
+				//4.2 get all context events of that action
+				List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
+				for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent :  dbManager.getStoredContextEventByActionId(entityAction.getId())) {
+					ContextEvent contextEvent = DBEntityParser.transformEntityContextEvent(dbContextEvent);
+
+					// 4.3.1 get all related properties to that action
+					List<Property> properties = dbManager.getPropertiesOfContextEvent(contextEvent.getId());
+					for(Property property: properties) {
+						contextEvent.addProperty(property.getKey(), property.getValue());
+					}
+
+					contextEvents.add(contextEvent);
 				}
 
-				contextEvents.add(contextEvent);
+				// 4.4. create a json for
+				JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), -1, RequestType.ONLINE_DECISION, action, actionProperties, contextEvents);
+
+				// 4.5. send this json to the server
+				sendRequestToServer(requestObject);
 			}
 			dbManager.closeDB();
 		}

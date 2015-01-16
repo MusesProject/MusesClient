@@ -22,11 +22,15 @@ package eu.musesproject.client.usercontexteventhandler;
  */
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import eu.musesproject.client.db.entity.ActionProperty;
 import eu.musesproject.client.db.entity.ContextEvent;
 import eu.musesproject.client.db.entity.Property;
+import eu.musesproject.client.model.decisiontable.Action;
 
 /**
  * Created by christophstanik on 4/22/14.
@@ -37,11 +41,13 @@ public class DBEntityParser {
      * @param oldEvent {@link eu.musesproject.contextmodel.ContextEvent}
      * @return {@link eu.musesproject.client.db.entity.ContextEvent} db entity object
      */
-    public static ContextEvent transformContextEvent(eu.musesproject.contextmodel.ContextEvent oldEvent) {
+    public static ContextEvent transformContextEvent(int actionId, eu.musesproject.contextmodel.ContextEvent oldEvent) {
         ContextEvent contextEvent = new ContextEvent();
         contextEvent.setId(0);
+        contextEvent.setActionId(actionId);
         contextEvent.setType(oldEvent.getType());
         contextEvent.setTimestamp(oldEvent.getTimestamp());
+
         return contextEvent;
     }
 
@@ -64,6 +70,59 @@ public class DBEntityParser {
 
             properties.add(property);
         }
+
         return properties;
+    }
+
+
+    public static Map<String, String> transformActionPropertyToMap(List<ActionProperty> entityActionProperties) {
+        Map<String, String> properties = new HashMap<String, String>();
+
+        for(ActionProperty actionProperty : entityActionProperties) {
+            properties.put(actionProperty.getKey(), actionProperty.getValue());
+        }
+
+        return properties;
+    }
+
+    /**
+     * Method that transform an {@link eu.musesproject.client.db.entity.Action} object from the database
+     * to an {@link eu.musesproject.client.model.decisiontable.Action} object that can be send to the server
+     * @param entityAction {@link eu.musesproject.client.db.entity.Action} entity object from the database
+     * @return {@link eu.musesproject.client.model.decisiontable.Action}
+     */
+    public static Action transformAction(eu.musesproject.client.db.entity.Action entityAction) {
+        Action action = new Action();
+        action.setId(entityAction.getId());
+        action.setActionType(entityAction.getActionType());
+        action.setDescription(entityAction.getDescription());
+        action.setTimestamp(entityAction.getTimestamp());
+
+        return action;
+    }
+
+    /**
+     * Method that transform an {@link eu.musesproject.client.model.decisiontable.Action} object to an
+     * {@link eu.musesproject.client.db.entity.Action} entity object for the database
+     * @param action {@link eu.musesproject.client.model.decisiontable.Action}
+     * @return {@link eu.musesproject.client.db.entity.Action} entity object for the database
+     */
+    public static eu.musesproject.client.db.entity.Action transformActionToEntityAction(Action action) {
+        eu.musesproject.client.db.entity.Action entityAction = new eu.musesproject.client.db.entity.Action();
+        entityAction.setId(action.getId());
+        entityAction.setActionType(action.getActionType());
+        entityAction.setDescription(action.getDescription());
+        entityAction.setTimestamp(action.getTimestamp());
+
+        return entityAction;
+    }
+
+    public static eu.musesproject.contextmodel.ContextEvent transformEntityContextEvent(ContextEvent entityContextEvent) {
+        eu.musesproject.contextmodel.ContextEvent contextEvent = new eu.musesproject.contextmodel.ContextEvent();
+        contextEvent.setId(entityContextEvent.getId());
+        contextEvent.setTimestamp(entityContextEvent.getTimestamp());
+        contextEvent.setType(entityContextEvent.getType());
+
+        return contextEvent;
     }
 }

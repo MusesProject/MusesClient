@@ -885,6 +885,7 @@ public class DBManager {
 		values.put(ACTION_ID, actionProperty.getActionId());
 		values.put(KEY, actionProperty.getKey());
 		values.put(VALUE, actionProperty.getValue());
+
 		return sqLiteDatabase.insert(TABLE_ACTION_PROPERTY, null, values);
 	}
 
@@ -908,27 +909,30 @@ public class DBManager {
 	}
 
 	public List<ActionProperty> getActionPropertiesOfAction(int actionId) {
+		Log.d("properties_test", "getActionPropertiesOfAction called");
 		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION_PROPERTY, new String [] {
 						ID,
 						ACTION_ID,
 						KEY,
 						VALUE},
-
-				ACTION_ID + " = " + actionId,
-				null,
+				ACTION_ID + " = ?",
+				new String[] {String.valueOf(actionId)},
 				null,
 				null,
 				null);
 		List<ActionProperty> actionPropertyList = new ArrayList<ActionProperty>();
 		ActionProperty actionProperty;
 		if (cursor != null) {
+			Log.d("properties_test", "cursor not null");
 			if(cursor.moveToFirst()) {
+				Log.d("properties_test", "cursor moved to first position");
 				do {
 					actionProperty = new ActionProperty();
 					actionProperty.setId(cursor.getInt(0));
 					actionProperty.setActionId(actionId);
 					actionProperty.setKey(cursor.getString(2));
 					actionProperty.setValue(cursor.getString(3));
+					Log.d("properties_test", "value: " + cursor.getString(3));
 
 					actionPropertyList.add(actionProperty);
 				} while (cursor.moveToNext());
