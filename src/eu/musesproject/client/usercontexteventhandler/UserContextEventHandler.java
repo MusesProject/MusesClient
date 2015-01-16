@@ -561,14 +561,18 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					// 1.1 load config items from JSON
 					List<SensorConfiguration> configList = JSONManager.getSensorConfig(receivedData);
 					// 1.2 insert config items in db
+					boolean sensorConfigAlreadyExists;
 					dbManager.openDB();
-					for(SensorConfiguration configItem : configList) {
-						dbManager.insertSensorConfiguration(configItem);
+					sensorConfigAlreadyExists = dbManager.hasSensorConfig();
+					if(!sensorConfigAlreadyExists) {
+						for(SensorConfiguration configItem : configList) {
+							dbManager.insertSensorConfiguration(configItem);
+						}
+						dbManager.closeDB();
+						// 1.3 notify sensors about the new configuration
+						UserContextMonitoringController.getInstance(getContext()).onSensorConfigurationChanged();
 					}
-					dbManager.closeDB();
-					// 1.3 notify sensors about the new configuration
-					UserContextMonitoringController.getInstance(getContext()).onSensorConfigurationChanged();
-                	
+
                 	/*
                 	 *  trials configuration
                 	 *  2.1 load config from JSON

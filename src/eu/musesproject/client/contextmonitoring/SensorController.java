@@ -208,8 +208,6 @@ public class SensorController {
      * 1. stop sensors
      * 2. update configuration
      * 3. re-enable sensors
-     *
-     * @param setting {@link Setting}
      */
     public void onSensorConfigurationChanged() {
     	// 1. stop sensors
