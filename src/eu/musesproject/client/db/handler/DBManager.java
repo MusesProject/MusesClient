@@ -549,25 +549,22 @@ public class DBManager {
         return conList;
         
     }
-    
-    
-    public boolean isSilentModeActive() {
-    	boolean isSilentModeActive = false;
-    	
-    	// Select All Query
-        String selectQuery = "select silent_mode from " + TABLE_CONFIGURATION;
-        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
-        
-        if (cursor.moveToFirst()) {
-            do {
-            	isSilentModeActive = cursor.getInt(12) == 1;
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        
-        return isSilentModeActive;
-        
-    }
+
+
+	public boolean isSilentModeActive() {
+		boolean isSilentModeActive = false;
+
+		// Select All Query
+		String selectQuery = "select silent_mode from " + TABLE_CONFIGURATION;
+		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+
+		if (cursor.moveToFirst()) {
+			isSilentModeActive = cursor.getInt(0) == 1;
+		}
+		cursor.close();
+
+		return isSilentModeActive;
+	}
     
     
     // Decision Maker related queries
