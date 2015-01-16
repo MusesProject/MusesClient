@@ -276,6 +276,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void login(String userName, String password) {
 		Log.d(TAG, "called: login(String userName, String password)");
+		this.userName = userName;
 		tmpLoginUserName = userName;
 		tmpLoginPassword = password;
 
@@ -285,7 +286,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		if((deviceId = dbManager.getDevId()) == null || deviceId.isEmpty()) {
 			deviceId = getImei();
 		}
-		dbManager.insertCredentials(getImei(), "muses", "muses");
+		dbManager.insertCredentials(getImei(), userName, password); // TODO remove this line for the trials
 		dbManager.closeDB();
 
 		if(serverStatus == Statuses.ONLINE) {
@@ -296,9 +297,14 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		else { // TODO add information to the callback with an explanation what happened
 			Log.d(APP_TAG, "Info U, Authenticating login with username:"+tmpLoginUserName+" password:"+tmpLoginPassword + " deviceId: " + deviceId + " in localdatabase");
 			dbManager.openDB();
-			ActuatorController.getInstance().sendLoginResponse(dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword));
+			isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword);
 			dbManager.closeDB();
+			ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
+			if (isUserAuthenticated){
+				sendConfigSyncRequest();
+			}
 		}
+
 	}
 
 	/**
@@ -309,7 +315,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
 					Context.MODE_PRIVATE);
 		}
-		String userName = prefs.getString(MainActivity.USERNAME, "");
+		this.userName = prefs.getString(MainActivity.USERNAME, "");
 		String password = prefs.getString(MainActivity.PASSWORD, "");
 
 		if(userName.isEmpty() || password.isEmpty()) {
@@ -323,6 +329,18 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
 
 		updateServerOnlineAndUserAuthenticated();
+
+		if(isUserAuthenticated) {
+			sendConfigSyncRequest();
+		}
+	}
+
+	/**
+	 * Method to request a configuration update
+	 */
+	private void sendConfigSyncRequest() {
+		JSONObject configSyncRequest = JSONManager.createConfigSyncJSON(getImei(), getUserName());
+		sendRequestToServer(configSyncRequest);
 	}
 
 	/**
@@ -529,6 +547,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						serverStatus = Statuses.ONLINE;
 						sendOfflineStoredContextEventsToServer();
 						updateServerOnlineAndUserAuthenticated();
+						sendConfigSyncRequest();
 					}
 					ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
 				}
@@ -618,6 +637,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		if(userName == null || userName.equals("")) {
 			this.userName = "muses";  // TODO there is no method yet to get the user name
 		}
+
 		return "muses";
 	}
 

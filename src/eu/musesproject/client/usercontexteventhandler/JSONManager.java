@@ -198,6 +198,25 @@ public class JSONManager {
 		return loginJSONObject;
 	}
 
+	/**
+	 * Method to create a JSON object which will be used to request the client configuration
+	 * @param deviceId deviceId (IMEI)
+	 * @param userName login user name credential
+	 * @return {@link JSONObject}
+	 */
+	public static JSONObject createConfigSyncJSON(String deviceId, String userName) {
+		JSONObject configSyncSONObject = new JSONObject();
+		try {
+			configSyncSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.CONFIG_SYNC);
+			configSyncSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
+			configSyncSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return configSyncSONObject;
+	}
+
     /**
      * Method to get true or false, whether the login was successful
      * @return boolean. login successful
