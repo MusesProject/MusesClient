@@ -1,4 +1,4 @@
-package eu.musesproject.client.ui;
+	package eu.musesproject.client.ui;
 /*
  * #%L
  * MUSES Client
@@ -46,6 +46,7 @@ import eu.musesproject.client.db.handler.MockUpHandler;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
+import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 /**
  * MainActivity class handles List buttons on the main GUI
@@ -102,8 +103,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			Log.v(TAG, "muses service started ...");
 		}
 		
-		setCredentialsIfSaved();
-		
 		loginView = new LoginView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
@@ -113,12 +112,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		new MockUpHandler(this).createMockUpSensorConfiguration();
 	}
 	
-	
-	private void setCredentialsIfSaved() {
-	// TODO Auto-generated method stub
-	
-}
-
 
 	private void setStartUpConfiguration(){
         DBManager dbManager = new DBManager(context);
@@ -163,12 +156,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.login_list_button:
@@ -202,25 +189,28 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
-				//progressDialog.dismiss();
+				stopProgress();
+				progressDialog.dismiss();
 				loginView.updateLoginView();
 				isLoggedIn = true;
 				toastMessage(getResources().getString(
 						R.string.login_success_msg));
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
-				//progressDialog.dismiss();
+				stopProgress();
 				toastMessage(getResources().getString(R.string.login_fail_msg));
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
 				Log.d(TAG, "Action response accepted ..");
 				// FIXME This action should not be sent here, if action is
 				// granted then it should be sent directly from MusDM
-				Action action = new Action();
-				action.setActionType(ActionType.OK);
-				action.setTimestamp(System.currentTimeMillis());
-				Log.e(TAG, "user pressed ok..");
-				sendUserDecisionToMusDM(action);
+//				Action action = new Action();
+//				action.setActionType(ActionType.OK);
+//				action.setDescription("OK");
+//				action.setTimestamp(System.currentTimeMillis());
+//				Log.e(TAG, "user pressed ok..");
+//				sendUserDecisionToMusDM(action);
+				// No Pop-up necessary FIXME
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_DENIED:
 				Log.d(TAG, "Action response denied ..");
@@ -256,6 +246,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		progressDialog.setMessage("Please wait..");
 		progressDialog.setCancelable(true);
 		progressDialog.show();
+	}
+	
+	private void stopProgress(){
+		if (progressDialog!=null){
+			progressDialog.dismiss();
+		}
 	}
 	
 	/**
@@ -321,7 +317,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	public void doLogin(String userName, String password) {
 		if (checkLoginInputFields(userName, password)) {
-			//startProgress();
+			startProgress();
 			userContextMonitoringController.login(userName, password);
 			loginView.setUsernamePasswordIfSaved();
 		} else {
@@ -445,6 +441,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				}
 				break;
 			case R.id.logout_button:
+				UserContextEventHandler.getInstance().logout();
 				logoutBtn.setVisibility(View.GONE);
 				loginDetailTextView.setText(getResources().getString(
 						R.string.login_detail_view_txt));

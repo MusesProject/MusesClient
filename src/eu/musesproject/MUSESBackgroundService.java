@@ -67,6 +67,7 @@ public class MUSESBackgroundService extends Service {
 		Log.d(TAG, "on startComment called");
 		if(!isAppInitialized) {
 			Toast.makeText(this, "MUSES started", Toast.LENGTH_LONG).show();
+			Log.d(TAG, "MUSES service started!!");
 			isAppInitialized = true;
 			UserContextMonitoringController.getInstance(this).startContextObservation();
 
