@@ -55,7 +55,6 @@ public class HttpResponseHandler {
 	 */
 	public void checkHttpResponse(){
 		if (httpResponse != null) {
-			Log.e(APP_TAG, "Status Code: "+getStatusCodeResponse(httpResponse));
 			switch(getStatusCodeResponse(httpResponse)){
 			case DetailedStatuses.SUCCESS:
 				setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
