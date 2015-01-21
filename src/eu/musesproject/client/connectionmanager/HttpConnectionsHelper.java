@@ -53,67 +53,6 @@ public abstract class HttpConnectionsHelper {
 	private static final String TAG = HttpConnectionsHelper.class.getSimpleName(); 
 	
 	/**
-	 * Http get implementation               // Not Used for Muses
-	 * @param url
-	 * @param data
-	 * @return httpResponse
-	 */
-	public synchronized HttpResponse doGet(String url, String data) {
-//	    DefaultHttpClient httpclient = new DefaultHttpClient();
-//	    HttpResponse httpResponse = null;
-//	    String dataAppendedURL;
-//	    // Prepare a request object
-//		String formatedData = data.replace(" ","%20");
-//		formatedData = formatedData.replace("\"","%22");
-//		formatedData = formatedData.replace("}", "%7D");
-//		formatedData = formatedData.replace("{", "%7B");
-//		formatedData = formatedData.replace("]", "%5D");
-//		formatedData = formatedData.replace("[", "%5B");
-//	    
-//		if (data.equalsIgnoreCase("disconnect"))
-//	    	dataAppendedURL = url+"?disconnect=";
-//	    else dataAppendedURL = url+"?data="+formatedData;
-//	    HttpGet httpget = new HttpGet(dataAppendedURL);
-//	    httpget.setHeader("Content-Type", "text/plain; charset=utf-8"); // Change it JSON
-//	    httpget.setHeader("Expect", "100-continue");
-//	    // Execute the request
-//	    if (cookie == null || cookie.isExpired(new Date())){
-//	    	try {
-//				httpResponse = httpclient.execute(httpget);
-//				List<Cookie> cookies = httpclient.getCookieStore().getCookies();
-//		 	    if (cookies.isEmpty()) {
-//		 	    	Log.d(TAG, "None");
-//		 	    } else {
-//		 	    	for (int i = 0; i < cookies.size(); i++) {
-//		 	    		 Log.d(TAG,"- " + cookies.get(i).toString());
-//		 	        }
-//		 	        cookie = cookies.get(0);
-//		 	        cookieExpiryDate = cookie.getExpiryDate();
-//		 	        Log.d(TAG,"Curent cookie expiry : " + cookieExpiryDate);
-//		 	    }
-//			} catch (ClientProtocolException e) {
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		    
-//	    } else {
-//	    	httpget.addHeader("accept", "application/xml");
-//	        httpclient.getCookieStore().addCookie(cookie);
-//	        try {
-//	        	httpResponse = httpclient.execute(httpget);
-//			} catch (ClientProtocolException e) {
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//	    }
-//		return httpResponse;
-		return null;
-	}
-	
-
-	/**
 	 * Http post implementation 
 	 * @param url
 	 * @param data
@@ -218,6 +157,7 @@ public abstract class HttpConnectionsHelper {
 				Log.d(TAG,e.getMessage());
 			}
 		}
+
 		AlarmReceiver.LAST_SENT_POLL_INTERVAL = Integer.parseInt(request.getPollInterval());
         return httpResponse;
 		

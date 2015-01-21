@@ -23,11 +23,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -40,6 +40,8 @@ import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
+import eu.musesproject.client.connectionmanager.DetailedStatuses;
+import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.MockUpHandler;
@@ -111,7 +113,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		// create mock up sensor config in the database
 		new MockUpHandler(this).createMockUpSensorConfiguration();
 	}
-	
 
 	private void setStartUpConfiguration(){
         DBManager dbManager = new DBManager(context);
@@ -173,12 +174,22 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (loginView == null) {
-			loginView = new LoginView(context);
-		}
-		topLayout.removeAllViews();
-		topLayout.addView(loginView);
+		DBManager dbManager = new DBManager(getApplicationContext());
+		dbManager.openDB();
+		boolean isActive = dbManager.isSilentModeActive();
+		dbManager.closeDB();
+		if (!isActive) {
+			if (loginView == null) {
+				loginView = new LoginView(context);
+			}
+			loginView.updateLoginWithNewServerStatus();
+			topLayout.removeAllViews();
+			topLayout.addView(loginView);
+			
+		} 
+		
 	}
+
 
 	private Handler callbackHandler = new Handler() {
 
@@ -190,7 +201,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
 				stopProgress();
-				progressDialog.dismiss();
 				loginView.updateLoginView();
 				isLoggedIn = true;
 				toastMessage(getResources().getString(
@@ -240,18 +250,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	};
 	
 	private void startProgress(){
-		progressDialog = new ProgressDialog(MainActivity.this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setTitle("Logging in..");
-		progressDialog.setMessage("Please wait..");
-		progressDialog.setCancelable(true);
-		progressDialog.show();
+//		progressDialog = new ProgressDialog(MainActivity.this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
+//		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//		progressDialog.setTitle("Logging in..");
+//		progressDialog.setMessage("Please wait..");
+//		progressDialog.setCancelable(true);
+//		progressDialog.show();
 	}
 	
 	private void stopProgress(){
-		if (progressDialog!=null){
-			progressDialog.dismiss();
-		}
+//		if (progressDialog!=null){
+//			progressDialog.dismiss();
+//		}
 	}
 	
 	/**
@@ -326,6 +336,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 	}
 
+	private void openApp(String packageName){   
+		Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+	    if (intent != null) {
+	        /* We found the activity now start the activity */
+	        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        context.startActivity(intent);
+	    } else {
+	        /* Bring user to the market or let them choose an app? */
+	        intent = new Intent(Intent.ACTION_VIEW);
+	        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        intent.setData(Uri.parse("market://details?id=" + packageName));
+	        context.startActivity(intent);
+	    }
+	}
+	
 	/**
 	 * Check input fields are not empty before sending it for authentication
 	 * 
@@ -356,7 +381,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		private EditText userNameTxt, passwordTxt;
 		private LinearLayout /*loginLayout1,*/ loginLayout2;
 		private Button loginBtn, logoutBtn;
-		private TextView loginDetailTextView;
+		private TextView loginLabelTextView, loginDetailTextView;
 		private CheckBox rememberCheckBox, agreeTermsCheckBox;
 		private String userName, password;
 		boolean isPrivacyPolicyAgreementChecked = false;
@@ -364,6 +389,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public LoginView(Context context) {
 			super(context);
 			inflate(context, R.layout.login_view, this);
+			loginLabelTextView = (TextView) findViewById(R.id.login_text_view);
 			userNameTxt = (EditText) findViewById(R.id.username_text);
 			passwordTxt = (EditText) findViewById(R.id.pass_text);
 			userName = userNameTxt.getText().toString();
@@ -461,6 +487,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginDetailTextView.setText(String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
 			setUsernamePasswordIfSaved();
+		}
+
+		private void updateLoginWithNewServerStatus(){
+			loginLabelTextView.setText(
+									   String.format("%s %s %s %s", 
+											   						getResources().getString(R.string.login_button_txt), 
+										     																		"(",
+					                                Statuses.CURRENT_STATUS == Statuses.ONLINE ? 
+							  									getResources().getString(R.string.current_com_status_2):
+							  									getResources().getString(R.string.current_com_status_3),
+							  																						")"
+							  					    )
+							  		  );
 		}
 
 		

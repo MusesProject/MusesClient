@@ -55,6 +55,7 @@ public class HttpResponseHandler {
 	 */
 	public void checkHttpResponse(){
 		if (httpResponse != null) {
+			Log.e(APP_TAG, "Status Code: "+getStatusCodeResponse(httpResponse));
 			switch(getStatusCodeResponse(httpResponse)){
 			case DetailedStatuses.SUCCESS:
 				setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
@@ -102,8 +103,8 @@ public class HttpResponseHandler {
 				break;
 			}
 		} else {
-			Log.d(APP_TAG, "Server is OFFLINE .. Exception occured during communication with the server .. check the stacktrace to fix it!");
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
+			Log.d(APP_TAG, "Server is OFFLINE, HttpResponse is null, check network connectivity or address of server!");
 		}
 	}
 	
@@ -203,17 +204,10 @@ public class HttpResponseHandler {
 	 * @return void
 	 */
 	private void setServerStatusAndCallBack(int status, int detailedStatus) {
+		ConnectionManager.callBacks.statusCb(status, detailedStatus);
 		if (status != Statuses.CURRENT_STATUS){ 
-			// FIXME below if condition can be merged in this condition
 			Statuses.CURRENT_STATUS = status;
-			Statuses.STATUS_CHANGED = true;
 			Log.d(TAG, "Server ONLINE");
-		}
-		
-		if (Statuses.STATUS_CHANGED){
-			//CommunicationManager.callBacks.receiveCb(receivedHttpResponseData); // FIXME  (this callback should be only triggered when their is data in the response)
-			ConnectionManager.callBacks.statusCb(status, detailedStatus);
-			Statuses.STATUS_CHANGED = false;
 		}
 	}
 	

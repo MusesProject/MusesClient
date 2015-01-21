@@ -46,8 +46,8 @@ public class DBManager {
 			+ "modification TIMESTAMP NOT NULL);";
 	private static final String CREATE_ACTION_TABLE_QUERY = "CREATE TABLE action ( "
 			+ "id INTEGER PRIMARY KEY,"
-			+ "description VARCHAR(45) NOT NULL,"
-			+ "action_type VARCHAR(45) NOT NULL,"
+			+ "description VARCHAR(45)," // FIXME don't commit should be not null
+			+ "action_type VARCHAR(45),"  // FIXME don't commit should be not null
 			+ "timestamp TIMESTAMP NOT NULL);";
 	private static final String CREATE_ACTION_PROPERTY_TABLE_QUERY = "CREATE TABLE action_property ( "
 			+ "id INTEGER PRIMARY KEY,"
@@ -929,7 +929,6 @@ public class DBManager {
 					actionProperty.setActionId(actionId);
 					actionProperty.setKey(cursor.getString(2));
 					actionProperty.setValue(cursor.getString(3));
-
 					actionPropertyList.add(actionProperty);
 				} while (cursor.moveToNext());
 			}

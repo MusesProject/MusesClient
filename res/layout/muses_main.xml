@@ -45,7 +45,7 @@
                     android:paddingRight="7dp"
                     android:text="@string/security_info_button_txt"
                     android:textColor="#ffffff"
-                   
+                    android:visibility="gone"
                     android:textSize="25sp" />
                 
                 <Button
@@ -58,7 +58,7 @@
                     android:paddingRight="7dp"
                     android:text="@string/security_points_button_txt"
                     android:textColor="#ffffff"
-                   
+                   	android:visibility="gone"
                     android:textSize="25sp" />
 
             </LinearLayout>
