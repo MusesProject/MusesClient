@@ -24,7 +24,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.MusesServiceProvider;
@@ -65,7 +64,6 @@ public class MUSESBackgroundService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.d(TAG, "on startComment called");
 		if(!isAppInitialized) {
-			Toast.makeText(this, "MUSES started", Toast.LENGTH_LONG).show();
 			Log.d(TAG, "MUSES service started!!");
 			isAppInitialized = true;
 			UserContextMonitoringController.getInstance(this).startContextObservation();

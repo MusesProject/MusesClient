@@ -26,7 +26,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -180,13 +179,11 @@ public class LocationSensor implements ISensor, LocationListener {
 		if (allowedZoneCentralPoint != null) {
 			int distance = (int) location.distanceTo(allowedZoneCentralPoint);
 			if (distance > allowedZoneRadius) {
-				Toast.makeText(context, "distance="+distance+"m", Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "location sensor - is within secure zone: " + false + "; distance=" + distance);
 				if (isWithinSecureZone) { // just fire a context event if the user went from a secure zone to an insecure
 					createContextEvent(false);
 				}
 			} else {
-				Toast.makeText(context, "distance="+distance+"m", Toast.LENGTH_SHORT).show();
 				Log.d(TAG, "location sensor - is within secure zone: " + true + "; distance=" + distance);
 				if (!isWithinSecureZone) { // just fire a context event if the user went from a insecure zone to a secure
 					createContextEvent(true);
