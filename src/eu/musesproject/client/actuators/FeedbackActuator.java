@@ -21,8 +21,13 @@ package eu.musesproject.client.actuators;
  */
 
 import android.util.Log;
+import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
+import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.model.actuators.ActuatorInstruction;
+import eu.musesproject.client.model.actuators.ResponseInfoAP;
+import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.server.risktrust.RiskCommunication;
 
 /**
  * Created by christophstanik on 4/15/14.
@@ -37,7 +42,7 @@ public class FeedbackActuator implements IFeedbackActuator {
     private static final String TAG = FeedbackActuator.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
 
-    private IUICallback callback;
+    private static IUICallback callback;
 
     @Override
     public void showFeedback(Decision decision) {
@@ -60,6 +65,13 @@ public class FeedbackActuator implements IFeedbackActuator {
         else if(callback != null && decision == null) {
             callback.onError();
         }
+    }
+
+    @Override
+    public void sendFeedbackToMUSESAwareApp(Decision decision) {
+        eu.musesproject.server.risktrust.RiskTreatment riskTreatment[] = decision.getRiskCommunication().getRiskTreatment();
+//        ResponseInfoAP infoAP = decision.getRiskCommunication().getRiskTreatment().ge
+//            new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
     }
 
     @Override

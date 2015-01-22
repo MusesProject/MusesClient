@@ -73,6 +73,10 @@ public class ActuatorController implements IActuatorController {
         feedbackActuator.showFeedback(decision);
     }
 
+    public void sendFeedbackToMUSESAwareApp(Decision decision) {
+        feedbackActuator.sendFeedbackToMUSESAwareApp(decision);
+    }
+
     public void sendLoginResponse(boolean loginResponse) {
         Log.d(TAG, "called: sendLoginResponse(boolean loginResponse)");
         feedbackActuator.sendLoginResponseToUI(loginResponse);
