@@ -50,14 +50,10 @@ public class UserContextMonitoringController implements
 
     private Context context;
 
-    private boolean requestByMusesAwareApp;
-
     private UserContextMonitoringController(Context context) {
         this.context = context;
         uceHandler.setContext(context);
         uceHandler.connectToServer();
-
-        requestByMusesAwareApp = false;
     }
 
     public static UserContextMonitoringController getInstance(Context context) {
@@ -80,37 +76,18 @@ public class UserContextMonitoringController implements
      */
     public void stopContextObservation() {
         SensorController.getInstance(context).stopAllSensors();
-        uceHandler.autoLogin();//TODO why is that here?
     }
 
     @Override
     public void sendUserAction(UISource src, Action action, Map<String, String> properties) {
-        // TODO dummy reponse to a MUSES aware app
         if(src == UISource.MUSES_UI) {
-            ResponseInfoAP infoAP = null;
-            RiskTreatment riskTreatment = null;
-            if(action.getActionType() == ActionType.OK) {
-                // dummy data
-                infoAP = ResponseInfoAP.ACCEPT;
-                riskTreatment = new RiskTreatment("action denied because of...");
-            }
-            else if(action.getActionType() == ActionType.CANCEL) {
-                // dummy data
-                infoAP = ResponseInfoAP.DENY;
-                riskTreatment = new RiskTreatment("action denied because of...");
-            }
-            if(requestByMusesAwareApp) {
-                new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
-            }
             // send the user decision back to the server
             sendUserBehavior(action);
         }
         else if(src == UISource.MUSES_AWARE_APP_UI) {
-            requestByMusesAwareApp = true;
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
         else if(src == UISource.INTERNAL) {
-            requestByMusesAwareApp = false;
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
     }
