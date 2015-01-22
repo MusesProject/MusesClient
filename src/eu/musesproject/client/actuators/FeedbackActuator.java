@@ -57,7 +57,7 @@ public class FeedbackActuator implements IFeedbackActuator {
                 callback.onDeny(decision);
             }
         }
-        else if(decision == null) {
+        else if(callback != null && decision == null) {
             callback.onError();
         }
     }
