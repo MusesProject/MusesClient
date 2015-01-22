@@ -343,6 +343,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to logout the user, so that no more events are send to the server in his/her name
 	 */
 	public void logout() {
+		JSONObject logoutJSON = JSONManager.createLogoutJSON(getUserName(), getImei());
+		sendRequestToServer(logoutJSON);
+
 		isUserAuthenticated = false;
 		updateServerOnlineAndUserAuthenticated();
 	}

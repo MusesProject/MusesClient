@@ -199,6 +199,25 @@ public class JSONManager {
 	}
 
 	/**
+	 * Method to create a JSON to logout the user
+	 * @param userName currently logged in user name
+	 * @param deviceId deviceId (IMEI)
+	 * @return JSONObject to logout the user
+	 */
+	public static JSONObject createLogoutJSON(String userName, String deviceId) {
+		JSONObject logoutJSON = new JSONObject();
+		try {
+			logoutJSON.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.LOGOUT);
+			logoutJSON.put(JSONIdentifiers.AUTH_USERNAME, userName);
+			logoutJSON.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return logoutJSON;
+	}
+
+	/**
 	 * Method to create a JSON object which will be used to request the client configuration
 	 * @param deviceId deviceId (IMEI)
 	 * @param userName login user name credential
