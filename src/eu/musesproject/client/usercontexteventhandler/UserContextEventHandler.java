@@ -638,11 +638,16 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 
 	public String getUserName() {
+		if(prefs == null) {
+			prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+					Context.MODE_PRIVATE);
+		}
+		this.userName = prefs.getString(MainActivity.USERNAME, "");
 		if(userName == null || userName.equals("")) {
-			this.userName = "muses";  // TODO there is no method yet to get the user name
+			this.userName = "unknown"; // TODO look in db too
 		}
 
-		return "muses";
+		return userName;
 	}
 
 	public void removeRequestById(int requestId) {
