@@ -23,10 +23,10 @@ package eu.musesproject.client.contextmonitoring;
  * #L%
  */
 
-import java.net.URI;
-
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.model.contextmonitoring.SensorInfo;
+
+import java.net.URI;
 
 /**
  * @author zardosht

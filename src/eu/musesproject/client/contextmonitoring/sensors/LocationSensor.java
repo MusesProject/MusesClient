@@ -20,9 +20,6 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -33,6 +30,9 @@ import android.widget.Toast;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LocationSensor implements ISensor, LocationListener {
 	private static final String TAG = LocationSensor.class.getSimpleName();

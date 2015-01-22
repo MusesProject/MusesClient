@@ -20,14 +20,14 @@ package eu.musesproject;
  * #L%
  */
 
-import eu.musesproject.client.R;
-import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
-import eu.musesproject.client.contextmonitoring.service.aidl.MusesServiceProvider;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+import eu.musesproject.client.R;
+import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
+import eu.musesproject.client.contextmonitoring.service.aidl.MusesServiceProvider;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
@@ -57,11 +57,10 @@ public class MUSESBackgroundService extends Service {
 		isAppInitialized = false;
 		UserContextMonitoringController.getInstance(this);
 		userContextEventHandler = UserContextEventHandler.getInstance();
-		userContextEventHandler.setContext(this);
 
 		super.onCreate();
 	}
-	
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.d(TAG, "on startComment called");
@@ -72,6 +71,7 @@ public class MUSESBackgroundService extends Service {
 			UserContextMonitoringController.getInstance(this).startContextObservation();
 
 			// try to auto login user
+			userContextEventHandler.setContext(this);
 			userContextEventHandler.autoLogin();
 
 			// send status of the service

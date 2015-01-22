@@ -20,11 +20,11 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
-import java.util.List;
-
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
+
+import java.util.List;
 
 public interface ISensor {
 	public static String CONFIG_KEY_ENABLED = "enabled"; 

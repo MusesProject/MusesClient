@@ -20,9 +20,6 @@ package eu.musesproject.client.contextmonitoring;
  * #L%
  */
 
-import java.util.HashMap;
-import java.util.Map;
-
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
 import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
@@ -31,6 +28,9 @@ import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
 import eu.musesproject.contextmodel.PackageStatus;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by christophstanik on 4/14/14.

@@ -20,10 +20,10 @@ package eu.musesproject.client.contextmonitoring;
  * #L%
  */
 
-import java.util.Map;
-
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
+
+import java.util.Map;
 
 public interface IUserContextMonitoringController {
     /**

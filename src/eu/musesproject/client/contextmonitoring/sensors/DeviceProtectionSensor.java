@@ -20,6 +20,21 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
+import android.app.KeyguardManager;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.AsyncTask;
+import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
+import android.util.Log;
+import com.stericson.RootTools.RootTools;
+import eu.musesproject.client.contextmonitoring.ContextListener;
+import eu.musesproject.client.db.entity.SensorConfiguration;
+import eu.musesproject.client.db.handler.DBManager;
+import eu.musesproject.contextmodel.ContextEvent;
+import org.apache.http.conn.util.InetAddressUtils;
+
 import java.io.File;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -29,24 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.http.conn.util.InetAddressUtils;
-
-import android.app.KeyguardManager;
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
-import android.provider.Settings;
-import android.provider.Settings.SettingNotFoundException;
-import android.util.Log;
-
-import com.stericson.RootTools.RootTools;
-
-import eu.musesproject.client.contextmonitoring.ContextListener;
-import eu.musesproject.client.db.entity.SensorConfiguration;
-import eu.musesproject.client.db.handler.DBManager;
-import eu.musesproject.contextmodel.ContextEvent;
 
 /**
  * @author christophstanik

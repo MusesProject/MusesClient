@@ -20,8 +20,6 @@ package eu.musesproject.client.contextmonitoring;
  * #L%
  */
 
-import java.util.Map;
-
 import android.content.Context;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
@@ -30,6 +28,8 @@ import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.server.risktrust.RiskTreatment;
+
+import java.util.Map;
 
 /**
  * @author Christoph
@@ -80,7 +80,7 @@ public class UserContextMonitoringController implements
      */
     public void stopContextObservation() {
         SensorController.getInstance(context).stopAllSensors();
-        uceHandler.autoLogin();
+        uceHandler.autoLogin();//TODO why is that here?
     }
 
     @Override

@@ -20,9 +20,6 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +31,9 @@ import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.contextmodel.ContextEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The intention of this class is to be able to detect incoming emails.

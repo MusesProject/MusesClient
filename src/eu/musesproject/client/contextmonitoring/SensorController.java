@@ -20,31 +20,21 @@ package eu.musesproject.client.contextmonitoring;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
-import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
-import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
-import eu.musesproject.client.contextmonitoring.sensors.ISensor;
-import eu.musesproject.client.contextmonitoring.sensors.InteractionSensor;
-import eu.musesproject.client.contextmonitoring.sensors.LocationSensor;
-import eu.musesproject.client.contextmonitoring.sensors.NotificationSensor;
-import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
-import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor;
-import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
+import eu.musesproject.client.contextmonitoring.sensors.*;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.handler.DBManager;
-import eu.musesproject.client.model.actuators.Setting;
 import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.contextmodel.ContextEvent;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Christoph

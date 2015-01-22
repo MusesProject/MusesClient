@@ -20,11 +20,6 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import android.accessibilityservice.AccessibilityService;
 import android.content.res.Resources;
 import android.util.Log;
@@ -41,6 +36,11 @@ import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InteractionSensor extends AccessibilityService implements ISensor {
 	private static final String TAG = InteractionSensor.class.getSimpleName();
