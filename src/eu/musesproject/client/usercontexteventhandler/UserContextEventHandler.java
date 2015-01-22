@@ -31,9 +31,11 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.SharedPreferences;
+import eu.musesproject.client.connectionmanager.*;
 import eu.musesproject.client.db.entity.ActionProperty;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.decisiontable.*;
+import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.ui.MainActivity;
 import org.json.JSONObject;
 
@@ -42,12 +44,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import eu.musesproject.client.actuators.ActuatorController;
-import eu.musesproject.client.connectionmanager.AlarmReceiver;
-import eu.musesproject.client.connectionmanager.ConnectionManager;
-import eu.musesproject.client.connectionmanager.IConnectionCallbacks;
-import eu.musesproject.client.connectionmanager.RequestHolder;
-import eu.musesproject.client.connectionmanager.RequestTimeoutTimer;
-import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Configuration;
@@ -623,6 +619,11 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			else if(status == Statuses.OFFLINE) {
 				serverStatus = status;
 				updateServerOnlineAndUserAuthenticated();
+			}
+
+			if(detailedStatus == DetailedStatuses.UNKNOWN_ERROR) {
+				// fires the unknown error feedback
+				ActuatorController.getInstance().showFeedback(null);
 			}
 			serverDetailedStatus = detailedStatus;
 			return 0;

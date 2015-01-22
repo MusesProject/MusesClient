@@ -42,7 +42,7 @@ public class FeedbackActuator implements IFeedbackActuator {
     @Override
     public void showFeedback(Decision decision) {
         Log.e(TAG, "called: showFeedback(Decision decision)");
-        if(callback != null && decision.getName() != null) {
+        if(callback != null && decision != null && decision.getName() != null) {
         	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
             if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
@@ -56,6 +56,9 @@ public class FeedbackActuator implements IFeedbackActuator {
             else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS)) {
                 callback.onDeny(decision);
             }
+        }
+        else if(decision == null) {
+            callback.onError();
         }
     }
 

@@ -28,4 +28,5 @@ public interface IUICallback {
     void onDeny(Decision decision);
     void onMaybe(Decision decision);
     void onUpToUser(Decision decision);
+    void onError();
 }
