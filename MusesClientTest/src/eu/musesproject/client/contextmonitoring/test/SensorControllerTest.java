@@ -26,14 +26,6 @@ public class SensorControllerTest extends AndroidTestCase {
         assertNotNull(sensorController);
     }
 
-    public void testStartAllSensors() {
-        SensorController.getInstance(context).startAllSensors();
-        // test if the map that holds the sensors exist
-        //assertNotNull(activeSensors);
-        // test if the map of the active sensors is as large as expected
-        //assertEquals("activeSensor size:", 5, activeSensors.size());
-    }
-
     public void testGetLastFiredEvents() {
         List<ContextEvent> contextEvents =  SensorController.getInstance(context).getLastFiredEvents();
         // test if a List of context events is received

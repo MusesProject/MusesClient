@@ -331,6 +331,12 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 	}
 
+	private void manageMonitoringComponent() {
+		if(isUserAuthenticated) {
+			UserContextMonitoringController.getInstance(getContext()).startContextObservation();
+		}
+	}
+
 	/**
 	 * Method to request a configuration update
 	 */
