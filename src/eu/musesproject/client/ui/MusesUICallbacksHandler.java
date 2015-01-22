@@ -115,4 +115,9 @@ public class MusesUICallbacksHandler implements IUICallback {
 		mHandler.sendMessage(msg);		
 	}
 
+	@Override
+	public void onError() {
+
+	}
+
 }
