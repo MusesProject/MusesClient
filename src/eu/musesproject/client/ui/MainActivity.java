@@ -20,8 +20,10 @@
  */
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -97,6 +99,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				.getInstance(context);
 		
 		registerCallbacks();
+		
 		prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
 				Context.MODE_PRIVATE);
 		
@@ -128,8 +131,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		unregisterReceiver(rcReceiver);
 	}
 
+	private BroadcastReceiver rcReceiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			registerCallbacks();
+		}
+	};
 
 	private boolean sendDecisionIfComingFromShowFeedbackDialog(Bundle bundle) {
 		if(bundle!= null){
@@ -175,6 +186,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
+		IntentFilter rcFilter = new IntentFilter();
+		rcFilter.addAction(REGISTER_UI_CALLBACK);
+		registerReceiver(rcReceiver, rcFilter);
+		
 		DBManager dbManager = new DBManager(getApplicationContext());
 		dbManager.openDB();
 		boolean isActive = dbManager.isSilentModeActive();
