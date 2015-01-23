@@ -48,6 +48,8 @@ public class SensorController {
     private static SensorController sensorController = null;
     private final ContextEventBus contextEventBus = new ContextEventBus();
 
+    private static boolean isCollectingData = false;
+
     private Context context;
 
     private Map<String, ISensor> activeSensors;
@@ -72,49 +74,28 @@ public class SensorController {
     }
     
     public void startSensors() {
-    	List<String> enabledSensor;
-    	boolean sensorConfigExists = false;
-    	dbManager.openDB();
-    	sensorConfigExists = dbManager.hasSensorConfig();
-    	dbManager.closeDB();
-    	
-    	if(sensorConfigExists) {
-    		Log.d(TAG, "config test: config exists");
-        	dbManager.openDB();
-        	enabledSensor = dbManager.getAllEnabledSensorTypes();
-        	dbManager.closeDB();
-    		startAndConfigureSensors(enabledSensor);
-    	}
-    	else {
-    		Log.d(TAG, "config test: config does not exists");
-    		startAllSensors();
-    	}
+        // just start the sensors if they are not already collecting data
+        if(!isCollectingData) {
+            List<String> enabledSensor;
+            boolean sensorConfigExists = false;
+            dbManager.openDB();
+            sensorConfigExists = dbManager.hasSensorConfig();
+            dbManager.closeDB();
+
+            // just start the sensors if there is a configuration for them
+            if(sensorConfigExists) {
+                Log.d(TAG, "config test: config exists");
+                dbManager.openDB();
+                enabledSensor = dbManager.getAllEnabledSensorTypes();
+                dbManager.closeDB();
+                startAndConfigureSensors(enabledSensor);
+
+                isCollectingData = true;
+            }
+        }
     }
 
-    /**
-     * Method to start and enable all sensors
-     */
-    public void startAllSensors() {
-		Log.d(TAG, "config test: startAllSensors");
-    	activeSensors.put(AppSensor.TYPE, new AppSensor(context));
-        activeSensors.put(ConnectivitySensor.TYPE, new ConnectivitySensor(context));
-        activeSensors.put(SettingsSensor.TYPE, new SettingsSensor(context));
-        activeSensors.put(RecursiveFileSensor.TYPE, new RecursiveFileSensor());
-        activeSensors.put(PackageSensor.TYPE, new PackageSensor(context));
-        activeSensors.put(DeviceProtectionSensor.TYPE, new DeviceProtectionSensor(context));
-//        activeSensors.put(LocationSensor.TYPE, new LocationSensor(context));
-        activeSensors.put(InteractionSensor.TYPE, new InteractionSensor());
-        if(Build.VERSION.SDK_INT >= 18) {
-        	activeSensors.put(NotificationSensor.TYPE, new NotificationSensor(context));
-        }
-        
-        for (ISensor sensor : activeSensors.values()) {
-            sensor.addContextListener(contextEventBus);
-            sensor.enable();
-        }
-    }
-    
-    public void startAndConfigureSensors(List<String> enabledSensor) {
+    private void startAndConfigureSensors(List<String> enabledSensor) {
 		Log.d(TAG, "config test: startAndConfigureSensors");
 		
     	for (String sensorType : enabledSensor) {

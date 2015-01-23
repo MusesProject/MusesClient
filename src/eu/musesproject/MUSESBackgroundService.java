@@ -29,6 +29,7 @@ import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.MusesServiceProvider;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
+import eu.musesproject.client.ui.MainActivity;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 /**
@@ -66,6 +67,11 @@ public class MUSESBackgroundService extends Service {
 		if(!isAppInitialized) {
 			Log.d(TAG, "MUSES service started!!");
 			isAppInitialized = true;
+
+			Intent startMainActivityForUICallbackRegistrationIntent = new Intent(this, MainActivity.class);
+			startMainActivityForUICallbackRegistrationIntent.putExtra(MainActivity.REGISTER_UI_CALLBACK, MainActivity.REGISTER_UI_CALLBACK);
+			startActivity(startMainActivityForUICallbackRegistrationIntent);
+
 			UserContextMonitoringController.getInstance(this).startContextObservation();
 
 			// try to auto login user
