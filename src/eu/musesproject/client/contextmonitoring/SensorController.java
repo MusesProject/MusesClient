@@ -29,6 +29,7 @@ import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
 
 import java.util.ArrayList;
@@ -74,8 +75,10 @@ public class SensorController {
     }
     
     public void startSensors() {
+        Log.d(MusesUtils.TEST_TAG, "SC - 1. start sensors");
         // just start the sensors if they are not already collecting data
         if(!isCollectingData) {
+            Log.d(MusesUtils.TEST_TAG, "SC - 2. data collection in enabled");
             List<String> enabledSensor;
             boolean sensorConfigExists = false;
             dbManager.openDB();
@@ -84,7 +87,7 @@ public class SensorController {
 
             // just start the sensors if there is a configuration for them
             if(sensorConfigExists) {
-                Log.d(TAG, "config test: config exists");
+                Log.d(MusesUtils.TEST_TAG, "SC - 3. config exists");
                 dbManager.openDB();
                 enabledSensor = dbManager.getAllEnabledSensorTypes();
                 dbManager.closeDB();
@@ -96,7 +99,7 @@ public class SensorController {
     }
 
     private void startAndConfigureSensors(List<String> enabledSensor) {
-		Log.d(TAG, "config test: startAndConfigureSensors");
+		Log.d(MusesUtils.TEST_TAG, "SC - startAndConfigureSensors");
 		
     	for (String sensorType : enabledSensor) {
     		ISensor sensor;
@@ -109,7 +112,7 @@ public class SensorController {
         		continue;
         	}
 
-    		Log.d(TAG, "config test: sensor type="+sensor.getClass().getSimpleName() + ", no. config items="+configItems.size());
+    		Log.d(MusesUtils.TEST_TAG, "SC - config test: sensor type="+sensor.getClass().getSimpleName() + ", no. config items="+configItems.size());
     		sensor.configure(configItems);
     		sensor.enable();
     		activeSensors.put(sensorType, sensor);
@@ -166,7 +169,7 @@ public class SensorController {
      * stops every enabled sensor
      */
     public void stopAllSensors() {
-        Log.d(TAG, "called: stopAllSensors()");
+        Log.d(MusesUtils.TEST_TAG, "SC - stopAllSensors()");
         for (ISensor sensor : activeSensors.values()) {
             sensor.removeContextListener(null);
             sensor.disable();
@@ -181,12 +184,16 @@ public class SensorController {
      * 3. re-enable sensors
      */
     public void onSensorConfigurationChanged() {
+        Log.d(MusesUtils.TEST_TAG, "SC - onSensorConfigurationChanged()");
     	// 1. stop sensors
     	if (activeSensors != null) {
+            Log.d(MusesUtils.TEST_TAG, "SC - onSensorConfigurationChanged(); activeSensors!=null");
             for (ISensor sensor : activeSensors.values()) {
             	sensor.disable();
             	activeSensors.remove(sensor.getSensorType());
             	sensor = null;
+
+                isCollectingData = false;
             }
         }
     	/*
@@ -228,6 +235,7 @@ public class SensorController {
 
         @Override
         public void onEvent(ContextEvent contextEvent) {
+            Log.d(MusesUtils.TEST_TAG, "SC - onEvent(ContextEvent contextEvent)");
         	// if an app is active that should be observed inform the interaction sensor
         	if(contextEvent != null && contextEvent.getType().equals(AppSensor.TYPE)) {
         		// if the app is gmail in this case //TODO must be configurable

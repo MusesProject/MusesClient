@@ -33,10 +33,10 @@ import java.util.Map;
 import android.content.SharedPreferences;
 import eu.musesproject.client.connectionmanager.*;
 import eu.musesproject.client.db.entity.ActionProperty;
-import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.decisiontable.*;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.ui.MainActivity;
+import eu.musesproject.client.utils.MusesUtils;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -166,6 +166,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param contextEvents {@link ContextEvent}
 	 */
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - send(action, prop, context_events)");
 		Log.d(APP_TAG, "Action: " + action.getActionType());
 		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
 		boolean onlineDecisionRequested = false;
@@ -257,9 +258,15 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param action
 	 */
 	public void sendUserBehavior(Action action) {
-		Log.d(APP_TAG, "Info U, sending user behavior to server with action");
-		JSONObject userBehaviorJSON = JSONManager.createUserBehaviorJSON(getImei(), getUserName(), action.getActionType());
-		sendRequestToServer(userBehaviorJSON);
+		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
+			Log.d(MusesUtils.TEST_TAG, "UCEH - sendUserBehavior(Action action)");
+			Log.d(APP_TAG, "Info U, sending user behavior to server with action");
+			JSONObject userBehaviorJSON = JSONManager.createUserBehaviorJSON(getImei(), getUserName(), action.getActionType());
+			sendRequestToServer(userBehaviorJSON);
+		}
+		else {
+			// TODO store it offline
+		}
 	}
 
 	/**
@@ -271,6 +278,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param password
 	 */
 	public void login(String userName, String password) {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - login(String userName, String password)");
 		Log.d(TAG, "called: login(String userName, String password)");
 		this.userName = userName;
 		tmpLoginUserName = userName;
@@ -307,6 +315,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to try to login with existing credentials in the database
 	 */
 	public void autoLogin() {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - autoLogin()");
 		if(prefs == null) {
 			prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
 					Context.MODE_PRIVATE);
@@ -321,17 +330,24 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		dbManager.openDB();
 		isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), userName, password);
+		boolean sensorConfigExists = dbManager.hasSensorConfig();
 		dbManager.closeDB();
 		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
 
 		updateServerOnlineAndUserAuthenticated();
 
 		if(isUserAuthenticated) {
-			sendConfigSyncRequest();
+			if(sensorConfigExists) {
+				manageMonitoringComponent();
+			}
+			else {
+				sendConfigSyncRequest();
+			}
 		}
 	}
 
 	private void manageMonitoringComponent() {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - manageMonitoringComponent()");
 		if(isUserAuthenticated) {
 			UserContextMonitoringController.getInstance(getContext()).startContextObservation();
 		}
@@ -341,6 +357,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to request a configuration update
 	 */
 	private void sendConfigSyncRequest() {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - sendConfigSyncRequest()");
 		JSONObject configSyncRequest = JSONManager.createConfigSyncJSON(getImei(), getUserName());
 		sendRequestToServer(configSyncRequest);
 	}
@@ -349,6 +366,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to logout the user, so that no more events are send to the server in his/her name
 	 */
 	public void logout() {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - logout()");
 		JSONObject logoutJSON = JSONManager.createLogoutJSON(getUserName(), getImei());
 		sendRequestToServer(logoutJSON);
 
@@ -365,6 +383,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param contextEvents {@link ContextEvent}
 	 */
 	public void storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - storeContextEvent()");
 		Log.d(TAG, "called: storeContextEvent(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
 		// TODO maybe remove this: (properties != null) && (contextEvents != null) because a user behavior doesn't contain this information
 		if((action != null) && (properties != null) && (contextEvents != null)) {
@@ -398,6 +417,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to send locally stored data to the server
 	 */
 	public void sendOfflineStoredContextEventsToServer() {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - sendOfflineStoredContextEventsToServer()");
 		Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
 		/*
 		 * 1. check if the user is authenticated
@@ -462,6 +482,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param requestJSON {@link org.json.JSONObject}
 	 */
 	public void sendRequestToServer(JSONObject requestJSON) {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - sendRequestToServer(JSONObject requestJSON)");
 		Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
 		if (requestJSON != null) {
 			if(serverStatus == Statuses.ONLINE) {
@@ -490,6 +511,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	}
 
 	public void updateServerOnlineAndUserAuthenticated() {
+		Log.d(MusesUtils.TEST_TAG, "UCEH - updateServerOnlineAndUserAuthenticated Server="+(serverStatus==Statuses.ONLINE) + " auth=" +isUserAuthenticated);
 		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
 			serverOnlineAndUserAuthenticated = true;
 		}
@@ -502,6 +524,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		@Override
 		public int receiveCb(String receivedData) {
+			Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb()");
 			Log.d(TAG, "called: receiveCb(String receivedData)");
 			if((receivedData != null) && (!receivedData.equals(""))) {
 				if(dbManager == null) {
@@ -510,6 +533,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 				// identify the request type
 				String requestType = JSONManager.getRequestType(receivedData);
+				Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb(); requestType=" +requestType);
 				Log.d(APP_TAG, "Request type was " + requestType);
 
 				if(requestType.equals(RequestType.ONLINE_DECISION)) {
@@ -569,7 +593,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					boolean sensorConfigAlreadyExists;
 					dbManager.openDB();
 					sensorConfigAlreadyExists = dbManager.hasSensorConfig();
+					dbManager.closeDB();
 					if(!sensorConfigAlreadyExists) {
+						dbManager.openDB();
 						for(SensorConfiguration configItem : configList) {
 							dbManager.insertSensorConfiguration(configItem);
 						}
@@ -620,7 +646,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
 					sendOfflineStoredContextEventsToServer();
 					isUserAuthenticated = false;
-					updateServerOnlineAndUserAuthenticated();
 				}
 				serverStatus = status;
 				updateServerOnlineAndUserAuthenticated();
