@@ -226,7 +226,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     	                    if(nodeInfoRoot.getChild(i) != null) {
     	                        AccessibilityNodeInfo nodeInfoChild = nodeInfoRoot.getChild(i);
     	                        String childText = nodeInfoChild.getText() + "";
-//								Log.d(TAG, "childText: " + childText);
+								Log.d(TAG, "childText: " + childText);
 	                        	if (childText.contains(to)) {
     	                            Log.d(TAG, "to pos: " + nodeInfoRoot.getChild(i+1).getText());
     	                            content.setTo(nodeInfoRoot.getChild(i+1).getText() + "");

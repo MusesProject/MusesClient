@@ -8,6 +8,6 @@
 		<string name="mail_keyword_bcc">Cco</string>
 		<string name="mail_keyword_subject">Asunto</string>
 		<!-- buttons -->
-		<string name="mail_keyword_button_send">ENVIAR</string>
-		<string name="mail_keyword_button_attach">ADJUNTAR</string>
+		<string name="mail_keyword_button_send">Enviar</string>
+		<string name="mail_keyword_button_attach">Adjuntar</string>
 </resources>
