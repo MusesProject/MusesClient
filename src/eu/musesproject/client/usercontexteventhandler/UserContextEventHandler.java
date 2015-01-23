@@ -290,7 +290,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		if((deviceId = dbManager.getDevId()) == null || deviceId.isEmpty()) {
 			deviceId = getImei();
 		}
-		dbManager.insertCredentials(getImei(), userName, password); // TODO remove this line for the trials
 		dbManager.closeDB();
 
 		if(serverStatus == Statuses.ONLINE) {
@@ -622,6 +621,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					// 3.1 load config from JSON
 					Configuration connectionConfig = JSONManager.getConnectionConfiguration(receivedData, getContext());
 					connectionConfig.setSilentMode(isSilentModeActivated ? 1 : 0);
+					Log.d(MusesUtils.TEST_TAG, "UCEH - isSilentModeActivated="+isSilentModeActivated);
 					// 2.2 & 3.2 insert new config in the db
 					if(connectionConfig != null) {
 						dbManager.openDB();
