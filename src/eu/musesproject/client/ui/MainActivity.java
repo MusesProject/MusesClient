@@ -65,7 +65,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
 	public static final String PREFERENCES_KEY = "eu.musesproject.client";
-	public static final String REGISTER_UI_CALLBACK = "register_ui_callback";
+	public static final String REGISTER_UI_CALLBACK = "eu.musesproject.client.action.CALLBACK";
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private LinearLayout topLayout;
 	private Button loginListBtn, securityInformationListbtn;

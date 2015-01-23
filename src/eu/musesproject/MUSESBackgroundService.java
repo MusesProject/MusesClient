@@ -31,6 +31,7 @@ import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.ui.MainActivity;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
+import eu.musesproject.client.utils.MusesUtils;
 
 /**
  * This class is responsible to start the background
@@ -54,6 +55,8 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public void onCreate() {
+		Log.d(MusesUtils.TEST_TAG, "BACKGROUND - onCreate");
+
 		isAppInitialized = false;
 		UserContextMonitoringController.getInstance(this);
 		userContextEventHandler = UserContextEventHandler.getInstance();
@@ -63,19 +66,19 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.d(TAG, "on startComment called");
+		Log.d(MusesUtils.TEST_TAG, "BACKGROUND - on startComment called");
 		if(!isAppInitialized) {
-			Log.d(TAG, "MUSES service started!!");
+			Log.d(MusesUtils.TEST_TAG, "BACKGROUND - MUSES service started!!");
 			isAppInitialized = true;
 
-			Intent startMainActivityForUICallbackRegistrationIntent = new Intent(this, MainActivity.class);
-			startMainActivityForUICallbackRegistrationIntent.putExtra(MainActivity.REGISTER_UI_CALLBACK, MainActivity.REGISTER_UI_CALLBACK);
-			startActivity(startMainActivityForUICallbackRegistrationIntent);
+			Intent startMainActivityForUICallbackRegistrationIntent = new Intent(MainActivity.REGISTER_UI_CALLBACK);
+			sendBroadcast(startMainActivityForUICallbackRegistrationIntent);
 
-			UserContextMonitoringController.getInstance(this).startContextObservation();
+//			UserContextMonitoringController.getInstance(this).startContextObservation();
 
 			// try to auto login user
 			userContextEventHandler.setContext(this);
+			userContextEventHandler.connectToServer();
 			userContextEventHandler.autoLogin();
 
 			// send status of the service
@@ -86,9 +89,11 @@ public class MUSESBackgroundService extends Service {
 
 		return Service.START_STICKY;
 	}
-	
+
+
 	@Override
 	public void onDestroy() {
+		Log.d(MusesUtils.TEST_TAG, "BACKGROUND - onDestroy()");
 		isAppInitialized = false;
 
 		// send status of the service
