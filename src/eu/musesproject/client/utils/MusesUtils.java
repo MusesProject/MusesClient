@@ -33,6 +33,7 @@ import android.content.Context;
 import android.os.Environment;
 
 public class MusesUtils {
+	public static final String TEST_TAG = "muses_workflow_test_tag";
 	static Context sContext;
 	public static String serverCertificate = "";
 	public static String getCertificateFromSDCard(Context context)  {
