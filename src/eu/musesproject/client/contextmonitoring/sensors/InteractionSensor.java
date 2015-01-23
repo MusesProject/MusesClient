@@ -143,7 +143,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
-		Log.d(TAG, "onAccessibilityEvent(AccessibilityEvent event) ||| package name: " + event.getPackageName());
+//		Log.d(TAG, "onAccessibilityEvent(AccessibilityEvent event) ||| package name: " + event.getPackageName());
 		String pckName = (String) event.getPackageName();
 		if(pckName != null && pckName.equals("com.google.android.gm")) {
 			new GmailObserver(getRootInActiveWindow(), event);
@@ -203,17 +203,17 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     	private MailContent content;
 
     	public void observe() {
-    		Log.d(TAG, "observer");
+//    		Log.d(TAG, "observer");
     		// stop processing if one of the necessary objects is null
     		if(getAccessibilityNodeInfo() == null || getEvent() == null) {
     			return;
     		}
     		String eventText = getEventText(event);
     		boolean sendButtonClicked = false;
-			if(eventText.equalsIgnoreCase(send)) {
+			if(eventText.contains(send)) {
 				sendButtonClicked = true;
 			}
-    		Log.d(TAG, "send button clicked: " + sendButtonClicked + "| event text: " +eventText);
+//    		Log.d(TAG, "send button clicked: " + sendButtonClicked + "| event text: " +eventText);
     		if(sendButtonClicked) {
 	    		content = new MailContent();
 	    		
@@ -226,6 +226,7 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     	                    if(nodeInfoRoot.getChild(i) != null) {
     	                        AccessibilityNodeInfo nodeInfoChild = nodeInfoRoot.getChild(i);
     	                        String childText = nodeInfoChild.getText() + "";
+//								Log.d(TAG, "childText: " + childText);
 	                        	if (childText.contains(to)) {
     	                            Log.d(TAG, "to pos: " + nodeInfoRoot.getChild(i+1).getText());
     	                            content.setTo(nodeInfoRoot.getChild(i+1).getText() + "");
@@ -272,11 +273,11 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
                         
     					// set action properties
                         Map<String, String> actionProperties = new HashMap<String, String>();
-    					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_FROM, content.getFrom() == null ? "unknown" : content.getFrom());
     					actionProperties.put(MailProperties.PROPERTY_KEY_TO, content.getTo());
-    					actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc());
-    					actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc());
-    					actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_CC, content.getCc() == null ? "none" : content.getCc());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_BCC, content.getBcc() == null ? "none" : content.getBcc());
+    					actionProperties.put(MailProperties.PROPERTY_KEY_SUBJECT, content.getSubject() == null ? "none" : content.getSubject());
     					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT, String.valueOf(content.getAttachments().size()));
     					actionProperties.put(MailProperties.PROPERTY_KEY_ATTACHMENT_INFO, generateMailAttachmentInfo(content.getAttachments()));
     					
