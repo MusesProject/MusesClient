@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/dialog_background" >
+
+    <TextView
+        android:id="@+id/feedback_title_txt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/server_status"
+        android:layout_toRightOf="@+id/image"
+        android:gravity="left"
+        android:paddingLeft="5sp"
+        android:paddingTop="15sp"
+        android:text="@string/feedback_title_txt"
+        android:textColor="#000000"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/server_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dip"
+        android:paddingTop="5sp"
+        android:paddingRight="5sp"
+        android:text="@string/current_com_status_1"
+        android:textColor="#000000"
+        android:textSize="25sp"
+       />
+
+    <!-- Rightend Arrow -->
+
+    <TextView
+        android:id="@+id/feedback_txt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/image"
+        android:layout_marginBottom="40dp"
+        android:layout_marginLeft="10sp"
+        android:layout_marginTop="20sp"
+        android:textColor="#000000"
+        android:textSize="18sp" />
+
+    <!-- Temp textviews -->
+
+    <TextView
+        android:id="@+id/placeholderr_view_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/feedback_txt"
+        android:layout_marginRight="5dp"
+        android:text=""
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/cancel_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/placeholderr_view_1"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_background_tab"
+        android:contentDescription="cancel"
+        android:text="@string/cancel_btn_txt"
+        android:paddingBottom="20sp"
+        android:layout_marginBottom="20dp"
+        android:textSize="25sp" />
+
+    <Button
+        android:id="@+id/details_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_weight="1"
+        android:contentDescription="ok"
+        android:text=""
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <!--
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/placeholderr_view_2"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/cancel_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:contentDescription="cancel"
+            android:text="@string/cancel_btn_txt"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/details_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:contentDescription="ok"
+            android:text=""
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        
+    </LinearLayout>
+    -->
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="60dip"
+        android:layout_height="60dip"
+        android:layout_alignLeft="@+id/feedback_txt"
+        android:layout_alignTop="@+id/feedback_title_txt"
+        android:src="@drawable/warning_sign" />
+
+</RelativeLayout>

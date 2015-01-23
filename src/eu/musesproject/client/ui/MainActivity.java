@@ -182,7 +182,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			if (loginView == null) {
 				loginView = new LoginView(context);
 			}
-			loginView.updateLoginWithNewServerStatus();
+			//loginView.updateLoginWithNewServerStatus(); // FIXME commented after cure comments
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			

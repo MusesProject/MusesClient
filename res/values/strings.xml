@@ -8,7 +8,7 @@
     <string name="action_settings">Settings</string>
 
     <!-- Login view strings -->
-    <string name="username_txt">User ID:</string>
+    <string name="username_txt">Username:</string>
     <string name="password_txt">Password:</string>
     <string name="login_button_txt">Login</string>
     <string name="logout_button_txt">Logout</string>
@@ -18,9 +18,9 @@
     <string name="remember_my_login_txt">Remember my login</string>
     <string name="hint_txt_userid">Enter your id here &#8230;</string>
     <string name="hint_txt_password">Enter your password  &#8230;</string>
-    <string name="login_detail_view_txt">MUSES allows you to access digital assets from your company in secure way.</string>
+    <string name="login_detail_view_txt">MUSES aims at engaging and motivating you in keeping organizational information secure.</string>
     <string name="logged_in_info_txt">You are now logged in as: </string>
-    <string name="agree_term_condition_txt">I agree to terms and condition</string>
+    <string name="agree_term_condition_txt">I agree to the privacy policy</string>
     <string name="make_sure_privacy_policy_read_txt">Make sure you have read and understood the privacy policy before logging in.</string>
     <string name="terms_and_condition_description_text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
     <string name="test_string">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
