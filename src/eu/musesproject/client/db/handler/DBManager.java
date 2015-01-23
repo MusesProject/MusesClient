@@ -558,10 +558,12 @@ public class DBManager {
 		String selectQuery = "select silent_mode from " + TABLE_CONFIGURATION;
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
-		if (cursor.moveToFirst()) {
-			isSilentModeActive = cursor.getInt(0) == 1;
+		if (cursor != null) {
+			if(cursor.moveToFirst()) {
+				isSilentModeActive = cursor.getInt(0) == 1;
+			}
+			cursor.close();
 		}
-		cursor.close();
 
 		return isSilentModeActive;
 	}
