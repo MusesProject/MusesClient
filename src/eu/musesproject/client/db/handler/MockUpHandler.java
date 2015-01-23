@@ -166,6 +166,7 @@ public class MockUpHandler {
 		/*
 		 * insert all config items into the db
 		 */
+		/*
     	DBManager dbManager = new DBManager(context);
 		dbManager.openDB();
 		for(SensorConfiguration configItem : configList) {
@@ -174,5 +175,6 @@ public class MockUpHandler {
 		dbManager.closeDB();
 		
 		Log.d("test", "config test:mock up data created");
+		*/
     }
 }
