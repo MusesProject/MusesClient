@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
+import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
 
 import java.util.ArrayList;
@@ -92,9 +93,6 @@ public class LocationSensor implements ISensor, LocationListener {
 		provider = LocationManager.NETWORK_PROVIDER; // default location tracking accuracy -> Wi-Fi & Cell Tower
 		Location location = locationManager.getLastKnownLocation(provider);
 
-		// START MOCK UP CONFIGURATION
-		allowedZoneCentralPoint = location;
-		
 		// Initialize the location fields
 		if (location != null) {
 			onLocationChanged(location);
@@ -115,7 +113,8 @@ public class LocationSensor implements ISensor, LocationListener {
 
 	@Override
 	public void enable() {
-		if (!sensorEnabled) {
+//		Log.d(MusesUtils.TEST_TAG, "location=enable");
+		if (!sensorEnabled && allowedZoneCentralPoint != null) {
 			sensorEnabled = true;
 			locationManager.requestLocationUpdates(
 					provider, 
@@ -146,13 +145,16 @@ public class LocationSensor implements ISensor, LocationListener {
 
 	@Override
 	public void configure(List<SensorConfiguration> config) {
+//		Log.d(MusesUtils.TEST_TAG, "configure(List<SensorConfiguration> config)");
 		try {
 			for (SensorConfiguration item : config) {
 				if(item.getKey().equals(CONFIG_KEY_MIN_DIS)) {
 					minDistanceBetweenLocationUpdates = Integer.valueOf(item.getValue());
+//					Log.d(MusesUtils.TEST_TAG, "minDistanceBetweenLocationUpdates="+minDistanceBetweenLocationUpdates);
 				}
 				else if(item.getKey().equals(CONFIG_KEY_MIN_TIME)) {
 					minTimeBetweenLocationUpdates = Integer.valueOf(item.getValue());
+//					Log.d(MusesUtils.TEST_TAG, "minTimeBetweenLocationUpdates="+minTimeBetweenLocationUpdates);
 				}
 				else if(item.getKey().equals(CONFIG_KEY_LONGITUDE_SECURE_ZONE)) {
 					// just use this config item if longitude and latitude is provided
@@ -161,30 +163,32 @@ public class LocationSensor implements ISensor, LocationListener {
 							allowedZoneCentralPoint = new Location(provider);
 							allowedZoneCentralPoint.setLongitude(Double.valueOf(item.getValue()));
 							allowedZoneCentralPoint.setLatitude(Double.valueOf(subItem.getValue()));
+//							Log.d(MusesUtils.TEST_TAG, "lat=" + allowedZoneCentralPoint.getLatitude() + " long=" +allowedZoneCentralPoint.getLongitude());
 						}
 					}
 				}
 				else if(item.getKey().equals(CONFIG_KEY_SECURE_ZONE_RADIUS)) {
 					allowedZoneRadius = Float.valueOf(item.getValue());
+//					Log.d(MusesUtils.TEST_TAG, "allowedZoneRadius=" + allowedZoneRadius);
 				}
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "could not map config value to correct type");
+//			Log.e(TAG, "could not map config value to correct type");
 		}
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
-		Log.d(TAG, "location sensor - : onLocationChanged");
+//		Log.d(TAG, "location sensor - : onLocationChanged");
 		if (allowedZoneCentralPoint != null) {
 			int distance = (int) location.distanceTo(allowedZoneCentralPoint);
 			if (distance > allowedZoneRadius) {
-				Log.d(TAG, "location sensor - is within secure zone: " + false + "; distance=" + distance);
+//				Log.d(TAG, "location sensor - is within secure zone: " + false + "; distance=" + distance);
 				if (isWithinSecureZone) { // just fire a context event if the user went from a secure zone to an insecure
 					createContextEvent(false);
 				}
 			} else {
-				Log.d(TAG, "location sensor - is within secure zone: " + true + "; distance=" + distance);
+//				Log.d(TAG, "location sensor - is within secure zone: " + true + "; distance=" + distance);
 				if (!isWithinSecureZone) { // just fire a context event if the user went from a insecure zone to a secure
 					createContextEvent(true);
 				}
