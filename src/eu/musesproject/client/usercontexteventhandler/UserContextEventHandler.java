@@ -569,6 +569,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						dbManager.insertCredentials(getImei(), tmpLoginUserName, tmpLoginPassword);
 						dbManager.closeDB();
 						// clear the credentials in the fields
+						userName = tmpLoginUserName;
 						tmpLoginUserName = "";
 						tmpLoginPassword = "";
 
@@ -656,8 +657,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			}
 
 			if(detailedStatus == DetailedStatuses.UNKNOWN_ERROR) {
+				Log.d(MusesUtils.TEST_TAG, "UCEH - UNKNOWN_ERROR callback");
 				// fires the unknown error feedback
-				ActuatorController.getInstance().showFeedback(null);
+//				ActuatorController.getInstance().showFeedback(null);
 			}
 			serverDetailedStatus = detailedStatus;
 			return 0;
@@ -673,16 +675,21 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 
 	public String getUserName() {
-		if(prefs == null) {
-			prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
-					Context.MODE_PRIVATE);
-		}
-		this.userName = prefs.getString(MainActivity.USERNAME, "");
-		if(userName == null || userName.equals("")) {
-			this.userName = "unknown"; // TODO look in db too
-		}
+		if(isUserAuthenticated) {
+			if (prefs == null) {
+				prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+						Context.MODE_PRIVATE);
+			}
+			this.userName = prefs.getString(MainActivity.USERNAME, "");
+			if (userName == null || userName.equals("")) {
+				this.userName = "unknown"; // TODO look in db too
+			}
 
-		return userName;
+			return userName;
+		}
+		else {
+			return "unknown";
+		}
 	}
 
 	public void removeRequestById(int requestId) {
