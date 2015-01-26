@@ -220,6 +220,7 @@ public class DBManager {
 		if (sqLiteDatabase !=null){
 			databaseHelper.close();
 			sqLiteDatabase = null;
+//			sqLiteDatabase.close();
 		}
 	}
 
@@ -299,13 +300,14 @@ public class DBManager {
 	// All CRUD (Create, retrieve, update and delete ) operations here
 
 	public void insertSensorConfiguration(SensorConfiguration sensorConfiguration){
-		if(!sensorConfigExists(sensorConfiguration)) {
+//		if(!sensorConfigExists(sensorConfiguration)) {
+		Log.d(MusesUtils.TEST_TAG, "DB - insert sensor config");
 			ContentValues values = new ContentValues();
 			values.put(SENSOR_TYPE, sensorConfiguration.getSensorType());
 			values.put(KEY, sensorConfiguration.getKey());
 			values.put(VALUE, sensorConfiguration.getValue());
 			sqLiteDatabase.insert(TABLE_SENSOR_CONFIGURATION, null	, values);
-		}
+//		}
 	}
 
 	// check if an equal config item exists to avoid duplicate entries
@@ -320,6 +322,7 @@ public class DBManager {
 				null,null,null,null);
 
 		if (cursor != null && cursor.moveToFirst()) {
+			Log.d(MusesUtils.TEST_TAG, "DB - sensor config does exist");
 			return true;
 		}
 		else {
@@ -327,6 +330,23 @@ public class DBManager {
 		}
 	}
 
+	public boolean hasSensorConfig() {
+		String selectQuery = "select  COUNT(*) from " + TABLE_SENSOR_CONFIGURATION;
+		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+
+		if (cursor != null && cursor.moveToFirst()) {
+			int noOfRows = cursor.getInt(0);
+			if(noOfRows > 0) {
+				Log.d(MusesUtils.TEST_TAG, "DB - sensor config does exist");
+				cursor.close();
+
+				return true;
+			}
+		}
+		cursor.close();
+
+		return false;
+	}
 
 	public List<SensorConfiguration> getAllSensorConfiguration(){
 
@@ -556,13 +576,16 @@ public class DBManager {
 
 		// Select All Query
 		String selectQuery = "select silent_mode from " + TABLE_CONFIGURATION;
-		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+		try {
+			Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
-		if (cursor != null) {
-			if(cursor.moveToFirst()) {
+			if(cursor.moveToLast()) {
 				isSilentModeActive = cursor.getInt(0) == 1;
 			}
+
 			cursor.close();
+		} catch (Exception e) {
+			// ignore. table might be empty
 		}
 
 		return isSilentModeActive;
@@ -1707,16 +1730,6 @@ public class DBManager {
 		}
 
 		return enabledSensors;
-	}
-
-	public boolean hasSensorConfig() {
-		String selectQuery = "select  COUNT(*) from " + TABLE_SENSOR_CONFIGURATION;
-		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
-
-		if (cursor != null && cursor.moveToFirst()) {
-			return true;
-		}
-		return false;
 	}
 
 	public List<ResourceProperty> getPropertiesFromResourceId(String resource_id) {

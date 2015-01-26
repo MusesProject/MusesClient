@@ -337,13 +337,11 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		updateServerOnlineAndUserAuthenticated();
 
-		if(isUserAuthenticated) {
-			if(sensorConfigExists) {
-				manageMonitoringComponent();
-			}
-			else {
-				sendConfigSyncRequest();
-			}
+		if(sensorConfigExists) {
+			manageMonitoringComponent();
+		}
+		else {
+			sendConfigSyncRequest();
 		}
 	}
 
@@ -525,7 +523,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		@Override
 		public int receiveCb(String receivedData) {
-			Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb()");
 			Log.d(TAG, "called: receiveCb(String receivedData)");
 			if((receivedData != null) && (!receivedData.equals(""))) {
 				if(dbManager == null) {
