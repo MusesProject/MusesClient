@@ -20,6 +20,7 @@ package eu.musesproject.client.actuators;
  * #L%
  */
 
+import android.content.Context;
 import android.util.Log;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.decisiontable.Decision;
@@ -71,8 +72,8 @@ public class ActuatorController implements IActuatorController {
         feedbackActuator.showFeedback(decision);
     }
 
-    public void sendFeedbackToMUSESAwareApp(Decision decision) {
-        feedbackActuator.sendFeedbackToMUSESAwareApp(decision);
+    public void sendFeedbackToMUSESAwareApp(Decision decision, Context context) {
+        feedbackActuator.sendFeedbackToMUSESAwareApp(decision, context);
     }
 
     public void sendLoginResponse(boolean loginResponse) {

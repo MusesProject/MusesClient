@@ -20,6 +20,7 @@ package eu.musesproject.client.actuators;
  * #L%
  */
 
+import android.content.Context;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.db.entity.RiskTreatment;
@@ -68,10 +69,22 @@ public class FeedbackActuator implements IFeedbackActuator {
     }
 
     @Override
-    public void sendFeedbackToMUSESAwareApp(Decision decision) {
-        eu.musesproject.server.risktrust.RiskTreatment riskTreatment[] = decision.getRiskCommunication().getRiskTreatment();
-//        ResponseInfoAP infoAP = decision.getRiskCommunication().getRiskTreatment().ge
-//            new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+    public void sendFeedbackToMUSESAwareApp(Decision decision, Context context) {
+        try {
+            eu.musesproject.server.risktrust.RiskTreatment riskTreatment[] = decision.getRiskCommunication().getRiskTreatment();
+            ResponseInfoAP infoAP;
+            if(decision.getName().equals(Decision.STRONG_DENY_ACCESS) || decision.getName().equals(Decision.DEFAULT_DENY_ACCESS) ) {
+                infoAP = ResponseInfoAP.DENY;
+            }
+            else {
+                infoAP = ResponseInfoAP.ACCEPT;
+            }
+
+            new DummyCommunication(context).sendResponse(infoAP, riskTreatment[0]);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // no risk treatment
+        }
     }
 
     @Override

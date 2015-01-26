@@ -308,6 +308,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			}
 		}
 
+		// start monitoring
+		manageMonitoringComponent();
 	}
 
 	/**
@@ -716,5 +718,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
 		Log.d(APP_TAG, "showFeedback4");
 		ActuatorController.getInstance().showFeedback(decision);
+		if(requestHolder.getAction().isRequestedByMusesAwareApp()) {
+			ActuatorController.getInstance().sendFeedbackToMUSESAwareApp(decision, getContext());
+		}
 	}
 }

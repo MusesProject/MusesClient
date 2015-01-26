@@ -85,7 +85,9 @@ public class UserContextMonitoringController implements
             sendUserBehavior(action);
         }
         else if(src == UISource.MUSES_AWARE_APP_UI) {
-            uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
+            Action musesAwareAction = action;
+            musesAwareAction.setRequestedByMusesAwareApp(true);
+            uceHandler.send(musesAwareAction, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
         else if(src == UISource.INTERNAL) {
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
