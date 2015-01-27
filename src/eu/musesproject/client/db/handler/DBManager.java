@@ -177,6 +177,7 @@ public class DBManager {
 	private static final String CONTEXT_EVENT_ID = "contextevent_id";
 	private static final String TYPE = "type";
 	private static final String TIME_STAMP = "timestamp";
+	private static final String SILENT_MODE = "silent_mode";
 	private static final String KEY = "key";
 	private static final String VALUE = "value";
 	private static final String USERNAME = "username";
@@ -487,6 +488,7 @@ public class DBManager {
 		values.put(SLEEP_POLL_TIMEOUT, configuration.getSleepPollTimeout());
 		values.put(POLLING_ENABLED, configuration.getPollingEnabled());
 		values.put(LOGIN_ATTEMPTS, configuration.getLoginAttempts());
+		values.put(SILENT_MODE, configuration.getSilentMode());
 		sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
 	}
 
