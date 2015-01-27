@@ -673,13 +673,19 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	public String getUserName() {
 		if(isUserAuthenticated) {
-			if (prefs == null) {
-				prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
-						Context.MODE_PRIVATE);
-			}
-			this.userName = prefs.getString(MainActivity.USERNAME, "");
-			if (userName == null || userName.equals("")) {
-				this.userName = "unknown"; // TODO look in db too
+			if(userName == null || userName.equals("")) {
+				if(prefs == null) {
+					prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+							Context.MODE_PRIVATE);
+				}
+
+				String tmpUserName = prefs.getString(MainActivity.USERNAME, "");
+				if(!tmpUserName.equals("")) {
+					userName = tmpUserName;
+				}
+				else {
+					userName = "unknown"; // TODO look in db too
+				}
 			}
 
 			return userName;
