@@ -222,6 +222,7 @@ public class DBManager {
 			sqLiteDatabase = null;
 //			sqLiteDatabase.close();
 		}
+
 	}
 
 	public void encryptDB()  {
