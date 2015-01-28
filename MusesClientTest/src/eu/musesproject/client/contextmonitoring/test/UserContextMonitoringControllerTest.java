@@ -57,6 +57,11 @@ public class UserContextMonitoringControllerTest extends AndroidTestCase {
             public void onUpToUser(Decision decision) {
                 assertEquals("UP_TO_YOU", decision.getName());
             }
+
+            @Override
+            public void onError() {
+
+            }
         };
 
         decision.setName(Decision.GRANTED_ACCESS);
