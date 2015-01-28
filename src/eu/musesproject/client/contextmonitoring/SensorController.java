@@ -114,7 +114,6 @@ public class SensorController {
 
     		Log.d(MusesUtils.TEST_TAG, "SC - config test: sensor type="+sensor.getClass().getSimpleName() + ", no. config items="+configItems.size());
     		sensor.configure(configItems);
-    		sensor.enable();
     		activeSensors.put(sensorType, sensor);
 		}
     	
