@@ -503,6 +503,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginDetailTextView.setText(String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
 			setUsernamePasswordIfSaved();
+			loginDetailTextView.setFocusable(true);
+			loginDetailTextView.requestFocus();
+			
 		}
 
 		private void updateLoginWithNewServerStatus(){
