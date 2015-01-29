@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MUSES</string>
+    <string name="login_list_button_txt">L o g i n</string>
+    <string name="security_info_button_txt">My Security Policies</string>
+    <string name="security_points_button_txt">Security Points</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Login view strings -->
+    <string name="username_txt">Username:</string>
+    <string name="password_txt">Password:</string>
+    <string name="login_button_txt">Login</string>
+    <string name="logout_button_txt">Logout</string>
+    <string name="privacy_policy_view_txt">Privacy Policy</string>
+    <string name="policy_info_button_txt">MUSES policy information</string>
+    <string name="settings_button_txt">Settings</string>
+    <string name="remember_my_login_txt">Remember my login</string>
+    <string name="hint_txt_userid">Enter your id here &#8230;</string>
+    <string name="hint_txt_password">Enter your password  &#8230;</string>
+    <string name="login_detail_view_txt">MUSES aims at engaging and motivating you in keeping organizational information secure.</string>
+    <string name="logged_in_info_txt">You are now logged in as: </string>
+    <string name="agree_term_condition_txt">I agree to the privacy policy</string>
+    <string name="make_sure_privacy_policy_read_txt">Make sure you have read and understood the privacy policy before logging in.</string>
+    <string name="terms_and_condition_description_text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
+    <string name="test_string">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
+
+    <!-- Feedback dialog strings -->
+    <string name="feedback_title_txt">Muses Policy Warning</string>
+    <string name="details_btn_txt_deny">I want to know more!</string>
+    <string name="details_btn_txt_maybe">I need help!</string>
+    <string name="details_btn_txt_uptouser">I still want to go on!</string>
+    <string name="what_can_i_do_btn_txt">What can i do?</string>
+    <string name="continue_btn_txt">Continue</string>
+    <string name="cancel_btn_txt">OK. I will stop here.</string>
+    <string name="resolve_auto_btn_txt">Resolve conflicts automatically</string>
+    <string name="feedback_txt_1">You just want to </string>
+    <string name="feedback_txt_2">PERSUASIVE STRATEGIES: </string>
+    <string name="current_com_status_1">You are</string>
+    <string name="current_com_status_2">Online</string>
+    <string name="current_com_status_3">Offline</string>
+
+
+    <!-- Toast msgs -->
+    <string name="login_success_msg">Login Successful..</string>
+    <string name="login_fail_msg">Login Falied..</string>
+    <string name="empty_login_fields_msg">You can\'t leave UserID or Password fields empty ..</string>
+    <string name="no_internet_connection_msg">You don\'t have any Internet connection on your device, Please check your Wi-Fi settigns ..</string>
+    <string name="logout_successfully_msg">Logged out successfully ..</string>
+    <string name="crash_toast_text">Sending crash report..</string>
+    
+    
+    <!-- Copied strings -->
+    <string name="decent_protection"> Descent protection</string>
+    <string name="ok_level_btn">OK (Level X)</string>
+    <string name="cancel_tft_btn">Cancel</string>
+    <string name="level_x">LEVEL X</string>
+    <string name="low_tft">Low</string>
+    <string name="high_tft">High</string>
+    <string name="sec_det">Security Details</string>
+
+    <!-- Extra long strings -->
+    <string name="privacy_policy_detail_txt">This privacy policy describes the privacy considerations made by MUSES for those whose mobile devices are monitored (further referred to individuals/you). With this policy we want to make sure you understand how MUSES works, and how we use your personal information gathered through our software and by our services. We want you to feel secure that your privacy interests are being respected within the bounds of this policy. This privacy policy applies to all our software and services.
+\n\nAll your personal information being collected is treated according to the procedures below.
+\n\nFor all legal issues, Belgian law is applicable.
+What information do we collect?
+\nThe use of the information being collected by our services shall be limited to the purpose of providing the service for which our customer (your employer/contracting company) has engaged MUSES. This means that the collection of your personal information will not exceed that what is necessary to assess the security risks brought forward by the company/our customer.
+In order to fully assess the security risks posed by the use of your mobile device, MUSES will monitor certain aspects of your device-behavior.
+
+The gathered information may include device identified and device username.
+
+ 
+
+The information collected and tracked by MUSES depends on the system configurations chosen by your employer/our customer. The MUSES system is designed to meet the requirements resulting from the security policies of the company (customer of MUSES).
+
+ 
+
+What do we use your information for?
+
+The information we retrieve from your mobile device is used only to assess the security risks, by the MUSES system.
+
+ 
+
+How can you correct and update your information?
+
+You are in control of your personal information. You can request access to the personal information we collect about you, and you can always request corrections or ask us to update the information about you.
+
+ 
+
+We will respond to those requests within 30 days.
+
+ 
+
+Do we disclose any information to third parties?
+
+MUSES will not divulge any of your personal information to any other organization.
+
+ 
+
+How do we protect your information?
+
+Your personal information will not be kept longer than necessary to provide the MUSES service and as required by the law. During the time your personal information is processed by MUSES, it is kept safely.
+
+ 
+
+Your account information is kept confidential and secure via a unique username and password that is selected by you. We encrypt the transmission of sensitive information (such as login credentials).
+
+ 
+
+Your username and password should be kept confidential because they are the key to accessing the information held by MUSES about you. If your computer or mobile device is accessible to or by others, you should log out the MUSES services whenever you leave the device. If you have any questions about this you can contact us at:
+
+info@muses.com
+
+ 
+
+Your consent
+
+Before you can proceed you must confirm that you read this Privacy Policy.
+
+Before you can proceed you must confirm that you understand and agrees with this Privacy Policy.
+
+ 
+
+Changes to the policy
+
+This policy was last modified on 13 April 2014.
+
+In case this Privacy Policy will change in the future, you will be notified of these changes by a notification on your MUSES login page.
+
+ 
+
+Contacting us for more information
+
+If you have any questions regarding this Privacy Policy, you can contact us by e-mail at:
+
+info@muses.com</string>
+
+</resources>
