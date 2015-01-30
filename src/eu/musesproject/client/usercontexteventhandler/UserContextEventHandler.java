@@ -84,7 +84,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	private IConnectionCallbacks connectionCallback;
 	public int serverStatus;
 	private int serverDetailedStatus;
-	private boolean isUserAuthenticated;
+
+    private boolean isUserAuthenticated;
 	public static boolean serverOnlineAndUserAuthenticated;
 
 	private DecisionMaker decisionMaker;
@@ -678,6 +679,14 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 		return imei;
 	}
+
+    public boolean isUserAuthenticated() {
+        return isUserAuthenticated;
+    }
+
+    public void setUserAuthenticated(boolean isUserAuthenticated) {
+        this.isUserAuthenticated = isUserAuthenticated;
+    }
 
 
 	public String getUserName() {
