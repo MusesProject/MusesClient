@@ -57,20 +57,29 @@ public class NetworkChecker extends BroadcastReceiver{
 	 */
 	
 	public boolean isInternetConnected(){
+		Log.d(TAG, "Entering InternetConnected ..");
 		ConnectivityManager connectivityManager = (ConnectivityManager)
 			    context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo wifi =
 			    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+		Log.d(TAG, "wifi connected:"+wifi.isConnected());
 	    NetworkInfo mobile =
 	    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+	    Log.d(TAG, "mobile connected:"+mobile.isConnected());
 	    if (wifi != null){
+	    	Log.d(TAG, "wifi available:"+wifi.isAvailable());
+	    	Log.d(TAG, "wifi detailed state:"+wifi.getDetailedState());
 		    if( wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED){
+		    	Log.d(TAG, "wifi connected");
 		    	isInternetConnected = true;
 		    	return true;
 		    }
 	    }
-	    else if (mobile != null) {
+	    if (mobile != null) {
+	    	Log.d(TAG, "mobile available:"+mobile.isAvailable());
+	    	Log.d(TAG, "mobile detailed state:"+mobile.getDetailedState());
 	    	if( mobile.isAvailable() && mobile.getDetailedState() == DetailedState.CONNECTED ){
+	    		Log.d(TAG, "mobile connected");
 	    		isInternetConnected = true;
 	    		return true;
 	    	}  
