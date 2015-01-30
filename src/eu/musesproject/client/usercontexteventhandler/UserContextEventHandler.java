@@ -654,7 +654,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				if(serverStatus == Statuses.OFFLINE) {
 					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
 					sendOfflineStoredContextEventsToServer();
-					isUserAuthenticated = false;
 				}
 				serverStatus = status;
 				updateServerOnlineAndUserAuthenticated();
