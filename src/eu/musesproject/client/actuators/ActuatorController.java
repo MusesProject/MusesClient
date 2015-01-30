@@ -60,11 +60,10 @@ public class ActuatorController implements IActuatorController {
         Log.d(TAG, "called: showFeedback(Decision decision)");
         
         //check for silent mode
-        dbManager.closeDB();
         dbManager.openDB();
         boolean isSilentModeActive = dbManager.isSilentModeActive();
         dbManager.closeDB();
-		if(isSilentModeActive) {
+		if(decision != null && isSilentModeActive) {
         	decision.setName(Decision.GRANTED_ACCESS);
         }
         
