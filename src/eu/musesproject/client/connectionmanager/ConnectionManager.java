@@ -74,7 +74,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		PhoneModeReceiver phoneModeReceiver = new PhoneModeReceiver(context);
 		phoneModeReceiver.register();
 		Log.d(TAG, "Connecting ..");
+		Log.d(TAG, "URL :"+url);
 		if (networkChecker.isInternetConnected()) {
+			Log.d(TAG, "InternetConnected");
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
 					URL, Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL),"");
