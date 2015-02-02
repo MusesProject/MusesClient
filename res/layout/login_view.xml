@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/edit_text_shape"
-                android:cursorVisible="false"
+                android:cursorVisible="true"
                 android:hint="@string/hint_txt_userid"
                 android:maxLines="8"
                 android:scrollbars="vertical"

@@ -82,7 +82,7 @@ public class MusesUtils {
 		String settings = "192.168.44.101";
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(
-					"/sdcard/muses.conf"));
+					Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator +"muses.conf"));
 			settings = reader.readLine();
 			reader.close();
 		} catch (Exception e) {
