@@ -3,6 +3,7 @@ package eu.musesproject.client.db.handler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -202,27 +203,38 @@ public class DBManager {
 	private static final String ACTION_TYPE = "action_type";
 
 	private Context context;
-	private DatabaseHelper databaseHelper;
-	private SQLiteDatabase sqLiteDatabase;
+	private static DatabaseHelper databaseHelper;
+	private static SQLiteDatabase sqLiteDatabase;
+	private static AtomicInteger mDbOpenCounter = new AtomicInteger();
 
 	public DBManager(Context context) {
 		this.context = context;
-		databaseHelper = new DatabaseHelper(context);
+		if (databaseHelper == null)
+		{
+			databaseHelper = new DatabaseHelper(context);
+		}
 	}
 
 
 	public synchronized DBManager openDB() { // always returns writableDB
-		Log.d(TAG, "opening database..");
-		sqLiteDatabase = databaseHelper.getWritableDatabase();
+		// Get new DB only if not available..
+		if (mDbOpenCounter.incrementAndGet() == 1) {
+			
+			sqLiteDatabase = databaseHelper.getWritableDatabase();
+		}
+		Log.d(TAG, "opening database, counter: "+mDbOpenCounter.get());
 		return this;
 	}
 
 	public synchronized void closeDB() {
 		if (sqLiteDatabase !=null){
-			databaseHelper.close();
-			sqLiteDatabase = null;
-//			sqLiteDatabase.close();
+			// Close DB only if last user of DB..
+			if(mDbOpenCounter.decrementAndGet() == 0) {
+				databaseHelper.close();
+				sqLiteDatabase = null;
+			}
 		}
+		Log.d(TAG, "closing database, counter: "+mDbOpenCounter.get());
 
 	}
 
