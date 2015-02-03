@@ -66,6 +66,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String DECISION_KEY = "decision";
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
+	public static final String SAVE_CREDENTIALS = "save_credentials";
 	public static final String PREFERENCES_KEY = "eu.musesproject.client";
 	public static final String REGISTER_UI_CALLBACK = "eu.musesproject.client.action.CALLBACK";
 	private static final String TAG = MainActivity.class.getSimpleName();
@@ -217,7 +218,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
 				stopProgress();
-				loginView.updateLoginView();
+
+				loginView.updateLoginView(true);
 				isLoggedIn = true;
 				toastMessage(getResources().getString(
 						R.string.login_success_msg));
@@ -353,7 +355,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		if (checkLoginInputFields(userName, password)) {
 			startProgress();
 			userContextMonitoringController.login(userName, password);
-			loginView.setUsernamePasswordIfSaved();
+			
 		} else {
 			toastMessage(getResources().getString(
 					R.string.empty_login_fields_msg));
@@ -409,6 +411,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		private CheckBox rememberCheckBox, agreeTermsCheckBox;
 		private String userName, password;
 		boolean isPrivacyPolicyAgreementChecked = false;
+		boolean isSaveCredentialsChecked = false;
 		
 		public LoginView(Context context) {
 			super(context);
@@ -456,17 +459,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
 			switch (arg0.getId()) {
 			case R.id.remember_checkbox:
-				userName = userNameTxt.getText().toString();
-				password = passwordTxt.getText().toString();
 				SharedPreferences.Editor prefEditor = prefs.edit();	
 				if (isChecked){
-					if (checkLoginInputFields(userName, password)){
-						prefEditor.putString(USERNAME, userName);
-						prefEditor.putString(PASSWORD, password);
-						prefEditor.commit();
-					}
+				    isSaveCredentialsChecked = true;
 				} else { 
-					prefEditor.clear();prefEditor.commit();
+					isSaveCredentialsChecked = false;
+					prefEditor.clear();
+					prefEditor.putBoolean(SAVE_CREDENTIALS, false);
+					prefEditor.commit();
 				}
 				break;
 			case R.id.agree_terms_checkbox:
@@ -512,12 +512,32 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		}
 
-		public void updateLoginView() {
+		public void updateLoginView(Boolean loginSuccess) {
+			
+			if (loginSuccess)
+			{
+				userName = userNameTxt.getText().toString();
+				password = passwordTxt.getText().toString();
+				SharedPreferences.Editor prefEditor = prefs.edit();	
+				if (isSaveCredentialsChecked){
+					
+					prefEditor.putString(USERNAME, userName);
+					prefEditor.putString(PASSWORD, password);
+					prefEditor.putBoolean(SAVE_CREDENTIALS, isSaveCredentialsChecked);
+					prefEditor.commit();
+					
+				}
+			}
+			else
+			{
+				setUsernamePasswordIfSaved();
+			}
+			
 			loginLayout2.setVisibility(View.GONE);
 			logoutBtn.setVisibility(View.VISIBLE);
 			loginDetailTextView.setText(String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
-			setUsernamePasswordIfSaved();
+			
 			loginDetailTextView.setFocusable(true);
 			loginDetailTextView.requestFocus();
 			
@@ -543,13 +563,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				password = prefs.getString(PASSWORD, "");
 				userNameTxt.setText(userName);
 				passwordTxt.setText(password);
-				rememberCheckBox.setChecked(true);
+				
 			} else {
 				userNameTxt.setText("");
 				passwordTxt.setText("");
-				rememberCheckBox.setChecked(false);
+				
 				Log.d(TAG, "No username-pass found in preferences");
 			}
+			
+			// Set rememberCheckBox, if no choice done default to true
+			isSaveCredentialsChecked = prefs.getBoolean(SAVE_CREDENTIALS, true);
+			rememberCheckBox.setChecked(isSaveCredentialsChecked);
+			
 		}
 		
 		
