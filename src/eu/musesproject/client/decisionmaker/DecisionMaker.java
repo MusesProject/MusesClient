@@ -204,6 +204,7 @@ public class DecisionMaker {
 															+ " is less than "
 															+ intValue);
 													Log.d(TAG, "Allow");
+													dbManager.closeDB();
 													return getConditionNotSatisfiedDecision();
 												} else {
 													Log.d(TAG,
@@ -309,6 +310,7 @@ public class DecisionMaker {
         		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getDescription());
         		if ((resourceInPolicy == null)||(resourceInPolicy.getPath()==null)||(resourceInPolicy.getId()==0)){
         			//return getDefaultDecision();
+        			dbManager.closeDB();
         			return null;
         		}
         	}else{
@@ -322,6 +324,7 @@ public class DecisionMaker {
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
         	if (decisionTable.getId()==0){
         		//return getDefaultDecision();
+        		dbManager.closeDB();
         		return null;
         	}
         	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
@@ -368,11 +371,13 @@ public class DecisionMaker {
 													riskTreatments[0] = riskTreatment;	
 													riskCommunication.setRiskTreatment(riskTreatments);
 													resultDecision.setRiskCommunication(riskCommunication); 
+													dbManager.closeDB();
 													return resultDecision;
 												}else{
 													//Allow
 													Logger.getLogger(TAG).log(Level.WARNING, "Condition not satisfied: "+comparisonValue+".MUSES should allow");
 													resultDecision.setName(Decision.GRANTED_ACCESS);
+													dbManager.closeDB();
 													return resultDecision;
 												}
 											}
@@ -411,7 +416,7 @@ public class DecisionMaker {
 						Log.d(TAG, "RiskTreatment textualDescription null. Array length:"+r.length);
 					}
 					
-					
+					dbManager.closeDB();
 					return resultDecision;
         		}
     		}else if ((decision.getName()!=null)&&(decision.getName().equals("deny"))){
@@ -442,7 +447,7 @@ public class DecisionMaker {
 						Log.d(TAG, "RiskTreatment textualDescription null. Array length:"+r.length);
 					}
 					
-					
+					dbManager.closeDB();
 					return resultDecision;
         		}
     		}else if ((decision.getName()!=null)&&(decision.getName().equals("up-to-you"))){
@@ -473,7 +478,7 @@ public class DecisionMaker {
 						Log.d(TAG, "RiskTreatment textualDescription null. Array length:"+r.length);
 					}
 					
-					
+					dbManager.closeDB();
 					return resultDecision;
         		}
     		}
@@ -486,6 +491,7 @@ public class DecisionMaker {
         	resultDecision = composeDecision(decision, comm, treatment);
         }else{
         	Log.d(TAG,"Decision table is null");
+        	dbManager.closeDB();
         	return null;
         	//return getDefaultDecision();
         }
