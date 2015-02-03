@@ -224,7 +224,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
 				stopProgress();
-				toastMessage(getResources().getString(R.string.login_fail_msg));
+				if (!UserContextEventHandler.getInstance().isUserAuthenticated())
+				{
+					Log.e(TAG, "Login failed, service is not authenticated.");
+					toastMessage(getResources().getString(R.string.login_fail_msg));
+				}
+				else
+				{
+					Log.e(TAG, "EXTRA Login failed, but service IS authenticated. ");
+				}
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
 				Log.d(TAG, "Action response accepted ..");
@@ -431,6 +439,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		 */
 
 		private void populateLoggedInView() {
+			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated())
+			{
+				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
+			}
+			
 			if (isLoggedIn) {
 				loginLayout2.setVisibility(View.GONE);
 				logoutBtn.setVisibility(View.VISIBLE);
