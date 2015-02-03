@@ -85,9 +85,9 @@ public abstract class HttpConnectionsHelper {
 		 	        Log.d(TAG,"Curent cookie expiry : " + cookieExpiryDate);
 		 	    }
 			} catch (ClientProtocolException e) {
-				Log.d(TAG,e.getMessage());
+				Log.d(TAG,e.toString());
 			} catch (Exception e) {
-				Log.d(TAG,e.getMessage());
+				Log.d(TAG,e.toString());
 			}
 		    
         }else {
@@ -96,9 +96,9 @@ public abstract class HttpConnectionsHelper {
 	        try {
 	        	httpResponse = httpclient.execute(httpPost);
 			} catch (ClientProtocolException e) {
-				Log.d(TAG,e.getMessage());
+				Log.d(TAG,e.toString());
 			} catch (Exception e) {
-				Log.d(TAG,e.getMessage());
+				Log.d(TAG,e.toString());
 			}
 	    }
         return httpResponse;
@@ -139,9 +139,9 @@ public abstract class HttpConnectionsHelper {
 		    try {
 		        httpResponse = httpclient.execute(httpPost);
 			} catch (ClientProtocolException e) {
-				Log.d(TAG,e.getMessage());
+				Log.d(TAG,e.toString());
 			} catch (IOException e) {
-				Log.d(TAG,e.getMessage());
+				Log.d(TAG,e.toString());
 			}
 		} else {
 			try {
@@ -152,9 +152,9 @@ public abstract class HttpConnectionsHelper {
 		 	    } 
 		 	    
 			} catch (ClientProtocolException e) {
-				Log.d(TAG,e.getMessage());
+				Log.d(TAG,e.toString());
 			} catch (IOException e) {
-				Log.d(TAG,e.getMessage());
+				Log.d(TAG,e.toString());
 			}
 		}
 

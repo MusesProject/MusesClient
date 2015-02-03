@@ -205,9 +205,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				HttpResponseHandler httpResponseHandler = new HttpResponseHandler(response, request.getType());
 				httpResponseHandler.checkHttpResponse();
 			} catch (ClientProtocolException e) {
-				Log.d(APP_TAG, e.getMessage());
+				Log.d(APP_TAG, Log.getStackTraceString(e));
 			} catch (IOException e) {
-				Log.d(APP_TAG, e.getMessage());
+				Log.d(APP_TAG, Log.getStackTraceString(e));
 			}
 			return null;
 
