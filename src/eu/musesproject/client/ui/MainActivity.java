@@ -434,6 +434,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			if (isLoggedIn) {
 				loginLayout2.setVisibility(View.GONE);
 				logoutBtn.setVisibility(View.VISIBLE);
+				loginDetailTextView.setText(String.format("%s %s", getResources()
+						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
 			}
 		}
 
