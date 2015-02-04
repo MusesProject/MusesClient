@@ -87,7 +87,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.muses_main);
 		context = getApplicationContext();
-		setStartUpConfiguration();
 		getActionBar().setDisplayShowTitleEnabled(false);
 		
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
@@ -119,14 +118,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		new MockUpHandler(this).createMockUpSensorConfiguration();
 	}
 
-	private void setStartUpConfiguration(){
-        DBManager dbManager = new DBManager(context);
-        dbManager.openDB();
-        dbManager.insertConnectionProperties();
-        dbManager.inserRequiredAppList();
-        dbManager.closeDB();
-	}
-	
 	
 
 	@Override
