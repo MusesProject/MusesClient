@@ -2076,7 +2076,6 @@ public class DBManager {
 		if (sqLiteDatabase == null){
 			openDB();
 		}
-
 		if ((condition==null)||(condition.equals("null"))){
 
 			cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
