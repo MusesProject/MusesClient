@@ -36,7 +36,8 @@ import android.util.Log;
 
 public class ConnectionManager extends HttpConnectionsHelper implements IConnectionManager{
 
-	private static String URL;
+	private static String URL = "";
+	private static String certificate;
 	public static IConnectionCallbacks callBacks;
 	public static final boolean FAKE_MODE_ON = true;
 	public static final String CONNECT = "connect";
@@ -61,7 +62,10 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	 */
 	
 	@Override
-	public void connect(String url, int pollInterval, int sleepPollInterval, IConnectionCallbacks callbacks, Context context) {
+	public void connect(String url, String cert, int pollInterval, int sleepPollInterval, IConnectionCallbacks callbacks, Context context) {
+		/* FIXME, temporary fix for dual calls */
+		if (!URL.isEmpty())
+				return;
 		URL = url;
 		AlarmReceiver.POLL_INTERVAL = pollInterval;
 		AlarmReceiver.SLEEP_POLL_INTERVAL = sleepPollInterval;
@@ -70,17 +74,33 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		AlarmReceiver.LAST_SENT_POLL_INTERVAL = pollInterval;
 		callBacks = callbacks;
 		this.context = context;
+		
+		/* Check that cert is ok, spec length */
+		/* FIXME which Length.. */
+		if (cert.isEmpty() || cert.length() < 1000)
+		{
+			callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.INCORRECT_CERTIFICATE);
+			Log.d(TAG, "connect: Incorrect certificate!");
+			return;
+		}
+		certificate = cert;
+			
 		NetworkChecker networkChecker = new NetworkChecker(context);
 		PhoneModeReceiver phoneModeReceiver = new PhoneModeReceiver(context);
 		phoneModeReceiver.register();
-		Log.d(TAG, "Connecting ..");
-		Log.d(TAG, "URL :"+url);
+		Log.d(TAG, "Connecting to URL:"+url);
+		
 		if (networkChecker.isInternetConnected()) {
 			Log.d(TAG, "InternetConnected");
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
-					URL, Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL),"");
-		} else callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+					URL, Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL),"", certificate);
+		}
+		else 
+		{
+			callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+		}
+		
 		
 		alarmReceiver = new AlarmReceiver();
 		alarmReceiver.setAlarm(context);
@@ -100,9 +120,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			Log.d(APP_TAG, "ConnManager=> send data to server: "+data);
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DATA, URL, 
-					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), data);
+					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), data, certificate);
 		} else {
-			Log.d(APP_TAG, "ConnManager=> can't send data no intenet connection, calling statusCB");
+			Log.d(APP_TAG, "ConnManager=> can't send data with no internet connection, calling statusCB");
 			callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
 		}
 	}
@@ -120,12 +140,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DISCONNECT, URL, 
-					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "");
+					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "", certificate);
 			HttpConnectionsHelper.cookie = null;
 			alarmReceiver.cancelAlarm(context);
 			callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
 		} else {
-			Log.d(APP_TAG, "ConnManager=> can't disconnect no intenet connection");
+			Log.d(APP_TAG, "ConnManager=> can't disconnect no internet connection");
 			callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
 		}
 
@@ -155,13 +175,15 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		//Log.d(APP_TAG, "Polling !!");
 		if (NetworkChecker.isInternetConnected) {
 			if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) { 
+				
 				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
-						Integer.toString(AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL), "");
+						Integer.toString(AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL), "", certificate);
 			} else {
+				
 				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
-						Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "");
+						Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "", certificate);
 			}
 		}
 	}
@@ -177,11 +199,11 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) { // FIXME 
 				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
-						Integer.toString(AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL), "");
+						Integer.toString(AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL), "", certificate);
 			} else {
 				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
-						Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "");
+						Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "", certificate);
 			}
 		}
 	}
@@ -198,10 +220,11 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
     	protected String doInBackground(String... params) {
     		HttpResponse response = null;
 			Request request = new Request(params[0], 
-					params[1], params[2], params[3]);
-			
+					params[1], params[2], params[3], params[4]);
+			/* FIXME remove cert, params[4] from debug */
+			Log.d(APP_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]+", "+params[4]);
 			try {
-				response = doSecurePost(request);
+				response = doSecurePost(request, params[4]);
 				HttpResponseHandler httpResponseHandler = new HttpResponseHandler(response, request.getType());
 				httpResponseHandler.checkHttpResponse();
 			} catch (ClientProtocolException e) {

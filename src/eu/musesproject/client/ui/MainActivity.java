@@ -190,7 +190,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			if (loginView == null) {
 				loginView = new LoginView(context);
 			}
-			//loginView.updateLoginWithNewServerStatus(); // FIXME commented after cure comments
+			loginView.updateLoginWithNewServerStatus(); // FIXME commented after cure comments
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			
@@ -529,22 +529,29 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginDetailTextView.setText(String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
 			
-			loginDetailTextView.setFocusable(true);
-			loginDetailTextView.requestFocus();
+			updateLoginWithNewServerStatus();
+			loginLabelTextView.setFocusable(true);
+			loginLabelTextView.requestFocus();
 			
 		}
 
 		private void updateLoginWithNewServerStatus(){
-			loginLabelTextView.setText(
-									   String.format("%s %s %s %s", 
-											   						getResources().getString(R.string.login_button_txt), 
-										     																		"(",
-					                                Statuses.CURRENT_STATUS == Statuses.ONLINE ? 
-							  									getResources().getString(R.string.current_com_status_2):
-							  									getResources().getString(R.string.current_com_status_3),
-							  																						")"
-							  					    )
-							  		  );
+			
+			String detailedText = loginDetailTextView.getText().toString();
+			detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
+			detailedText += Statuses.CURRENT_STATUS == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
+				   getResources().getString(R.string.current_com_status_3);
+			loginDetailTextView.setText(detailedText);
+			
+			/* Set label */
+//					String serverStatus = String.format("%s %s %s %s", 
+//							   getResources().getString(R.string.login_button_txt), 
+//							   "(",
+//							   Statuses.CURRENT_STATUS == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
+//			  						   getResources().getString(R.string.current_com_status_3),
+//			  				   ")");
+					//loginLabelTextView.setText(serverStatus );
+			
 		}
 
 		

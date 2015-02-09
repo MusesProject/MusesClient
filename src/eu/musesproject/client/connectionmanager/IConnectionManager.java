@@ -29,7 +29,7 @@ import android.content.Context;
 
 public interface IConnectionManager {
 
-	void connect (String url, int pollInterval, int sleepPollInterval, IConnectionCallbacks callbacks, Context context);
+	void connect (String url, String cert, int pollInterval, int sleepPollInterval, IConnectionCallbacks callbacks, Context context);
 	void setPollTimeOuts (int pollInterval, int sleepPollInterval);
 	void setTimeout(int timeout);
 	void setPolling(int polling);

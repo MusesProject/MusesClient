@@ -118,11 +118,11 @@ public abstract class HttpConnectionsHelper {
 	 * @throws IOException
 	 */
 	
-	public HttpResponse doSecurePost(Request request) throws ClientProtocolException, IOException {
+	public HttpResponse doSecurePost(Request request, String cert) throws ClientProtocolException, IOException {
 	
 		HttpResponse httpResponse = null;
 		HttpPost httpPost = null;
-		TLSManager tlsManager = new TLSManager();
+		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
 
 		if (httpclient !=null) {

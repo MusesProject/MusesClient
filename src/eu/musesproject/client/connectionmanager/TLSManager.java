@@ -53,8 +53,9 @@ public class TLSManager {
 	private static final String TAG = TLSManager.class.getSimpleName();
 	private static final int HTTP_PORT = 80;
 	private static final int HTTPS_PORT = 8443;
-	public TLSManager() {
-
+	private static String certificate;
+	public TLSManager(String cert) {
+		certificate = cert;
 	}
 
 	/**
@@ -73,7 +74,7 @@ public class TLSManager {
 		
 	private SSLSocketFactory newSslSocketFactory() {
 		try {
-			InputStream in = new ByteArrayInputStream(MusesUtils.getCertificate().getBytes());
+			InputStream in = new ByteArrayInputStream(certificate.getBytes());
 			KeyStore trustedStore = null;
 
 			if (in != null){

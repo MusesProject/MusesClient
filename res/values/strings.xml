@@ -39,7 +39,7 @@
     <string name="current_com_status_1">You are</string>
     <string name="current_com_status_2">Online</string>
     <string name="current_com_status_3">Offline</string>
-
+	<string name="current_com_status_pre">Server status:</string>
 
     <!-- Toast msgs -->
     <string name="login_success_msg">Login Successful..</string>

@@ -137,6 +137,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL = config.getSleepPollTimeout();
 		connectionManager.connect(
 				url,
+				config.getServerCertificate(),
 				AlarmReceiver.DEFAULT_POLL_INTERVAL,
 				AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
 				connectionCallback,

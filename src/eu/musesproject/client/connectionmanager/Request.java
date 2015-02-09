@@ -31,6 +31,7 @@ public class Request {
 	private String url;
 	private String pollInterval;
 	private String data;
+	private String cert;
 	
 	
 	/**
@@ -40,11 +41,12 @@ public class Request {
 	 * @param pollInterval
 	 * @param data
 	 */
-	public Request(String type, String url, String pollInterval, String data) {
+	public Request(String type, String url, String pollInterval, String data, String cert) {
 		this.type = type;
 		this.url = url;
 		this.pollInterval = pollInterval;
 		this.data = data;
+		this.cert = cert;
 	}
 
 	/**
