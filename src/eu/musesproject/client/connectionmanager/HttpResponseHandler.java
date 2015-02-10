@@ -57,8 +57,9 @@ public class HttpResponseHandler {
 		if (httpResponse != null) {
 			switch(getStatusCodeResponse(httpResponse)){
 			case DetailedStatuses.SUCCESS:
-				setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
+				
 				if (isPollRequest(requestType)) {
+					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
@@ -69,12 +70,14 @@ public class HttpResponseHandler {
 					}
 				}
 				if (isSendDataRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
 					} 
 				}
 				if (isAckRequest(requestType)) {
+					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
 					Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 					Log.d(TAG, "Ack by the server");
 				}
