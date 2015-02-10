@@ -47,6 +47,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public static final String ACK = "ack";
 	private static final String TAG = ConnectionManager.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
+	private static Boolean isServerConnectionSet = false; 
 	
 	private AlarmReceiver alarmReceiver;
 	private Context context;
@@ -64,8 +65,16 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	@Override
 	public void connect(String url, String cert, int pollInterval, int sleepPollInterval, IConnectionCallbacks callbacks, Context context) {
 		/* FIXME, temporary fix for dual calls */
-		if (!URL.isEmpty())
+		synchronized (this)
+		{
+			if (isServerConnectionSet)
+			{
+				Log.d(TAG, "connect: More then one more connect call!");
 				return;
+			}
+			isServerConnectionSet = true;
+		}
+		
 		URL = url;
 		AlarmReceiver.POLL_INTERVAL = pollInterval;
 		AlarmReceiver.SLEEP_POLL_INTERVAL = sleepPollInterval;
@@ -136,6 +145,11 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public void disconnect() { // FIXME What if the server is not online, How should we stop polling from here
 		// As we are disconnecting we need to stop the polling 
 		Log.d(TAG, "Disconnecting ..");
+		synchronized (this)
+		{
+			isServerConnectionSet = false;
+		}
+		
 		if (NetworkChecker.isInternetConnected) {
 			Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
@@ -148,8 +162,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			Log.d(APP_TAG, "ConnManager=> can't disconnect no internet connection");
 			callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
 		}
-
-	
+		
 	}
 
 	/**
@@ -222,7 +235,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			Request request = new Request(params[0], 
 					params[1], params[2], params[3], params[4]);
 			/* FIXME remove cert, params[4] from debug */
-			Log.d(APP_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]+", "+params[4]);
+			Log.d(APP_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
 			try {
 				response = doSecurePost(request, params[4]);
 				HttpResponseHandler httpResponseHandler = new HttpResponseHandler(response, request.getType());
