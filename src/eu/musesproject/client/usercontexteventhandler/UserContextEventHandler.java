@@ -65,6 +65,7 @@ import java.util.Map;
 public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeoutHandler {
 	private static final String TAG = UserContextEventHandler.class.getSimpleName();
 	public static final String TAG_RQT = "REQUEST_TIMEOUT";
+	public static final String TAG_DB = "DATABASE_TEST_CODE";
 	public static final String TAG_MUSES_AWARE = "MUSES_AWARE";
 	private static final String APP_TAG = "APP_TAG";
 
@@ -429,6 +430,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public void sendOfflineStoredContextEventsToServer() {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - sendOfflineStoredContextEventsToServer()");
 		Log.d(TAG, "called: sendOfflineStoredContextEventsToServer()");
+        Log.d(TAG_DB, "send offline context events called");
 		/*
 		 * 1. check if the user is authenticated
 		 * 2. check if the dbManager object is null
@@ -453,6 +455,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 			// 3. get a list of all stored actions
             dbManager.openDB();
+            Log.d(TAG_DB, "action table size: "+dbManager.getActionList().size());
 			for (eu.musesproject.client.db.entity.Action entityAction : dbManager.getActionList()) {
 				Action action = DBEntityParser.transformAction(entityAction);
 
@@ -662,6 +665,15 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				serverStatus = status;
 				updateServerOnlineAndUserAuthenticated();
 			}
+            else if(status == Statuses.DATA_SEND_OK) {
+                if(detailedStatus == DetailedStatuses.SUCCESS) {
+                    dbManager.openDB();
+                    dbManager.resetStoredContextEventTables();
+                    Log.d(TAG_DB, "table reset");
+                    Log.d(TAG_DB, "AFTER reset: action table size: " + dbManager.getActionList().size());
+                    dbManager.closeDB();
+                }
+            }
 
 			if(detailedStatus == DetailedStatuses.UNKNOWN_ERROR) {
 				// fires the unknown error feedback

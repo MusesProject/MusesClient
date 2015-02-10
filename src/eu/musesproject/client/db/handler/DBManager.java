@@ -1604,6 +1604,17 @@ public class DBManager {
 		return propertyList;
 	}
 
+    public void resetStoredContextEventTables(){
+        if(sqLiteDatabase == null) {
+            openDB();
+        }
+
+        sqLiteDatabase.delete(TABLE_ACTION, null, null);
+        sqLiteDatabase.delete(TABLE_ACTION_PROPERTY, null, null);
+        sqLiteDatabase.delete(TABLE_CONTEXT_EVENT, null, null);
+        sqLiteDatabase.delete(TABLE_PROPERTY, null, null);
+    }
+
 	/**
 	 * Retrieve decision from id
 	 * @param decision_id
