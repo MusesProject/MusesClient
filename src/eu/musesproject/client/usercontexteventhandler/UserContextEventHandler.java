@@ -25,36 +25,37 @@ package eu.musesproject.client.usercontexteventhandler;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import android.content.SharedPreferences;
-import eu.musesproject.client.connectionmanager.*;
-import eu.musesproject.client.db.entity.*;
-import eu.musesproject.client.model.decisiontable.*;
-import eu.musesproject.client.model.decisiontable.Action;
-import eu.musesproject.client.model.decisiontable.Decision;
-import eu.musesproject.client.model.decisiontable.Request;
-import eu.musesproject.client.model.decisiontable.Resource;
-import eu.musesproject.client.ui.MainActivity;
-import eu.musesproject.client.utils.MusesUtils;
-import org.json.JSONObject;
-
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import eu.musesproject.client.actuators.ActuatorController;
+import eu.musesproject.client.connectionmanager.*;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
+import eu.musesproject.client.db.entity.ActionProperty;
+import eu.musesproject.client.db.entity.Configuration;
+import eu.musesproject.client.db.entity.Property;
+import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.ResourceCreator;
 import eu.musesproject.client.decisionmaker.DecisionMaker;
 import eu.musesproject.client.model.RequestType;
+import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.client.model.decisiontable.Request;
+import eu.musesproject.client.model.decisiontable.Resource;
 import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
+import eu.musesproject.client.ui.MainActivity;
+import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The Class UserContextEventHandler. Singleton
@@ -452,30 +453,20 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 			// 3. get a list of all stored actions
             dbManager.openDB();
-            List<eu.musesproject.client.db.entity.Action> actionList = dbManager.getActionList();
-            dbManager.closeDB();
-			for (eu.musesproject.client.db.entity.Action entityAction : actionList) {
+			for (eu.musesproject.client.db.entity.Action entityAction : dbManager.getActionList()) {
 				Action action = DBEntityParser.transformAction(entityAction);
 
 				//  4.1 get all related properties of that action
-                dbManager.openDB();
 				List<ActionProperty> entityActionProperties = dbManager.getActionPropertiesOfAction(entityAction.getId());
-                dbManager.closeDB();
 				Map<String, String> actionProperties = DBEntityParser.transformActionPropertyToMap(entityActionProperties);
 
 				//4.2 get all context events of that action
 				List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
-                dbManager.openDB();
-                List<eu.musesproject.client.db.entity.ContextEvent> dbEntityContextEvents = dbManager.getStoredContextEventByActionId(entityAction.getId());
-                dbManager.closeDB();
-				for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent : dbEntityContextEvents) {
+				for(eu.musesproject.client.db.entity.ContextEvent dbContextEvent : dbManager.getStoredContextEventByActionId(entityAction.getId())) {
 					ContextEvent contextEvent = DBEntityParser.transformEntityContextEvent(dbContextEvent);
 
 					// 4.3.1 get all related properties to that action
-                    dbManager.openDB();
-					List<Property> properties = dbManager.getPropertiesOfContextEvent(contextEvent.getId());
-                    dbManager.closeDB();
-					for(Property property: properties) {
+					for(Property property: dbManager.getPropertiesOfContextEvent(contextEvent.getId())) {
 						contextEvent.addProperty(property.getKey(), property.getValue());
 					}
 
@@ -488,6 +479,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				// 4.5. send this json to the server
 				sendRequestToServer(requestObject);
 			}
+            dbManager.closeDB();
 		}
 	}
 
@@ -658,7 +650,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		public int statusCb(int status, int detailedStatus) {
 			Log.d(TAG, "called: statusCb(int status, int detailedStatus)");
 			// detect if server is back online after an offline status
-			if(status == Statuses.ONLINE ) {
+			if(status == Statuses.ONLINE) {
 				if(serverStatus == Statuses.OFFLINE) {
 					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
 					sendOfflineStoredContextEventsToServer();
