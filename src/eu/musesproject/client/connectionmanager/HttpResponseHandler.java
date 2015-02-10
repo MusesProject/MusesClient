@@ -226,9 +226,13 @@ public class HttpResponseHandler {
 	 */
 	private void setServerStatusAndCallBack(int status, int detailedStatus) {
 		ConnectionManager.callBacks.statusCb(status, detailedStatus);
-		if (status != Statuses.CURRENT_STATUS){ 
-			Statuses.CURRENT_STATUS = status;
-			Log.d(TAG, "Server ONLINE");
+		
+		if (status == Statuses.OFFLINE || status == Statuses.ONLINE)
+		{
+			if (status != Statuses.CURRENT_STATUS){ 
+				Statuses.CURRENT_STATUS = status;
+				Log.d(TAG, "Server ONLINE");
+			}
 		}
 	}
 	
