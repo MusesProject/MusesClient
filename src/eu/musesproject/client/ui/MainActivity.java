@@ -18,6 +18,9 @@
  * limitations under the License.
  * #L%
  */
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -78,6 +81,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static boolean isLoggedIn = false;
 	private SharedPreferences prefs;
 	private ProgressDialog progressDialog;
+	private Timer autoUpdate;
+	private int serverStatus = -1;
 		
 //	private static final int NOTIFICATION_EX = 1;
 //	private NotificationManager notificationManager;
@@ -123,7 +128,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		autoUpdate.cancel();
 		unregisterReceiver(rcReceiver);
+		
 	}
 
 	private BroadcastReceiver rcReceiver = new BroadcastReceiver() {
@@ -190,11 +197,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			if (loginView == null) {
 				loginView = new LoginView(context);
 			}
-			loginView.updateLoginWithNewServerStatus(); // FIXME commented after cure comments
+			 
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			
-		} 
+		}
+		loginView.updateLoginWithNewServerStatus();
+		autoUpdate = new Timer();
+		  autoUpdate.schedule(new TimerTask() {
+		   @Override
+		   public void run() {
+		    runOnUiThread(new Runnable() {
+		     public void run() {
+		    	 loginView.updateLoginWithNewServerStatus();
+		     }
+		    });
+		   }
+		  }, 0, 30000); // updates each 30 secs
 		
 	}
 
@@ -529,20 +548,34 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginDetailTextView.setText(String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
 			
-			updateLoginWithNewServerStatus();
+			setServerStatus();
 			loginLabelTextView.setFocusable(true);
 			loginLabelTextView.requestFocus();
 			
 		}
+		
+		private void setServerStatus()
+		{
+			String detailedText = String.format("%s %s", getResources()
+					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString());
+				detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
+				detailedText += serverStatus == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
+					getResources().getString(R.string.current_com_status_3);
+				loginDetailTextView.setText(detailedText);
+		}
 
 		private void updateLoginWithNewServerStatus(){
 			
-			String detailedText = loginDetailTextView.getText().toString();
-			detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
-			detailedText += Statuses.CURRENT_STATUS == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
-				   getResources().getString(R.string.current_com_status_3);
-			loginDetailTextView.setText(detailedText);
+			if (serverStatus != Statuses.CURRENT_STATUS )
+			{
+				serverStatus = Statuses.CURRENT_STATUS;
 			
+				/* Not showing status in login screen */
+				if (isLoggedIn)
+				{
+					setServerStatus();
+				}
+			}
 			/* Set label */
 //					String serverStatus = String.format("%s %s %s %s", 
 //							   getResources().getString(R.string.login_button_txt), 
