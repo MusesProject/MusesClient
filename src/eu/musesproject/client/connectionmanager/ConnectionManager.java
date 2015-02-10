@@ -52,6 +52,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	private AlarmReceiver alarmReceiver;
 	private Context context;
 	
+	
+	public ConnectionManager(){
+		alarmReceiver = new AlarmReceiver();
+		AlarmReceiver.setManager(this);
+	}
+	
 	/**
 	 * Connect to the server with specified parameter
 	 * @param url
@@ -76,11 +82,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		}
 		
 		URL = url;
-		AlarmReceiver.POLL_INTERVAL = pollInterval;
-		AlarmReceiver.SLEEP_POLL_INTERVAL = sleepPollInterval;
-		AlarmReceiver.DEFAULT_POLL_INTERVAL = pollInterval;
-		AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL = sleepPollInterval;
-		AlarmReceiver.LAST_SENT_POLL_INTERVAL = pollInterval;
+		
 		callBacks = callbacks;
 		this.context = context;
 		
@@ -103,7 +105,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			Log.d(TAG, "InternetConnected");
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
-					URL, Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL),"", certificate);
+					URL, Integer.toString(pollInterval),"", certificate);
 		}
 		else 
 		{
@@ -111,7 +113,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		}
 		
 		
-		alarmReceiver = new AlarmReceiver();
+		
+		alarmReceiver.SetPollInterval(pollInterval, sleepPollInterval);
+		alarmReceiver.SetDefaultPollInterval(pollInterval, sleepPollInterval);
+		
+		
+		
 		alarmReceiver.setAlarm(context);
 		
 	}
@@ -129,7 +136,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			Log.d(APP_TAG, "ConnManager=> send data to server: "+data);
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DATA, URL, 
-					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), data, certificate);
+					Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, certificate);
 		} else {
 			Log.d(APP_TAG, "ConnManager=> can't send data with no internet connection, calling statusCB");
 			callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
@@ -154,7 +161,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
 			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DISCONNECT, URL, 
-					Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "", certificate);
+					Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
 			HttpConnectionsHelper.cookie = null;
 			alarmReceiver.cancelAlarm(context);
 			callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
@@ -175,8 +182,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
 	@Override
 	public void setPollTimeOuts(int pollInterval, int sleepPollInterval) {
-		AlarmReceiver.POLL_INTERVAL = pollInterval;
-		AlarmReceiver.SLEEP_POLL_INTERVAL = sleepPollInterval;
+		alarmReceiver.SetPollInterval(pollInterval, sleepPollInterval);
 	}
 
 	/**
@@ -187,17 +193,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public void poll() {
 		//Log.d(APP_TAG, "Polling !!");
 		if (NetworkChecker.isInternetConnected) {
-			if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) { 
+			
 				
-				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
-						Integer.toString(AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL), "", certificate);
-			} else {
-				
-				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
-						Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "", certificate);
-			}
+			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
+			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
+					Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
+			
 		}
 	}
 
@@ -209,15 +210,11 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public void ack() {
 		Log.d(TAG, "Sending ack..");
 		if (NetworkChecker.isInternetConnected) {
-			if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) { // FIXME 
-				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
-						Integer.toString(AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL), "", certificate);
-			} else {
-				HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-				httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
-						Integer.toString(AlarmReceiver.DEFAULT_POLL_INTERVAL), "", certificate);
-			}
+			 
+			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
+			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
+					Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
+			
 		}
 	}
 	

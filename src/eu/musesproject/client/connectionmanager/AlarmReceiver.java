@@ -40,12 +40,21 @@ import android.util.Log;
 public class AlarmReceiver extends BroadcastReceiver {
 	
 	private static final String TAG = "AlarmReceiver";
-	public static int POLL_INTERVAL = 10000; // Default value
-	public static int SLEEP_POLL_INTERVAL = 10000; // Default value
+	private static int POLL_INTERVAL = 10000; // Default value
+	private static int SLEEP_POLL_INTERVAL = 10000; // Default value
 	private static int exponentialCounter = 4;
-	public static int DEFAULT_POLL_INTERVAL = 10000;
-	public static int DEFAULT_SLEEP_POLL_INTERVAL = 10000;
-	public static int LAST_SENT_POLL_INTERVAL;
+	private static int DEFAULT_POLL_INTERVAL = 10000;
+	private static int DEFAULT_SLEEP_POLL_INTERVAL = 10000;
+	private static int CURRENT_POLL_INTERVAL;
+	private static boolean POLL_INTERVAL_UPDATED = false;
+	private static boolean SLEEP_MODE_ACTIVE;
+	
+	private static ConnectionManager CONNECTIONMANAGER= null;
+	
+	public static void setManager(ConnectionManager connectionManager) {
+		CONNECTIONMANAGER = connectionManager;
+	}
+
 	@SuppressLint("Wakelock")
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -53,9 +62,15 @@ public class AlarmReceiver extends BroadcastReceiver {
         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
         wl.acquire();
         
-        ConnectionManager connectionManager = new ConnectionManager();
-        connectionManager.poll();
+        if (CONNECTIONMANAGER != null)
+        {
+        	CONNECTIONMANAGER.poll();
+        } else {
+        	Log.d(TAG, "ConnectionManager is null!!");
+        }
         
+        /* Check if timeouts have changed, if so update */
+        applyTimeoutChanges(context);
         Log.d(TAG, "Alarm..");
         wl.release();
 	}
@@ -71,6 +86,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 			POLL_INTERVAL = POLL_INTERVAL*2;
 			SLEEP_POLL_INTERVAL = SLEEP_POLL_INTERVAL*2;
 			exponentialCounter--;
+			POLL_INTERVAL_UPDATED = true;
 		} 
 		
 		
@@ -81,10 +97,33 @@ public class AlarmReceiver extends BroadcastReceiver {
 	 * @return void
 	 */
 	public static void resetExponentialPollTime(){
+		if (POLL_INTERVAL != DEFAULT_POLL_INTERVAL)
+		{
+			POLL_INTERVAL_UPDATED = true;
+		}
 		POLL_INTERVAL = DEFAULT_POLL_INTERVAL;
 		SLEEP_POLL_INTERVAL = DEFAULT_SLEEP_POLL_INTERVAL;
 		exponentialCounter = 3;
+		
 	}
+	
+	/**
+	 * If poll interval has been changed, setAlarm
+	 * @param context
+	 * @return void
+	 */
+	 private void applyTimeoutChanges(Context context){
+		 if (POLL_INTERVAL_UPDATED)
+		 {
+			 POLL_INTERVAL_UPDATED = false;
+			 cancelAlarm(context);
+			 setAlarm(context);
+		 }
+	 }
+	 
+	 
+	 
+	
 	
 	/**
 	 * Set alarm to current poll interval according to the phone mode sleep/active
@@ -93,17 +132,16 @@ public class AlarmReceiver extends BroadcastReceiver {
 	 */
 	
     public void setAlarm(Context context) {
-    	int wakeTime = 0;
-    	if (PhoneModeReceiver.SLEEP_MODE_ACTIVE) {
-    		wakeTime = SLEEP_POLL_INTERVAL;
+    	if (SLEEP_MODE_ACTIVE) {
+    		CURRENT_POLL_INTERVAL = SLEEP_POLL_INTERVAL;
     	}else {
-    		wakeTime = POLL_INTERVAL;
+    		CURRENT_POLL_INTERVAL = POLL_INTERVAL;
     	}
     	
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent wakeUpAlarmIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingintent = PendingIntent.getBroadcast(context, 0, wakeUpAlarmIntent, 0);
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), wakeTime, pendingintent); // Millisec * Second * Minute
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), CURRENT_POLL_INTERVAL, pendingintent); // Millisec * Second * Minute
     }
 
     /**
@@ -118,6 +156,36 @@ public class AlarmReceiver extends BroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
     }
+
+	public void SetPollInterval(int pollInterval, int sleepPollInterval) {
+		// TODO Auto-generated method stub
+		POLL_INTERVAL = pollInterval;
+		SLEEP_POLL_INTERVAL = sleepPollInterval;
+		POLL_INTERVAL_UPDATED = true;
+	}
+
+	public static void SetCurrentPollInterval(int pollInterval) {
+		
+		CURRENT_POLL_INTERVAL = pollInterval;
+	}
+
+	public void SetDefaultPollInterval(int pollInterval,
+			int sleepPollInterval) {
+		DEFAULT_POLL_INTERVAL = pollInterval;
+		DEFAULT_SLEEP_POLL_INTERVAL = sleepPollInterval;
+		
+	}
+
+	public static int getCurrentPollInterval() {
+		
+		return CURRENT_POLL_INTERVAL;
+	}
+
+	public static void setPollMode(boolean sleepModeActive) {
+		
+		SLEEP_MODE_ACTIVE = sleepModeActive;
+		POLL_INTERVAL_UPDATED = true;
+	}
     
    
 }

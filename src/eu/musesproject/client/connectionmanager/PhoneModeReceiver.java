@@ -69,9 +69,7 @@ public class PhoneModeReceiver {
 				// Set alarm normal mode
 				Log.d(TAG, "Screeen On");
 				SLEEP_MODE_ACTIVE = false;
-				AlarmReceiver alarmReceiver = new AlarmReceiver();
-				alarmReceiver.cancelAlarm(context);
-				alarmReceiver.setAlarm(context);
+				AlarmReceiver.setPollMode(SLEEP_MODE_ACTIVE);
 				
 			}
 			
@@ -79,10 +77,7 @@ public class PhoneModeReceiver {
 				// Set alarm sleep mode
 				Log.d(TAG, "Screeen Off");
 				SLEEP_MODE_ACTIVE = true;
-				AlarmReceiver alarmReceiver = new AlarmReceiver();
-				alarmReceiver.cancelAlarm(context);
-				alarmReceiver.setAlarm(context);
-				
+				AlarmReceiver.setPollMode(SLEEP_MODE_ACTIVE);
 			}
 		}
 		

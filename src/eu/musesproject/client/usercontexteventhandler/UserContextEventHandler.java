@@ -135,16 +135,19 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public void connectToServer() {
 		Configuration config = getServerConfigurationFromDB();
 		String url = "https://" + config.getServerIP() + ":" + config.getServerPort() + config.getServerContextPath() + config.getServerServletPath();
-		AlarmReceiver.DEFAULT_POLL_INTERVAL = config.getPollTimeout();
-		AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL = config.getSleepPollTimeout();
+		
+		
 		connectionManager.connect(
 				url,
 				config.getServerCertificate(),
-				AlarmReceiver.DEFAULT_POLL_INTERVAL,
-				AlarmReceiver.DEFAULT_SLEEP_POLL_INTERVAL,
+				config.getPollTimeout(),
+				config.getSleepPollTimeout(),
 				connectionCallback,
 				context
 		);
+		/* No need to do now, but shall be done if it changes.. */
+		connectionManager.setPollTimeOuts(config.getPollTimeout(), config.getSleepPollTimeout());
+		
 	}
 
 	private Configuration getServerConfigurationFromDB() {

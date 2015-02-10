@@ -166,7 +166,6 @@ public abstract class HttpConnectionsHelper {
 			}
 		}
 
-		AlarmReceiver.LAST_SENT_POLL_INTERVAL = Integer.parseInt(request.getPollInterval());
         return httpResponse;
 		
     }
