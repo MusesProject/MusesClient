@@ -231,7 +231,6 @@ public class DBManager {
 			// Close DB only if last user of DB..
 			if(mDbOpenCounter.decrementAndGet() == 0) {
 				databaseHelper.close();
-				sqLiteDatabase = null;
 			}
 		}
 		Log.d(TAG, "closing database, counter: "+mDbOpenCounter.get());
