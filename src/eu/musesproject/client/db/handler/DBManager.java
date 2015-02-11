@@ -205,7 +205,7 @@ public class DBManager {
 	private Context context;
 	private static DatabaseHelper databaseHelper;
 	private static SQLiteDatabase sqLiteDatabase;
-	private static AtomicInteger mDbOpenCounter = new AtomicInteger();
+	private static AtomicInteger mDbOpenCounter = new AtomicInteger(0);
 
 	public DBManager(Context context) {
 		this.context = context;
