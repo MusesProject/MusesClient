@@ -64,7 +64,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         
         if (CONNECTIONMANAGER != null)
         {
-        	CONNECTIONMANAGER.poll();
+        	CONNECTIONMANAGER.periodicPoll();
         } else {
         	Log.d(TAG, "ConnectionManager is null!!");
         }
@@ -157,19 +157,16 @@ public class AlarmReceiver extends BroadcastReceiver {
         alarmManager.cancel(pendingIntent);
     }
 
-	public void SetPollInterval(int pollInterval, int sleepPollInterval) {
+	public void setPollInterval(int pollInterval, int sleepPollInterval) {
 		// TODO Auto-generated method stub
 		POLL_INTERVAL = pollInterval;
 		SLEEP_POLL_INTERVAL = sleepPollInterval;
 		POLL_INTERVAL_UPDATED = true;
 	}
 
-	public static void SetCurrentPollInterval(int pollInterval) {
-		
-		CURRENT_POLL_INTERVAL = pollInterval;
-	}
+	
 
-	public void SetDefaultPollInterval(int pollInterval,
+	public void setDefaultPollInterval(int pollInterval,
 			int sleepPollInterval) {
 		DEFAULT_POLL_INTERVAL = pollInterval;
 		DEFAULT_SLEEP_POLL_INTERVAL = sleepPollInterval;

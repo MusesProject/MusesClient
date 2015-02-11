@@ -57,6 +57,7 @@ public class HttpResponseHandler {
 		if (httpResponse != null) {
 			switch(getStatusCodeResponse(httpResponse)){
 			case DetailedStatuses.SUCCESS:
+				Statuses.CURRENT_STATUS = Statuses.ONLINE;
 				
 				if (isPollRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
@@ -68,22 +69,37 @@ public class HttpResponseHandler {
 					if (isMorePackets(httpResponse)){
 						doPollForAnExtraPacket();
 					}
-				}
-				if (isSendDataRequest(requestType)){
+				} else if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
 					} 
-				}
-				if (isAckRequest(requestType)) {
+				} else if (isAckRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
 					Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 					Log.d(TAG, "Ack by the server");
+				} else if (isConnectRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
+					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS);
+					if (isPayloadInData(httpResponse)) {
+						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
+						
+						//sendDataToFunctionalLayer();
+					} 
+				} else if (isDisonnectRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.DISCONNECTED, DetailedStatuses.SUCCESS);
+					if (isPayloadInData(httpResponse)) {
+						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
+						
+						//sendDataToFunctionalLayer();
+					} 
 				}
+				
 				AlarmReceiver.resetExponentialPollTime();
 				break;
 			case DetailedStatuses.INCORRECT_URL:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Incorrect URL");
 				
 				if (isSendDataRequest(requestType)){
@@ -95,6 +111,7 @@ public class HttpResponseHandler {
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.NOT_ALLOWED_FROM_SERVER:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Request not allowed from Server..");
 				
 				if (isSendDataRequest(requestType)){
@@ -105,6 +122,7 @@ public class HttpResponseHandler {
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.SERVER_NOT_AVAIABLE:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Server not available..");
 				
 				if (isSendDataRequest(requestType)){
@@ -115,6 +133,7 @@ public class HttpResponseHandler {
 				AlarmReceiver.increasePollTime();
 				break;
 			default:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error..");
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR);
@@ -124,6 +143,7 @@ public class HttpResponseHandler {
 				break;
 			}
 		} else {
+			Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
 			Log.d(APP_TAG, "Server is OFFLINE, HttpResponse is null, check network connectivity or address of server!");
 		}
@@ -206,8 +226,32 @@ public class HttpResponseHandler {
 	}
 	
 	/**
-	 * Check if the http response has any payload of data
+	 * Check if the http request is was a connect request
 	 * @param requestType
+	 * @return
+	 */
+	private boolean isConnectRequest(String requestType) {
+		if (requestType.equalsIgnoreCase(ConnectionManager.CONNECT)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Check if the http request is was a disconnect request
+	 * @param requestType
+	 * @return
+	 */
+	private boolean isDisonnectRequest(String requestType) {
+		if (requestType.equalsIgnoreCase(ConnectionManager.DISCONNECT)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Check if the http response has any payload of data
+	 * @param HttpResponse
 	 * @return
 	 */
 	
@@ -227,13 +271,7 @@ public class HttpResponseHandler {
 	private void setServerStatusAndCallBack(int status, int detailedStatus) {
 		ConnectionManager.callBacks.statusCb(status, detailedStatus);
 		
-		if (status == Statuses.OFFLINE || status == Statuses.ONLINE)
-		{
-			if (status != Statuses.CURRENT_STATUS){ 
-				Statuses.CURRENT_STATUS = status;
-				Log.d(TAG, "Server ONLINE");
-			}
-		}
+		
 	}
 	
 	

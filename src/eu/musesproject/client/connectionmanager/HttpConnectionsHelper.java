@@ -43,7 +43,7 @@ import android.util.Log;
 
 
 public abstract class HttpConnectionsHelper {
-	public static Cookie cookie;
+	public static Cookie current_cookie;
 	private static Date cookieExpiryDate = new Date();
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
@@ -73,15 +73,15 @@ public abstract class HttpConnectionsHelper {
         httpPost.addHeader("connection-type", type);
         httpPost.setEntity(s);
         httpPost.addHeader("accept", "application/xml");
-        if (cookie == null || cookie.isExpired(new Date())) {
+        if (current_cookie == null || current_cookie.isExpired(new Date())) {
         	try {
         		httpResponse = httpclient.execute(httpPost);
 				List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 		 	    if (cookies.isEmpty()) {
 		 	    	Log.d(TAG,"None");
 		 	    } else {
-		 	        cookie = cookies.get(0);
-		 	        cookieExpiryDate = cookie.getExpiryDate();
+		 	    	current_cookie = cookies.get(0);
+		 	        cookieExpiryDate = current_cookie.getExpiryDate();
 		 	        Log.d(TAG,"Curent cookie expiry : " + cookieExpiryDate);
 		 	    }
 			} catch (ClientProtocolException e) {
@@ -94,7 +94,7 @@ public abstract class HttpConnectionsHelper {
 		    
         }else {
 	    	httpPost.addHeader("accept", "application/xml");
-	        httpclient.getCookieStore().addCookie(cookie);
+	        httpclient.getCookieStore().addCookie(current_cookie);
 	        try {
 	        	httpResponse = httpclient.execute(httpPost);
 			} catch (ClientProtocolException e) {
@@ -138,8 +138,9 @@ public abstract class HttpConnectionsHelper {
 	        httpPost.setHeader("poll-interval", getInStringSeconds(request.getPollInterval()));
 		}
 
-		if (cookie != null && !cookie.isExpired(new Date()) /*!isSessionExpired(new Date(), AlarmReceiver.LAST_SENT_POLL_INTERVAL)*/) {
-			httpclient.getCookieStore().addCookie(cookie);
+		if (current_cookie != null && !current_cookie.isExpired(new Date()) /*!isSessionExpired(new Date(), AlarmReceiver.LAST_SENT_POLL_INTERVAL)*/) {
+			httpclient.getCookieStore().addCookie(current_cookie);
+			Log.d(TAG+"_COOKIE","doSecurePost("+request.getType()+"), valid cookie: "+current_cookie.toString());
 		    try {
 		        httpResponse = httpclient.execute(httpPost);
 			} catch (ClientProtocolException e) {
@@ -151,12 +152,20 @@ public abstract class HttpConnectionsHelper {
 			}
 		} else {
 			try {
+				Log.d(TAG+"_COOKIE","doSecurePost ("+request.getType()+"), no valid cookie!! ");
         		httpResponse = httpclient.execute(httpPost);
 				List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 		 	    if (!cookies.isEmpty()) {
-		 	    	cookie = cookies.get(0);
+		 	    	if (current_cookie == null || current_cookie.isExpired(new Date()) ) {
+		 	    			current_cookie = cookies.get(0);
+		 	    			Log.d(TAG+"_COOKIE","After doSecurePost, New cookie used: "+current_cookie.toString());
+		 	    	}
+		 	    	else
+		 	    	{
+		 	    		Log.d(TAG+"_COOKIE","After doSecurePost, New cookie received, not used: "+cookies.get(0).toString());
+		 	    	}
 		 	    } 
-		 	    
+		 	   
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
 				Log.d(TAG,e.toString());

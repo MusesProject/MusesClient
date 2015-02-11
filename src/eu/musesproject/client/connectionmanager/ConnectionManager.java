@@ -19,6 +19,7 @@
  * #L%
  */
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -48,11 +49,11 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	private static final String TAG = ConnectionManager.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
 	private static Boolean isServerConnectionSet = false; 
-	
+	private AtomicInteger mCommandOngoing = new AtomicInteger(0);
 	private AlarmReceiver alarmReceiver;
 	private Context context;
 	
-	
+		
 	public ConnectionManager(){
 		alarmReceiver = new AlarmReceiver();
 		AlarmReceiver.setManager(this);
@@ -103,22 +104,16 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		
 		if (networkChecker.isInternetConnected()) {
 			Log.d(TAG, "InternetConnected");
-			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
-					URL, Integer.toString(pollInterval),"", certificate);
 		}
-		else 
-		{
-			callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
-		}
+		setCommandOngoing();
+		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
+		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
+				URL, Integer.toString(pollInterval),"", certificate);
+				
 		
 		
-		
-		alarmReceiver.SetPollInterval(pollInterval, sleepPollInterval);
-		alarmReceiver.SetDefaultPollInterval(pollInterval, sleepPollInterval);
-		
-		
-		
+		alarmReceiver.setPollInterval(pollInterval, sleepPollInterval);
+		alarmReceiver.setDefaultPollInterval(pollInterval, sleepPollInterval);
 		alarmReceiver.setAlarm(context);
 		
 	}
@@ -131,16 +126,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
 	@Override
 	public void sendData(String data) {
-		
-		if (NetworkChecker.isInternetConnected) {
-			Log.d(APP_TAG, "ConnManager=> send data to server: "+data);
-			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DATA, URL, 
-					Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, certificate);
-		} else {
-			Log.d(APP_TAG, "ConnManager=> can't send data with no internet connection, calling statusCB");
-			callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
-		}
+
+		setCommandOngoing();
+		Log.d(APP_TAG, "ConnManager=> send data to server: "+data);
+		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
+		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DATA, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, certificate); 
 	}
 	
 	/**
@@ -157,19 +148,17 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			isServerConnectionSet = false;
 		}
 		
-		if (NetworkChecker.isInternetConnected) {
-			Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
-			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DISCONNECT, URL, 
-					Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
-			HttpConnectionsHelper.cookie = null;
-			alarmReceiver.cancelAlarm(context);
-			callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
-		} else {
-			Log.d(APP_TAG, "ConnManager=> can't disconnect no internet connection");
-			callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
-		}
 		
+		Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
+		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
+		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DISCONNECT, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
+		
+			
+			//callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
+		
+		
+		alarmReceiver.cancelAlarm(context);
 	}
 
 	/**
@@ -182,7 +171,8 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
 	@Override
 	public void setPollTimeOuts(int pollInterval, int sleepPollInterval) {
-		alarmReceiver.SetPollInterval(pollInterval, sleepPollInterval);
+		alarmReceiver.setPollInterval(pollInterval, sleepPollInterval);
+		alarmReceiver.setDefaultPollInterval(pollInterval, sleepPollInterval);
 	}
 
 	/**
@@ -190,16 +180,34 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	 * @return void
 	 */
 	
+	public void periodicPoll() {
+		//Log.d(APP_TAG, "Polling !!");
+		
+		// If ongoing command, don't poll
+		if (mCommandOngoing.get()==0)
+		{
+			poll();
+		}
+			
+	
+	}
+	
+	/**
+	 * Starts to poll with the server either in sleep/active mode
+	 * @return void
+	 */
+	
 	public void poll() {
 		//Log.d(APP_TAG, "Polling !!");
-		if (NetworkChecker.isInternetConnected) {
+		
+		// If ongoing command, don't poll
+		
+		
+		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
+		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
 			
-				
-			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
-					Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
-			
-		}
+	
 	}
 
 	/**
@@ -209,13 +217,22 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
 	public void ack() {
 		Log.d(TAG, "Sending ack..");
-		if (NetworkChecker.isInternetConnected) {
-			 
-			HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-			httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
-					Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
+		
+		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
+		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
 			
-		}
+	
+	}
+	
+	private void setCommandOngoing()
+	{
+		mCommandOngoing.set(1);	
+	}
+	
+	private void setCommandNotOngoing()
+	{	
+		mCommandOngoing.set(0);	
 	}
 	
 	/**
@@ -231,19 +248,48 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
     		HttpResponse response = null;
 			Request request = new Request(params[0], 
 					params[1], params[2], params[3], params[4]);
-			/* FIXME remove cert, params[4] from debug */
-			Log.d(APP_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
-			try {
-				response = doSecurePost(request, params[4]);
-				HttpResponseHandler httpResponseHandler = new HttpResponseHandler(response, request.getType());
-				httpResponseHandler.checkHttpResponse();
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-				Log.d(APP_TAG, Log.getStackTraceString(e));
-			} catch (IOException e) {
-				e.printStackTrace();
-				Log.d(APP_TAG, Log.getStackTraceString(e));
+			if (!NetworkChecker.isInternetConnected) 
+			{
+				if (request.getType().contentEquals(CONNECT))
+				{
+					callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+				}
+				else if (request.getType().contentEquals(DATA))
+				{
+					Log.d(APP_TAG, "ConnManager=> can't send data with no internet connection, calling statusCB");
+					callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+				} else if (request.getType().contentEquals(DISCONNECT))
+				{
+					callBacks.statusCb(Statuses.DISCONNECTED, DetailedStatuses.NO_INTERNET_CONNECTION);
+					HttpConnectionsHelper.current_cookie = null;
+				}
+				
+				
 			}
+			else
+			{
+				Log.d(APP_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
+				try {
+					
+					response = doSecurePost(request, params[4]);
+					HttpResponseHandler httpResponseHandler = new HttpResponseHandler(response, request.getType());
+					httpResponseHandler.checkHttpResponse();
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+					Log.d(APP_TAG, Log.getStackTraceString(e));
+				} catch (IOException e) {
+					e.printStackTrace();
+					Log.d(APP_TAG, Log.getStackTraceString(e));
+				}
+				
+				if (request.getType().contentEquals(DISCONNECT))
+				{
+					HttpConnectionsHelper.current_cookie = null;
+				}
+			}
+			
+			setCommandNotOngoing();
+			
 			return null;
 
     	}
