@@ -548,6 +548,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginDetailTextView.setText(String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
 			
+			
 			setServerStatus();
 			loginLabelTextView.setFocusable(true);
 			loginLabelTextView.requestFocus();
@@ -556,6 +557,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 		private void setServerStatus()
 		{
+			serverStatus = Statuses.CURRENT_STATUS;
 			String detailedText = String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString());
 				detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
