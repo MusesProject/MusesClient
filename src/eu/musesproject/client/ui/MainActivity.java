@@ -82,6 +82,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private SharedPreferences prefs;
 	private ProgressDialog progressDialog;
 	private Timer autoUpdate;
+	private Timer oneTimeUpdate;
 	private int serverStatus = -1;
 		
 //	private static final int NOTIFICATION_EX = 1;
@@ -202,7 +203,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			topLayout.addView(loginView);
 			
 		}
-		loginView.updateLoginWithNewServerStatus();
+		
+		
+		loginView.setServerStatus();
+		
+		
 		autoUpdate = new Timer();
 		  autoUpdate.schedule(new TimerTask() {
 		   @Override
@@ -213,7 +218,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		     }
 		    });
 		   }
-		  }, 0, 30000); // updates each 30 secs
+		  }, 6000, 30000); // updates each 30 secs
 		
 	}
 
@@ -229,8 +234,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
 				stopProgress();
 
-				loginView.updateLoginView(true);
 				isLoggedIn = true;
+				loginView.updateLoginView(true);
+				
 				toastMessage(getResources().getString(
 						R.string.login_success_msg));
 				break;
@@ -557,13 +563,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 		private void setServerStatus()
 		{
-			serverStatus = Statuses.CURRENT_STATUS;
-			String detailedText = String.format("%s %s", getResources()
-					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString());
-				detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
-				detailedText += serverStatus == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
-					getResources().getString(R.string.current_com_status_3);
-				loginDetailTextView.setText(detailedText);
+			if (isLoggedIn)
+			{
+				serverStatus = Statuses.CURRENT_STATUS;
+				String detailedText = String.format("%s %s", getResources()
+						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString());
+					detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
+					detailedText += serverStatus == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
+						getResources().getString(R.string.current_com_status_3);
+					loginDetailTextView.setText(detailedText);
+			}
 		}
 
 		private void updateLoginWithNewServerStatus(){
