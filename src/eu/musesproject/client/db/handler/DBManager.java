@@ -506,8 +506,8 @@ public class DBManager {
 		values.put(SERVER_CERTIFICATE, MusesUtils.getCertificateFromSDCard(context));
 		values.put(CLIENT_CERTIFICATE, "");
 		values.put(TIMEOUT, 5000);
-		values.put(POLL_TIMEOUT, 5000);
-		values.put(SLEEP_POLL_TIMEOUT, 10000);
+		values.put(POLL_TIMEOUT, 11000);
+		values.put(SLEEP_POLL_TIMEOUT, 55000);
 		values.put(POLLING_ENABLED, 1);
 		values.put(LOGIN_ATTEMPTS, 5);
 		if (sqLiteDatabase == null){//Open database in case it is closed
