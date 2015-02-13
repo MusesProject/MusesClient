@@ -21,15 +21,6 @@ package eu.musesproject.client.usercontexteventhandler;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.SensorConfiguration;
@@ -38,6 +29,14 @@ import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author christophstanik
@@ -105,12 +104,14 @@ public class JSONManager {
              * sensor
              */
 			// create a JSON object for every sensor
-			JSONObject sensorRootJSON = new JSONObject();
-			for (ContextEvent contextEvent : contextEvents) {
-				sensorRootJSON.put(contextEvent.getType(), createSensorJSONObject(contextEvent));
-			}
-			// add sensor root JSON with n sensors to root
-			root.put(JSONIdentifiers.SENSOR_IDENTIFIER, sensorRootJSON);
+            if(contextEvents != null) {
+			    JSONObject sensorRootJSON = new JSONObject();
+                for (ContextEvent contextEvent : contextEvents) {
+                    sensorRootJSON.put(contextEvent.getType(), createSensorJSONObject(contextEvent));
+                }
+                // add sensor root JSON with n sensors to root
+                root.put(JSONIdentifiers.SENSOR_IDENTIFIER, sensorRootJSON);
+            }
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
