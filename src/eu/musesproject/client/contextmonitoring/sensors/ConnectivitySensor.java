@@ -37,10 +37,7 @@ import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.contextmonitoring.BluetoothState;
 import eu.musesproject.contextmodel.ContextEvent;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -139,15 +136,26 @@ public class ConnectivitySensor implements ISensor {
     }
 
     private boolean identicalContextEvent(ContextEvent oldEvent, ContextEvent newEvent) {
+        oldEvent.getProperties().remove(PROPERTY_KEY_ID);
         if(oldEvent.getProperties().size() != newEvent.getProperties().size()) {
             return false;
         }
 
         // compare property values
-        Set<String> oldValues = new HashSet<String>(oldEvent.getProperties().values());
-        Set<String> newValues = new HashSet<String>(newEvent.getProperties().values());
+        Map<String, String> oldProperties = oldEvent.getProperties();
+        Map<String, String> newProperties = newEvent.getProperties();
+        for (Map.Entry<String, String> oldEntry : oldProperties.entrySet()) {
+            if(!newProperties.containsKey(oldEntry.getKey())) {
+                return false;
+            }
+            else {
+                if(!newProperties.get(oldEntry.getKey()).equals(oldEntry.getValue())) {
+                    return false;
+                }
+            }
+        }
 
-        return oldValues.equals(newValues);
+        return true;
     }
 
     /**
