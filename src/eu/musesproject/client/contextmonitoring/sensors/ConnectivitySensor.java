@@ -9,9 +9,9 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -164,31 +164,39 @@ public class ConnectivitySensor implements ISensor {
                 WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 
                 // WiFi status
-                int id = contextEventHistory != null ? (contextEventHistory.size() + 1) : - 1;
-
                 ContextEvent contextEvent = new ContextEvent();
                 contextEvent.setType(TYPE);
                 contextEvent.setTimestamp(System.currentTimeMillis());
-                contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(id));
-                if (mobileNetworkInfo != null)
-                    contextEvent.addProperty(PROPERTY_KEY_MOBILE_CONNECTED, String.valueOf(mobileNetworkInfo.isConnected()));
-                contextEvent.addProperty(PROPERTY_KEY_WIFI_ENABLED, String.valueOf(wifiManager.isWifiEnabled()));
-                if(wifiManager.isWifiEnabled()) {
-                    contextEvent.addProperty(PROPERTY_KEY_WIFI_NEIGHBORS, String.valueOf(wifiManager.getScanResults().size()));
+                boolean isMobileConnected;
+                if (mobileNetworkInfo != null) {
+                    isMobileConnected = mobileNetworkInfo.isConnected();
                 }
-                contextEvent.addProperty(PROPERTY_KEY_WIFI_CONNECTED, String.valueOf(wifiNetworkInfo.isConnected()));
+                else {
+                    isMobileConnected = false;
+                }
+                contextEvent.addProperty(PROPERTY_KEY_MOBILE_CONNECTED, String.valueOf(isMobileConnected));
+                contextEvent.addProperty(PROPERTY_KEY_WIFI_ENABLED, String.valueOf(wifiManager.isWifiEnabled()));
 
-                // wifi encryption status
-                List<ScanResult> networkList = wifiManager.getScanResults();
+                int wifiNeighbors = -1;
                 String wifiEncryption = "unknown";
-                if (networkList != null) {
-                    for (ScanResult network : networkList) {
-                        if (network.BSSID.equals(wifiInfo.getBSSID())){
-                            wifiEncryption = network.capabilities;
-                            Log.d(TAG, "Connectivity  - wifiencryption: " + wifiEncryption);
+                if(wifiManager != null) {
+                    if(wifiManager.isWifiEnabled()) {
+                        wifiNeighbors = wifiManager.getScanResults().size();
+                    }
+
+                    // wifi encryption status
+                    List<ScanResult> networkList = wifiManager.getScanResults();
+                    if (networkList != null) {
+                        for (ScanResult network : networkList) {
+                            if (network.BSSID.equals(wifiInfo.getBSSID())){
+                                wifiEncryption = network.capabilities;
+                                Log.d(TAG, "Connectivity  - wifiencryption: " + wifiEncryption);
+                            }
                         }
                     }
                 }
+                contextEvent.addProperty(PROPERTY_KEY_WIFI_NEIGHBORS, String.valueOf(wifiNeighbors));
+                contextEvent.addProperty(PROPERTY_KEY_WIFI_CONNECTED, String.valueOf(wifiNetworkInfo.isConnected()));
                 contextEvent.addProperty(PROPERTY_WIFI_ENCRYPTION, wifiEncryption);
                 contextEvent.addProperty(PROPERTY_KEY_BSSID, String.valueOf(wifiInfo.getBSSID()));
                 contextEvent.addProperty(PROPERTY_KEY_HIDDEN_SSID, String.valueOf(wifiInfo.getHiddenSSID()));
@@ -210,12 +218,12 @@ public class ConnectivitySensor implements ISensor {
                 // Airplane mode
                 boolean airplaneMode = false;
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                	airplaneMode = Settings.System.getInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+                    airplaneMode = Settings.System.getInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
                 }
                 else {
-                	airplaneMode = Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+                    airplaneMode = Settings.Global.getInt(context.getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
                 }
-                
+
                 contextEvent.addProperty(PROPERTY_KEY_AIRPLANE_MODE, String.valueOf(airplaneMode));
 
                 // check if something has changed. If something changed fire a context event, do nothing otherwise.
@@ -264,7 +272,7 @@ public class ConnectivitySensor implements ISensor {
 	@Override
 	public void configure(List<SensorConfiguration> config) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
