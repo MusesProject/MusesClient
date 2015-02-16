@@ -62,11 +62,12 @@ public class NetworkChecker extends BroadcastReceiver{
 			    context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo wifi =
 			    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		Log.d(TAG, "wifi connected:"+wifi.isConnected());
+		
 	    NetworkInfo mobile =
 	    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 	    
 	    if (wifi != null){
+	    	Log.d(TAG, "wifi connected:"+wifi.isConnected());
 	    	Log.d(TAG, "wifi available:"+wifi.isAvailable());
 	    	Log.d(TAG, "wifi detailed state:"+wifi.getDetailedState());
 		    if( wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED){
