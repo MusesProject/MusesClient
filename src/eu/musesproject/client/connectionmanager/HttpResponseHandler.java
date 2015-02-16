@@ -134,7 +134,7 @@ public class HttpResponseHandler {
 				break;
 			default:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
-				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error..");
+				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error:"+getStatusCodeResponse(httpResponse));
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR);
 				}
@@ -145,6 +145,9 @@ public class HttpResponseHandler {
 		} else {
 			Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
+			if (isSendDataRequest(requestType)){
+				setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR);
+			}
 			Log.d(APP_TAG, "Server is OFFLINE, HttpResponse is null, check network connectivity or address of server!");
 		}
 	}
