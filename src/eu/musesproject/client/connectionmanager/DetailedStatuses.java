@@ -37,6 +37,12 @@ public class DetailedStatuses {
 	public static final int NO_INTERNET_CONNECTION = 106;
 	
 	public static final int INCORRECT_CERTIFICATE = 200;
+	
+	
+	public static final int SESSION_NEW = 1001;
+	public static final int SESSION_UPDATED = 1002;
+	public static final int SESSION_EXPIRED = 1003;
+	
 	// Should define more responses if needed in future
 
 }

@@ -118,9 +118,10 @@ public abstract class HttpConnectionsHelper {
 	 * @throws IOException
 	 */
 	
-	public HttpResponse doSecurePost(Request request, String cert) throws ClientProtocolException, IOException {
+	public HttpResponseHandler doSecurePost(Request request, String cert) throws ClientProtocolException, IOException {
 	
 		HttpResponse httpResponse = null;
+		HttpResponseHandler serverResponse = null;
 		HttpPost httpPost = null;
 		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
@@ -150,15 +151,29 @@ public abstract class HttpConnectionsHelper {
 				e.printStackTrace();
 				Log.d(TAG, "doSecurePost"+e.toString());
 			}
+		    serverResponse = new HttpResponseHandler(httpResponse, request.getType());
 		} else {
 			try {
 				Log.d(TAG+"_COOKIE","doSecurePost ("+request.getType()+"), no valid cookie!! ");
         		httpResponse = httpclient.execute(httpPost);
-				List<Cookie> cookies = httpclient.getCookieStore().getCookies();
+        		serverResponse = new HttpResponseHandler(httpResponse, request.getType());
+        		List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 		 	    if (!cookies.isEmpty()) {
-		 	    	if (current_cookie == null || current_cookie.isExpired(new Date()) ) {
-		 	    			current_cookie = cookies.get(0);
-		 	    			Log.d(TAG+"_COOKIE","After doSecurePost, New cookie used: "+current_cookie.toString());
+		 	    	
+		 	    	if (current_cookie == null) {
+		 	    		current_cookie = cookies.get(0);
+	 	    			serverResponse.setNewSession(DetailedStatuses.SESSION_NEW);
+	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, New cookie used: "+current_cookie.toString());
+		 	    	} 
+		 	    	else if (current_cookie.isExpired(new Date())) {
+		 	    		current_cookie = cookies.get(0);
+	 	    			serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
+	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
+		 	    	}
+		 	    	else if (!current_cookie.equals(cookies.get(0))) {
+	 	    			current_cookie = cookies.get(0);
+	 	    			serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
+	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
 		 	    	}
 		 	    	else
 		 	    	{
@@ -175,7 +190,7 @@ public abstract class HttpConnectionsHelper {
 			}
 		}
 
-        return httpResponse;
+        return serverResponse;
 		
     }
 	

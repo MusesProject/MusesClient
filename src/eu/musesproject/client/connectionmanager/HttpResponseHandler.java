@@ -36,6 +36,8 @@ public class HttpResponseHandler {
 	private static final String APP_TAG = "APP_TAG";
 	private String receivedHttpResponseData = null;
 	private HttpResponse httpResponse;
+	private boolean isNewSession = false;
+	private int sessionUpdateReason = 0;
 	private String requestType;
 
 	/**
@@ -142,6 +144,12 @@ public class HttpResponseHandler {
 				AlarmReceiver.increasePollTime();
 				break;
 			}
+
+			if (isNewSession)
+			{
+				setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason);
+			}
+
 		} else {
 			Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
@@ -316,6 +324,12 @@ public class HttpResponseHandler {
 			
 		}
 		return receivedHttpResponseData;
+	}
+
+	public void setNewSession(int reason) {
+		// TODO Auto-generated method stub
+		isNewSession = true;
+		sessionUpdateReason = reason;
 	}
 
 	

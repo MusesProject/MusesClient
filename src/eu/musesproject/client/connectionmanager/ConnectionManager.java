@@ -263,16 +263,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 					callBacks.statusCb(Statuses.DISCONNECTED, DetailedStatuses.NO_INTERNET_CONNECTION);
 					HttpConnectionsHelper.current_cookie = null;
 				}
-				
-				
 			}
 			else
 			{
 				Log.d(APP_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
 				try {
-					
-					response = doSecurePost(request, params[4]);
-					HttpResponseHandler httpResponseHandler = new HttpResponseHandler(response, request.getType());
+					HttpResponseHandler httpResponseHandler = doSecurePost(request, params[4]);
 					httpResponseHandler.checkHttpResponse();
 				} catch (ClientProtocolException e) {
 					e.printStackTrace();
