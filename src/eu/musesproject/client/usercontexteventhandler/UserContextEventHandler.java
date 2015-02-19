@@ -87,6 +87,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public int serverStatus;
 	private int serverDetailedStatus;
 
+    private boolean isAuthenticatedRemotely;
     private boolean isUserAuthenticated;
 	public static boolean serverOnlineAndUserAuthenticated;
 
@@ -106,6 +107,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		serverStatus = Statuses.CURRENT_STATUS;
 		serverDetailedStatus = Statuses.OFFLINE;
+        isAuthenticatedRemotely = false;
 		isUserAuthenticated = false;
 		serverOnlineAndUserAuthenticated = false;
 
@@ -311,7 +313,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			JSONObject requestObject = JSONManager.createLoginJSON(tmpLoginUserName, tmpLoginPassword, deviceId);
 			sendRequestToServer(requestObject);
 		}
-		else { // TODO add information to the callback with an explanation what happened
+		else {
 			Log.d(APP_TAG, "Info U, Authenticating login with username:"+tmpLoginUserName+" password:"+tmpLoginPassword + " deviceId: " + deviceId + " in localdatabase");
 			dbManager.openDB();
 			isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword);
@@ -343,14 +345,23 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			return; // user wasn't logged in before
 		}
 
+        // try to log in locally
 		dbManager.openDB();
 		isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), userName, password);
 		boolean sensorConfigExists = dbManager.hasSensorConfig();
 		dbManager.closeDB();
 		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
 
+        //try to log in remotely
+        if(serverStatus == Statuses.ONLINE) {
+            JSONObject requestObject = JSONManager.createLoginJSON(userName, password, getImei());
+            sendRequestToServer(requestObject);
+        }
+
 		updateServerOnlineAndUserAuthenticated();
 
+
+        // decide, whether to start the context monitoring or to request for a proper configuration
 		if(sensorConfigExists) {
 			manageMonitoringComponent();
 		}
@@ -385,6 +396,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		sendRequestToServer(logoutJSON);
 
 		isUserAuthenticated = false;
+        isAuthenticatedRemotely = false;
 		updateServerOnlineAndUserAuthenticated();
 	}
 
@@ -527,6 +539,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	public void updateServerOnlineAndUserAuthenticated() {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - updateServerOnlineAndUserAuthenticated Server="+(serverStatus==Statuses.ONLINE) + " auth=" +isUserAuthenticated);
+        if(isAuthenticatedRemotely) {
+            isUserAuthenticated = true;
+        }
 		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
 			serverOnlineAndUserAuthenticated = true;
 		}
@@ -576,10 +591,11 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					}
 				}
 				else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
-					Log.d(APP_TAG, "Retreiving auth response from JSON");
 
-					isUserAuthenticated = JSONManager.getAuthResult(receivedData);
-					if(isUserAuthenticated) {
+					isAuthenticatedRemotely = JSONManager.getAuthResult(receivedData);
+					Log.d(APP_TAG, "Retreiving auth response from JSON, authenticated: " + isAuthenticatedRemotely);
+                    updateServerOnlineAndUserAuthenticated();
+					if(isAuthenticatedRemotely) {
 						dbManager.openDB();
 						dbManager.insertCredentials(getImei(), tmpLoginUserName, tmpLoginPassword);
 						dbManager.closeDB();
@@ -592,7 +608,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						updateServerOnlineAndUserAuthenticated();
 						sendConfigSyncRequest();
 					}
-					ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
+					ActuatorController.getInstance().sendLoginResponse(isAuthenticatedRemotely);
 				}
 				else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
                 	/*
@@ -659,6 +675,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			if(status == Statuses.ONLINE) {
 				if(serverStatus == Statuses.OFFLINE) {
 					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
+                    if(!isAuthenticatedRemotely) {
+//                        autoLogin();
+                    }
 					sendOfflineStoredContextEventsToServer();
 				}
 				serverStatus = status;
@@ -666,6 +685,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			}
 			else if(status == Statuses.OFFLINE) {
 				serverStatus = status;
+                isAuthenticatedRemotely = false;
 				updateServerOnlineAndUserAuthenticated();
 			}
             else if(status == Statuses.DATA_SEND_OK) {
@@ -676,6 +696,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     Log.d(TAG_DB, "AFTER reset: action table size: " + dbManager.getActionList().size());
                     dbManager.closeDB();
                 }
+            }
+            else if(status == Statuses.NEW_SESSION_CREATED) {
+                Log.d(APP_TAG, "NEW_SESSION_CREATED");
+                autoLogin();
             }
 
 			if(detailedStatus == DetailedStatuses.UNKNOWN_ERROR) {

@@ -78,7 +78,6 @@ public class MUSESBackgroundService extends Service {
 
 			// try to auto login user
 			userContextEventHandler.setContext(this);
-			userContextEventHandler.autoLogin();
 
 			// send status of the service
 			String actionDescription = getString(R.string.action_description_started);
