@@ -106,12 +106,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			Log.d(TAG, "InternetConnected");
 		}
 		setCommandOngoing();
-		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CONNECT, 
-				URL, Integer.toString(pollInterval),"", certificate);
+		startHttpThread( CONNECT,
+				URL, Integer.toString(pollInterval),"");
 				
-		
-		
 		alarmReceiver.setPollInterval(pollInterval, sleepPollInterval);
 		alarmReceiver.setDefaultPollInterval(pollInterval, sleepPollInterval);
 		alarmReceiver.setAlarm(context);
@@ -129,9 +126,8 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 
 		setCommandOngoing();
 		Log.d(APP_TAG, "ConnManager=> send data to server: "+data);
-		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DATA, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, certificate); 
+		startHttpThread(DATA, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data); 
 	}
 	
 	/**
@@ -150,9 +146,8 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		
 		
 		Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
-		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, DISCONNECT, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
+		startHttpThread(DISCONNECT, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "");
 		
 			
 			//callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
@@ -203,9 +198,8 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		// If ongoing command, don't poll
 		
 		
-		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, POLL, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
+		startHttpThread(POLL, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "");
 			
 	
 	}
@@ -217,14 +211,23 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
 	public void ack() {
 		Log.d(TAG, "Sending ack..");
-		
-		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", certificate);
+		startHttpThread(ACK, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "");
 			
 	
 	}
 	
+	private void startHttpThread(String cmd, String URL, String pollInterval, String data) {
+		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
+		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, certificate);
+
+		/* If too many threads, use serial executor */
+//		httpClientAsyncThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, ACK, URL, 
+//				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, certificate);
+
+	}
+
 	private void setCommandOngoing()
 	{
 		mCommandOngoing.set(1);	
@@ -243,6 +246,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
     private class HttpClientAsyncThread extends AsyncTask<String, Void, String> {
 
+    	/* FIXME use onPost Execute to send callbacks */
     	@Override
     	protected String doInBackground(String... params) {
     		HttpResponse response = null;
@@ -250,6 +254,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 					params[1], params[2], params[3], params[4]);
 			if (!NetworkChecker.isInternetConnected) 
 			{
+				Log.d(APP_TAG,"doInBackground: Only respond to caller. ");
 				if (request.getType().contentEquals(CONNECT))
 				{
 					callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
@@ -285,7 +290,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			}
 			
 			setCommandNotOngoing();
-			
+			Log.d(APP_TAG,"doInBackground: doInBackground finished.");
 			return null;
 
     	}

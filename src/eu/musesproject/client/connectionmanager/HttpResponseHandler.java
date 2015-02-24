@@ -34,6 +34,7 @@ public class HttpResponseHandler {
 	
 	private static final String TAG = HttpResponseHandler.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
+	private static final int MINIMUM_POLL_AFTER_REQUEST = 10000;
 	private String receivedHttpResponseData = null;
 	private HttpResponse httpResponse;
 	private boolean isNewSession = false;
@@ -76,7 +77,11 @@ public class HttpResponseHandler {
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
-					} 
+					}
+
+					if (isMorePackets(httpResponse) || AlarmReceiver.getCurrentPollInterval()>MINIMUM_POLL_AFTER_REQUEST){
+						doPollForAnExtraPacket();
+					}
 				} else if (isAckRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
 					Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
