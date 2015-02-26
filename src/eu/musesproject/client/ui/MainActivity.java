@@ -463,6 +463,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated())
 			{
 				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
+				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
 			}
 			
 			if (isLoggedIn) {
