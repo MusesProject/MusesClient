@@ -121,7 +121,7 @@ public abstract class HttpConnectionsHelper {
 	public HttpResponseHandler doSecurePost(Request request, String cert) throws ClientProtocolException, IOException {
 	
 		HttpResponse httpResponse = null;
-		HttpResponseHandler serverResponse = null;
+		HttpResponseHandler serverResponse = new HttpResponseHandler(request.getType());
 		HttpPost httpPost = null;
 		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
@@ -144,6 +144,22 @@ public abstract class HttpConnectionsHelper {
 			Log.d(TAG+"_COOKIE","doSecurePost("+request.getType()+"), valid cookie: "+current_cookie.toString());
 		    try {
 		        httpResponse = httpclient.execute(httpPost);
+		        serverResponse.setResponse(httpResponse);
+			    /* Cookie could be changed by server */
+			    List<Cookie> cookies = httpclient.getCookieStore().getCookies();
+			    if (!cookies.isEmpty())
+			    {
+				    if (current_cookie.isExpired(new Date())) {
+		 	    		current_cookie = cookies.get(0);
+			    			serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
+			    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
+		 	    	}
+		 	    	else if (!current_cookie.equals(cookies.get(0))) {
+			    			current_cookie = cookies.get(0);
+			    			serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
+			    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
+		 	    	}
+			    }
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
 				Log.d(TAG,"doSecurePost"+ e.toString());
@@ -151,12 +167,14 @@ public abstract class HttpConnectionsHelper {
 				e.printStackTrace();
 				Log.d(TAG, "doSecurePost"+e.toString());
 			}
-		    serverResponse = new HttpResponseHandler(httpResponse, request.getType());
+		    
+
+		    
 		} else {
 			try {
 				Log.d(TAG+"_COOKIE","doSecurePost ("+request.getType()+"), no valid cookie!! ");
         		httpResponse = httpclient.execute(httpPost);
-        		serverResponse = new HttpResponseHandler(httpResponse, request.getType());
+        		serverResponse.setResponse(httpResponse);
         		List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 		 	    if (!cookies.isEmpty()) {
 		 	    	

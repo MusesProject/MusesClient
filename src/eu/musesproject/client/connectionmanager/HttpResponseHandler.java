@@ -36,7 +36,7 @@ public class HttpResponseHandler {
 	private static final String APP_TAG = "APP_TAG";
 	private static final int MINIMUM_POLL_AFTER_REQUEST = 10000;
 	private String receivedHttpResponseData = null;
-	private HttpResponse httpResponse;
+	private HttpResponse httpResponse = null;
 	private boolean isNewSession = false;
 	private int sessionUpdateReason = 0;
 	private String requestType;
@@ -52,6 +52,11 @@ public class HttpResponseHandler {
 		this.requestType = requestType;
 	}
 	
+	public HttpResponseHandler(String requestType) {
+		// TODO Auto-generated constructor stub
+		this.requestType = requestType;
+	}
+
 	/**
 	 * Check response and call appropriate callback methods
 	 * @return void
@@ -160,6 +165,10 @@ public class HttpResponseHandler {
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
 			if (isSendDataRequest(requestType)){
 				setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR);
+			}
+			if (isConnectRequest(requestType)){
+				setServerStatusAndCallBack(Statuses.CONNECTION_FAILED, DetailedStatuses.UNKNOWN_ERROR);
+				/* Depending on error Polling shall be stopped, but difficult to know if error is recoverable */
 			}
 			Log.d(APP_TAG, "Server is OFFLINE, HttpResponse is null, check network connectivity or address of server!");
 		}
@@ -335,6 +344,11 @@ public class HttpResponseHandler {
 		// TODO Auto-generated method stub
 		isNewSession = true;
 		sessionUpdateReason = reason;
+	}
+
+	public void setResponse(HttpResponse httpResponse) {
+		// TODO Auto-generated method stub
+		this.httpResponse = httpResponse;
 	}
 
 	

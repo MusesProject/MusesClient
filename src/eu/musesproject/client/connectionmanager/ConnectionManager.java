@@ -274,7 +274,11 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				Log.d(APP_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
 				try {
 					HttpResponseHandler httpResponseHandler = doSecurePost(request, params[4]);
-					httpResponseHandler.checkHttpResponse();
+					if (httpResponseHandler != null)
+					{
+						httpResponseHandler.checkHttpResponse();
+					}
+					
 				} catch (ClientProtocolException e) {
 					e.printStackTrace();
 					Log.d(APP_TAG, Log.getStackTraceString(e));
