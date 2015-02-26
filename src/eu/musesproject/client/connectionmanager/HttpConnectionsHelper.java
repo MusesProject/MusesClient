@@ -154,7 +154,7 @@ public abstract class HttpConnectionsHelper {
 			    			serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
 			    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
 		 	    	}
-		 	    	else if (!current_cookie.equals(cookies.get(0))) {
+		 	    	else if (current_cookie.equals(cookies.get(0))) {
 			    			current_cookie = cookies.get(0);
 			    			serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
 			    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
@@ -188,7 +188,7 @@ public abstract class HttpConnectionsHelper {
 	 	    			serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
 	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
 		 	    	}
-		 	    	else if (!current_cookie.equals(cookies.get(0))) {
+		 	    	else if (current_cookie.equals(cookies.get(0))) {
 	 	    			current_cookie = cookies.get(0);
 	 	    			serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
 	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
