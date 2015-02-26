@@ -217,10 +217,10 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
 	}
 	
-	private void startHttpThread(String cmd, String URL, String pollInterval, String data) {
+	private void startHttpThread(String cmd, String url, String pollInterval, String data) {
 		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
-		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ACK, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, certificate);
+		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, cmd, url, 
+				pollInterval, data, certificate);
 
 		/* If too many threads, use serial executor */
 //		httpClientAsyncThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, ACK, URL, 
