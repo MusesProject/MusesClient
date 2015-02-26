@@ -292,18 +292,20 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	};
 	
 	private void startProgress(){
-//		progressDialog = new ProgressDialog(MainActivity.this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
-//		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//		progressDialog.setTitle("Logging in..");
-//		progressDialog.setMessage("Please wait..");
-//		progressDialog.setCancelable(true);
-//		progressDialog.show();
+		progressDialog = new ProgressDialog(MainActivity.this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		progressDialog.setTitle(getResources().getString(
+				R.string.logging_in));
+		progressDialog.setMessage(getResources().getString(
+				R.string.wait));
+		progressDialog.setCancelable(true);
+		progressDialog.show();
 	}
 	
 	private void stopProgress(){
-//		if (progressDialog!=null){
-//			progressDialog.dismiss();
-//		}
+		if (progressDialog!=null){
+			progressDialog.dismiss();
+		}
 	}
 	
 	/**
