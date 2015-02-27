@@ -49,6 +49,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	private static final String TAG = ConnectionManager.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
 	private static Boolean isServerConnectionSet = false; 
+	static private int lastSentStatus = Statuses.OFFLINE;
 	private AtomicInteger mCommandOngoing = new AtomicInteger(0);
 	private AlarmReceiver alarmReceiver;
 	private Context context;
@@ -105,6 +106,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		if (networkChecker.isInternetConnected()) {
 			Log.d(TAG, "InternetConnected");
 		}
+        //SweFileLog.write("Connect to :"+URL+",0,0");
 		setCommandOngoing();
 		startHttpThread( CONNECT,
 				URL, Integer.toString(pollInterval),"");
@@ -262,7 +264,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				else if (request.getType().contentEquals(DATA))
 				{
 					Log.d(APP_TAG, "ConnManager=> can't send data with no internet connection, calling statusCB");
+					sendServerStatus(Statuses.OFFLINE, DetailedStatuses.NO_INTERNET_CONNECTION);
 					callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+					
 				} else if (request.getType().contentEquals(DISCONNECT))
 				{
 					callBacks.statusCb(Statuses.DISCONNECTED, DetailedStatuses.NO_INTERNET_CONNECTION);
@@ -310,5 +314,24 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public void setPolling(int polling) {
 		POLLING_ENABLED = polling;
 	}
-	
+
+	public static void sendServerStatus(int status, int detailedStatus) {
+		// TODO Auto-generated method stub
+		if (status == Statuses.OFFLINE || status == Statuses.ONLINE)
+		{
+			if (lastSentStatus != status )
+			{
+				ConnectionManager.callBacks.statusCb(status, detailedStatus);
+				//SweFileLog.write((status==Statuses.ONLINE?"ONLINE,,":"OFFLINE,,"));
+				lastSentStatus = status;
+			}
+		}
+		else
+		{
+			SweFileLog.write("Weird status: "+Integer.toString(status)+", , ");
+		}
+
+
+	}
+
 }

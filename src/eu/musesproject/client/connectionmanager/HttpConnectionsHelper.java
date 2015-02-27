@@ -145,6 +145,8 @@ public abstract class HttpConnectionsHelper {
 		    try {
 		        httpResponse = httpclient.execute(httpPost);
 		        serverResponse.setResponse(httpResponse);
+		        /* For testing */
+		        //SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
 			    /* Cookie could be changed by server */
 			    List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 			    if (!cookies.isEmpty())
@@ -175,6 +177,8 @@ public abstract class HttpConnectionsHelper {
 				Log.d(TAG+"_COOKIE","doSecurePost ("+request.getType()+"), no valid cookie!! ");
         		httpResponse = httpclient.execute(httpPost);
         		serverResponse.setResponse(httpResponse);
+		        /* For testing */
+		        //SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
         		List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 		 	    if (!cookies.isEmpty()) {
 		 	    	
@@ -211,7 +215,7 @@ public abstract class HttpConnectionsHelper {
         return serverResponse;
 		
     }
-	
+
 //	private boolean isSessionExpired(Date newDate, int pollInterval){
 //		long diff = newDate.getTime() - lastDate.getTime();
 //		long diffSeconds = (diff / 1000) % 60;

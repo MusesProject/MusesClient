@@ -31,7 +31,7 @@ import android.util.Log;
  * @version Jan 27, 2014
  */
 public class HttpResponseHandler {
-	
+
 	private static final String TAG = HttpResponseHandler.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
 	private static final int MINIMUM_POLL_AFTER_REQUEST = 10000;
@@ -51,7 +51,7 @@ public class HttpResponseHandler {
 		this.httpResponse = httpResponse;
 		this.requestType = requestType;
 	}
-	
+
 	public HttpResponseHandler(String requestType) {
 		// TODO Auto-generated constructor stub
 		this.requestType = requestType;
@@ -66,7 +66,7 @@ public class HttpResponseHandler {
 			switch(getStatusCodeResponse(httpResponse)){
 			case DetailedStatuses.SUCCESS:
 				Statuses.CURRENT_STATUS = Statuses.ONLINE;
-				
+
 				if (isPollRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
@@ -78,6 +78,7 @@ public class HttpResponseHandler {
 						doPollForAnExtraPacket();
 					}
 				} else if (isSendDataRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
 					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
@@ -96,24 +97,24 @@ public class HttpResponseHandler {
 					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
-						
+
 						//sendDataToFunctionalLayer();
 					} 
 				} else if (isDisonnectRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DISCONNECTED, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
-						
+
 						//sendDataToFunctionalLayer();
 					} 
 				}
-				
+
 				AlarmReceiver.resetExponentialPollTime();
 				break;
 			case DetailedStatuses.INCORRECT_URL:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Incorrect URL");
-				
+
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.INCORRECT_URL);
 				}
@@ -129,7 +130,7 @@ public class HttpResponseHandler {
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_ALLOWED_FROM_SERVER);
 				}
-				
+
 				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER);
 				AlarmReceiver.increasePollTime();
 				break;
@@ -294,8 +295,17 @@ public class HttpResponseHandler {
 	 * @return void
 	 */
 	private void setServerStatusAndCallBack(int status, int detailedStatus) {
-		ConnectionManager.callBacks.statusCb(status, detailedStatus);
 		
+		if (status == Statuses.OFFLINE || status == Statuses.ONLINE)
+		{
+			ConnectionManager.sendServerStatus(status, detailedStatus);
+			
+			
+		}
+		else
+		{	
+			ConnectionManager.callBacks.statusCb(status, detailedStatus);
+		}
 		
 	}
 	
@@ -330,9 +340,9 @@ public class HttpResponseHandler {
 	
 	private String reteiveDataFromHttpResponseHeader(HttpResponse response) {
 		Header [] dataReceived = response.getAllHeaders();
-		for (Header responseHedar : dataReceived){
-			if (responseHedar.getName().equals("data")){
-				receivedHttpResponseData = responseHedar.getValue();
+		for (Header responseHeader : dataReceived){
+			if (responseHeader.getName().equals("data")){
+				receivedHttpResponseData = responseHeader.getValue();
 				break;
 			}
 			
@@ -349,6 +359,20 @@ public class HttpResponseHandler {
 	public void setResponse(HttpResponse httpResponse) {
 		// TODO Auto-generated method stub
 		this.httpResponse = httpResponse;
+	}
+
+	public String getDataLength() {
+		// TODO Auto-generated method stub
+		String dataLength = "";
+		if (httpResponse != null)
+		{
+			Header header = httpResponse.getFirstHeader("data");
+			if (header!=null)
+			{
+				dataLength = Integer.toString(header.getValue().length());
+			}
+		}
+		return dataLength;
 	}
 
 	
