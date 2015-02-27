@@ -189,16 +189,17 @@ public class ConnectivitySensor implements ISensor {
                 String wifiEncryption = "unknown";
                 if(wifiManager != null) {
                     if(wifiManager.isWifiEnabled()) {
-                        wifiNeighbors = wifiManager.getScanResults().size();
-                    }
+                        List<ScanResult> networkList = wifiManager.getScanResults();
 
-                    // wifi encryption status
-                    List<ScanResult> networkList = wifiManager.getScanResults();
-                    if (networkList != null) {
-                        for (ScanResult network : networkList) {
-                            if (network.BSSID.equals(wifiInfo.getBSSID())){
-                                wifiEncryption = network.capabilities;
-                                Log.d(TAG, "Connectivity  - wifiencryption: " + wifiEncryption);
+                        // wifi neighbors
+                        // wifi encryption status
+                        if (networkList != null) {
+                            wifiNeighbors = networkList.size();
+                            for (ScanResult network : networkList) {
+                                if (network.BSSID.equals(wifiInfo.getBSSID())){
+                                    wifiEncryption = network.capabilities;
+                                    Log.d(TAG, "Connectivity  - wifiencryption: " + wifiEncryption);
+                                }
                             }
                         }
                     }
