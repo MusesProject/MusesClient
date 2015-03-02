@@ -328,7 +328,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		}
 		else
 		{
-			SweFileLog.write("Weird status: "+Integer.toString(status)+", , ");
+			//SweFileLog.write("Weird status: "+Integer.toString(status)+", , ");
 		}
 
 
