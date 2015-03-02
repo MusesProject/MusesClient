@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="eu.musesproject.client"
     android:versionCode="10"
-    android:versionName="Muses App version v0.010 RC1" >
+    android:versionName="Muses App version v0.010" >
 
     <uses-sdk
         android:minSdkVersion="16"
