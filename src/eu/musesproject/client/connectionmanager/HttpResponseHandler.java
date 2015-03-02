@@ -67,6 +67,14 @@ public class HttpResponseHandler {
 			case DetailedStatuses.SUCCESS:
 				Statuses.CURRENT_STATUS = Statuses.ONLINE;
 
+				// Only send if Success in connection
+				if (isNewSession)
+				{
+					// For testing
+					//SweFileLog.write("New sessionId, ,");
+					setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason);
+				}
+
 				if (isPollRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
@@ -156,10 +164,6 @@ public class HttpResponseHandler {
 				break;
 			}
 
-			if (isNewSession)
-			{
-				setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason);
-			}
 
 		} else {
 			Statuses.CURRENT_STATUS = Statuses.OFFLINE;
