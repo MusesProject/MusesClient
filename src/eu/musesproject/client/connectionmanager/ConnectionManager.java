@@ -106,9 +106,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		if (networkChecker.isInternetConnected()) {
 			Log.d(TAG, "InternetConnected");
 		}
-        //SweFileLog.write("Connect to :"+URL+",0,0");
-		setCommandOngoing();
-		startHttpThread( CONNECT,
+				
+        setCommandOngoing();
+        // For testing
+        //DBG SweFileLog.write("Connect to :"+URL+",0,0");
+        
+        startHttpThread( CONNECT,
 				URL, Integer.toString(pollInterval),"");
 				
 		alarmReceiver.setPollInterval(pollInterval, sleepPollInterval);
@@ -225,8 +228,8 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				pollInterval, data, certificate);
 
 		/* If too many threads, use serial executor */
-//		httpClientAsyncThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, ACK, URL, 
-//				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, certificate);
+//		httpClientAsyncThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, cmd, url, 
+//				pollInterval, data, certificate);
 
 	}
 
@@ -322,13 +325,15 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			if (lastSentStatus != status )
 			{
 				ConnectionManager.callBacks.statusCb(status, detailedStatus);
-				//SweFileLog.write((status==Statuses.ONLINE?"ONLINE,,":"OFFLINE,,"));
 				lastSentStatus = status;
+				// For testing
+				//DBG SweFileLog.write((status==Statuses.ONLINE?"ONLINE,,":"OFFLINE,,"));
+				
 			}
 		}
 		else
 		{
-			//SweFileLog.write("Weird status: "+Integer.toString(status)+", , ");
+			//DBG SweFileLog.write("Weird status: "+Integer.toString(status)+", , ");
 		}
 
 

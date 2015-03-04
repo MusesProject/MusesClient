@@ -125,6 +125,7 @@ public abstract class HttpConnectionsHelper {
 		HttpPost httpPost = null;
 		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
+		
 
 		if (httpclient !=null) {
 			HttpParams httpParameters = new BasicHttpParams();  
@@ -146,7 +147,7 @@ public abstract class HttpConnectionsHelper {
 		        httpResponse = httpclient.execute(httpPost);
 		        serverResponse.setResponse(httpResponse);
 		        /* For testing */
-		        //SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
+		        //DBG SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
 			    /* Cookie could be changed by server */
 			    List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 			    if (!cookies.isEmpty())
@@ -178,7 +179,7 @@ public abstract class HttpConnectionsHelper {
         		httpResponse = httpclient.execute(httpPost);
         		serverResponse.setResponse(httpResponse);
 		        /* For testing */
-		        //SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
+		        //DBG SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
         		List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 		 	    if (!cookies.isEmpty()) {
 		 	    	
