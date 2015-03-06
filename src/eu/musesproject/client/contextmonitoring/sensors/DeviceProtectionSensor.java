@@ -126,7 +126,6 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_EXISTS, String.valueOf(musesDatabaseExist(context, DBManager.DATABASE_NAME)));
 		contextEvent.addProperty(PROPERTY_KEY_ACCESSIBILITY_ENABLED, String.valueOf(isAccessibilityForMusesEnabled()));
 		contextEvent.generateId();
-        debug(contextEvent);
 
 		if(contextEventHistory.size() > 0) {
 			ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
