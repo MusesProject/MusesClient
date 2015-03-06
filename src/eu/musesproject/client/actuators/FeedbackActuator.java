@@ -81,7 +81,8 @@ public class FeedbackActuator implements IFeedbackActuator {
             else if(decision.getName().equalsIgnoreCase(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
                 callback.onUpToUser(decision);
             }
-            else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS)) {
+            else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS) &&
+                    decision.getName().equalsIgnoreCase(Decision.DEFAULT_DENY_ACCESS)) {
                 callback.onDeny(decision);
             }
         }
