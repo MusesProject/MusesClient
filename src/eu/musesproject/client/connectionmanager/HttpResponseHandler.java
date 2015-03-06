@@ -61,14 +61,31 @@ public class HttpResponseHandler {
 	 * Check response and call appropriate callback methods
 	 * @return void
 	 */
-	public void checkHttpResponse(){
+	public synchronized void checkHttpResponse(){
 		if (httpResponse != null) {
 			switch(getStatusCodeResponse(httpResponse)){
 			case DetailedStatuses.SUCCESS:
+				// Only send if Success in connection
+				int detailedOnlineStatus = DetailedStatuses.SUCCESS;
+				if (isNewSession )
+				{
+					if (Statuses.CURRENT_STATUS == Statuses.ONLINE)
+					{
+						// For testing
+						//DBG SweFileLog.write("New sessionId, ,");
+						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason);
+					}
+					else
+					{
+						detailedOnlineStatus = DetailedStatuses.SUCCESS_NEW_SESSION;
+					}
+				}
 				Statuses.CURRENT_STATUS = Statuses.ONLINE;
 
+
+				
 				if (isPollRequest(requestType)) {
-					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
@@ -78,7 +95,7 @@ public class HttpResponseHandler {
 						doPollForAnExtraPacket();
 					}
 				} else if (isSendDataRequest(requestType)){
-					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
 					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
@@ -89,11 +106,11 @@ public class HttpResponseHandler {
 						doPollForAnExtraPacket();
 					}
 				} else if (isAckRequest(requestType)) {
-					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
 					Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 					Log.d(TAG, "Ack by the server");
 				} else if (isConnectRequest(requestType)){
-					setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
 					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
@@ -109,15 +126,9 @@ public class HttpResponseHandler {
 					} 
 				}
 
-				// Only send if Success in connection
-				if (isNewSession)
-				{
-					// For testing
-					////DBG SweFileLog.write("New sessionId, ,");
-					setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason);
-					isNewSession = false;
-				}
 				
+				
+				isNewSession = false;
 				AlarmReceiver.resetExponentialPollTime();
 				break;
 			case DetailedStatuses.INCORRECT_URL:
