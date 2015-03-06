@@ -58,7 +58,7 @@ public class ActuatorController implements IActuatorController {
 
     public void showFeedback(Decision decision) {
         Log.d(TAG, "called: showFeedback(Decision decision)");
-        
+
         //check for silent mode
         dbManager.openDB();
         boolean isSilentModeActive = dbManager.isSilentModeActive();
@@ -66,9 +66,13 @@ public class ActuatorController implements IActuatorController {
 		if(decision != null && isSilentModeActive) {
         	decision.setName(Decision.GRANTED_ACCESS);
         }
-        
+
 		// show feedback
         feedbackActuator.showFeedback(decision);
+    }
+
+    public void removeFeedbackFromQueue() {
+        feedbackActuator.removeFeedbackFromQueue();
     }
 
     public void sendFeedbackToMUSESAwareApp(Decision decision, Context context) {

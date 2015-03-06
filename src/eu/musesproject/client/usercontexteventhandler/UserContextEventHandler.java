@@ -274,6 +274,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param action
 	 */
 	public void sendUserBehavior(Action action) {
+        // display next Feedback dialog if there is any
+        ActuatorController.getInstance().removeFeedbackFromQueue();
+
+        // send the current user feedback to the server
 		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
 			Log.d(MusesUtils.TEST_TAG, "UCEH - sendUserBehavior(Action action)");
 			Log.d(APP_TAG, "Info U, sending user behavior to server with action");
@@ -308,6 +312,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 		dbManager.closeDB();
 
+        Log.d(APP_TAG, "login, server status: " + (serverStatus == Statuses.ONLINE));
 		if(serverStatus == Statuses.ONLINE) {
 			Log.d(APP_TAG, "Info U, Authenticating user login to server with username: "+tmpLoginUserName+" password: "+tmpLoginPassword + " deviceId: " +deviceId);
 			JSONObject requestObject = JSONManager.createLoginJSON(tmpLoginUserName, tmpLoginPassword, deviceId);
@@ -553,7 +558,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		@Override
 		public int receiveCb(String receivedData) {
-			Log.d(TAG, "called: receiveCb(String receivedData)");
+			Log.d(TAG, "called: receiveCb(String receivedData) receivedData:"+receivedData);
 			if((receivedData != null) && (!receivedData.equals(""))) {
 				if(dbManager == null) {
 					dbManager = new DBManager(context);
@@ -671,17 +676,17 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		public int statusCb(int status, int detailedStatus) {
 			Log.d(TAG, "called: statusCb(int status, int detailedStatus)");
 			// detect if server is back online after an offline status
-			if(status == Statuses.ONLINE) {
+			if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS) {
 				if(serverStatus == Statuses.OFFLINE) {
 					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
-                    if(!isAuthenticatedRemotely) {
-//                        autoLogin();
-                    }
-					sendOfflineStoredContextEventsToServer();
-				}
-				serverStatus = status;
-				updateServerOnlineAndUserAuthenticated();
+                    serverStatus = status;
+                    updateServerOnlineAndUserAuthenticated();
+                    sendOfflineStoredContextEventsToServer();
+                }
 			}
+            else if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS_NEW_SESSION) {
+                autoLogin();
+            }
 			else if(status == Statuses.OFFLINE) {
 				serverStatus = status;
                 isAuthenticatedRemotely = false;
@@ -691,21 +696,28 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 if(detailedStatus == DetailedStatuses.SUCCESS) {
                     dbManager.openDB();
                     dbManager.resetStoredContextEventTables();
-                    Log.d(TAG_DB, "table reset");
-                    Log.d(TAG_DB, "AFTER reset: action table size: " + dbManager.getActionList().size());
                     dbManager.closeDB();
                 }
             }
             else if(status == Statuses.NEW_SESSION_CREATED) {
-                Log.d(APP_TAG, "NEW_SESSION_CREATED");
+                isAuthenticatedRemotely = false;
+
                 autoLogin();
+            }
+
+            if(status == Statuses.ONLINE ) {
+                serverStatus = status;
+                updateServerOnlineAndUserAuthenticated();
             }
 
 			if(detailedStatus == DetailedStatuses.UNKNOWN_ERROR) {
 				// fires the unknown error feedback
 				ActuatorController.getInstance().showFeedback(null);
 			}
+
+            Log.d(APP_TAG, "statusCb status: " + (serverStatus == Statuses.ONLINE));
 			serverDetailedStatus = detailedStatus;
+
 			return 0;
 		}
 	}

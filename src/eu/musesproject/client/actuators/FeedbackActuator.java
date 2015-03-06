@@ -23,12 +23,12 @@ package eu.musesproject.client.actuators;
 import android.content.Context;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
-import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.model.actuators.ActuatorInstruction;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
-import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
-import eu.musesproject.server.risktrust.RiskCommunication;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Created by christophstanik on 4/15/14.
@@ -45,11 +45,33 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     private static IUICallback callback;
 
+    Queue<Decision> decisionQueue;
+
+    public FeedbackActuator() {
+        decisionQueue = new LinkedList<Decision>();
+    }
+
     @Override
     public void showFeedback(Decision decision) {
-        Log.d(TAG, "called: showFeedback(Decision decision)");
+//        Log.d(TAG, "called: showFeedback(Decision decision)");
+        Log.d(TAG, "new feedback dialog request");
+        decisionQueue.add(decision);
+
+        // just show a new dialog if there is no other currently displayed
+        if(decisionQueue.size() == 1) {
+            sendCallback(decision);
+        }
+    }
+
+    private void showNextFeedback(Decision decision) {
+        Log.d(TAG, "showNextFeedback");
+        sendCallback(decision);
+    }
+
+    private void sendCallback(Decision decision) {
+        Log.d(TAG, "send callback");
         if(callback != null && decision != null && decision.getName() != null) {
-        	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
+            Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
             if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
             }
@@ -84,6 +106,18 @@ public class FeedbackActuator implements IFeedbackActuator {
         } catch (Exception e) {
             e.printStackTrace();
             // no risk treatment
+        }
+    }
+
+    @Override
+    public void removeFeedbackFromQueue() {
+        Log.d(TAG, "remove feedback from queue");
+        // removes the last feeedback dialog
+        decisionQueue.remove();
+
+        // triggers to show the next feedback dialog if there is any
+        if(decisionQueue.size() > 0) {
+            showNextFeedback(decisionQueue.element());
         }
     }
 
