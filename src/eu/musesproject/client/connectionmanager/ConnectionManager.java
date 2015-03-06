@@ -202,7 +202,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		
 		// If ongoing command, don't poll
 		
-		
+		setCommandOngoing();
 		startHttpThread(POLL, URL, 
 				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "");
 			

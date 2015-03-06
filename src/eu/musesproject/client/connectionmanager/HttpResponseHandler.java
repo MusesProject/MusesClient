@@ -80,9 +80,8 @@ public class HttpResponseHandler {
 						detailedOnlineStatus = DetailedStatuses.SUCCESS_NEW_SESSION;
 					}
 				}
+
 				Statuses.CURRENT_STATUS = Statuses.ONLINE;
-
-
 				
 				if (isPollRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
