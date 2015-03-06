@@ -350,7 +350,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), userName, password);
 		boolean sensorConfigExists = dbManager.hasSensorConfig();
 		dbManager.closeDB();
-		ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
 
         //try to log in remotely
         if(serverStatus == Statuses.ONLINE) {
