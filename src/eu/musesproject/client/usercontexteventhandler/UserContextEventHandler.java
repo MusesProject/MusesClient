@@ -674,7 +674,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		@Override
 		public int statusCb(int status, int detailedStatus) {
-			Log.d(TAG, "called: statusCb(int status, int detailedStatus)");
+			Log.d(TAG, "called: statusCb(int status, int detailedStatus)"+status+", "+detailedStatus);
 			// detect if server is back online after an offline status
 			if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS) {
 				if(serverStatus == Statuses.OFFLINE) {
@@ -685,11 +685,19 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 }
 			}
             else if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS_NEW_SESSION) {
+				if(serverStatus == Statuses.OFFLINE) {
+					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
+                    serverStatus = status;
+    				}
+				// Since new session not authenticated remotely
+				isAuthenticatedRemotely = false;
                 autoLogin();
             }
 			else if(status == Statuses.OFFLINE) {
 				serverStatus = status;
-                isAuthenticatedRemotely = false;
+				// Can still be authenticated, but server not reachable. 
+				// Depends on new session or not when ONLINE
+				// isAuthenticatedRemotely = false;
 				updateServerOnlineAndUserAuthenticated();
 			}
             else if(status == Statuses.DATA_SEND_OK) {

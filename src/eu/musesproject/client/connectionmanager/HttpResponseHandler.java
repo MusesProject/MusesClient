@@ -77,6 +77,7 @@ public class HttpResponseHandler {
 					}
 					else
 					{
+						// If this is a new session, inform using detailed status
 						detailedOnlineStatus = DetailedStatuses.SUCCESS_NEW_SESSION;
 					}
 				}
