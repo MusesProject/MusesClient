@@ -358,7 +358,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
         //try to log in remotely
         if(serverStatus == Statuses.ONLINE) {
-            JSONObject requestObject = JSONManager.createLoginJSON(userName, password, getImei());
+        	tmpLoginUserName = userName;
+        	tmpLoginPassword = password;
+        	JSONObject requestObject = JSONManager.createLoginJSON(userName, password, getImei());
             sendRequestToServer(requestObject);
         }
 
