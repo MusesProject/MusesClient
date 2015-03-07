@@ -69,6 +69,7 @@ public class HttpResponseHandler {
 				int detailedOnlineStatus = DetailedStatuses.SUCCESS;
 				if (isNewSession )
 				{
+					isNewSession = false;
 					if (Statuses.CURRENT_STATUS == Statuses.ONLINE)
 					{
 						// For testing
@@ -126,9 +127,6 @@ public class HttpResponseHandler {
 					} 
 				}
 
-				
-				
-				isNewSession = false;
 				AlarmReceiver.resetExponentialPollTime();
 				break;
 			case DetailedStatuses.INCORRECT_URL:
@@ -391,6 +389,8 @@ public class HttpResponseHandler {
 			Header header = httpResponse.getFirstHeader("data");
 			if (header!=null)
 			{
+				if (header.getValue().contains("sensor-config"))
+					Log.d(APP_TAG, "Sensor-Config");
 				dataLength = Integer.toString(header.getValue().length());
 			}
 		}
