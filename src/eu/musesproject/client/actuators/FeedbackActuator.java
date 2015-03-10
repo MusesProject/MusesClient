@@ -113,11 +113,16 @@ public class FeedbackActuator implements IFeedbackActuator {
     @Override
     public void removeFeedbackFromQueue() {
         Log.d(TAG, "remove feedback from queue");
-        // removes the last feeedback dialog
-        decisionQueue.remove();
-
+        // removes the last feedback dialog
+        if(decisionQueue != null && decisionQueue.size() > 0) {
+            try {
+                decisionQueue.remove();
+            } catch (Exception e) {
+                // ignore, no more element in the queue
+            }
+        }
         // triggers to show the next feedback dialog if there is any
-        if(decisionQueue.size() > 0) {
+        if(decisionQueue != null && decisionQueue.size() > 0) {
             showNextFeedback(decisionQueue.element());
         }
     }
