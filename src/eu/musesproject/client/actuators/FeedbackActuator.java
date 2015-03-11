@@ -53,6 +53,8 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     @Override
     public void showFeedback(Decision decision) {
+        if (callback == null) Log.e(APP_TAG, "********** callback is null!!");
+        else Log.d(APP_TAG, "********** callback is not null!!");
 //        Log.d(TAG, "called: showFeedback(Decision decision)");
         Log.d(TAG, "new feedback dialog request");
         decisionQueue.add(decision);
@@ -69,7 +71,8 @@ public class FeedbackActuator implements IFeedbackActuator {
     }
 
     private void sendCallback(Decision decision) {
-        Log.d(TAG, "send callback");
+        if (callback == null) Log.e(APP_TAG, "********** callback is null!!");
+        else Log.d(APP_TAG, "********** callback is not null!!");
         if(callback != null && decision != null && decision.getName() != null) {
             Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
             if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
@@ -140,11 +143,11 @@ public class FeedbackActuator implements IFeedbackActuator {
         }
     }
 
-    public void registerCallback(IUICallback callback) {
-        this.callback = callback;
+    public void registerCallback(IUICallback iUICallback) {
+        callback = iUICallback;
     }
 
-    public void unregisterCallback(IUICallback callback) {
-        this.callback = callback;
+    public void unregisterCallback(IUICallback iUICallback) {
+        callback = iUICallback;
     }
 }
