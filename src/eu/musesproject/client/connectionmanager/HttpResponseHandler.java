@@ -18,6 +18,11 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
@@ -356,17 +361,35 @@ public class HttpResponseHandler {
 	 * Retrieve Data from http response from the Server
 	 * @param response
 	 * @return receivedHttpResponseData
+	 * @throws IOException 
+	 * @throws IllegalStateException 
+	 * @throws UnsupportedEncodingException 
 	 */
 	
 	private String reteiveDataFromHttpResponseHeader(HttpResponse response) {
-		Header [] dataReceived = response.getAllHeaders();
-		for (Header responseHeader : dataReceived){
-			if (responseHeader.getName().equals("data")){
-				receivedHttpResponseData = responseHeader.getValue();
-				break;
-			}
-			
-		}
+		
+//		Header [] dataReceived = response.getAllHeaders();
+//		for (Header responseHeader : dataReceived){
+//			if (responseHeader.getName().equals("data")){
+//				receivedHttpResponseData = responseHeader.getValue();
+//				break;
+//			}
+//			
+//		}
+		BufferedReader reader;
+		String json = "";
+		try {
+			reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+			json = reader.readLine();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		
+		receivedHttpResponseData = json;
 		return receivedHttpResponseData;
 	}
 
@@ -382,7 +405,6 @@ public class HttpResponseHandler {
 	}
 
 	public String getDataLength() {
-		// TODO Auto-generated method stub
 		String dataLength = "";
 		if (httpResponse != null)
 		{
@@ -394,6 +416,8 @@ public class HttpResponseHandler {
 				dataLength = Integer.toString(header.getValue().length());
 			}
 		}
+		// new implementation as data header is not used anymore
+		dataLength = Integer.toString(receivedHttpResponseData.length() );
 		return dataLength;
 	}
 
