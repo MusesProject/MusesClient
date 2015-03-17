@@ -370,4 +370,28 @@ public class JSONManager {
 		}
 		return connectionConfig;
 	}
+	
+	/**
+	 * Method that returns the condition in the policy 
+	 * 
+	 * @param jsonString
+	 * @return
+	 */
+	
+	public static String getPolicyCondition(String jsonString) {
+        String cond = "";
+        try {
+            JSONObject responseJSON = new JSONObject(jsonString);
+            JSONObject filesJSON = responseJSON.getJSONObject("files");
+            JSONObject actionJSON = filesJSON.getJSONObject("action");
+            JSONObject denyJSON = actionJSON.getJSONObject("deny");
+            JSONObject conditionJSON = denyJSON.getJSONObject("condition");
+
+            cond = conditionJSON.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return cond;
+    }
+	
 }

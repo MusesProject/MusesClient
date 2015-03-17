@@ -190,8 +190,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		Decision decision = retrieveDecision(action, properties, contextEvents);
 
 		if(decision != null) { // local decision found
+			Log.d(APP_TAG, "Decision is: " + decision.getName());
 			Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
-			Log.d(APP_TAG, "showFeedback1");
 			ActuatorController.getInstance().showFeedback(decision);
 		}
 		else { // if there is no local decision, send a request to the server
@@ -571,7 +571,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb(); requestType=" +requestType);
 				Log.d(APP_TAG, "Request type was " + requestType);
 
-				if(requestType.equals(RequestType.ONLINE_DECISION)) {
+				if(requestType.equals(RequestType.ONLINE_DECISION)) { // We are not using this if clause
 					// TODO get decision from the json
 					// send decision to the actuator controller
 					// dummy data
@@ -594,6 +594,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						requestHolder.getRequestTimeoutTimer().cancel();
 						mapOfPendingRequests.remove(requestId);
 						send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
+                        Log.d(APP_TAG, "condition is: " + JSONManager.getPolicyCondition(receivedData) + " for request id:" + JSONManager.getRequestId(receivedData) + " for action:" + requestHolder.getAction().getActionType());
 					}
 				}
 				else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
@@ -725,7 +726,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				ActuatorController.getInstance().showFeedback(null);
 			}
 
-            Log.d(APP_TAG, "statusCb status: " + (serverStatus == Statuses.ONLINE));
+            //Log.d(APP_TAG, "statusCb status: " + (serverStatus == Statuses.ONLINE));
 			serverDetailedStatus = detailedStatus;
 
 			return 0;

@@ -48,6 +48,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public static final String ACK = "ack";
 	private static final String TAG = ConnectionManager.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
+	public static final String POLL_TAG = "POLL_TAG";
 	private static Boolean isServerConnectionSet = false; 
 	static private int lastSentStatus = Statuses.OFFLINE;
 	private AtomicInteger mCommandOngoing = new AtomicInteger(0);
@@ -259,7 +260,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 					params[1], params[2], params[3], params[4]);
 			if (!NetworkChecker.isInternetConnected) 
 			{
-				Log.d(APP_TAG,"doInBackground: Only respond to caller. ");
+				Log.d(POLL_TAG,"doInBackground: Only respond to caller. ");
 				if (request.getType().contentEquals(CONNECT))
 				{
 					callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
@@ -278,7 +279,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			}
 			else
 			{
-				Log.d(APP_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
+				Log.d(POLL_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
 				try {
 					HttpResponseHandler httpResponseHandler = doSecurePost(request, params[4]);
 					if (httpResponseHandler != null)
@@ -301,7 +302,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			}
 			
 			setCommandNotOngoing();
-			Log.d(APP_TAG,"doInBackground: doInBackground finished.");
+			Log.d(POLL_TAG,"doInBackground: doInBackground finished.");
 			return null;
 
     	}
