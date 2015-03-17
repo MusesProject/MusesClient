@@ -123,6 +123,7 @@ public class FeedbackActuator implements IFeedbackActuator {
             }
         }
         // triggers to show the next feedback dialog if there is any
+        if (decisionQueue != null) Log.d(TAG, "Decision queue size is: " + decisionQueue.size());
         if(decisionQueue != null && decisionQueue.size() > 0) {
             showNextFeedback(decisionQueue.element());
         }
