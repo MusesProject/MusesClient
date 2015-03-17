@@ -53,10 +53,10 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     @Override
     public void showFeedback(Decision decision) {
-        if (callback == null) Log.e(APP_TAG, "********** callback is null!!");
+        if (callback == null) Log.e(TAG, "********** callback is null!!");
 //        Log.d(TAG, "called: showFeedback(Decision decision)");
-        Log.d(TAG, "new feedback dialog request");
         decisionQueue.add(decision);
+        Log.d(TAG, "new feedback dialog request; queue size:" + decisionQueue.size());
 
         // just show a new dialog if there is no other currently displayed
         if(decisionQueue.size() == 1) {
@@ -70,9 +70,9 @@ public class FeedbackActuator implements IFeedbackActuator {
     }
 
     private void sendCallback(Decision decision) {
-        if (callback == null) Log.e(APP_TAG, "********** callback is null!!");
+        if (callback == null) Log.e(TAG, "********** callback is null!!");
         if(callback != null && decision != null && decision.getName() != null) {
-            Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName() );
+            Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName() );
             if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
             }
@@ -88,6 +88,7 @@ public class FeedbackActuator implements IFeedbackActuator {
             }
         }
         else if(callback != null && decision == null) {
+            decisionQueue.poll();
             callback.onError();
         }
     }
@@ -123,7 +124,7 @@ public class FeedbackActuator implements IFeedbackActuator {
             }
         }
         // triggers to show the next feedback dialog if there is any
-        if (decisionQueue != null) Log.d(TAG, "Decision queue size is: " + decisionQueue.size());
+        if (decisionQueue != null) Log.d(TAG, "Decision queue size is (after removal): " + decisionQueue.size());
         if(decisionQueue != null && decisionQueue.size() > 0) {
             showNextFeedback(decisionQueue.element());
         }
