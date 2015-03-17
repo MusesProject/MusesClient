@@ -55,12 +55,14 @@ public class FeedbackActuator implements IFeedbackActuator {
     public void showFeedback(Decision decision) {
         if (callback == null) Log.e(TAG, "********** callback is null!!");
 //        Log.d(TAG, "called: showFeedback(Decision decision)");
-        decisionQueue.add(decision);
-        Log.d(TAG, "new feedback dialog request; queue size:" + decisionQueue.size());
+        if(decision != null && decision.getName() != null) {
+            decisionQueue.add(decision);
+            Log.d(TAG, "new feedback dialog request; queue size:" + decisionQueue.size());
 
-        // just show a new dialog if there is no other currently displayed
-        if(decisionQueue.size() == 1) {
-            sendCallback(decision);
+            // just show a new dialog if there is no other currently displayed
+            if (decisionQueue.size() == 1) {
+                sendCallback(decision);
+            }
         }
     }
 
