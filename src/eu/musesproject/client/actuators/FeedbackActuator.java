@@ -77,6 +77,9 @@ public class FeedbackActuator implements IFeedbackActuator {
             Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName() );
             if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
+                // remove it from the queue, because it does not provide a dialog in which the user can click
+                // on a button
+                removeFeedbackFromQueue();
             }
             else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
                 callback.onMaybe(decision);
