@@ -67,7 +67,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public static final String TAG_RQT = "REQUEST_TIMEOUT";
 	public static final String TAG_DB = "DATABASE_TEST_CODE";
 	public static final String TAG_MUSES_AWARE = "MUSES_AWARE";
-	private static final String APP_TAG = "APP_TAG";
+	public static final String APP_TAG = "APP_TAG";
+	public static final String APP_TAG2 = "APP_TAG2";
 
 	private static UserContextEventHandler userContextEventHandler = null;
 	//	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
@@ -126,7 +127,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	public static UserContextEventHandler getInstance() {
 		if (userContextEventHandler == null) {
-			userContextEventHandler = new UserContextEventHandler();
+            userContextEventHandler = new UserContextEventHandler();
 		}
 		return userContextEventHandler;
 	}
@@ -230,15 +231,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
 				storeContextEvent(action, properties, contextEvents);
 			}
-		}
-		// update context events even if a local decision was found.
-		// Prevent sending context events again if they are already sent for a online decision
-		if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE) && isUserAuthenticated) {
-			Log.d(APP_TAG, "Info DB, update context events even if a local decision was found.");
-
-			RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
-			JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.LOCAL_DECISION, action, properties, contextEvents);
-			sendRequestToServer(requestObject);
 		}
 	}
 
@@ -571,18 +563,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb(); requestType=" +requestType);
 				Log.d(APP_TAG, "Request type was " + requestType);
 
-				if(requestType.equals(RequestType.ONLINE_DECISION)) { // We are not using this if clause
-					// TODO get decision from the json
-					// send decision to the actuator controller
-					// dummy data
-					Decision decision = new Decision();
-					decision.setName(Decision.GRANTED_ACCESS);
-					Log.d(APP_TAG, "Info DC, Hardcoding decision to GRANT_ACCESS");
-					Log.d(APP_TAG, "Info CT, calling actuator to showFeedback");
-					Log.d(APP_TAG, "showFeedback3");
-					ActuatorController.getInstance().showFeedback(decision);
-				}
-				else if(requestType.equals(RequestType.UPDATE_POLICIES)) {
+				if(requestType.equals(RequestType.UPDATE_POLICIES)) {
 					Log.d(APP_TAG, "Updating polices");
 					RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
 
@@ -797,7 +778,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			decisionMaker = new DecisionMaker();
 		}
 		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
-		Log.d(APP_TAG, "showFeedback4");
+		Log.d(APP_TAG, "           4");
 		ActuatorController.getInstance().showFeedback(decision);
 		if(requestHolder.getAction().isRequestedByMusesAwareApp()) {
 			ActuatorController.getInstance().sendFeedbackToMUSESAwareApp(decision, getContext());
