@@ -88,8 +88,8 @@ public class FeedbackActuator implements IFeedbackActuator {
             }
         }
         else if(callback != null && decision == null) {
-            decisionQueue.poll();
             callback.onError();
+            removeFeedbackFromQueue();
         }
     }
 
