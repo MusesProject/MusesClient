@@ -24,12 +24,13 @@ import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 
 import android.util.Log;
@@ -48,24 +49,32 @@ public abstract class HttpConnectionsHelper {
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
 	public static final String DISCONNECT = "disconnect";
-	public static int TIMEOUT = 5000;
+	public static int CONNECTION_TIMEOUT = 5000;
+	private static final int SOCKET_TIMEOUT = 5000; 
+	private static final int MCC_TIMEOUT = 5000;
 	public static int POLLING_ENABLED = 1;
-	private static final String TAG = HttpConnectionsHelper.class.getSimpleName(); 
+	private static final String TAG = HttpConnectionsHelper.class.getSimpleName();
+	private static String APP_TAG; 
+
 	
 	/**
-	 * Http post implementation 
+	 * 
+	 * @param type
 	 * @param url
 	 * @param data
 	 * @return httpResponse
 	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	
 	public synchronized HttpResponse doPost(String type ,String url, String data) throws ClientProtocolException, IOException {
 		HttpResponse httpResponse = null;
 		HttpPost httpPost = new HttpPost(url);
-		HttpParams httpParameters = new BasicHttpParams();  
-	    HttpConnectionParams.setConnectionTimeout(httpParameters, TIMEOUT);
+		HttpParams httpParameters = httpPost.getParams();  
+	    httpParameters.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 
+	            CONNECTION_TIMEOUT);
+	    httpParameters.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, SOCKET_TIMEOUT);
+	    httpParameters.setLongParameter(ConnManagerPNames.TIMEOUT, MCC_TIMEOUT);
+	    
 	    DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
         StringEntity s = new StringEntity(data.toString());
         s.setContentEncoding("UTF-8");
@@ -128,10 +137,14 @@ public abstract class HttpConnectionsHelper {
 		
 
 		if (httpclient !=null) {
-			HttpParams httpParameters = new BasicHttpParams();  
-		    HttpConnectionParams.setConnectionTimeout(httpParameters, TIMEOUT);
 			httpPost = new HttpPost(request.getUrl());
-	        StringEntity s = new StringEntity(request.getData().toString());
+			
+			HttpParams httpParameters = httpPost.getParams();  
+		    httpParameters.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, CONNECTION_TIMEOUT);
+		    httpParameters.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, SOCKET_TIMEOUT);
+		    httpParameters.setLongParameter(ConnManagerPNames.TIMEOUT, MCC_TIMEOUT);
+
+		    StringEntity s = new StringEntity(request.getData().toString());
 	        s.setContentEncoding("UTF-8");
 	        s.setContentType("application/xml");
 	        httpPost.setEntity(s);
@@ -165,13 +178,11 @@ public abstract class HttpConnectionsHelper {
 			    }
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				Log.d(TAG,"doSecurePost"+ e.toString());
+				Log.e(APP_TAG,"doSecurePost"+ e.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
-				Log.d(TAG, "doSecurePost"+e.toString());
+				Log.e(APP_TAG, "doSecurePost"+e.toString());
 			}
-		    
-
 		    
 		} else {
 			try {
@@ -206,10 +217,10 @@ public abstract class HttpConnectionsHelper {
 		 	   
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				Log.d(TAG,e.toString());
+				Log.e(APP_TAG,e.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
-				Log.d(TAG,e.toString());
+				Log.e(APP_TAG,e.toString());
 			}
 		}
 
@@ -217,6 +228,9 @@ public abstract class HttpConnectionsHelper {
 		
     }
 
+	
+	
+	
 //	private boolean isSessionExpired(Date newDate, int pollInterval){
 //		long diff = newDate.getTime() - lastDate.getTime();
 //		long diffSeconds = (diff / 1000) % 60;
@@ -236,7 +250,7 @@ public abstract class HttpConnectionsHelper {
 //		return pollIntervalInSeconds;
 //	}
 	
-	private String getInStringSeconds(String pollInterval) {
+	private static String getInStringSeconds(String pollInterval) {
 		int pollIntervalInSeconds = (Integer.parseInt(pollInterval) / 1000) % 60 ;
 		return Integer.toString(pollIntervalInSeconds);
 	}

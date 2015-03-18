@@ -314,7 +314,7 @@ public class DBManager {
 
 	public void insertSensorConfiguration(SensorConfiguration sensorConfiguration){
 //		if(!sensorConfigExists(sensorConfiguration)) {
-		Log.d(MusesUtils.TEST_TAG, "DB - insert sensor config");
+		Log.d(TAG, "DB - insert sensor config");
 			ContentValues values = new ContentValues();
 			values.put(SENSOR_TYPE, sensorConfiguration.getSensorType());
 			values.put(KEY, sensorConfiguration.getKey());

@@ -101,6 +101,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		feedBackDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		feedBackDialog.setContentView(R.layout.feedback_dialog);
 		
+		feedBackDialog.setCanceledOnTouchOutside(false);
 		// Views	
 		feedbackView = (TextView)feedBackDialog.findViewById(R.id.feedback_txt);
 		feedbackTitleView = (TextView)feedBackDialog.findViewById(R.id.feedback_title_txt);
@@ -183,7 +184,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 //		}, 100);
 
 	}
-	
+
 	
 	@Override
 	protected void onDestroy() {

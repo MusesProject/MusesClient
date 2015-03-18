@@ -55,7 +55,7 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public void onCreate() {
-		Log.v(MusesUtils.TEST_TAG, "BACKGROUND - onCreate");
+		Log.d(TAG, "BACKGROUND - onCreate");
 
 		isAppInitialized = false;
 		UserContextMonitoringController.getInstance(this);
@@ -66,9 +66,9 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.v(MusesUtils.TEST_TAG, "BACKGROUND - on startComment called");
+		Log.d(TAG, "BACKGROUND - on startComment called");
 		if(!isAppInitialized) {
-			Log.v(MusesUtils.TEST_TAG, "BACKGROUND - MUSES service started!!");
+			Log.d(MusesUtils.TEST_TAG, "BACKGROUND - MUSES service started!!");
 			isAppInitialized = true;
 
 			MUSESBackgroundService mService = MUSESBackgroundService.this;
