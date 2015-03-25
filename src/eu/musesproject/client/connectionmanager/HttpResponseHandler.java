@@ -405,7 +405,7 @@ public class HttpResponseHandler {
 	}
 
 	public String getDataLength() {
-		String dataLength = "";
+		String dataLength = "0";
 		if (httpResponse != null)
 		{
 			Header header = httpResponse.getFirstHeader("data");
