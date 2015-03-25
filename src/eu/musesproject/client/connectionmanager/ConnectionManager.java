@@ -293,6 +293,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				} catch (IOException e) {
 					e.printStackTrace();
 					Log.d(APP_TAG, Log.getStackTraceString(e));
+				} catch (Exception e) {
+					e.printStackTrace();
+					Log.d(APP_TAG, Log.getStackTraceString(e));
 				}
 				
 				if (request.getType().contentEquals(DISCONNECT))

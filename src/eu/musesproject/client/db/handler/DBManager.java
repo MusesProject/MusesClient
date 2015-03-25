@@ -50,7 +50,17 @@ public class DBManager {
 			+ "description VARCHAR(45)," // FIXME don't commit should be not null
 			+ "action_type VARCHAR(45),"  // FIXME don't commit should be not null
 			+ "timestamp TIMESTAMP NOT NULL);";
+	private static final String CREATE_OFFLINE_ACTION_TABLE_QUERY = "CREATE TABLE offline_action ( "
+			+ "id INTEGER PRIMARY KEY,"
+			+ "description VARCHAR(45)," 
+			+ "action_type VARCHAR(45)," 
+			+ "timestamp TIMESTAMP NOT NULL);";
 	private static final String CREATE_ACTION_PROPERTY_TABLE_QUERY = "CREATE TABLE action_property ( "
+			+ "id INTEGER PRIMARY KEY,"
+			+ "action_id INT NOT NULL,"
+			+ "key VARCHAR(45) NOT NULL,"
+			+ "value VARCHAR(500) NOT NULL);";
+	private static final String CREATE_OFFLINE_ACTION_PROPERTY_TABLE_QUERY = "CREATE TABLE offline_action_property ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "action_id INT NOT NULL,"
 			+ "key VARCHAR(45) NOT NULL,"
@@ -148,7 +158,9 @@ public class DBManager {
 	public static final String TABLE_RESOURCE_TYPE = "resourcetype";
 	public static final String TABLE_RESOURCE_PROPERTY = "resource_property";
 	public static final String TABLE_ACTION = "action";
+	public static final String TABLE_OFFLINE_ACTION = "offline_action";
 	public static final String TABLE_ACTION_PROPERTY = "action_property";
+	public static final String TABLE_OFFLINE_ACTION_PROPERTY = "offline_action_property";
 	public static final String TABLE_RISK_TREATMENT = "risktreatment";
 	public static final String TABLE_RISK_COMMUNICATION = "riskcommunication";
 	public static final String TABLE_CONTEXT_EVENT = "contextevent";
@@ -264,7 +276,9 @@ public class DBManager {
 			Log.d( TAG,"Creating the DB" );
 
 			db.execSQL(CREATE_ACTION_TABLE_QUERY);
+			db.execSQL(CREATE_OFFLINE_ACTION_TABLE_QUERY);
 			db.execSQL(CREATE_ACTION_PROPERTY_TABLE_QUERY);
+			db.execSQL(CREATE_OFFLINE_ACTION_PROPERTY_TABLE_QUERY);
 			db.execSQL(CREATE_DECISIONTABLE_TABLE_QUERY);
 			db.execSQL(CREATE_DECISION_TABLE_QUERY);
 			db.execSQL(CREATE_RESOURCE_TABLE_QUERY);
@@ -290,6 +304,7 @@ public class DBManager {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_DECISION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_DECISIONTABLE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTION);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OFFLINE_ACTION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE_TYPE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE_PROPERTY);
@@ -304,6 +319,7 @@ public class DBManager {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_SENSOR_CONFIGURATION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_REQUIRED_APPS_CONFIGURATION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTION_PROPERTY);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OFFLINE_ACTION_PROPERTY);
 			onCreate(db);
 
 		}
@@ -998,6 +1014,21 @@ public class DBManager {
 		return sqLiteDatabase.insert(TABLE_ACTION, null, values);
 	}
 
+
+	public long addOfflineAction(Action action){
+		ContentValues values = new ContentValues();
+		values.put(DESCRIPTION, action.getDescription());
+		values.put(ACTION_TYPE, action.getActionType());
+		values.put(TIME_STAMP, action.getTimestamp());
+		Log.d(TAG, "action type: " + action.getActionType() + " description: " + action.getDescription());
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
+
+		return sqLiteDatabase.insert(TABLE_OFFLINE_ACTION, null, values);
+	}
+	
 	public long addActionProperty(ActionProperty actionProperty) {
 		ContentValues values = new ContentValues();
 		values.put(ACTION_ID, actionProperty.getActionId());
@@ -1009,6 +1040,19 @@ public class DBManager {
 		}
 
 		return sqLiteDatabase.insert(TABLE_ACTION_PROPERTY, null, values);
+	}
+	
+	public long addOfflineActionProperty(ActionProperty actionProperty) {
+		ContentValues values = new ContentValues();
+		values.put(ACTION_ID, actionProperty.getActionId());
+		values.put(KEY, actionProperty.getKey());
+		values.put(VALUE, actionProperty.getValue());
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
+
+		return sqLiteDatabase.insert(TABLE_OFFLINE_ACTION_PROPERTY, null, values);
 	}
 
 	public List<ActionProperty> getActionPropertyList() {
@@ -1033,11 +1077,11 @@ public class DBManager {
 		return actionPropertyList;
 	}
 
-	public List<ActionProperty> getActionPropertiesOfAction(int actionId) {
+	public List<ActionProperty> getOfflineActionPropertiesOfAction(int actionId) {
 		if (sqLiteDatabase == null){//Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION_PROPERTY, new String [] {
+		Cursor cursor = sqLiteDatabase.query(TABLE_OFFLINE_ACTION_PROPERTY, new String [] {
 						ID,
 						ACTION_ID,
 						KEY,
@@ -1065,9 +1109,9 @@ public class DBManager {
 		return actionPropertyList;
 	}
 
-	public List<Action> getActionList() {
+	public List<Action> getOfflineActionList() {
 		List<Action> actionList = new ArrayList<Action>();
-		String selectQuery = "select  * from " + TABLE_ACTION;
+		String selectQuery = "select  * from " + TABLE_OFFLINE_ACTION;
 		if (sqLiteDatabase == null){//Open database in case it is closed
 			openDB();
 		}
@@ -1608,8 +1652,8 @@ public class DBManager {
             openDB();
         }
 
-        sqLiteDatabase.delete(TABLE_ACTION, null, null);
-        sqLiteDatabase.delete(TABLE_ACTION_PROPERTY, null, null);
+        sqLiteDatabase.delete(TABLE_OFFLINE_ACTION, null, null);
+        sqLiteDatabase.delete(TABLE_OFFLINE_ACTION_PROPERTY, null, null);
         sqLiteDatabase.delete(TABLE_CONTEXT_EVENT, null, null);
         sqLiteDatabase.delete(TABLE_PROPERTY, null, null);
     }
