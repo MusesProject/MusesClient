@@ -18,13 +18,15 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.cookie.Cookie;
@@ -49,13 +51,14 @@ public abstract class HttpConnectionsHelper {
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
 	public static final String DISCONNECT = "disconnect";
-	public static int CONNECTION_TIMEOUT = 5000;
-	private static final int SOCKET_TIMEOUT = 5000; 
-	private static final int MCC_TIMEOUT = 5000;
+	public static int CONNECTION_TIMEOUT = 5500;
+	private static final int SOCKET_TIMEOUT = 5500; 
+	private static final int MCC_TIMEOUT = 5500;
 	public static int POLLING_ENABLED = 1;
 	private static final String TAG = HttpConnectionsHelper.class.getSimpleName();
-	private static String APP_TAG; 
-
+	private static String APP_TAG = "APP_TAG"; 
+	public static final String BUG_TAG = "BUG_TAG";
+		
 	
 	/**
 	 * 
@@ -134,7 +137,7 @@ public abstract class HttpConnectionsHelper {
 		HttpPost httpPost = null;
 		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
-		
+		Log.v(BUG_TAG, request.getData());
 
 		if (httpclient !=null) {
 			httpPost = new HttpPost(request.getUrl());
@@ -182,6 +185,9 @@ public abstract class HttpConnectionsHelper {
 			} catch (IOException e) {
 				e.printStackTrace();
 				Log.e(APP_TAG, "doSecurePost"+e.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+				Log.e(APP_TAG, "doSecurePost"+e.toString());
 			}
 		    
 		} else {
@@ -221,15 +227,15 @@ public abstract class HttpConnectionsHelper {
 			} catch (IOException e) {
 				e.printStackTrace();
 				Log.e(APP_TAG,e.toString());
+			}catch (Exception e) {
+				e.printStackTrace();
+				Log.e(APP_TAG,e.toString());
 			}
 		}
-
         return serverResponse;
 		
     }
 
-	
-	
 	
 //	private boolean isSessionExpired(Date newDate, int pollInterval){
 //		long diff = newDate.getTime() - lastDate.getTime();

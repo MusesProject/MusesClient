@@ -416,7 +416,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			}
 			dbManager.openDB();
 
-			int actionId = (int) dbManager.addAction(DBEntityParser.transformActionToEntityAction(action));
+			int actionId = (int) dbManager.addOfflineAction(DBEntityParser.transformActionToEntityAction(action));
 			for(Map.Entry<String, String> entry : properties.entrySet()) {
 				// transform to action property
 				ActionProperty actionProperty = new ActionProperty();
@@ -424,7 +424,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				actionProperty.setKey(entry.getKey());
 				actionProperty.setValue(entry.getValue());
 
-				dbManager.addActionProperty(actionProperty);
+				dbManager.addOfflineActionProperty(actionProperty);
 			}
 
 			for(ContextEvent contextEvent : contextEvents){
@@ -468,12 +468,12 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 			// 3. get a list of all stored actions
             dbManager.openDB();
-            Log.d(TAG_DB, "action table size: "+dbManager.getActionList().size());
-			for (eu.musesproject.client.db.entity.Action entityAction : dbManager.getActionList()) {
+            Log.d(TAG_DB, "action table size: "+dbManager.getOfflineActionList().size());
+			for (eu.musesproject.client.db.entity.Action entityAction : dbManager.getOfflineActionList()) {
 				Action action = DBEntityParser.transformAction(entityAction);
 
 				//  4.1 get all related properties of that action
-				List<ActionProperty> entityActionProperties = dbManager.getActionPropertiesOfAction(entityAction.getId());
+				List<ActionProperty> entityActionProperties = dbManager.getOfflineActionPropertiesOfAction(entityAction.getId());
 				Map<String, String> actionProperties = DBEntityParser.transformActionPropertyToMap(entityActionProperties);
 
 				//4.2 get all context events of that action
