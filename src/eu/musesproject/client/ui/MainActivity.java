@@ -18,15 +18,10 @@
  * limitations under the License.
  * #L%
  */
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,18 +29,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
-import eu.musesproject.client.connectionmanager.DetailedStatuses;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.handler.DBManager;
@@ -55,6 +43,9 @@ import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.client.utils.MusesUtils;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * MainActivity class handles List buttons on the main GUI
@@ -178,7 +169,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-	
+
 		DBManager dbManager = new DBManager(getApplicationContext());
 		dbManager.openDB();
 		boolean isActive = dbManager.isSilentModeActive();
@@ -341,7 +332,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		Log.v(MusesUtils.TEST_TAG, "Registring callbacks from MainActivity!");
 		MusesUICallbacksHandler musesUICallbacksHandler = new MusesUICallbacksHandler(
 				context, callbackHandler);
-		ActuatorController.getInstance().registerCallback(
+		ActuatorController.getInstance(this).registerCallback(
 				musesUICallbacksHandler);
 	}
 

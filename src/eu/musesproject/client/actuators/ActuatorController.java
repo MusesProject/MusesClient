@@ -35,6 +35,8 @@ public class ActuatorController implements IActuatorController {
     private static final String TAG = ActuatorController.class.getSimpleName();
 
     private static ActuatorController actuatorController = null;
+
+    private Context context;
     private IUICallback callback;
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
@@ -43,15 +45,16 @@ public class ActuatorController implements IActuatorController {
     
     private DBManager dbManager;
 
-    public ActuatorController() {
-        this.feedbackActuator = new FeedbackActuator();
+    public ActuatorController(Context context) {
+        this.context = context;
+        this.feedbackActuator = new FeedbackActuator(context);
         this.blockActuator = new BlockActuator(uceHandler.getContext());
         this.dbManager = new DBManager(uceHandler.getContext());
     }
 
-    public static ActuatorController getInstance() {
+    public static ActuatorController getInstance(Context context) {
         if (actuatorController == null) {
-            actuatorController = new ActuatorController();
+            actuatorController = new ActuatorController(context);
         }
         return actuatorController;
     }
@@ -75,7 +78,7 @@ public class ActuatorController implements IActuatorController {
         feedbackActuator.removeFeedbackFromQueue();
     }
 
-    public void sendFeedbackToMUSESAwareApp(Decision decision, Context context) {
+    public void sendFeedbackToMUSESAwareApp(Decision decision) {
         feedbackActuator.sendFeedbackToMUSESAwareApp(decision, context);
     }
 

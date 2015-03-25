@@ -193,7 +193,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		if(decision != null) { // local decision found
 			Log.d(APP_TAG, "Decision is: " + decision.getName());
 			Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
-			ActuatorController.getInstance().showFeedback(decision);
+			ActuatorController.getInstance(context).showFeedback(decision);
 		}
 		else { // if there is no local decision, send a request to the server
 			if(serverStatus == Statuses.ONLINE && isUserAuthenticated) { // if the server is online, request a decision
@@ -225,7 +225,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			}
 			else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
 				Log.d(APP_TAG, "showFeedback2");
-				ActuatorController.getInstance().showFeedback(new DecisionMaker().getDefaultDecision());
+				ActuatorController.getInstance(context).showFeedback(new DecisionMaker().getDefaultDecision());
 				storeContextEvent(action, properties, contextEvents);
 			}
 			else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
@@ -267,7 +267,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void sendUserBehavior(Action action) {
         // display next Feedback dialog if there is any
-        ActuatorController.getInstance().removeFeedbackFromQueue();
+        ActuatorController.getInstance(context).removeFeedbackFromQueue();
 
         // send the current user feedback to the server
 		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
@@ -315,7 +315,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			dbManager.openDB();
 			isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword);
 			dbManager.closeDB();
-			ActuatorController.getInstance().sendLoginResponse(isUserAuthenticated);
+			ActuatorController.getInstance(context).sendLoginResponse(isUserAuthenticated);
 			if (isUserAuthenticated){
 				sendConfigSyncRequest();
 			}
@@ -509,6 +509,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public void sendRequestToServer(JSONObject requestJSON) {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - sendRequestToServer(JSONObject requestJSON)");
 		Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
+        Log.d(APP_TAG2, requestJSON.toString());
 		if (requestJSON != null) {
 			if(serverStatus == Statuses.ONLINE) {
 				String sendData  = requestJSON.toString();
@@ -581,7 +582,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
 
 					isAuthenticatedRemotely = JSONManager.getAuthResult(receivedData);
-					Log.d(APP_TAG, "Retreiving auth response from JSON, authenticated: " + isAuthenticatedRemotely);
+                    Log.d(APP_TAG, "Retreiving auth response from JSON, authenticated: " + isAuthenticatedRemotely);
                     updateServerOnlineAndUserAuthenticated();
 					if(isAuthenticatedRemotely) {
 						dbManager.openDB();
@@ -596,7 +597,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						updateServerOnlineAndUserAuthenticated();
 						sendConfigSyncRequest();
 					}
-					ActuatorController.getInstance().sendLoginResponse(isAuthenticatedRemotely);
+					ActuatorController.getInstance(context).sendLoginResponse(isAuthenticatedRemotely);
 				}
 				else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
                 	/*
@@ -704,7 +705,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 			if(detailedStatus == DetailedStatuses.UNKNOWN_ERROR) {
 				// fires the unknown error feedback
-				ActuatorController.getInstance().showFeedback(null);
+				ActuatorController.getInstance(context).showFeedback(null);
 			}
 
             //Log.d(APP_TAG, "statusCb status: " + (serverStatus == Statuses.ONLINE));
@@ -779,9 +780,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
 		Log.d(APP_TAG, "           4");
-		ActuatorController.getInstance().showFeedback(decision);
+		ActuatorController.getInstance(context).showFeedback(decision);
 		if(requestHolder.getAction().isRequestedByMusesAwareApp()) {
-			ActuatorController.getInstance().sendFeedbackToMUSESAwareApp(decision, getContext());
+			ActuatorController.getInstance(context).sendFeedbackToMUSESAwareApp(decision);
 		}
 	}
 }

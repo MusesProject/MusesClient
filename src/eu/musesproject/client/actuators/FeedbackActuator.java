@@ -22,9 +22,11 @@ package eu.musesproject.client.actuators;
 
 import android.content.Context;
 import android.util.Log;
+import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ActuatorInstruction;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
+import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
 
 import java.util.LinkedList;
@@ -45,9 +47,12 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     private static IUICallback callback;
 
+    private Context context;
+
     Queue<Decision> decisionQueue;
 
-    public FeedbackActuator() {
+    public FeedbackActuator(Context context) {
+        this.context = context;
         decisionQueue = new LinkedList<Decision>();
     }
 
@@ -80,6 +85,14 @@ public class FeedbackActuator implements IFeedbackActuator {
                 // remove it from the queue, because it does not provide a dialog in which the user can click
                 // on a button
                 removeFeedbackFromQueue();
+
+                // send user behavior to the server.
+                // since, GRANTED is a situation where the user has no visible pop up, we will send an
+                // automatic generated behavior, which is GRANTED
+                Action action = new Action(Decision.GRANTED_ACCESS, System.currentTimeMillis());
+                if(context != null) {
+                    UserContextMonitoringController.getInstance(context).sendUserBehavior(action);
+                }
             }
             else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
                 callback.onMaybe(decision);
