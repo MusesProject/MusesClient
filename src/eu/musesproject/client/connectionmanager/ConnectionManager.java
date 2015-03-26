@@ -93,7 +93,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		/* FIXME which Length.. */
 		if (cert.isEmpty() || cert.length() < 1000)
 		{
-			callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.INCORRECT_CERTIFICATE);
+			callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.INCORRECT_CERTIFICATE, 0);
 			Log.d(TAG, "connect: Incorrect certificate!");
 			return;
 		}
@@ -113,7 +113,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
         //DBG SweFileLog.write("Connect to :"+URL+",0,0");
         
         startHttpThread( CONNECT,
-				URL, Integer.toString(pollInterval),"");
+				URL, Integer.toString(pollInterval),"", "");
 				
 		alarmReceiver.setPollInterval(pollInterval, sleepPollInterval);
 		alarmReceiver.setDefaultPollInterval(pollInterval, sleepPollInterval);
@@ -128,12 +128,13 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	 */
 	
 	@Override
-	public void sendData(String data) {
-
+	public void sendData(String data, int dataId) {
+		String dataIdStr = "";
+		dataIdStr = Integer.toString(dataId);
 		setCommandOngoing();
 		Log.d(APP_TAG, "ConnManager=> send data to server: "+data);
 		startHttpThread(DATA, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data); 
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, dataIdStr); 
 	}
 	
 	/**
@@ -153,7 +154,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		
 		Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
 		startHttpThread(DISCONNECT, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "");
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", "");
 		
 			
 			//callBacks.statusCb(Statuses.DISCONNECTED, Statuses.DISCONNECTED);
@@ -205,7 +206,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		
 		setCommandOngoing();
 		startHttpThread(POLL, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "");
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", "");
 			
 	
 	}
@@ -218,15 +219,15 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	public void ack() {
 		Log.d(TAG, "Sending ack..");
 		startHttpThread(ACK, URL, 
-				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "");
+				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", "");
 			
 	
 	}
 	
-	private void startHttpThread(String cmd, String url, String pollInterval, String data) {
+	private void startHttpThread(String cmd, String url, String pollInterval, String data, String dataId) {
 		HttpClientAsyncThread httpClientAsyncThread = new HttpClientAsyncThread();
 		httpClientAsyncThread.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, cmd, url, 
-				pollInterval, data, certificate);
+				pollInterval, data, certificate, dataId);
 
 		/* If too many threads, use serial executor */
 //		httpClientAsyncThread.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, cmd, url, 
@@ -257,23 +258,23 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
     	protected String doInBackground(String... params) {
     		HttpResponse response = null;
 			Request request = new Request(params[0], 
-					params[1], params[2], params[3], params[4]);
+					params[1], params[2], params[3], params[4], params[5]);
 			if (!NetworkChecker.isInternetConnected) 
 			{
 				Log.d(POLL_TAG,"doInBackground: Only respond to caller. ");
 				if (request.getType().contentEquals(CONNECT))
 				{
-					callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+					callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION, request.getDataId());
 				}
 				else if (request.getType().contentEquals(DATA))
 				{
 					Log.d(APP_TAG, "ConnManager=> can't send data with no internet connection, calling statusCB");
-					sendServerStatus(Statuses.OFFLINE, DetailedStatuses.NO_INTERNET_CONNECTION);
-					callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION);
+					sendServerStatus(Statuses.OFFLINE, DetailedStatuses.NO_INTERNET_CONNECTION, request.getDataId());
+					callBacks.statusCb(Statuses.DATA_SEND_FAILED, DetailedStatuses.NO_INTERNET_CONNECTION, request.getDataId());
 					
 				} else if (request.getType().contentEquals(DISCONNECT))
 				{
-					callBacks.statusCb(Statuses.DISCONNECTED, DetailedStatuses.NO_INTERNET_CONNECTION);
+					callBacks.statusCb(Statuses.DISCONNECTED, DetailedStatuses.NO_INTERNET_CONNECTION, request.getDataId());
 					HttpConnectionsHelper.current_cookie = null;
 				}
 			}
@@ -284,6 +285,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 					HttpResponseHandler httpResponseHandler = doSecurePost(request, params[4]);
 					if (httpResponseHandler != null)
 					{
+						
 						httpResponseHandler.checkHttpResponse();
 					}
 					
@@ -322,13 +324,13 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		POLLING_ENABLED = polling;
 	}
 
-	public static void sendServerStatus(int status, int detailedStatus) {
+	public static void sendServerStatus(int status, int detailedStatus, int dataId) {
 		// TODO Auto-generated method stub
 		if (status == Statuses.OFFLINE || status == Statuses.ONLINE)
 		{
 			if (lastSentStatus != status )
 			{
-				ConnectionManager.callBacks.statusCb(status, detailedStatus);
+				ConnectionManager.callBacks.statusCb(status, detailedStatus, dataId);
 				lastSentStatus = status;
 				// For testing
 				//DBG SweFileLog.write((status==Statuses.ONLINE?"ONLINE,,":"OFFLINE,,"));

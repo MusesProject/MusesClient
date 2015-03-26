@@ -33,6 +33,6 @@ public interface IConnectionManager {
 	void setPollTimeOuts (int pollInterval, int sleepPollInterval);
 	void setTimeout(int timeout);
 	void setPolling(int polling);
-	void sendData (String data);
+	void sendData (String data, int dataId);
 	void disconnect ();
 }

@@ -45,6 +45,7 @@ public class HttpResponseHandler {
 	private boolean isNewSession = false;
 	private int sessionUpdateReason = 0;
 	private String requestType;
+	private int dataId;
 
 	/**
 	 * Constructor initialise with httpResponse and request type (connect,data,poll etc)
@@ -52,14 +53,16 @@ public class HttpResponseHandler {
 	 * @param requestType
 	 * @return void
 	 */
-	public HttpResponseHandler(HttpResponse httpResponse, String requestType) {
+	public HttpResponseHandler(HttpResponse httpResponse, String requestType, int dataId) {
 		this.httpResponse = httpResponse;
 		this.requestType = requestType;
+		this.dataId = dataId;
 	}
 
-	public HttpResponseHandler(String requestType) {
+	public HttpResponseHandler(String requestType, int dataId) {
 		// TODO Auto-generated constructor stub
 		this.requestType = requestType;
+		this.dataId = dataId;
 	}
 
 	/**
@@ -79,7 +82,7 @@ public class HttpResponseHandler {
 					{
 						// For testing
 						//DBG SweFileLog.write("New sessionId, ,");
-						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason);
+						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason, dataId);
 					}
 					else
 					{
@@ -91,7 +94,7 @@ public class HttpResponseHandler {
 				Statuses.CURRENT_STATUS = Statuses.ONLINE;
 				
 				if (isPollRequest(requestType)) {
-					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
@@ -101,8 +104,8 @@ public class HttpResponseHandler {
 						doPollForAnExtraPacket();
 					}
 				} else if (isSendDataRequest(requestType)){
-					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
-					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS);
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
+					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
@@ -112,19 +115,19 @@ public class HttpResponseHandler {
 						doPollForAnExtraPacket();
 					}
 				} else if (isAckRequest(requestType)) {
-					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 					Log.d(TAG, "Ack by the server");
 				} else if (isConnectRequest(requestType)){
-					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus);
-					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS);
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
+					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 
 						//sendDataToFunctionalLayer();
 					} 
 				} else if (isDisonnectRequest(requestType)){
-					setServerStatusAndCallBack(Statuses.DISCONNECTED, DetailedStatuses.SUCCESS);
+					setServerStatusAndCallBack(Statuses.DISCONNECTED, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 
@@ -140,10 +143,10 @@ public class HttpResponseHandler {
 
 				if (isSendDataRequest(requestType)){
 					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.INCORRECT_URL)+",0,0");
-					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.INCORRECT_URL);
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.INCORRECT_URL, dataId);
 				}
 				
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.INCORRECT_URL);
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.INCORRECT_URL, dataId);
 				
 				AlarmReceiver.increasePollTime();
 				break;
@@ -153,10 +156,10 @@ public class HttpResponseHandler {
 				
 				if (isSendDataRequest(requestType)){
 					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.NOT_ALLOWED_FROM_SERVER)+",0,0");
-					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_ALLOWED_FROM_SERVER);
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_ALLOWED_FROM_SERVER, dataId);
 				}
 
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER);
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER, dataId);
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.SERVER_NOT_AVAIABLE:
@@ -165,11 +168,11 @@ public class HttpResponseHandler {
 				
 				if (isSendDataRequest(requestType)){
 					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.SERVER_NOT_AVAIABLE)+",0,0");
-					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.SERVER_NOT_AVAIABLE);
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.SERVER_NOT_AVAIABLE, dataId);
 					
 				}
 				
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.SERVER_NOT_AVAIABLE);
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.SERVER_NOT_AVAIABLE, dataId);
 				AlarmReceiver.increasePollTime();
 				break;
 			default:
@@ -177,9 +180,9 @@ public class HttpResponseHandler {
 				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error:"+getStatusCodeResponse(httpResponse));
 				if (isSendDataRequest(requestType)){
 					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(getStatusCodeResponse(httpResponse))+",0,0");
-					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR);
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
 				}
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR, dataId);
 				AlarmReceiver.increasePollTime();
 				break;
 			}
@@ -187,13 +190,13 @@ public class HttpResponseHandler {
 
 		} else {
 			Statuses.CURRENT_STATUS = Statuses.OFFLINE;
-			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
+			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR, dataId);
 			if (isSendDataRequest(requestType)){
 				//DBG SweFileLog.write("DATA_SEND_FAILED, No resp:,0,0");
-				setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR);
+				setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
 			} 
 			if (isConnectRequest(requestType)){
-				setServerStatusAndCallBack(Statuses.CONNECTION_FAILED, DetailedStatuses.UNKNOWN_ERROR);
+				setServerStatusAndCallBack(Statuses.CONNECTION_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
 				/* Depending on error Polling shall be stopped, but difficult to know if error is recoverable */
 			}
 			Log.d(APP_TAG, "Server is OFFLINE, HttpResponse is null, check network connectivity or address of server!");
@@ -319,17 +322,17 @@ public class HttpResponseHandler {
 	 * @param status
 	 * @return void
 	 */
-	private void setServerStatusAndCallBack(int status, int detailedStatus) {
+	private void setServerStatusAndCallBack(int status, int detailedStatus, int dataId) {
 		
 		if (status == Statuses.OFFLINE || status == Statuses.ONLINE)
 		{
-			ConnectionManager.sendServerStatus(status, detailedStatus);
+			ConnectionManager.sendServerStatus(status, detailedStatus, dataId);
 			
 			
 		}
 		else
 		{	
-			ConnectionManager.callBacks.statusCb(status, detailedStatus);
+			ConnectionManager.callBacks.statusCb(status, detailedStatus, dataId);
 		}
 		
 	}
