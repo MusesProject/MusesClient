@@ -1,4 +1,9 @@
 package eu.musesproject.client.connectionmanager;
+
+import org.apache.http.client.ClientProtocolException;
+
+import android.util.Log;
+
 /*
  * #%L
  * MUSES Client
@@ -48,7 +53,12 @@ public class Request {
 		this.pollInterval = pollInterval;
 		this.data = data;
 		this.cert = cert;
-		this.dataId = Integer.parseInt(dataId);
+		
+		try {
+			this.dataId = Integer.parseInt(dataId);
+		} catch (NumberFormatException e) {
+			this.dataId = 0;
+		}
 	}
 
 	/**
