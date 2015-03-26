@@ -97,6 +97,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	private Map<Integer, RequestHolder> mapOfPendingRequests;//String key is the hashID of the request object
 	private Map<Integer, JSONObject> pendingJSONRequest;// to be able to handle 'data send failed'... so we can resend data
+	private Map<Integer, JSONObject> failedJSONRequest;// to be able to handle 'data send failed'... so we can resend data
 
 	private String imei;
 	private String userName;
@@ -118,6 +119,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
         pendingJSONRequest = new HashMap<Integer, JSONObject>();
+        failedJSONRequest = new HashMap<Integer, JSONObject>();
 	}
 
 	/**
@@ -698,7 +700,12 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     dbManager.openDB();
                     dbManager.resetStoredContextEventTables();
                     dbManager.closeDB();
+
+                    pendingJSONRequest.remove(dataId);
                 }
+            }
+            else if(status == Statuses.DATA_SEND_FAILED) {
+                failedJSONRequest.put(dataId, pendingJSONRequest.get(dataId));
             }
             else if(status == Statuses.NEW_SESSION_CREATED) {
                 isAuthenticatedRemotely = false;
@@ -724,8 +731,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	}
 
     private void resendFailedJSONRequests() {
-        List<JSONObject> tmpList = new ArrayList<JSONObject>(pendingJSONRequest.values());
-        pendingJSONRequest.clear();
+        List<JSONObject> tmpList = new ArrayList<JSONObject>(failedJSONRequest.values());
+        failedJSONRequest.clear();
         for (JSONObject jsonObject : tmpList) {
             sendRequestToServer(jsonObject);
         }
