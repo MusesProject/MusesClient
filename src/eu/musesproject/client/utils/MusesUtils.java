@@ -19,21 +19,14 @@ package eu.musesproject.client.utils;
  * limitations under the License.
  * #L%
  */
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.content.Context;
 import android.os.Environment;
 
+import java.io.*;
+
 public class MusesUtils {
 	public static final String TEST_TAG = "muses_workflow_test_tag";
+	public static final String TAG_SEND = "muses_send_test_tag";
 	static Context sContext;
 	public static String serverCertificate = "";
 	public static String getCertificateFromSDCard(Context context)  {

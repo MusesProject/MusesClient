@@ -702,10 +702,12 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     dbManager.closeDB();
 
                     pendingJSONRequest.remove(dataId);
+                    Log.d(MusesUtils.TAG_SEND, "data send ok.removed item from pendingJSONRequest, size=" + pendingJSONRequest.size());
                 }
             }
             else if(status == Statuses.DATA_SEND_FAILED) {
                 failedJSONRequest.put(dataId, pendingJSONRequest.get(dataId));
+                Log.d(MusesUtils.TAG_SEND, "data send failed.failedJSONRequest size=" + failedJSONRequest.size());
             }
             else if(status == Statuses.NEW_SESSION_CREATED) {
                 isAuthenticatedRemotely = false;
@@ -731,6 +733,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	}
 
     private void resendFailedJSONRequests() {
+        Log.d(MusesUtils.TAG_SEND, "resendFailedJSONRequests failedJSONRequest, size=" + failedJSONRequest.size());
         List<JSONObject> tmpList = new ArrayList<JSONObject>(failedJSONRequest.values());
         failedJSONRequest.clear();
         for (JSONObject jsonObject : tmpList) {
