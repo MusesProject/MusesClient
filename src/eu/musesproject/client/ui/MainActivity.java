@@ -38,6 +38,7 @@ import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.db.handler.MockUpHandler;
+import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
@@ -212,25 +213,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
+                Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
 
 				isLoggedIn = true;
 				loginView.updateLoginView(true);
-				
-				toastMessage(getResources().getString(
-						R.string.login_success_msg));
+
+                toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
+                Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
-				if (!UserContextEventHandler.getInstance().isUserAuthenticated())
-				{
-					Log.e(TAG, "Login failed, service is not authenticated.");
-					toastMessage(getResources().getString(R.string.login_fail_msg));
-				}
-				else
-				{
-					Log.e(TAG, "EXTRA Login failed, but service IS authenticated. ");
-				}
+
+                toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
 				Log.d(TAG, "Action response accepted ..");

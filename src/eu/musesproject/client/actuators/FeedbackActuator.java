@@ -153,11 +153,11 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     }
 
-    public void sendLoginResponseToUI(boolean result) {
+    public void sendLoginResponseToUI(boolean result, String msg) {
     	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator sending login response with result: " + result);
         Log.d(TAG, "called: sendLoginResponseToUI(boolean result)");
         if(callback!=null) {
-            callback.onLogin(result);
+            callback.onLogin(result, msg);
         }
     }
 

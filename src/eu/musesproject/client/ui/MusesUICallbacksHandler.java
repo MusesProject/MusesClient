@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import eu.musesproject.client.actuators.IUICallback;
+import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.server.risktrust.RiskTreatment;
 
@@ -45,17 +46,21 @@ public class MusesUICallbacksHandler implements IUICallback {
 	}
 	
 	@Override
-	public void onLogin(boolean result) {
+	public void onLogin(boolean result, String detailedMsg) {
 		Log.d(TAG, "onLogin result: " + result);
+        Message msg;
 		if (result) {
-			Message msg = mHandler.obtainMessage(LOGIN_SUCCESSFUL);
-			mHandler.sendMessage(msg);	
-			
+			msg = mHandler.obtainMessage(LOGIN_SUCCESSFUL);
+
 		} else {
-			Message msg = mHandler.obtainMessage(LOGIN_UNSUCCESSFUL);
-			mHandler.sendMessage(msg);	
+			msg = mHandler.obtainMessage(LOGIN_UNSUCCESSFUL);
 		}
-	}
+
+        Bundle bundle = new Bundle();
+        bundle.putString(JSONIdentifiers.AUTH_MESSAGE, detailedMsg);
+        msg.setData(bundle);
+        mHandler.sendMessage(msg);
+    }
 
 	@Override
 	public void onAccept() {

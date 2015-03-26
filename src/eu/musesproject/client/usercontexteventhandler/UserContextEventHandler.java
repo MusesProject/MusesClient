@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.*;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
@@ -315,7 +316,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			dbManager.openDB();
 			isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword);
 			dbManager.closeDB();
-			ActuatorController.getInstance(context).sendLoginResponse(isUserAuthenticated);
+			ActuatorController.getInstance(context).sendLoginResponse(isUserAuthenticated, context.getString(R.string.default_msg_local_login));
 			if (isUserAuthenticated){
 				sendConfigSyncRequest();
 			}
@@ -580,8 +581,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					}
 				}
 				else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
-
 					isAuthenticatedRemotely = JSONManager.getAuthResult(receivedData);
+                    String authMessage = JSONManager.getAuthMessage(receivedData);
                     Log.d(APP_TAG, "Retreiving auth response from JSON, authenticated: " + isAuthenticatedRemotely);
                     updateServerOnlineAndUserAuthenticated();
 					if(isAuthenticatedRemotely) {
@@ -597,7 +598,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						updateServerOnlineAndUserAuthenticated();
 						sendConfigSyncRequest();
 					}
-					ActuatorController.getInstance(context).sendLoginResponse(isAuthenticatedRemotely);
+					ActuatorController.getInstance(context).sendLoginResponse(isAuthenticatedRemotely, authMessage);
 				}
 				else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
                 	/*

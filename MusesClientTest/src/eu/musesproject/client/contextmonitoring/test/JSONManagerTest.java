@@ -1,15 +1,5 @@
 package eu.musesproject.client.contextmonitoring.test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -24,6 +14,13 @@ import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.JSONManager;
 import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by christophstanik on 3/12/14.
@@ -46,6 +43,7 @@ public class JSONManagerTest extends AndroidTestCase {
     private String unSuccessfulAuthenticationJSON;
     private String responseJSON;
     private String configUpdateJSON;
+    private String policyCondition;
 
     @Override
     protected void setUp() throws Exception {
@@ -89,6 +87,8 @@ public class JSONManagerTest extends AndroidTestCase {
         
         responseJSON = "{\"muses-device-policy\":{\"files\":{\"action\":{\"request_id\":-1627519220,\"deny\":{\"id\":0,\"condition\":{\"appname\":\"Wifi Analyzer\"},\"path\":\"Wifi Analyzer\",\"riskTreatment\":\"You are trying to open an application which is considered harmful.\nOther people can gain control over your device.\"},\"type\":\"open_application\"}},\"revision\":1,\"schema-version\":1},\"requesttype\":\"update_policies\"}";
         configUpdateJSON = "{\"sensor-configuration\":{\n\t\"sensor-property\":[{\n\t\t\"value\":\"avast! Mobile Security\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":\"Mobile Security & Antivirus\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":\"Avira Antivirus Security\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":\"Norton Security & Antivirus\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":\"CM Security & Find My Phone\",\"key\":\"trustedav\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_DEVICE_PROTECTION\"},\n\t\t{\"value\":10,\"key\":\"mindistance\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n\t\t{\"value\":400,\"key\":\"mindtime\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n\t\t{\"value\":12,\"key\":\"radius\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_LOCATION\"},\n\t\t{\"value\":\"/SWE/\",\"key\":\"path\",\"sensor-type\":\"CONTEXT_SENSOR_FILEOBSERVER\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_FILEOBSERVER\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_APP\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_CONNECTIVITY\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_INTERACTION\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_PACKAGE\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_SETTINGS\"},\n\t\t{\"value\":true,\"key\":\"enabled\",\"sensor-type\":\"CONTEXT_SENSOR_NOTIFICATION\"}]},\n\"connection-config\":{\n\t\t\"sleep_poll_timeout\":60000,\n\t\t\"poll_timeout\":10000,\n\t\t\"login_attempts\":5,\n\t\t\"polling_enabled\":1,\n\t\t\"timeout\":5000\n\t\t},\n\"muses-config\":{\n\t\"config-name\":\"SILENT\",\n\t\"silent-mode\":true\n\t},\n\"requesttype\":\"config_update\"\n}";
+
+        policyCondition = "{\\\"files\\\":{\\\"action\\\":{\\\"request_id\\\":289285980,\\\"deny\\\":{\\\"id\\\":0,\\\"condition\\\":{\\\"screenTimeoutInSeconds\\\":30},\\\"path\\\":\\\"device\\\",\\\"riskTreatment\\\":\\\"\\\"},\\\"type\\\":\\\"security_property_changed\\\"}},\\\"revision\\\":1,\\\"schema-version\\\":1},\\\"requesttype\\\":\\\"update_policies\\\"}";
     }
 
     public void testCreateJSON() throws JSONException {
@@ -186,6 +186,17 @@ public class JSONManagerTest extends AndroidTestCase {
     	assertEquals(connectionConfig.getSleepPollTimeout(), 60000);
     	assertEquals(connectionConfig.getPollingEnabled(), 1);
     	assertEquals(connectionConfig.getLoginAttempts(), 5);
+    }
+
+    public void testGetPolicyCondition() {
+        String condition = JSONManager.getPolicyCondition(policyCondition);
+        System.out.println(condition);
+        Log.d("TEST", condition);
+    }
+
+    public void testGetAuthMessage() {
+        assertEquals(JSONManager.getAuthMessage(successfulAuthenticationJSON), "Successfully authenticated");
+        assertEquals(JSONManager.getAuthMessage(unSuccessfulAuthenticationJSON), "Incorrect password");
     }
 
     @Override

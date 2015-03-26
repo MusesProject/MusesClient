@@ -257,6 +257,26 @@ public class JSONManager {
 		return isLoginSuccessful;
     }
 
+
+    /**
+     *
+     * @param jsonString received json response from the server
+     * @return the detailed status message, so that in case the login fails,
+     * we can display meaningful information to the user, like username/password wrong or server offline
+     */
+    public static String getAuthMessage(String jsonString) {
+        String authMessage = "";
+
+        try {
+            JSONObject requestJSON = new JSONObject(jsonString);
+            authMessage = requestJSON.getString(JSONIdentifiers.AUTH_MESSAGE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return authMessage;
+    }
+
     /**
      * Method to get a String that contains the {@link eu.musesproject.client.model.RequestType} from the server
      * @param jsonString String. JSON string from the server
@@ -393,5 +413,4 @@ public class JSONManager {
         }
         return cond;
     }
-	
 }

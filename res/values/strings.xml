@@ -26,6 +26,7 @@
     <string name="test_string">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
     <string name="logging_in">Logging in..</string>
     <string name="wait">Please wait..</string>
+    <string name="default_msg_local_login">logged in locally</string>
     
     <!-- Feedback dialog strings -->
     <string name="feedback_title_txt">Muses Policy Warning</string>
