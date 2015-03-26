@@ -665,7 +665,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 
 		@Override
-		public int statusCb(int status, int detailedStatus) {
+		public int statusCb(int status, int detailedStatus, int dataId) {
 			Log.d(TAG, "called: statusCb(int status, int detailedStatus)"+status+", "+detailedStatus);
 			// detect if server is back online after an offline status
 			if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS) {
