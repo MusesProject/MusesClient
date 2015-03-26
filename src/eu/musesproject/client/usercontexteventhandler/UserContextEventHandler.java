@@ -96,6 +96,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	private DecisionMaker decisionMaker;
 
 	private Map<Integer, RequestHolder> mapOfPendingRequests;//String key is the hashID of the request object
+	private Map<Integer, JSONObject> pendingJSONRequest;// to be able to handle 'data send failed'... so we can resend data
 
 	private String imei;
 	private String userName;
@@ -116,6 +117,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		decisionMaker = new DecisionMaker();
 
 		mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
+        pendingJSONRequest = new HashMap<Integer, JSONObject>();
 	}
 
 	/**
@@ -513,10 +515,13 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         Log.d(APP_TAG2, requestJSON.toString());
 		if (requestJSON != null) {
 			if(serverStatus == Statuses.ONLINE) {
-				String sendData  = requestJSON.toString();
-				Log.d(TAG, "sendData:"+sendData);//Demo Debug
-				connectionManager.sendData(sendData);
-			}
+                String sendData  = requestJSON.toString();
+                Log.d(TAG, "sendData:"+sendData);
+
+                int jsonRequestID = sendData.hashCode();
+                pendingJSONRequest.put(jsonRequestID, requestJSON);
+                connectionManager.sendData(sendData, jsonRequestID);
+            }
 		}
 	}
 
@@ -595,6 +600,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 						serverStatus = Statuses.ONLINE;
 						sendOfflineStoredContextEventsToServer();
+                        resendFailedJSONRequests();
 						updateServerOnlineAndUserAuthenticated();
 						sendConfigSyncRequest();
 					}
@@ -668,6 +674,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                     serverStatus = status;
                     updateServerOnlineAndUserAuthenticated();
                     sendOfflineStoredContextEventsToServer();
+                    resendFailedJSONRequests();
                 }
 			}
             else if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS_NEW_SESSION) {
@@ -716,7 +723,15 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 	}
 
-	public String getImei() {
+    private void resendFailedJSONRequests() {
+        List<JSONObject> tmpList = new ArrayList<JSONObject>(pendingJSONRequest.values());
+        pendingJSONRequest.clear();
+        for (JSONObject jsonObject : tmpList) {
+            sendRequestToServer(jsonObject);
+        }
+    }
+
+    public String getImei() {
 		if(imei == null || imei.equals("")) {
 			this.imei = new SettingsSensor(getContext()).getIMEI();
 		}
