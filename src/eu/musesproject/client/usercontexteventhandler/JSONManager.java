@@ -413,4 +413,31 @@ public class JSONManager {
         }
         return cond;
     }
+	
+	public static boolean isAccessbilityEnabled(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject sensorsJSON = requestJSON.getJSONObject("sensor");
+			JSONObject deviceProtectionAttributesJSON = sensorsJSON.getJSONObject("CONTEXT_SENSOR_DEVICE_PROTECTION");
+			boolean accessbilityEnabled = deviceProtectionAttributesJSON.getBoolean("accessibilityenabled");
+			return accessbilityEnabled;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static long getScreenTimeout(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject sensorsJSON = requestJSON.getJSONObject("sensor");
+			JSONObject deviceProtectionAttributesJSON = sensorsJSON.getJSONObject("CONTEXT_SENSOR_DEVICE_PROTECTION");
+			long screenTimeoutInSeconds = deviceProtectionAttributesJSON.getLong("screentimeoutinseconds");
+			return screenTimeoutInSeconds;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
 }

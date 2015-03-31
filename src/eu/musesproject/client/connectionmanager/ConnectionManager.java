@@ -1,4 +1,4 @@
-	package eu.musesproject.client.connectionmanager;
+package eu.musesproject.client.connectionmanager;
 /*
  * #%L
  * MUSES Client
@@ -24,6 +24,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 
+import eu.musesproject.client.model.RequestType;
+import eu.musesproject.client.model.decisiontable.ActionType;
+import eu.musesproject.client.usercontexteventhandler.JSONManager;
+import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
+import eu.musesproject.client.utils.BuildConfig;
+import eu.musesproject.client.utils.BuildConfig.RUNNING_MODE;
+import eu.musesproject.client.utils.ResponseJSON;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -74,6 +81,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	@Override
 	public void connect(String url, String cert, int pollInterval, int sleepPollInterval, IConnectionCallbacks callbacks, Context context) {
 		/* FIXME, temporary fix for dual calls */
+		
 		synchronized (this)
 		{
 			if (isServerConnectionSet)
@@ -88,6 +96,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		
 		callBacks = callbacks;
 		this.context = context;
+		
+		// For Mock mode
+		if (BuildConfig.CURRENT_RUNNING_MODE == RUNNING_MODE.MOCK) {
+			setMockModeCofig();
+			return;
+		}
 		
 		/* Check that cert is ok, spec length */
 		/* FIXME which Length.. */
@@ -121,6 +135,15 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		
 	}
 
+	private void setMockModeCofig() {
+		Statuses.CURRENT_STATUS = Statuses.ONLINE;
+		UserContextEventHandler.serverOnlineAndUserAuthenticated = true;
+		setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, 0, 0);
+		setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS, 0);
+		setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS, 0);
+		
+	}
+
 	/**
 	 * Send data to the server 
 	 * @param data
@@ -129,6 +152,12 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
 	@Override
 	public void sendData(String data, int dataId) {
+		if (BuildConfig.CURRENT_RUNNING_MODE == RUNNING_MODE.MOCK) {
+			setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS, dataId);
+			setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS, dataId);
+			processMockRequest(data,dataId);
+			return;
+		}
 		String dataIdStr = "";
 		dataIdStr = Integer.toString(dataId);
 		setCommandOngoing();
@@ -137,6 +166,32 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, dataIdStr); 
 	}
 	
+	private void processMockRequest(String data, int dataId) {
+		Log.d(APP_TAG, "Mock=> Send data to server: "+data);
+		if (JSONManager.getRequestType(data).equalsIgnoreCase(RequestType.LOGIN)) {
+			callBacks.receiveCb(ResponseJSON.SUCCESSFUL_AUTHENTICATION_JSON);
+			Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ ResponseJSON.SUCCESSFUL_AUTHENTICATION_JSON);
+		}
+		if (JSONManager.getRequestType(data).equalsIgnoreCase(RequestType.CONFIG_SYNC)) {
+			callBacks.receiveCb(ResponseJSON.CONFIG_UPDATE_JSON);
+			Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.CONFIG_UPDATE_JSON);
+		}
+		if (JSONManager.getRequestType(data).equalsIgnoreCase(RequestType.ONLINE_DECISION)) {
+			if (!JSONManager.isAccessbilityEnabled(data)) {
+				callBacks.receiveCb(ResponseJSON.DEVICE_POLICY_ACCESIBILITY_DISABLED_JSON);
+				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_ACCESIBILITY_DISABLED_JSON);
+			}
+			if (JSONManager.getScreenTimeout(data) < 30){
+				callBacks.receiveCb(ResponseJSON.DEVICE_POLICY_INSUFFICIENT_SCREEN_TIMEOUT_JSON);
+				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_INSUFFICIENT_SCREEN_TIMEOUT_JSON);
+			}
+			if (data.contains("com.farproc.wifi.analyzer")){
+				callBacks.receiveCb(ResponseJSON.DEVIEC_POLICY_OPEN_BACKLISTED_APP_JSON);
+				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVIEC_POLICY_OPEN_BACKLISTED_APP_JSON);
+			}
+		}
+	}
+
 	/**
 	 * Disconnects session from the server 
 	 * @return void 
@@ -203,6 +258,9 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		//Log.d(APP_TAG, "Polling !!");
 		
 		// If ongoing command, don't poll
+		if (BuildConfig.CURRENT_RUNNING_MODE == RUNNING_MODE.MOCK) {
+			return;
+		}
 		
 		setCommandOngoing();
 		startHttpThread(POLL, URL, 
@@ -344,5 +402,29 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 
 
 	}
+	
+	/**
+	 * For Mock testing duplicate from HttpResponseHandler
+	 * @param status
+	 * @param detailedStatus
+	 * @param dataId
+	 */
+	
+	private void setServerStatusAndCallBack(int status, int detailedStatus, int dataId) {
+		
+		if (status == Statuses.OFFLINE || status == Statuses.ONLINE)
+		{
+			sendServerStatus(status, detailedStatus, dataId);
+			
+			
+		}
+		else
+		{	
+			callBacks.statusCb(status, detailedStatus, dataId);
+		}
+		
+	}
+	
+	
 
 }

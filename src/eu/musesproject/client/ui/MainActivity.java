@@ -1,4 +1,4 @@
-	package eu.musesproject.client.ui;
+package eu.musesproject.client.ui;
 /*
  * #%L
  * MUSES Client
