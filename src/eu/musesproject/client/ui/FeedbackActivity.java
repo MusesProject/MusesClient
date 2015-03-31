@@ -63,7 +63,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			if (MESSAGE.contains("You want to access a file, but you do not have the permission") || 
 					MESSAGE.contains("You are trying to open an application which is considered") || 
 					MESSAGE.contains("You have a virus and you want to send an attachment via E-Mail") ){
-				pressHomeButton();	
+//				pressHomeButton();
 			}
 			break;
 		case R.id.cancel_btn:
@@ -76,7 +76,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			if (MESSAGE.contains("You want to access a file, but you do not have the permission") || 
 					MESSAGE.contains("You are trying to open an application which is considered") || 
 					MESSAGE.contains("You have a virus and you want to send an attachment via E-Mail") ){
-				pressHomeButton();	
+//				pressHomeButton();
 			}
 			break;
 		}
