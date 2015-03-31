@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.ActionType;
@@ -61,7 +63,8 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	private AtomicInteger mCommandOngoing = new AtomicInteger(0);
 	private AlarmReceiver alarmReceiver;
 	private Context context;
-	
+	private int detailedOnlineStatus;
+	public static boolean isNewSession = true;
 		
 	public ConnectionManager(){
 		alarmReceiver = new AlarmReceiver();
@@ -97,12 +100,6 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		callBacks = callbacks;
 		this.context = context;
 		
-		// For Mock mode
-		if (BuildConfig.CURRENT_RUNNING_MODE == RUNNING_MODE.MOCK) {
-			setMockModeCofig();
-			return;
-		}
-		
 		/* Check that cert is ok, spec length */
 		/* FIXME which Length.. */
 		if (cert.isEmpty() || cert.length() < 1000)
@@ -123,6 +120,13 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		}
 				
         setCommandOngoing();
+        
+		// For Mock mode
+		if (BuildConfig.CURRENT_RUNNING_MODE == RUNNING_MODE.MOCK) {
+			setMockModeCofig();
+			return;
+		}
+        
         // For testing
         //DBG SweFileLog.write("Connect to :"+URL+",0,0");
         
@@ -137,8 +141,25 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 
 	private void setMockModeCofig() {
 		Statuses.CURRENT_STATUS = Statuses.ONLINE;
+		detailedOnlineStatus = DetailedStatuses.SUCCESS;
 		UserContextEventHandler.serverOnlineAndUserAuthenticated = true;
-		setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, 0, 0);
+		
+		if (isNewSession){
+			
+			isNewSession = false;
+			if (Statuses.CURRENT_STATUS == Statuses.ONLINE)
+			{
+				// For testing
+				//DBG SweFileLog.write("New sessionId, ,");
+				setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, 0, 0);
+			}
+			else
+			{
+				// If this is a new session, inform using detailed status
+				detailedOnlineStatus = DetailedStatuses.SUCCESS_NEW_SESSION;
+			}
+			
+		}
 		setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS, 0);
 		setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS, 0);
 		
@@ -178,18 +199,34 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		}
 		if (JSONManager.getRequestType(data).equalsIgnoreCase(RequestType.ONLINE_DECISION)) {
 			if (!JSONManager.isAccessbilityEnabled(data)) {
-				callBacks.receiveCb(ResponseJSON.DEVICE_POLICY_ACCESIBILITY_DISABLED_JSON);
+				callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(dataId),ResponseJSON.DEVICE_POLICY_ACCESIBILITY_DISABLED_JSON));
 				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_ACCESIBILITY_DISABLED_JSON);
 			}
 			if (JSONManager.getScreenTimeout(data) < 30){
-				callBacks.receiveCb(ResponseJSON.DEVICE_POLICY_INSUFFICIENT_SCREEN_TIMEOUT_JSON);
+				callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(dataId),ResponseJSON.DEVICE_POLICY_INSUFFICIENT_SCREEN_TIMEOUT_JSON));
 				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_INSUFFICIENT_SCREEN_TIMEOUT_JSON);
 			}
 			if (data.contains("com.farproc.wifi.analyzer")){
-				callBacks.receiveCb(ResponseJSON.DEVIEC_POLICY_OPEN_BACKLISTED_APP_JSON);
+				callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(dataId),ResponseJSON.DEVIEC_POLICY_OPEN_BACKLISTED_APP_JSON) );
 				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVIEC_POLICY_OPEN_BACKLISTED_APP_JSON);
 			}
 		}
+	}
+
+	private String updateRequestIdWithNewRequest(String requestId, String devicePolicyAccesibilityDisabledJson) {
+		JSONObject responseJSON;
+		try {
+			responseJSON = new JSONObject(devicePolicyAccesibilityDisabledJson);
+			JSONObject policyJSON = responseJSON.getJSONObject("muses-device-policy");
+			JSONObject fileJSON = policyJSON.getJSONObject("files");
+			JSONObject actionJSON = fileJSON.getJSONObject("action");
+			actionJSON = actionJSON.put("request_id",requestId);
+			devicePolicyAccesibilityDisabledJson = responseJSON.toString();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return devicePolicyAccesibilityDisabledJson;
 	}
 
 	/**
