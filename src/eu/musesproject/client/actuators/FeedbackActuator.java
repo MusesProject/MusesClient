@@ -61,6 +61,17 @@ public class FeedbackActuator implements IFeedbackActuator {
         if (callback == null) Log.e(TAG, "********** callback is null!!");
 //        Log.d(TAG, "called: showFeedback(Decision decision)");
         if(decision != null && decision.getName() != null) {
+            try {
+                for (Decision bufferedDecision: decisionQueue) {
+                    if(bufferedDecision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription().equals(
+                            decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription())) {
+                        Log.d("queue_test", "duplicate found");
+                        return; // do not add a duplicate feedback
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             decisionQueue.add(decision);
             Log.d(TAG, "new feedback dialog request; queue size:" + decisionQueue.size());
 
