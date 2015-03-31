@@ -589,6 +589,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				}
 				else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
 					isAuthenticatedRemotely = JSONManager.getAuthResult(receivedData);
+                    isUserAuthenticated = isAuthenticatedRemotely;
                     String authMessage = JSONManager.getAuthMessage(receivedData);
                     Log.d(APP_TAG, "Retreiving auth response from JSON, authenticated: " + isAuthenticatedRemotely);
                     updateServerOnlineAndUserAuthenticated();
