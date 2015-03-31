@@ -230,8 +230,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			}
 			else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
 				Log.d(APP_TAG, "showFeedback2");
-				ActuatorController.getInstance(context).showFeedback(new DecisionMaker().getDefaultDecision());
-				storeContextEvent(action, properties, contextEvents);
+                // TODO do not show the default policies at this point
+//				ActuatorController.getInstance(context).showFeedback(new DecisionMaker().getDefaultDecision());
+//				storeContextEvent(action, properties, contextEvents);
 			}
 			else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
 				storeContextEvent(action, properties, contextEvents);
@@ -805,11 +806,12 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		if(decisionMaker == null) {
 			decisionMaker = new DecisionMaker();
 		}
-		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
-		Log.d(APP_TAG, "           4");
-		ActuatorController.getInstance(context).showFeedback(decision);
-		if(requestHolder.getAction().isRequestedByMusesAwareApp()) {
-			ActuatorController.getInstance(context).sendFeedbackToMUSESAwareApp(decision);
-		}
+        // TODO do not show the default policies at this point
+//		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
+//		Log.d(APP_TAG, "           4");
+//		ActuatorController.getInstance(context).showFeedback(decision);
+//		if(requestHolder.getAction().isRequestedByMusesAwareApp()) {
+//			ActuatorController.getInstance(context).sendFeedbackToMUSESAwareApp(decision);
+//		}
 	}
 }
