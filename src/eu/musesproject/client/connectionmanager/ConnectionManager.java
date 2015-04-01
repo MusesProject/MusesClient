@@ -221,6 +221,10 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			JSONObject fileJSON = policyJSON.getJSONObject("files");
 			JSONObject actionJSON = fileJSON.getJSONObject("action");
 			actionJSON = actionJSON.put("request_id",requestId);
+			fileJSON = fileJSON.put("action", actionJSON);
+			policyJSON = policyJSON.put("files", fileJSON);
+			responseJSON = responseJSON.put("muses-device-policy", policyJSON);
+			responseJSON = responseJSON.put("requesttype","update_policies");
 			devicePolicyAccesibilityDisabledJson = responseJSON.toString();
 		} catch (JSONException e) {
 			e.printStackTrace();
