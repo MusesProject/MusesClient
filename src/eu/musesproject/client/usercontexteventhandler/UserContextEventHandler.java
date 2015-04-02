@@ -51,6 +51,7 @@ import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
 import eu.musesproject.client.ui.MainActivity;
 import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
+
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ import java.util.Map;
 public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeoutHandler {
 	private static final String TAG = UserContextEventHandler.class.getSimpleName();
 	public static final String TAG_RQT = "REQUEST_TIMEOUT";
+	public static final String TAG_RQT2 = "REQUEST_TIMEOUT2";
 	public static final String TAG_DB = "DATABASE_TEST_CODE";
 	public static final String TAG_MUSES_AWARE = "MUSES_AWARE";
 	public static final String APP_TAG = "APP_TAG";
@@ -95,9 +97,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	private DecisionMaker decisionMaker;
 
-	private Map<Integer, RequestHolder> mapOfPendingRequests;//String key is the hashID of the request object
-	private Map<Integer, JSONObject> pendingJSONRequest;// to be able to handle 'data send failed'... so we can resend data
-	private Map<Integer, JSONObject> failedJSONRequest;// to be able to handle 'data send failed'... so we can resend data
+	private static Map<Integer, RequestHolder> mapOfPendingRequests;//String key is the hashID of the request object
+	private static Map<Integer, JSONObject> pendingJSONRequest;// to be able to handle 'data send failed'... so we can resend data
+	private static Map<Integer, JSONObject> failedJSONRequest;// to be able to handle 'data send failed'... so we can resend data
 
 	private String imei;
 	private String userName;
@@ -198,6 +200,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		if(decision != null) { // local decision found
 			Log.d(APP_TAG, "Decision is: " + decision.getName());
 			Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
+			Log.d(TAG_RQT, "Showing feedback for action: "+action.getActionType());
 			ActuatorController.getInstance(context).showFeedback(decision);
 		}
 		else { // if there is no local decision, send a request to the server
@@ -219,7 +222,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					}
 				}, 0 );
 				mapOfPendingRequests.put(requestHolder.getId(), requestHolder);
-
+				Log.d(TAG_RQT2, "Adding action: "+ requestHolder.getAction().getActionType()+ " current size is: "+ mapOfPendingRequests.size());
 				// create the JSON request and send it to the server
 				JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
 				Log.d(APP_TAG, "Info DC, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
@@ -232,7 +235,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				Log.d(APP_TAG, "showFeedback2");
                 // TODO do not show the default policies at this point
 //				ActuatorController.getInstance(context).showFeedback(new DecisionMaker().getDefaultDecision());
-//				storeContextEvent(action, properties, contextEvents);
+				storeContextEvent(action, properties, contextEvents);
 			}
 			else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
 				storeContextEvent(action, properties, contextEvents);
@@ -244,7 +247,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method that handles the necessary steps to retrieve a decision from the decision maker
 	 * 1. Generate the {@link Resource}
 	 * 2. Generate the {@link Request}
-	 * 3. Make sure that the {@link DecisionMaker} is initialized
+	 * 3. Make sure that the {@link DecisionMaker} is initialised
 	 * 4. Request a decision from the {@link DecisionMaker}
 	 *
 	 * @param action
@@ -560,6 +563,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	private class ConnectionCallback implements IConnectionCallbacks {
 
+
 		@Override
 		public int receiveCb(String receivedData) {
 			Log.d(TAG, "called: receiveCb(String receivedData) receivedData:"+receivedData);
@@ -580,10 +584,11 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					// look for the related request
 					int requestId = JSONManager.getRequestId(receivedData);
 					Log.d(TAG_RQT, "request_id from the json is " + requestId);
-					if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
+					if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) { // this should ne
 						RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
 						requestHolder.getRequestTimeoutTimer().cancel();
 						mapOfPendingRequests.remove(requestId);
+						Log.d(TAG_RQT2, "Removing action: " +JSONManager.getActionType(receivedData));
 						send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
                         Log.d(APP_TAG, "condition is: " + JSONManager.getPolicyCondition(receivedData) + " for request id:" + JSONManager.getRequestId(receivedData) + " for action:" + requestHolder.getAction().getActionType());
 					}
@@ -786,6 +791,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public void removeRequestById(int requestId) {
 		Log.d(TAG_RQT, "6. removeRequestById map size: " + mapOfPendingRequests.size());
 		if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
+			Log.d(TAG_RQT2, "Removing action with id: " +requestId);
 			mapOfPendingRequests.remove(requestId);
 			Log.d(TAG_RQT, "7. removeRequestById map size afterwards: " + mapOfPendingRequests.size());
 		}

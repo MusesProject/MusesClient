@@ -315,6 +315,24 @@ public class JSONManager {
     	}
     	return requestId;
     }
+    
+    /**
+     * Method that returns the id of the request that was sent to the server.
+     * 
+     * @param jsonString response from server
+     * @return the request id
+     */
+    public static int getRequestIdFromRequestJSON(String jsonString) {
+    	int requestId = - 1;
+    	try {
+    		JSONObject responseJSON = new JSONObject(jsonString);
+    		requestId = responseJSON.getInt("id"); // FIXME this is confusing, this attribute should be named request_id
+    	} catch (JSONException e) {
+    		e.printStackTrace();
+    	}
+    	return requestId;
+    }
+    
 
 	/**
 	 * Method that returns all received config items of each sensor
@@ -439,5 +457,45 @@ public class JSONManager {
 		}
 		return 0;
 	}
+	
+	public static String getWifiEncryption(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject sensorsJSON = requestJSON.getJSONObject("sensor");
+			JSONObject deviceProtectionAttributesJSON = sensorsJSON.getJSONObject("CONTEXT_SENSOR_CONNECTIVITY");
+			String wifiEncryption = deviceProtectionAttributesJSON.getString("wifiencryption");
+			return wifiEncryption;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static String getFilePath(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject actionJSON = requestJSON.getJSONObject("action");
+			JSONObject propertiesJSON = actionJSON.getJSONObject("properties");
+			String path = propertiesJSON.getString("path");
+			return path;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+	public static String getActionType(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject actionJSON = requestJSON.getJSONObject("action");
+			String actionType = actionJSON.getString("type");
+			return actionType;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	
 	
 }

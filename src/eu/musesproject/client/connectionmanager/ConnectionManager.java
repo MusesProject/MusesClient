@@ -20,12 +20,13 @@ package eu.musesproject.client.connectionmanager;
  */
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
 import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.JSONManager;
@@ -33,9 +34,6 @@ import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.client.utils.BuildConfig;
 import eu.musesproject.client.utils.BuildConfig.RUNNING_MODE;
 import eu.musesproject.client.utils.ResponseJSON;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * Connection Manager class implements the iConnection interface
@@ -193,22 +191,57 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			callBacks.receiveCb(ResponseJSON.SUCCESSFUL_AUTHENTICATION_JSON);
 			Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ ResponseJSON.SUCCESSFUL_AUTHENTICATION_JSON);
 		}
+		if (JSONManager.getRequestType(data).equalsIgnoreCase(RequestType.LOGOUT)) {
+			callBacks.receiveCb(ResponseJSON.LOGGED_OUT_JSON);
+			Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ ResponseJSON.LOGGED_OUT_JSON);
+		}
 		if (JSONManager.getRequestType(data).equalsIgnoreCase(RequestType.CONFIG_SYNC)) {
 			callBacks.receiveCb(ResponseJSON.CONFIG_UPDATE_JSON);
 			Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.CONFIG_UPDATE_JSON);
 		}
 		if (JSONManager.getRequestType(data).equalsIgnoreCase(RequestType.ONLINE_DECISION)) {
 			if (!JSONManager.isAccessbilityEnabled(data)) {
-				callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(dataId),ResponseJSON.DEVICE_POLICY_ACCESIBILITY_DISABLED_JSON));
+				callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(JSONManager.getRequestIdFromRequestJSON(data)),ResponseJSON.DEVICE_POLICY_ACCESIBILITY_DISABLED_JSON));
 				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_ACCESIBILITY_DISABLED_JSON);
 			}
 			if (JSONManager.getScreenTimeout(data) < 30){
-				callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(dataId),ResponseJSON.DEVICE_POLICY_INSUFFICIENT_SCREEN_TIMEOUT_JSON));
+				callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(JSONManager.getRequestIdFromRequestJSON(data)),ResponseJSON.DEVICE_POLICY_INSUFFICIENT_SCREEN_TIMEOUT_JSON));
 				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_INSUFFICIENT_SCREEN_TIMEOUT_JSON);
 			}
-			if (data.contains("com.farproc.wifi.analyzer")){
-				callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(dataId),ResponseJSON.DEVIEC_POLICY_OPEN_BACKLISTED_APP_JSON) );
-				Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVIEC_POLICY_OPEN_BACKLISTED_APP_JSON);
+			if (JSONManager.getActionType(data).equalsIgnoreCase(ActionType.OPEN_APPLICATION)){
+				if (data.contains("com.farproc.wifi.analyzer")){
+					callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(JSONManager.getRequestIdFromRequestJSON(data)),ResponseJSON.DEVICE_POLICY_OPEN_BACKLISTED_APP_JSON) );
+					Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_OPEN_BACKLISTED_APP_JSON);
+				}
+			}
+			if (JSONManager.getActionType(data).equalsIgnoreCase(ActionType.OPEN_ASSET)){
+				if (JSONManager.getFilePath(data).contains("confidential")){
+					if (JSONManager.getWifiEncryption(data).contains("WPA2")){
+						callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(JSONManager.getRequestIdFromRequestJSON(data)),ResponseJSON.DEVICE_POLICY_CONFIDENTIAL_SECURE_JSON));
+						Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_CONFIDENTIAL_SECURE_JSON);
+					}else{
+						callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(JSONManager.getRequestIdFromRequestJSON(data)),ResponseJSON.DEVICE_POLICY_CONFIDENTIAL_UNSECURE_JSON));
+						Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_CONFIDENTIAL_UNSECURE_JSON);
+					}
+				}
+			}
+			if (JSONManager.getActionType(data).equalsIgnoreCase(ActionType.OPEN_ASSET)){
+				if (JSONManager.getFilePath(data).contains("companyfile.txt")){
+					callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(JSONManager.getRequestIdFromRequestJSON(data)),ResponseJSON.DEVICE_POLICY_OPEN_FILE_MONITORED_FOLDER_JSON));
+					Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_OPEN_FILE_MONITORED_FOLDER_JSON);
+				}
+				
+			}
+			if (JSONManager.getActionType(data).equalsIgnoreCase(ActionType.OPEN_ASSET)){
+				if (JSONManager.getFilePath(data).contains("MUSES_partner_grades.txt")){
+					if (JSONManager.getWifiEncryption(data).contains("WPA2")){
+						callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(JSONManager.getRequestIdFromRequestJSON(data)),ResponseJSON.DEVICE_POLICY_OPEN_CONF_ASSET_SECURE_JSON));
+						Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_OPEN_CONF_ASSET_SECURE_JSON);
+					}else{
+						callBacks.receiveCb(updateRequestIdWithNewRequest(Integer.toString(JSONManager.getRequestIdFromRequestJSON(data)),ResponseJSON.DEVICE_POLICY_OPEN_CONF_ASSET_UNSECURE_JSON));
+						Log.d(APP_TAG, "Mock=> Server responded with JSON: "+ResponseJSON.DEVICE_POLICY_OPEN_CONF_ASSET_UNSECURE_JSON);
+					}
+				}
 			}
 		}
 	}
