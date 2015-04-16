@@ -22,6 +22,7 @@ package eu.musesproject.client.usercontexteventhandler;
  */
 
 import android.content.Context;
+import eu.musesproject.client.contextmonitoring.sensors.LocationSensor;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.JSONIdentifiers;
@@ -349,16 +350,45 @@ public class JSONManager {
 			for (int i = 0; i < configProperties.length(); i++) {
 				JSONObject item = configProperties.getJSONObject(i);
 				String sensorType = item.getString("sensor-type");
-				String value = item.getString("value");
 				String key = item.getString("key");
-				
+				String value = item.getString("value");
+
 				configList.add(new SensorConfiguration(sensorType, key, value));
 			}
-			
+
+			configList.addAll(addZoneConfigIfExists(jsonString));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return configList;
+	}
+
+	public static List<SensorConfiguration> addZoneConfigIfExists(String jsonString) {
+		List<SensorConfiguration> zoneConfig = new ArrayList<SensorConfiguration>();
+
+		try {
+			JSONObject responseJSON = new JSONObject(jsonString);
+			JSONObject sensorConfigJSON = responseJSON.getJSONObject("zone-config");
+			JSONArray configProperties = sensorConfigJSON.getJSONArray("zone");
+			for (int i = 0; i < configProperties.length(); i++) {
+				JSONObject item = configProperties.getJSONObject(i);
+				String description = item.getString("description");
+				int zoneId = item.getInt("zoneId");
+				int radius = item.getInt("radius");
+				double latitude = item.getLong("latitude");
+				double longitude = item.getLong("longitud");
+
+				String sensorType = LocationSensor.TYPE;
+				String key = "zone";
+				String value = description + ";" + zoneId + ";" + radius + ";" + latitude + ";" + longitude;
+
+				zoneConfig.add(new SensorConfiguration(sensorType, key, value));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return zoneConfig;
 	}
 	
 	/**
