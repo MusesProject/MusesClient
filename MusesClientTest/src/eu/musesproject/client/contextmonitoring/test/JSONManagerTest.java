@@ -202,6 +202,7 @@ public class JSONManagerTest extends AndroidTestCase {
             assertEquals(configSyncRequest.getString(JSONIdentifiers.AUTH_DEVICE_ID), "14121313");
             assertEquals(configSyncRequest.getString(JSONIdentifiers.AUTH_USERNAME), "muses");
             assertEquals(configSyncRequest.getString(JSONIdentifiers.OPERATING_SYSTEM_VERSION), "5.0.2");
+            assertEquals(configSyncRequest.getString(JSONIdentifiers.OPERATING_SYSTEM), "Android");
         } catch (JSONException e) {
             e.printStackTrace();
         }

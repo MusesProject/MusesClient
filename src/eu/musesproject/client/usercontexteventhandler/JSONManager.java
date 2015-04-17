@@ -233,6 +233,7 @@ public class JSONManager {
 			configSyncSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
 			configSyncSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
 			configSyncSONObject.put(JSONIdentifiers.OPERATING_SYSTEM_VERSION, osVersion);
+			configSyncSONObject.put(JSONIdentifiers.OPERATING_SYSTEM, "Android");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
