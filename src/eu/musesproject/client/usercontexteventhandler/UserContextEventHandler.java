@@ -392,7 +392,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	private void sendConfigSyncRequest() {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - sendConfigSyncRequest()");
-		JSONObject configSyncRequest = JSONManager.createConfigSyncJSON(getImei(), getUserName());
+		JSONObject configSyncRequest = JSONManager.createConfigSyncJSON(getImei(), SettingsSensor.getOSVersion(), getUserName());
 		Log.d(MusesUtils.TEST_TAG, configSyncRequest.toString());
 		sendRequestToServer(configSyncRequest);
 	}

@@ -5,6 +5,7 @@ import android.test.AndroidTestCase;
 import android.util.Log;
 import eu.musesproject.client.connectionmanager.RequestHolder;
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
+import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.JSONIdentifiers;
@@ -191,6 +192,19 @@ public class JSONManagerTest extends AndroidTestCase {
     	assertEquals(connectionConfig.getSleepPollTimeout(), 60000);
     	assertEquals(connectionConfig.getPollingEnabled(), 1);
     	assertEquals(connectionConfig.getLoginAttempts(), 5);
+    }
+
+    public void testCreateConfigSyncJSON() {
+        JSONObject configSyncRequest = JSONManager.createConfigSyncJSON("14121313", SettingsSensor.getOSVersion(), "muses");
+        Log.d("SYNC_TEST", configSyncRequest.toString());
+        try {
+            assertEquals(configSyncRequest.getString(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER), RequestType.CONFIG_SYNC);
+            assertEquals(configSyncRequest.getString(JSONIdentifiers.AUTH_DEVICE_ID), "14121313");
+            assertEquals(configSyncRequest.getString(JSONIdentifiers.AUTH_USERNAME), "muses");
+            assertEquals(configSyncRequest.getString(JSONIdentifiers.OPERATING_SYSTEM_VERSION), "5.0.2");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void testGetPolicyCondition() {
