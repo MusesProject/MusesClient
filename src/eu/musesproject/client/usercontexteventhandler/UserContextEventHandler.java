@@ -202,6 +202,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
 			Log.d(TAG_RQT, "Showing feedback for action: "+action.getActionType());
 			ActuatorController.getInstance(context).showFeedback(decision);
+            if(action.isRequestedByMusesAwareApp()) {
+			    ActuatorController.getInstance(context).sendFeedbackToMUSESAwareApp(decision);
+            }
 		}
 		else { // if there is no local decision, send a request to the server
 			if(serverStatus == Statuses.ONLINE && isUserAuthenticated) { // if the server is online, request a decision
