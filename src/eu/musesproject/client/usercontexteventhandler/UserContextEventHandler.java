@@ -308,6 +308,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		tmpLoginUserName = userName;
 		tmpLoginPassword = password;
 
+		if(dbManager == null) {
+			dbManager = new DBManager(context);
+		}
 
 		String deviceId;
 		dbManager.openDB();
