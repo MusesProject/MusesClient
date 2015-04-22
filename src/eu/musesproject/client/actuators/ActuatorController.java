@@ -41,6 +41,7 @@ public class ActuatorController implements IActuatorController {
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
     private FeedbackActuator feedbackActuator;
+    private FileEraserActuator fileEraserActuator;
     private IBlockActuator blockActuator;
     
     private DBManager dbManager;
@@ -48,6 +49,7 @@ public class ActuatorController implements IActuatorController {
     public ActuatorController(Context context) {
         this.context = context;
         this.feedbackActuator = new FeedbackActuator(context);
+        this.fileEraserActuator = new FileEraserActuator();
         this.blockActuator = new BlockActuator(uceHandler.getContext());
         this.dbManager = new DBManager(uceHandler.getContext());
     }
@@ -85,6 +87,15 @@ public class ActuatorController implements IActuatorController {
     public void sendLoginResponse(boolean loginResponse, String msg) {
         Log.d(TAG, "called: sendLoginResponse(boolean loginResponse)");
         feedbackActuator.sendLoginResponseToUI(loginResponse, msg);
+    }
+
+    /**
+     * Method to erase files from a given folder path.
+     * The folder structure (sub-folders) are not deleted, just the files itself
+     * @param folderPath
+     */
+    public void eraseFolderContent(String folderPath) {
+        fileEraserActuator.eraseFolderContent(folderPath);
     }
     
     /**
