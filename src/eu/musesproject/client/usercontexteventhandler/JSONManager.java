@@ -45,6 +45,7 @@ import java.util.Map.Entry;
  * Class to transform action and context information to JSON
  */
 public class JSONManager {
+	private static final String TAG = JSONManager.class.getSimpleName();
 	/**
 	 * creates the JSON object that will be sent to the server via the {@link eu.musesproject.client.connectionmanager.ConnectionManager}
 	 * @param requestType {@link eu.musesproject.client.model.RequestType}
@@ -378,8 +379,8 @@ public class JSONManager {
 				String description = item.getString("description");
 				int zoneId = item.getInt("zoneId");
 				int radius = item.getInt("radius");
-				double latitude = item.getLong("latitude");
-				double longitude = item.getLong("longitud");
+				double latitude = item.getDouble("latitude");
+				double longitude = item.getDouble("longitud");
 
 				String sensorType = LocationSensor.TYPE;
 				String key = "zone";
