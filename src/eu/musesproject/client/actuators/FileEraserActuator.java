@@ -39,16 +39,19 @@ public class FileEraserActuator {
      * @param folderPath
      */
     public void eraseFolderContent(String folderPath) {
-        File[] folder = new File(folderPath).listFiles();
-        for (File file : folder) {
-            if(file.isDirectory()) {
-                eraseFolderContent(file.getAbsolutePath());
+        try {
+            File[] folder = new File(folderPath).listFiles();
+            for (File file : folder) {
+                if (file.isDirectory()) {
+                    eraseFolderContent(file.getAbsolutePath());
+                } else if (file.isFile()) {
+                    String fileName = file.getName();
+                    boolean deleted = file.delete();
+                    Log.d(TAG, fileName + " is deleted = " + deleted);
+                }
             }
-            else if(file.isFile()) {
-                String fileName = file.getName();
-                boolean deleted = file.delete();
-                Log.d(TAG, fileName + " is deleted = " + deleted);
-            }
+        } catch (NullPointerException e) {
+            Log.d(TAG, "path does not exist");
         }
     }
 }
