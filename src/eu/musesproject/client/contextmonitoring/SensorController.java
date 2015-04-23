@@ -160,6 +160,9 @@ public class SensorController {
 				 sensor = new NotificationSensor(context);
 			 } 
 		}
+        else if(sensorType.equals(PeripheralSensor.TYPE)) {
+            sensor = new PeripheralSensor(context);
+        }
     	
     	return sensor;
     }
