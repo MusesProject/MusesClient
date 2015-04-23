@@ -58,7 +58,10 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	// holds a value that indicates if the sensor is enabled or disabled
 	private boolean sensorEnabled;
-	
+
+	// action properties
+	public static final String PROPERTY_KEY_PACKAGE_NAME = "packagename";
+
 	// apps
 	GmailObserver gmailObserver;
 	IBMNotesTravelerObserver notesTravelerObserver;
@@ -141,10 +144,20 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 		}
 	}
 
+	private boolean isUserEnteringAPasswordField(AccessibilityNodeInfo source) {
+		if (source != null) {
+			if (source.isPassword()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public void onAccessibilityEvent(AccessibilityEvent event) {
 //		Log.d(TAG, "onAccessibilityEvent(AccessibilityEvent event) ||| package name: " + event.getPackageName());
 		String pckName = (String) event.getPackageName();
+
 		if(pckName != null && pckName.equals("com.google.android.gm")) {
 			new GmailObserver(getRootInActiveWindow(), event);
 		}
@@ -155,6 +168,19 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			notesTravelerObserver.setAccessibilityNodeInfo(getRootInActiveWindow());
 			notesTravelerObserver.setEvent(event);
 			notesTravelerObserver.observe();
+		}
+		if(isUserEnteringAPasswordField(event.getSource())) {
+			Log.d(TAG, "password field detected");
+			// create action
+			Action action = new Action();
+			action.setActionType(ActionType.USER_ENTERED_PASSWORD_FIELD);
+			action.setTimestamp(System.currentTimeMillis());
+
+			// set action properties
+			Map<String, String> actionProperties = new HashMap<String, String>();
+			actionProperties.put(PROPERTY_KEY_PACKAGE_NAME, pckName);
+
+			createUserAction(action, actionProperties);
 		}
 	}
 
@@ -168,6 +194,9 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 			for(Map.Entry<String, String> entry : actionProperties.entrySet()) {
 				Log.d(TAG, "mail test : " + entry.getKey() + ":" + entry.getValue());
 			}
+		}
+		else if(action.getActionType() == ActionType.USER_ENTERED_PASSWORD_FIELD) {
+			UserContextMonitoringController.getInstance(this).sendUserAction(UISource.INTERNAL, action, actionProperties);
 		}
 	}
 
