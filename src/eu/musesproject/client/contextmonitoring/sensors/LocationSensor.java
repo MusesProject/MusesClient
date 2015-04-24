@@ -42,7 +42,7 @@ public class LocationSensor implements ISensor, LocationListener {
     public static final String TYPE = "CONTEXT_SENSOR_LOCATION";
 
     // time in milliseconds when the sensor polls information
-    private static int OBSERVATION_INTERVALL                = 10;//600000;
+    private static int OBSERVATION_INTERVAL                 = 600000;
 
     // context property keys
     public static final String PROPERTY_KEY_ID 			    = "hashid";
@@ -77,7 +77,7 @@ public class LocationSensor implements ISensor, LocationListener {
 
 
     // configuration
-    private static final long MIN_TIME_CHANGE_FOR_UPDATES = OBSERVATION_INTERVALL; // in milliseconds
+    private static final long MIN_TIME_CHANGE_FOR_UPDATES = OBSERVATION_INTERVAL; // in milliseconds
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES =  0; // in meter
 
 
