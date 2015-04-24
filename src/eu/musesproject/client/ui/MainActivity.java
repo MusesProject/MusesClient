@@ -37,7 +37,6 @@ import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.handler.DBManager;
-import eu.musesproject.client.db.handler.MockUpHandler;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
@@ -112,9 +111,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
 		//setAppIconOnStatusBar();
-		
-		// create mock up sensor config in the database
-		new MockUpHandler(this).createMockUpSensorConfiguration();
 	}
 
 	
