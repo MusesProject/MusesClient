@@ -49,20 +49,40 @@ public class UserActionGenerator {
      */
     public static Action createUserAction(ContextEvent contextEventTrigger) {
         Action action = new Action();
-        if(contextEventTrigger.getType().equals(AppSensor.TYPE)) {
+        String type = contextEventTrigger.getType();
+        if(type.equals(AppSensor.TYPE)) {
         	action.setTimestamp(System.currentTimeMillis());
         	action.setActionType(ActionType.OPEN_APPLICATION);
         	return action;
         }
-        else if(contextEventTrigger.getType().equals(RecursiveFileSensor.TYPE)) {
-        	if(contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.OPEN)) {
+        else if(type.equals(RecursiveFileSensor.TYPE)) {
+            Map<String, String> prop = contextEventTrigger.getProperties();
+        	if(prop.get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.OPEN)) {
             	action.setTimestamp(System.currentTimeMillis());
             	action.setActionType(ActionType.OPEN_ASSET);
             	return action;
         	}
-        	else if(contextEventTrigger.getProperties().get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.CLOSE_WRITE)) { // close write = save file
+        	else if(prop.get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.DELETE)) {
+            	action.setTimestamp(System.currentTimeMillis());
+            	action.setActionType(ActionType.DELETE_ASSET);
+            	return action;
+        	}
+        	else if(prop.get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.CREATE)) {
+            	action.setTimestamp(System.currentTimeMillis());
+            	action.setActionType(ActionType.CREATE_ASSET);
+            	return action;
+        	}
+        	else if(prop.get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.CLOSE_WRITE)) {
             	action.setTimestamp(System.currentTimeMillis());
             	action.setActionType(ActionType.SAVE_ASSET);
+            	return action;
+        	}
+        	else if(prop.get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.MODIFY) ||
+                    prop.get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.MOVE_SELF) ||
+                    prop.get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.MOVED_FROM) ||
+                    prop.get(RecursiveFileSensor.PROPERTY_KEY_FILE_EVENT).equals(RecursiveFileSensor.MOVED_TO) ) {
+            	action.setTimestamp(System.currentTimeMillis());
+            	action.setActionType(ActionType.MODIFY_ASSET);
             	return action;
         	}
         }
