@@ -150,12 +150,9 @@ public class RecursiveFileSensor implements ISensor {
      * @param path related to the file that fires the event
      */
     public void createContextEvent(String eventText, String path) {
-        String id = String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : - 1);
-
         ContextEvent contextEvent = new ContextEvent();
         contextEvent.setType(TYPE);
         contextEvent.setTimestamp(System.currentTimeMillis());
-        contextEvent.addProperty(PROPERTY_KEY_ID, id);
         contextEvent.addProperty(PROPERTY_KEY_FILE_EVENT, eventText);
         contextEvent.addProperty(PROPERTY_KEY_PATH, path);
         contextEvent.generateId();
