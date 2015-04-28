@@ -150,9 +150,6 @@ public class UserActionGenerator {
         else if(type.equals(ActionType.CANCEL)) {
             return ActionType.CANCEL;
         }
-        else if(type.equals(ActionType.OPEN_ASSET)) {
-        	return ActionType.OPEN_ASSET;
-        }
         else if(type.equals(ActionType.VIRUS_FOUND)) {
         	return ActionType.VIRUS_FOUND;
         }
@@ -170,6 +167,12 @@ public class UserActionGenerator {
         }
         else if(type.equals(ActionType.FILE_ATTACHED)) {
         	return ActionType.FILE_ATTACHED;
+        }
+        else if(type.equals(ActionType.OPEN_ASSET)) {
+            return ActionType.OPEN_ASSET;
+        }
+        else if(type.equals(ActionType.MODIFY_ASSET)) {
+        	return ActionType.MODIFY_ASSET;
         }
         else if(type.equals(ActionType.SAVE_ASSET)) {
         	return ActionType.SAVE_ASSET;
