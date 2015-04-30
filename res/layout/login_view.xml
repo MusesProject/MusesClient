@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/edit_text_shape"
-                android:cursorVisible="false"
+                android:cursorVisible="true"
                 android:hint="@string/hint_txt_userid"
                 android:maxLines="8"
                 android:scrollbars="vertical"
@@ -136,10 +136,12 @@
                     android:id="@+id/remember_checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checked="true"
                     android:clickable="true"
                     android:focusable="true"
-                    android:text="@string/remember_my_login_txt" 
-                    android:textColor="#000000"/>
+                    android:text="@string/remember_my_login_txt"
+                    android:textColor="#000000" />
+
             </LinearLayout>
 
             <TextView

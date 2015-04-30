@@ -3,6 +3,7 @@ package eu.musesproject.client.db.handler;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -49,7 +50,17 @@ public class DBManager {
 			+ "description VARCHAR(45)," // FIXME don't commit should be not null
 			+ "action_type VARCHAR(45),"  // FIXME don't commit should be not null
 			+ "timestamp TIMESTAMP NOT NULL);";
+	private static final String CREATE_OFFLINE_ACTION_TABLE_QUERY = "CREATE TABLE offline_action ( "
+			+ "id INTEGER PRIMARY KEY,"
+			+ "description VARCHAR(45)," 
+			+ "action_type VARCHAR(45)," 
+			+ "timestamp TIMESTAMP NOT NULL);";
 	private static final String CREATE_ACTION_PROPERTY_TABLE_QUERY = "CREATE TABLE action_property ( "
+			+ "id INTEGER PRIMARY KEY,"
+			+ "action_id INT NOT NULL,"
+			+ "key VARCHAR(45) NOT NULL,"
+			+ "value VARCHAR(500) NOT NULL);";
+	private static final String CREATE_OFFLINE_ACTION_PROPERTY_TABLE_QUERY = "CREATE TABLE offline_action_property ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "action_id INT NOT NULL,"
 			+ "key VARCHAR(45) NOT NULL,"
@@ -147,7 +158,9 @@ public class DBManager {
 	public static final String TABLE_RESOURCE_TYPE = "resourcetype";
 	public static final String TABLE_RESOURCE_PROPERTY = "resource_property";
 	public static final String TABLE_ACTION = "action";
+	public static final String TABLE_OFFLINE_ACTION = "offline_action";
 	public static final String TABLE_ACTION_PROPERTY = "action_property";
+	public static final String TABLE_OFFLINE_ACTION_PROPERTY = "offline_action_property";
 	public static final String TABLE_RISK_TREATMENT = "risktreatment";
 	public static final String TABLE_RISK_COMMUNICATION = "riskcommunication";
 	public static final String TABLE_CONTEXT_EVENT = "contextevent";
@@ -177,6 +190,7 @@ public class DBManager {
 	private static final String CONTEXT_EVENT_ID = "contextevent_id";
 	private static final String TYPE = "type";
 	private static final String TIME_STAMP = "timestamp";
+	private static final String SILENT_MODE = "silent_mode";
 	private static final String KEY = "key";
 	private static final String VALUE = "value";
 	private static final String USERNAME = "username";
@@ -201,26 +215,38 @@ public class DBManager {
 	private static final String ACTION_TYPE = "action_type";
 
 	private Context context;
-	private DatabaseHelper databaseHelper;
-	private SQLiteDatabase sqLiteDatabase;
+	private static DatabaseHelper databaseHelper;
+	private static SQLiteDatabase sqLiteDatabase;
+	private static AtomicInteger mDbOpenCounter = new AtomicInteger(0);
 
 	public DBManager(Context context) {
 		this.context = context;
-		databaseHelper = new DatabaseHelper(context);
+		if (databaseHelper == null)
+		{
+			databaseHelper = new DatabaseHelper(context);
+		}
 	}
 
 
 	public synchronized DBManager openDB() { // always returns writableDB
-		Log.d(TAG, "opening database..");
-		sqLiteDatabase = databaseHelper.getWritableDatabase();
+		// Get new DB only if not available..
+		if (mDbOpenCounter.incrementAndGet() == 1) {
+			
+			sqLiteDatabase = databaseHelper.getWritableDatabase();
+		}
+		Log.d(TAG, "opening database, counter: "+mDbOpenCounter.get());
 		return this;
 	}
 
 	public synchronized void closeDB() {
 		if (sqLiteDatabase !=null){
-			databaseHelper.close();
-			sqLiteDatabase = null;
+			// Close DB only if last user of DB..
+			if(mDbOpenCounter.decrementAndGet() == 0) {
+				//databaseHelper.close();
+			}
 		}
+		Log.d(TAG, "closing database, counter: "+mDbOpenCounter.get());
+
 	}
 
 	public void encryptDB()  {
@@ -250,7 +276,9 @@ public class DBManager {
 			Log.d( TAG,"Creating the DB" );
 
 			db.execSQL(CREATE_ACTION_TABLE_QUERY);
+			db.execSQL(CREATE_OFFLINE_ACTION_TABLE_QUERY);
 			db.execSQL(CREATE_ACTION_PROPERTY_TABLE_QUERY);
+			db.execSQL(CREATE_OFFLINE_ACTION_PROPERTY_TABLE_QUERY);
 			db.execSQL(CREATE_DECISIONTABLE_TABLE_QUERY);
 			db.execSQL(CREATE_DECISION_TABLE_QUERY);
 			db.execSQL(CREATE_RESOURCE_TABLE_QUERY);
@@ -276,6 +304,7 @@ public class DBManager {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_DECISION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_DECISIONTABLE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTION);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OFFLINE_ACTION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE_TYPE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESOURCE_PROPERTY);
@@ -290,6 +319,7 @@ public class DBManager {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_SENSOR_CONFIGURATION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_REQUIRED_APPS_CONFIGURATION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTION_PROPERTY);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OFFLINE_ACTION_PROPERTY);
 			onCreate(db);
 
 		}
@@ -299,17 +329,24 @@ public class DBManager {
 	// All CRUD (Create, retrieve, update and delete ) operations here
 
 	public void insertSensorConfiguration(SensorConfiguration sensorConfiguration){
-		if(!sensorConfigExists(sensorConfiguration)) {
+//		if(!sensorConfigExists(sensorConfiguration)) {
+		Log.d(TAG, "DB - insert sensor config");
 			ContentValues values = new ContentValues();
 			values.put(SENSOR_TYPE, sensorConfiguration.getSensorType());
 			values.put(KEY, sensorConfiguration.getKey());
 			values.put(VALUE, sensorConfiguration.getValue());
+			if (sqLiteDatabase == null){//Open database in case it is closed
+				openDB();
+			}
 			sqLiteDatabase.insert(TABLE_SENSOR_CONFIGURATION, null	, values);
-		}
+//		}
 	}
 
 	// check if an equal config item exists to avoid duplicate entries
 	private boolean sensorConfigExists(SensorConfiguration sensorConfiguration) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(
 				TABLE_SENSOR_CONFIGURATION, // table name
 				null,                    // select
@@ -320,6 +357,7 @@ public class DBManager {
 				null,null,null,null);
 
 		if (cursor != null && cursor.moveToFirst()) {
+			Log.d(MusesUtils.TEST_TAG, "DB - sensor config does exist");
 			return true;
 		}
 		else {
@@ -327,6 +365,26 @@ public class DBManager {
 		}
 	}
 
+	public boolean hasSensorConfig() {
+		String selectQuery = "select  COUNT(*) from " + TABLE_SENSOR_CONFIGURATION;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
+		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+
+		if (cursor != null && cursor.moveToFirst()) {
+			int noOfRows = cursor.getInt(0);
+			if(noOfRows > 0) {
+				Log.d(MusesUtils.TEST_TAG, "DB - sensor config does exist");
+				cursor.close();
+
+				return true;
+			}
+		}
+		cursor.close();
+
+		return false;
+	}
 
 	public List<SensorConfiguration> getAllSensorConfiguration(){
 
@@ -334,6 +392,9 @@ public class DBManager {
 
 		// Select All Query
 		String selectQuery = "select  * from " + TABLE_SENSOR_CONFIGURATION;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
 		if (cursor.moveToFirst()) {
@@ -352,6 +413,9 @@ public class DBManager {
 	}
 
 	public void inserRequiredAppList() {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		ContentValues values = new ContentValues();
 		values.put(NAME, "Avast");
 		values.put(VERSION, "3.10");
@@ -377,6 +441,9 @@ public class DBManager {
 
 	public List<RequiredApp> getRequiredAppList(){
 		List<RequiredApp> appsList = new ArrayList<RequiredApp>();
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 
 		// Select All Query
 		String selectQuery = "select  * from " + TABLE_REQUIRED_APPS_CONFIGURATION;
@@ -401,10 +468,16 @@ public class DBManager {
 		values.put(DEVICE_ID, deviceId);
 		values.put(USERNAME, userName);
 		values.put(PASSWORD, password);
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null	, values);
 	}
 
 	public boolean isUserAuthenticated(String deviceId, String userName, String password) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(
 				TABLE_USER_CREADENTIALS, // table name
 				null,                    // select
@@ -426,6 +499,9 @@ public class DBManager {
 	public String getDevId(){
 		String device_id = "";
 		String selectQuery = "select  * from " + TABLE_USER_CREADENTIALS;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		if (cursor.moveToFirst()) {
 			do {
@@ -446,10 +522,13 @@ public class DBManager {
 		values.put(SERVER_CERTIFICATE, MusesUtils.getCertificateFromSDCard(context));
 		values.put(CLIENT_CERTIFICATE, "");
 		values.put(TIMEOUT, 5000);
-		values.put(POLL_TIMEOUT, 5000);
-		values.put(SLEEP_POLL_TIMEOUT, 10000);
+		values.put(POLL_TIMEOUT, 11000);
+		values.put(SLEEP_POLL_TIMEOUT, 55000);
 		values.put(POLLING_ENABLED, 1);
 		values.put(LOGIN_ATTEMPTS, 5);
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
 	}
 
@@ -466,16 +545,26 @@ public class DBManager {
 		values.put(SLEEP_POLL_TIMEOUT, configuration.getSleepPollTimeout());
 		values.put(POLLING_ENABLED, configuration.getPollingEnabled());
 		values.put(LOGIN_ATTEMPTS, configuration.getLoginAttempts());
+		values.put(SILENT_MODE, configuration.getSilentMode());
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
 	}
 
 	public void deleteConnectionProperties(int id){
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.delete(TABLE_CONFIGURATION, "id="+id, null);
 	}
 
 	public String getServerCertificate() {
 		String certificate = "";
 		String selectQuery = "select  * from " + TABLE_CONFIGURATION;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		if (cursor.moveToFirst()) {
 			do {
@@ -488,6 +577,9 @@ public class DBManager {
 	public String getClientCertificate() {
 		String certificate = "";
 		String selectQuery = "select  * from " + TABLE_CONFIGURATION;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		if (cursor.moveToFirst()) {
 			do {
@@ -499,6 +591,9 @@ public class DBManager {
 
 	public Configuration getConfigurations(){
 		String selectQuery = "select  * from " + TABLE_CONFIGURATION;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		Configuration configuration = new Configuration();
 
@@ -525,6 +620,9 @@ public class DBManager {
 	public List<Configuration> getConfiguration(){
 		List<Configuration> conList = new ArrayList<Configuration>();
 		String selectQuery = "select  * from " + TABLE_CONFIGURATION;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		Configuration configuration = new Configuration();
 
@@ -556,13 +654,19 @@ public class DBManager {
 
 		// Select All Query
 		String selectQuery = "select silent_mode from " + TABLE_CONFIGURATION;
-		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+		try {
+			if (sqLiteDatabase == null){//Open database in case it is closed
+				openDB();
+			}
+			Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
-		if (cursor != null) {
-			if(cursor.moveToFirst()) {
+			if(cursor.moveToLast()) {
 				isSilentModeActive = cursor.getInt(0) == 1;
 			}
+
 			cursor.close();
+		} catch (Exception e) {
+			// ignore. table might be empty
 		}
 
 		return isSilentModeActive;
@@ -587,6 +691,9 @@ public class DBManager {
 
 
 		Log.d("DBManager", "Adding DT with action_id:"+decisionTable.getAction_id()+" decision_id:"+decisionTable.getDecision_id()+" riskCommunication_id:"+decisionTable.getRiskcommunication_id());
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		return sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
 	}
 
@@ -599,6 +706,9 @@ public class DBManager {
 
 		List<DecisionTable> decisionTableList = new ArrayList<DecisionTable>();
 		String selectQuery = "select  * from " + TABLE_DECISIONTABLE;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
 		if (cursor.moveToFirst()) {
@@ -626,6 +736,9 @@ public class DBManager {
 	 */
 
 	public DecisionTable getDecisionTableFromActionID(String action_id) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
 						ID,
@@ -672,6 +785,9 @@ public class DBManager {
 	public DecisionTable getDecisionTableFromActionAndResource(String action_id, String resource_id/*Action action, Resource resource*/) {
 
 		DecisionTable decisionTable = null;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
 						ID,
 						ACTION_ID,
@@ -709,6 +825,9 @@ public class DBManager {
 	public DecisionTable getDecisionTableFromResourceId(String resource_id, String action_id) {
 
 		DecisionTable decisionTable = new DecisionTable();
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
 						ID,
 						ACTION_ID,
@@ -751,6 +870,9 @@ public class DBManager {
 	public DecisionTable getDecisionTableFromID(String decisiontable_id) {
 
 		DecisionTable decisionTable = new DecisionTable();
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
 						ID,
 						ACTION_ID,
@@ -796,6 +918,9 @@ public class DBManager {
 	public DecisionTable getDecisionTableFromActionAndSubject(String action_id, String subject_id/*Action action, Subject subject*/) {
 
 		DecisionTable decisionTable = null;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
 						ID,
 						ACTION_ID,
@@ -838,6 +963,9 @@ public class DBManager {
 
 	public DecisionTable getDecisionTableFromActionAndRecourceAndSubject(String action_id, String resource_id, String subject_id/*Action action, Resource resource, Subject subject*/) {
 		DecisionTable decisionTable = null;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
 						ID,
 						ACTION_ID,
@@ -878,22 +1006,61 @@ public class DBManager {
 		values.put(ACTION_TYPE, action.getActionType());
 		values.put(TIME_STAMP, action.getTimestamp());
 		Log.d(TAG, "action type: " + action.getActionType() + " description: " + action.getDescription());
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 
 		return sqLiteDatabase.insert(TABLE_ACTION, null, values);
 	}
 
+
+	public long addOfflineAction(Action action){
+		ContentValues values = new ContentValues();
+		values.put(DESCRIPTION, action.getDescription());
+		values.put(ACTION_TYPE, action.getActionType());
+		values.put(TIME_STAMP, action.getTimestamp());
+		Log.d(TAG, "action type: " + action.getActionType() + " description: " + action.getDescription());
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
+
+		return sqLiteDatabase.insert(TABLE_OFFLINE_ACTION, null, values);
+	}
+	
 	public long addActionProperty(ActionProperty actionProperty) {
 		ContentValues values = new ContentValues();
 		values.put(ACTION_ID, actionProperty.getActionId());
 		values.put(KEY, actionProperty.getKey());
 		values.put(VALUE, actionProperty.getValue());
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 
 		return sqLiteDatabase.insert(TABLE_ACTION_PROPERTY, null, values);
+	}
+	
+	public long addOfflineActionProperty(ActionProperty actionProperty) {
+		ContentValues values = new ContentValues();
+		values.put(ACTION_ID, actionProperty.getActionId());
+		values.put(KEY, actionProperty.getKey());
+		values.put(VALUE, actionProperty.getValue());
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
+
+		return sqLiteDatabase.insert(TABLE_OFFLINE_ACTION_PROPERTY, null, values);
 	}
 
 	public List<ActionProperty> getActionPropertyList() {
 		List<ActionProperty> actionPropertyList = new ArrayList<ActionProperty>();
 		String selectQuery = "select  * from " + TABLE_ACTION_PROPERTY;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
 		if (cursor.moveToFirst()) {
@@ -910,8 +1077,11 @@ public class DBManager {
 		return actionPropertyList;
 	}
 
-	public List<ActionProperty> getActionPropertiesOfAction(int actionId) {
-		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION_PROPERTY, new String [] {
+	public List<ActionProperty> getOfflineActionPropertiesOfAction(int actionId) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
+		Cursor cursor = sqLiteDatabase.query(TABLE_OFFLINE_ACTION_PROPERTY, new String [] {
 						ID,
 						ACTION_ID,
 						KEY,
@@ -939,9 +1109,12 @@ public class DBManager {
 		return actionPropertyList;
 	}
 
-	public List<Action> getActionList() {
+	public List<Action> getOfflineActionList() {
 		List<Action> actionList = new ArrayList<Action>();
-		String selectQuery = "select  * from " + TABLE_ACTION;
+		String selectQuery = "select  * from " + TABLE_OFFLINE_ACTION;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
 		if (cursor.moveToFirst()) {
@@ -959,6 +1132,9 @@ public class DBManager {
 	}
 
 	private Action getActionFromDescription(String description) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
 						ID,
 						DESCRIPTION,
@@ -1003,6 +1179,9 @@ public class DBManager {
 		RiskTreatment riskTreatmentInDb = getRiskTreatmentFromDescription(riskTreatment.getTextualdescription());
 		if (riskTreatmentInDb.getId()==0){
 			Log.d(TAG,"Risktreatment not found, inserting a new one...");
+			if (sqLiteDatabase == null){//Open database in case it is closed
+				openDB();
+			}
 			return sqLiteDatabase.insert(TABLE_RISK_TREATMENT, null	, values);
 		}else{
 			Log.d(TAG,"Risktreatment found, returning the existing one..."+riskTreatmentInDb.getId());
@@ -1013,6 +1192,9 @@ public class DBManager {
 
 
 	private RiskTreatment getRiskTreatmentFromDescription(String textualdescription) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_TREATMENT, new String [] {
 						ID,
 						TEXTUAL_DESCRIPTION},
@@ -1049,6 +1231,9 @@ public class DBManager {
 		ContentValues values = new ContentValues();
 		values.put(NAME, resourceType.getName());
 		values.put(MODIFICATION, "03-09-2011");
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		return sqLiteDatabase.insert(TABLE_RESOURCE_TYPE, null	, values);
 	}
 
@@ -1082,6 +1267,9 @@ public class DBManager {
 		if (resourceInDb.getId()==0){
 			Log.d(TAG,"Resource not found, inserting a new one...");
 			//long id = sqLiteDatabase.insertWithOnConflict(TABLE_RESOURCE, null, values, SQLiteDatabase.CONFLICT_ABORT);
+			if (sqLiteDatabase == null){//Open database in case it is closed
+				openDB();
+			}
 			long id = sqLiteDatabase.insert(TABLE_RESOURCE, null, values);
 			controlDB("after "+ id);
 			Log.d(TAG,"");
@@ -1133,6 +1321,9 @@ public class DBManager {
 		RiskCommunication riskCommunicationInDb = getRiskCommunicationFromTreatmentId(riskCommunication.getRisktreatment_id());
 		if (riskCommunicationInDb.getId()==0){
 			Log.d(TAG,"RiskCommunication not found, inserting a new one...");
+			if (sqLiteDatabase == null){//Open database in case it is closed
+				openDB();
+			}
 			return sqLiteDatabase.insert(TABLE_RISK_COMMUNICATION, null	, values);
 		}else{
 			Log.d(TAG,"RiskCommunication found, returning the existing one...");
@@ -1144,6 +1335,9 @@ public class DBManager {
 
 	private RiskCommunication getRiskCommunicationFromTreatmentId(
 			int risktreatment_id) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION, new String [] {
 						ID,
 						COMMUNICATION_SEQUENCE,
@@ -1184,6 +1378,9 @@ public class DBManager {
 		values.put(DESCRIPTION, role.getDescription());
 		values.put(TIME_STAMP, role.getTimestamp());
 		values.put(MODIFICATION, "03-09-2011");
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		return sqLiteDatabase.insert(TABLE_ROLE, null	, values);
 	}
 
@@ -1199,6 +1396,9 @@ public class DBManager {
 		values.put(DESCRIPTION, subject.getDescription());
 		values.put(ROLE_ID, subject.getRoleID());
 		values.put(MODIFICATION, "03-09-2011");
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		return sqLiteDatabase.insert(TABLE_SUBJECT, null	, values);
 	}
 
@@ -1207,12 +1407,18 @@ public class DBManager {
 
 	public void addDevicePolicy(Policy policy){
 		String insertQuery = "TBD";
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.execSQL(insertQuery);
 		// TBD
 	}
 
 	public int updateDevicePolicy(Policy policy){
 		String updateQuery = "TBD";
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.execSQL(updateQuery);
 		// TBD
 		return 0;
@@ -1220,6 +1426,9 @@ public class DBManager {
 
 	public int getNoOfDevicePoliciesStored(){
 		String selectQuery = "TBD";
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.execSQL(selectQuery);
 		// TBD
 		return 0;
@@ -1228,6 +1437,9 @@ public class DBManager {
 
 	public Policy getStoredDevicePolicy(int index){
 		String selectQuery = "TBD";
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.execSQL(selectQuery);
 		// TBD
 		return new Policy();
@@ -1235,6 +1447,9 @@ public class DBManager {
 
 	public void deleteDevicePolicy(Policy policy){
 		String deleteQuery = "TBD";
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.execSQL(deleteQuery);
 		// TBD
 	}
@@ -1248,18 +1463,28 @@ public class DBManager {
 		values.put(ACTION_ID, event.getActionId());
 		values.put(TYPE, event.getType());
 		values.put(TIME_STAMP, event.getTimestamp());
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		return sqLiteDatabase.insert(TABLE_CONTEXT_EVENT, null	, values);
 	}
 
 	public int getNoOfContextEventsStored() {
 
 		String selectQuery = "select  * from " + TABLE_CONTEXT_EVENT;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		return cursor.getCount();
 
 	}
 	public List<Property> getPropertiesOfContextEvent(int contextevent_id) {
 		List<Property> propertyList = new ArrayList<Property>();
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 
 		Cursor cursor = sqLiteDatabase.query(TABLE_PROPERTY, new String [] {
 						ID,
@@ -1290,6 +1515,9 @@ public class DBManager {
 	}
 
 	public ContextEvent getStoredContextEvent(String id) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String [] {
 						ID,
 						ACTION_ID,
@@ -1316,6 +1544,9 @@ public class DBManager {
 	}
 
 	public List<ContextEvent> getStoredContextEventByActionId(int id) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String [] {
 						ID,
 						ACTION_ID,
@@ -1349,6 +1580,9 @@ public class DBManager {
 	}
 
 	public void deleteStoredContextEvent(String id	){
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 
 		sqLiteDatabase.delete(TABLE_CONTEXT_EVENT,
 				ID+ "=?",
@@ -1360,6 +1594,9 @@ public class DBManager {
 		values.put(CONTEXT_EVENT_ID, property.getContextevent_id());
 		values.put(KEY, property.getKey());
 		values.put(VALUE, property.getValue());
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		sqLiteDatabase.insert(TABLE_PROPERTY, null	, values);
 	}
 
@@ -1367,6 +1604,9 @@ public class DBManager {
 		List<ContextEvent> contextEventsList = new ArrayList<ContextEvent>();
 		// Select All Query
 		String selectQuery = "SELECT  * FROM " + TABLE_CONTEXT_EVENT;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		// loop through all rows and adding to list
 		if (cursor.moveToFirst()) {
@@ -1388,6 +1628,9 @@ public class DBManager {
 		List<Property> propertyList = new ArrayList<Property>();
 		// Select All Query
 		String selectQuery = "SELECT  * FROM " + TABLE_PROPERTY;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		// loop through all rows and adding to list
 		if (cursor.moveToFirst()) {
@@ -1404,6 +1647,17 @@ public class DBManager {
 		return propertyList;
 	}
 
+    public void resetStoredContextEventTables(){
+        if(sqLiteDatabase == null) {
+            openDB();
+        }
+
+        sqLiteDatabase.delete(TABLE_OFFLINE_ACTION, null, null);
+        sqLiteDatabase.delete(TABLE_OFFLINE_ACTION_PROPERTY, null, null);
+        sqLiteDatabase.delete(TABLE_CONTEXT_EVENT, null, null);
+        sqLiteDatabase.delete(TABLE_PROPERTY, null, null);
+    }
+
 	/**
 	 * Retrieve decision from id
 	 * @param decision_id
@@ -1413,6 +1667,9 @@ public class DBManager {
 	public Decision getDecisionFromID(String decision_id) {
 
 		Decision decision = new Decision();
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
 						ID,
 						NAME,
@@ -1457,6 +1714,9 @@ public class DBManager {
 	public RiskCommunication getRiskCommunicationFromID(String risk_communication_id) {
 
 		RiskCommunication comm = new RiskCommunication();
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION, new String [] {
 						ID,
 						COMMUNICATION_SEQUENCE,
@@ -1497,6 +1757,9 @@ public class DBManager {
 	public RiskTreatment getRiskTreatmentFromID(String risk_treatment_id) {
 
 		RiskTreatment treatment = new RiskTreatment();
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_TREATMENT, new String [] {
 						ID,
 						TEXTUAL_DESCRIPTION},
@@ -1547,6 +1810,9 @@ public class DBManager {
 
 	public long addDecision(Decision decision) {
 		long result = 0;
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
 						ID,
 						NAME,
@@ -1577,6 +1843,9 @@ public class DBManager {
 
 	private Decision getDecisionFromNameAndCondition(String name,
 													 String condition) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
 						ID,
 						NAME,
@@ -1606,6 +1875,9 @@ public class DBManager {
 
 
 	public Resource getResourceFromPath(String path) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
 						ID,
 						DESCRIPTION,
@@ -1640,6 +1912,9 @@ public class DBManager {
 
 
 	public Action getActionFromType(String type) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
 						ID,
 						DESCRIPTION,
@@ -1671,6 +1946,9 @@ public class DBManager {
 	public List<SensorConfiguration> getAllSensorConfigItemsBySensorType(String type) {
 		List<SensorConfiguration> configurationList = new ArrayList<SensorConfiguration>();
 		Log.d(TAG, "type="  + type);
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.rawQuery("SELECT key, value FROM sensor_configuration WHERE sensor_type=?", new String[] {type});
 
 		if (cursor != null && cursor.moveToFirst()) {
@@ -1690,7 +1968,9 @@ public class DBManager {
 
 	public List<String> getAllEnabledSensorTypes() {
 		List<String> enabledSensors = new ArrayList<String>();
-
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(
 				TABLE_SENSOR_CONFIGURATION, // table name
 				new String[] {SENSOR_TYPE}, // select
@@ -1709,19 +1989,12 @@ public class DBManager {
 		return enabledSensors;
 	}
 
-	public boolean hasSensorConfig() {
-		String selectQuery = "select  COUNT(*) from " + TABLE_SENSOR_CONFIGURATION;
-		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
-
-		if (cursor != null && cursor.moveToFirst()) {
-			return true;
-		}
-		return false;
-	}
-
 	public List<ResourceProperty> getPropertiesFromResourceId(String resource_id) {
 
 		List<ResourceProperty> properties = new ArrayList<ResourceProperty>();
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE_PROPERTY, new String [] {
 						ID,
 						RESOURCE_ID,
@@ -1751,6 +2024,9 @@ public class DBManager {
 	}
 
 	public Resource getResourceFromCondition(String condition) {
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
 						ID,
 						DESCRIPTION,
@@ -1785,6 +2061,9 @@ public class DBManager {
 	public List<Resource> getAllResourcesWithCondition() {
 
 		List<Resource> resourceList = new ArrayList<Resource>();
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
 						ID,
 						DESCRIPTION,
@@ -1818,6 +2097,10 @@ public class DBManager {
 
 	public List<Resource> getAllResources() {
 		List<Resource> resourceList = new ArrayList<Resource>();
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 
 		Cursor cursor = sqLiteDatabase.rawQuery("SELECT id, description, path, condition, resourceType FROM resource",null);
 
@@ -1844,7 +2127,10 @@ public class DBManager {
 	public Resource getResourceFromPathAndCondition(String path, String condition) {
 
 		Cursor cursor = null;
-
+		
+		if (sqLiteDatabase == null){//Open database in case it is closed
+			openDB();
+		}
 		if ((condition==null)||(condition.equals("null"))){
 
 			cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {

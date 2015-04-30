@@ -68,19 +68,16 @@ public class PhoneModeReceiver {
 			if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)){
 				// Set alarm normal mode
 				Log.d(TAG, "Screeen On");
-				AlarmReceiver alarmReceiver = new AlarmReceiver();
-				alarmReceiver.cancelAlarm(context);
-				alarmReceiver.setAlarm(context);
 				SLEEP_MODE_ACTIVE = false;
+				AlarmReceiver.setPollMode(SLEEP_MODE_ACTIVE);
+				
 			}
 			
 			if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)){
 				// Set alarm sleep mode
 				Log.d(TAG, "Screeen Off");
-				AlarmReceiver alarmReceiver = new AlarmReceiver();
-				alarmReceiver.cancelAlarm(context);
-				alarmReceiver.setAlarm(context);
 				SLEEP_MODE_ACTIVE = true;
+				AlarmReceiver.setPollMode(SLEEP_MODE_ACTIVE);
 			}
 		}
 		

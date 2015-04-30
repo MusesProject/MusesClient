@@ -20,6 +20,7 @@ package eu.musesproject.client.actuators;
  * #L%
  */
 
+import android.content.Context;
 import android.util.Log;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.decisiontable.Decision;
@@ -34,50 +35,68 @@ public class ActuatorController implements IActuatorController {
     private static final String TAG = ActuatorController.class.getSimpleName();
 
     private static ActuatorController actuatorController = null;
+
+    private Context context;
     private IUICallback callback;
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
     private FeedbackActuator feedbackActuator;
+    private FileEraserActuator fileEraserActuator;
     private IBlockActuator blockActuator;
     
     private DBManager dbManager;
 
-    public ActuatorController() {
-        this.feedbackActuator = new FeedbackActuator();
+    public ActuatorController(Context context) {
+        this.context = context;
+        this.feedbackActuator = new FeedbackActuator(context);
+        this.fileEraserActuator = new FileEraserActuator();
         this.blockActuator = new BlockActuator(uceHandler.getContext());
         this.dbManager = new DBManager(uceHandler.getContext());
     }
 
-    public static ActuatorController getInstance() {
+    public static ActuatorController getInstance(Context context) {
         if (actuatorController == null) {
-            actuatorController = new ActuatorController();
+            actuatorController = new ActuatorController(context);
         }
         return actuatorController;
     }
 
     public void showFeedback(Decision decision) {
         Log.d(TAG, "called: showFeedback(Decision decision)");
-        
+
         //check for silent mode
         dbManager.closeDB();
         dbManager.openDB();
         boolean isSilentModeActive = dbManager.isSilentModeActive();
         dbManager.closeDB();
-		if(isSilentModeActive) {
+		if(decision != null && isSilentModeActive) {
         	decision.setName(Decision.GRANTED_ACCESS);
         }
-        
+
 		// show feedback
         feedbackActuator.showFeedback(decision);
     }
 
-    public void sendFeedbackToMUSESAwareApp(Decision decision) {
-        feedbackActuator.sendFeedbackToMUSESAwareApp(decision);
+    public void removeFeedbackFromQueue() {
+        feedbackActuator.removeFeedbackFromQueue();
     }
 
-    public void sendLoginResponse(boolean loginResponse) {
+    public void sendFeedbackToMUSESAwareApp(Decision decision) {
+        feedbackActuator.sendFeedbackToMUSESAwareApp(decision, context);
+    }
+
+    public void sendLoginResponse(boolean loginResponse, String msg) {
         Log.d(TAG, "called: sendLoginResponse(boolean loginResponse)");
-        feedbackActuator.sendLoginResponseToUI(loginResponse);
+        feedbackActuator.sendLoginResponseToUI(loginResponse, msg);
+    }
+
+    /**
+     * Method to erase files from a given folder path.
+     * The folder structure (sub-folders) are not deleted, just the files itself
+     * @param folderPath
+     */
+    public void eraseFolderContent(String folderPath) {
+        fileEraserActuator.eraseFolderContent(folderPath);
     }
     
     /**

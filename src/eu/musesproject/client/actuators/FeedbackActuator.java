@@ -20,14 +20,17 @@ package eu.musesproject.client.actuators;
  * #L%
  */
 
+import android.content.Context;
 import android.util.Log;
+import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
-import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.model.actuators.ActuatorInstruction;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
-import eu.musesproject.client.model.decisiontable.ActionType;
+import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
-import eu.musesproject.server.risktrust.RiskCommunication;
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Created by christophstanik on 4/15/14.
@@ -44,13 +47,63 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     private static IUICallback callback;
 
+    private Context context;
+
+    Queue<Decision> decisionQueue;
+
+    public FeedbackActuator(Context context) {
+        this.context = context;
+        decisionQueue = new LinkedList<Decision>();
+    }
+
     @Override
     public void showFeedback(Decision decision) {
-        Log.d(TAG, "called: showFeedback(Decision decision)");
+        if (callback == null) Log.e(TAG, "********** callback is null!!");
+//        Log.d(TAG, "called: showFeedback(Decision decision)");
+        if(decision != null && decision.getName() != null) {
+            try {
+                for (Decision bufferedDecision: decisionQueue) {
+                    if(bufferedDecision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription().equals(
+                            decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription())) {
+                        Log.d("queue_test", "duplicate found");
+                        return; // do not add a duplicate feedback
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            decisionQueue.add(decision);
+            Log.d(TAG, "new feedback dialog request; queue size:" + decisionQueue.size());
+
+            // just show a new dialog if there is no other currently displayed
+            if (decisionQueue.size() == 1) {
+                sendCallback(decision);
+            }
+        }
+    }
+
+    private void showNextFeedback(Decision decision) {
+        Log.d(TAG, "showNextFeedback");
+        sendCallback(decision);
+    }
+
+    private void sendCallback(Decision decision) {
+        if (callback == null) Log.e(TAG, "********** callback is null!!");
         if(callback != null && decision != null && decision.getName() != null) {
-        	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
+            Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName() );
             if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
                 callback.onAccept();
+                // remove it from the queue, because it does not provide a dialog in which the user can click
+                // on a button
+                removeFeedbackFromQueue();
+
+                // send user behavior to the server.
+                // since, GRANTED is a situation where the user has no visible pop up, we will send an
+                // automatic generated behavior, which is GRANTED
+                Action action = new Action(Decision.GRANTED_ACCESS, System.currentTimeMillis());
+                if(context != null) {
+                    UserContextMonitoringController.getInstance(context).sendUserBehavior(action);
+                }
             }
             else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
                 callback.onMaybe(decision);
@@ -58,20 +111,52 @@ public class FeedbackActuator implements IFeedbackActuator {
             else if(decision.getName().equalsIgnoreCase(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
                 callback.onUpToUser(decision);
             }
-            else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS)) {
+            else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS) ||
+                    decision.getName().equalsIgnoreCase(Decision.DEFAULT_DENY_ACCESS)) {
                 callback.onDeny(decision);
             }
         }
         else if(callback != null && decision == null) {
             callback.onError();
+            removeFeedbackFromQueue();
         }
     }
 
     @Override
-    public void sendFeedbackToMUSESAwareApp(Decision decision) {
-        eu.musesproject.server.risktrust.RiskTreatment riskTreatment[] = decision.getRiskCommunication().getRiskTreatment();
-//        ResponseInfoAP infoAP = decision.getRiskCommunication().getRiskTreatment().ge
-//            new DummyCommunication(context).sendResponse(infoAP, riskTreatment);
+    public void sendFeedbackToMUSESAwareApp(Decision decision, Context context) {
+        try {
+            eu.musesproject.server.risktrust.RiskTreatment riskTreatment[] = decision.getRiskCommunication().getRiskTreatment();
+            ResponseInfoAP infoAP;
+            if(decision.getName().equals(Decision.STRONG_DENY_ACCESS) || decision.getName().equals(Decision.DEFAULT_DENY_ACCESS) ) {
+                infoAP = ResponseInfoAP.DENY;
+            }
+            else {
+                infoAP = ResponseInfoAP.ACCEPT;
+            }
+
+            new DummyCommunication(context).sendResponse(infoAP, riskTreatment[0]);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // no risk treatment
+        }
+    }
+
+    @Override
+    public void removeFeedbackFromQueue() {
+        Log.d(TAG, "remove feedback from queue");
+        // removes the last feedback dialog
+        if(decisionQueue != null && decisionQueue.size() > 0) {
+            try {
+                decisionQueue.remove();
+            } catch (Exception e) {
+                // ignore, no more element in the queue
+            }
+        }
+        // triggers to show the next feedback dialog if there is any
+        if (decisionQueue != null) Log.d(TAG, "Decision queue size is (after removal): " + decisionQueue.size());
+        if(decisionQueue != null && decisionQueue.size() > 0) {
+            showNextFeedback(decisionQueue.element());
+        }
     }
 
     @Override
@@ -79,19 +164,19 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     }
 
-    public void sendLoginResponseToUI(boolean result) {
+    public void sendLoginResponseToUI(boolean result, String msg) {
     	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator sending login response with result: " + result);
         Log.d(TAG, "called: sendLoginResponseToUI(boolean result)");
         if(callback!=null) {
-            callback.onLogin(result);
+            callback.onLogin(result, msg);
         }
     }
 
-    public void registerCallback(IUICallback callback) {
-        this.callback = callback;
+    public void registerCallback(IUICallback iUICallback) {
+        callback = iUICallback;
     }
 
-    public void unregisterCallback(IUICallback callback) {
-        this.callback = callback;
+    public void unregisterCallback(IUICallback iUICallback) {
+        callback = iUICallback;
     }
 }

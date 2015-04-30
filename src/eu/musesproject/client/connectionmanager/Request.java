@@ -1,4 +1,9 @@
 package eu.musesproject.client.connectionmanager;
+
+import org.apache.http.client.ClientProtocolException;
+
+import android.util.Log;
+
 /*
  * #%L
  * MUSES Client
@@ -31,6 +36,8 @@ public class Request {
 	private String url;
 	private String pollInterval;
 	private String data;
+	private String cert;
+	private int dataId = 0;
 	
 	
 	/**
@@ -40,11 +47,18 @@ public class Request {
 	 * @param pollInterval
 	 * @param data
 	 */
-	public Request(String type, String url, String pollInterval, String data) {
+	public Request(String type, String url, String pollInterval, String data, String cert, String dataId) {
 		this.type = type;
 		this.url = url;
 		this.pollInterval = pollInterval;
 		this.data = data;
+		this.cert = cert;
+		
+		try {
+			this.dataId = Integer.parseInt(dataId);
+		} catch (NumberFormatException e) {
+			this.dataId = 0;
+		}
 	}
 
 	/**
@@ -120,6 +134,20 @@ public class Request {
 
 	public void setData(String data) {
 		this.data = data;
+	}
+
+	/**
+	 * @return the dataId
+	 */
+	public int getDataId() {
+		return dataId;
+	}
+
+	/**
+	 * @param dataId the dataId to set
+	 */
+	public void setDataId(int dataId) {
+		this.dataId = dataId;
 	}
 	
 	

@@ -152,7 +152,7 @@ public class AppSensor implements ISensor {
 
         @Override
         protected Void doInBackground(Void... params) {
-        	String previousApp = "";
+            String previousApp = "";
 
             while (sensorEnabled) {
                 // get the first item in the list, because it is the foreground task
@@ -163,12 +163,23 @@ public class AppSensor implements ISensor {
                 PackageInfo foregroundAppPackageInfo;
                 String foregroundTaskAppName = "";
                 int appVersion;
-                List<ActivityManager.RunningServiceInfo> runningServices = null;
+                List<RunningServiceInfo> runningServices = null;
                 try {
                     foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
-                	foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
-                	appVersion = foregroundAppPackageInfo.versionCode;
-                	runningServices = activityManager.getRunningServices(MAX_SHOWN_BACKGROUND_SERVICES);
+                    foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
+                    appVersion = foregroundAppPackageInfo.versionCode;
+                    runningServices = activityManager.getRunningServices(MAX_SHOWN_BACKGROUND_SERVICES);
+
+                    // lollipop removed the other way to retrieve the app name
+                    if(android.os.Build.VERSION.SDK_INT >= 21 || foregroundTaskAppName.isEmpty()) {
+                        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+                        List<ActivityManager.RunningAppProcessInfo> tasks = manager.getRunningAppProcesses();
+
+                        foregroundTaskPackageName = tasks.get(0).processName;
+                        foregroundTaskAppName = getAppName(foregroundTaskPackageName);
+
+                    }
 
                     // fill previousApp with the first one in session
                     // and set the start time of the first application
@@ -180,8 +191,8 @@ public class AppSensor implements ISensor {
                     // if the foreground application changed, create a context event
                     if(!foregroundTaskAppName.equals(previousApp)) {
                         if(!foregroundTaskAppName.equals(context.getResources().getString(R.string.app_name))) {
-                        	createContextEvent(foregroundTaskAppName, foregroundTaskPackageName, appVersion, runningServices);
-                        	previousApp = foregroundTaskAppName;
+                            createContextEvent(foregroundTaskAppName, foregroundTaskPackageName, appVersion, runningServices);
+                            previousApp = foregroundTaskAppName;
                         }
                     }
 
@@ -193,6 +204,19 @@ public class AppSensor implements ISensor {
                 }
             }
             return null;
+        }
+
+        private String getAppName(String pckName) {
+            String appName = "";
+            PackageManager pm = context.getPackageManager();
+            try {
+                PackageInfo pckInfo = pm.getPackageInfo(pckName, 0);
+                appName = pckInfo.applicationInfo.loadLabel(pm).toString();
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            return appName;
         }
     }
 

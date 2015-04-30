@@ -18,6 +18,11 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
@@ -31,12 +36,16 @@ import android.util.Log;
  * @version Jan 27, 2014
  */
 public class HttpResponseHandler {
-	
+
 	private static final String TAG = HttpResponseHandler.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
+	private static final int MINIMUM_POLL_AFTER_REQUEST = 10000;
 	private String receivedHttpResponseData = null;
-	private HttpResponse httpResponse;
+	private HttpResponse httpResponse = null;
+	private boolean isNewSession = false;
+	private int sessionUpdateReason = 0;
 	private String requestType;
+	private int dataId;
 
 	/**
 	 * Constructor initialise with httpResponse and request type (connect,data,poll etc)
@@ -44,21 +53,48 @@ public class HttpResponseHandler {
 	 * @param requestType
 	 * @return void
 	 */
-	public HttpResponseHandler(HttpResponse httpResponse, String requestType) {
+	public HttpResponseHandler(HttpResponse httpResponse, String requestType, int dataId) {
 		this.httpResponse = httpResponse;
 		this.requestType = requestType;
+		this.dataId = dataId;
 	}
-	
+
+	public HttpResponseHandler(String requestType, int dataId) {
+		// TODO Auto-generated constructor stub
+		this.requestType = requestType;
+		this.dataId = dataId;
+	}
+
 	/**
 	 * Check response and call appropriate callback methods
 	 * @return void
 	 */
-	public void checkHttpResponse(){
+	public synchronized void checkHttpResponse(){
 		if (httpResponse != null) {
 			switch(getStatusCodeResponse(httpResponse)){
 			case DetailedStatuses.SUCCESS:
-				setServerStatusAndCallBack(Statuses.ONLINE, DetailedStatuses.SUCCESS);
+				// Only send if Success in connection
+				int detailedOnlineStatus = DetailedStatuses.SUCCESS;
+				if (isNewSession )
+				{
+					isNewSession = false;
+					if (Statuses.CURRENT_STATUS == Statuses.ONLINE)
+					{
+						// For testing
+						//DBG SweFileLog.write("New sessionId, ,");
+						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason, dataId);
+					}
+					else
+					{
+						// If this is a new session, inform using detailed status
+						detailedOnlineStatus = DetailedStatuses.SUCCESS_NEW_SESSION;
+					}
+				}
+
+				Statuses.CURRENT_STATUS = Statuses.ONLINE;
+				
 				if (isPollRequest(requestType)) {
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
@@ -67,42 +103,102 @@ public class HttpResponseHandler {
 					if (isMorePackets(httpResponse)){
 						doPollForAnExtraPacket();
 					}
-				}
-				if (isSendDataRequest(requestType)){
+				} else if (isSendDataRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
+					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
-					} 
-				}
-				if (isAckRequest(requestType)) {
+					}
+
+					if (isMorePackets(httpResponse) || AlarmReceiver.getCurrentPollInterval()>MINIMUM_POLL_AFTER_REQUEST){
+						doPollForAnExtraPacket();
+					}
+				} else if (isAckRequest(requestType)) {
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
 					Log.d(TAG, "Ack by the server");
+				} else if (isConnectRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
+					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS, dataId);
+					if (isPayloadInData(httpResponse)) {
+						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
+
+						//sendDataToFunctionalLayer();
+					} 
+				} else if (isDisonnectRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.DISCONNECTED, DetailedStatuses.SUCCESS, dataId);
+					if (isPayloadInData(httpResponse)) {
+						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
+
+						//sendDataToFunctionalLayer();
+					} 
 				}
+
 				AlarmReceiver.resetExponentialPollTime();
 				break;
 			case DetailedStatuses.INCORRECT_URL:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Incorrect URL");
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.INCORRECT_URL);
+
+				if (isSendDataRequest(requestType)){
+					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.INCORRECT_URL)+",0,0");
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.INCORRECT_URL, dataId);
+				}
+				
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.INCORRECT_URL, dataId);
+				
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.NOT_ALLOWED_FROM_SERVER:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Request not allowed from Server..");
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER);
+				
+				if (isSendDataRequest(requestType)){
+					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.NOT_ALLOWED_FROM_SERVER)+",0,0");
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_ALLOWED_FROM_SERVER, dataId);
+				}
+
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER, dataId);
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.SERVER_NOT_AVAIABLE:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Server not available..");
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.SERVER_NOT_AVAIABLE);
+				
+				if (isSendDataRequest(requestType)){
+					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.SERVER_NOT_AVAIABLE)+",0,0");
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.SERVER_NOT_AVAIABLE, dataId);
+					
+				}
+				
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.SERVER_NOT_AVAIABLE, dataId);
 				AlarmReceiver.increasePollTime();
 				break;
 			default:
-				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error..");
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
+				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error:"+getStatusCodeResponse(httpResponse));
+				if (isSendDataRequest(requestType)){
+					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(getStatusCodeResponse(httpResponse))+",0,0");
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
+				}
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR, dataId);
 				AlarmReceiver.increasePollTime();
 				break;
 			}
+
+
 		} else {
-			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR);
+			Statuses.CURRENT_STATUS = Statuses.OFFLINE;
+			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR, dataId);
+			if (isSendDataRequest(requestType)){
+				//DBG SweFileLog.write("DATA_SEND_FAILED, No resp:,0,0");
+				setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
+			} 
+			if (isConnectRequest(requestType)){
+				setServerStatusAndCallBack(Statuses.CONNECTION_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
+				/* Depending on error Polling shall be stopped, but difficult to know if error is recoverable */
+			}
 			Log.d(APP_TAG, "Server is OFFLINE, HttpResponse is null, check network connectivity or address of server!");
 		}
 	}
@@ -184,8 +280,32 @@ public class HttpResponseHandler {
 	}
 	
 	/**
-	 * Check if the http response has any payload of data
+	 * Check if the http request is was a connect request
 	 * @param requestType
+	 * @return
+	 */
+	private boolean isConnectRequest(String requestType) {
+		if (requestType.equalsIgnoreCase(ConnectionManager.CONNECT)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Check if the http request is was a disconnect request
+	 * @param requestType
+	 * @return
+	 */
+	private boolean isDisonnectRequest(String requestType) {
+		if (requestType.equalsIgnoreCase(ConnectionManager.DISCONNECT)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Check if the http response has any payload of data
+	 * @param HttpResponse
 	 * @return
 	 */
 	
@@ -202,12 +322,19 @@ public class HttpResponseHandler {
 	 * @param status
 	 * @return void
 	 */
-	private void setServerStatusAndCallBack(int status, int detailedStatus) {
-		ConnectionManager.callBacks.statusCb(status, detailedStatus);
-		if (status != Statuses.CURRENT_STATUS){ 
-			Statuses.CURRENT_STATUS = status;
-			Log.d(TAG, "Server ONLINE");
+	private void setServerStatusAndCallBack(int status, int detailedStatus, int dataId) {
+		
+		if (status == Statuses.OFFLINE || status == Statuses.ONLINE)
+		{
+			ConnectionManager.sendServerStatus(status, detailedStatus, dataId);
+			
+			
 		}
+		else
+		{	
+			ConnectionManager.callBacks.statusCb(status, detailedStatus, dataId);
+		}
+		
 	}
 	
 	
@@ -237,18 +364,64 @@ public class HttpResponseHandler {
 	 * Retrieve Data from http response from the Server
 	 * @param response
 	 * @return receivedHttpResponseData
+	 * @throws IOException 
+	 * @throws IllegalStateException 
+	 * @throws UnsupportedEncodingException 
 	 */
 	
 	private String reteiveDataFromHttpResponseHeader(HttpResponse response) {
-		Header [] dataReceived = response.getAllHeaders();
-		for (Header responseHedar : dataReceived){
-			if (responseHedar.getName().equals("data")){
-				receivedHttpResponseData = responseHedar.getValue();
-				break;
-			}
-			
-		}
+		
+//		Header [] dataReceived = response.getAllHeaders();
+//		for (Header responseHeader : dataReceived){
+//			if (responseHeader.getName().equals("data")){
+//				receivedHttpResponseData = responseHeader.getValue();
+//				break;
+//			}
+//			
+//		}
+		BufferedReader reader;
+		String json = "";
+		try {
+			reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+			json = reader.readLine();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		
+		receivedHttpResponseData = json;
 		return receivedHttpResponseData;
+	}
+
+	public void setNewSession(int reason) {
+		// TODO Auto-generated method stub
+		isNewSession = true;
+		sessionUpdateReason = reason;
+	}
+
+	public void setResponse(HttpResponse httpResponse) {
+		// TODO Auto-generated method stub
+		this.httpResponse = httpResponse;
+	}
+
+	public String getDataLength() {
+		String dataLength = "0";
+		if (httpResponse != null)
+		{
+			Header header = httpResponse.getFirstHeader("data");
+			if (header!=null)
+			{
+				if (header.getValue().contains("sensor-config"))
+					Log.d(APP_TAG, "Sensor-Config");
+				dataLength = Integer.toString(header.getValue().length());
+			}
+		}
+		// new implementation as data header is not used anymore
+		dataLength = Integer.toString(receivedHttpResponseData.length() );
+		return dataLength;
 	}
 
 	

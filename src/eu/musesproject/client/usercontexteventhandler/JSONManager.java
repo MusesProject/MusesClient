@@ -21,16 +21,8 @@ package eu.musesproject.client.usercontexteventhandler;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
+import eu.musesproject.client.contextmonitoring.sensors.LocationSensor;
 import eu.musesproject.client.db.entity.Configuration;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.JSONIdentifiers;
@@ -38,6 +30,14 @@ import eu.musesproject.client.model.RequestType;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author christophstanik
@@ -45,6 +45,7 @@ import eu.musesproject.contextmodel.ContextEvent;
  * Class to transform action and context information to JSON
  */
 public class JSONManager {
+	private static final String TAG = JSONManager.class.getSimpleName();
 	/**
 	 * creates the JSON object that will be sent to the server via the {@link eu.musesproject.client.connectionmanager.ConnectionManager}
 	 * @param requestType {@link eu.musesproject.client.model.RequestType}
@@ -105,12 +106,14 @@ public class JSONManager {
              * sensor
              */
 			// create a JSON object for every sensor
-			JSONObject sensorRootJSON = new JSONObject();
-			for (ContextEvent contextEvent : contextEvents) {
-				sensorRootJSON.put(contextEvent.getType(), createSensorJSONObject(contextEvent));
-			}
-			// add sensor root JSON with n sensors to root
-			root.put(JSONIdentifiers.SENSOR_IDENTIFIER, sensorRootJSON);
+            if(contextEvents != null) {
+			    JSONObject sensorRootJSON = new JSONObject();
+                for (ContextEvent contextEvent : contextEvents) {
+                    sensorRootJSON.put(contextEvent.getType(), createSensorJSONObject(contextEvent));
+                }
+                // add sensor root JSON with n sensors to root
+                root.put(JSONIdentifiers.SENSOR_IDENTIFIER, sensorRootJSON);
+            }
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -220,15 +223,18 @@ public class JSONManager {
 	/**
 	 * Method to create a JSON object which will be used to request the client configuration
 	 * @param deviceId deviceId (IMEI)
+	 * @param osVersion current android version
 	 * @param userName login user name credential
 	 * @return {@link JSONObject}
 	 */
-	public static JSONObject createConfigSyncJSON(String deviceId, String userName) {
+	public static JSONObject createConfigSyncJSON(String deviceId, String osVersion, String userName) {
 		JSONObject configSyncSONObject = new JSONObject();
 		try {
 			configSyncSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.CONFIG_SYNC);
 			configSyncSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
 			configSyncSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+			configSyncSONObject.put(JSONIdentifiers.OPERATING_SYSTEM_VERSION, osVersion);
+			configSyncSONObject.put(JSONIdentifiers.OPERATING_SYSTEM, "Android");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -254,6 +260,26 @@ public class JSONManager {
         }
         
 		return isLoginSuccessful;
+    }
+
+
+    /**
+     *
+     * @param jsonString received json response from the server
+     * @return the detailed status message, so that in case the login fails,
+     * we can display meaningful information to the user, like username/password wrong or server offline
+     */
+    public static String getAuthMessage(String jsonString) {
+        String authMessage = "";
+
+        try {
+            JSONObject requestJSON = new JSONObject(jsonString);
+            authMessage = requestJSON.getString(JSONIdentifiers.AUTH_MESSAGE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return authMessage;
     }
 
     /**
@@ -294,6 +320,24 @@ public class JSONManager {
     	}
     	return requestId;
     }
+    
+    /**
+     * Method that returns the id of the request that was sent to the server.
+     * 
+     * @param jsonString response from server
+     * @return the request id
+     */
+    public static int getRequestIdFromRequestJSON(String jsonString) {
+    	int requestId = - 1;
+    	try {
+    		JSONObject responseJSON = new JSONObject(jsonString);
+    		requestId = responseJSON.getInt("id"); // FIXME this is confusing, this attribute should be named request_id
+    	} catch (JSONException e) {
+    		e.printStackTrace();
+    	}
+    	return requestId;
+    }
+    
 
 	/**
 	 * Method that returns all received config items of each sensor
@@ -310,16 +354,45 @@ public class JSONManager {
 			for (int i = 0; i < configProperties.length(); i++) {
 				JSONObject item = configProperties.getJSONObject(i);
 				String sensorType = item.getString("sensor-type");
-				String value = item.getString("value");
 				String key = item.getString("key");
-				
+				String value = item.getString("value");
+
 				configList.add(new SensorConfiguration(sensorType, key, value));
 			}
-			
+
+			configList.addAll(addZoneConfigIfExists(jsonString));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return configList;
+	}
+
+	public static List<SensorConfiguration> addZoneConfigIfExists(String jsonString) {
+		List<SensorConfiguration> zoneConfig = new ArrayList<SensorConfiguration>();
+
+		try {
+			JSONObject responseJSON = new JSONObject(jsonString);
+			JSONObject sensorConfigJSON = responseJSON.getJSONObject("zone-config");
+			JSONArray configProperties = sensorConfigJSON.getJSONArray("zone");
+			for (int i = 0; i < configProperties.length(); i++) {
+				JSONObject item = configProperties.getJSONObject(i);
+				String description = item.getString("description");
+				int zoneId = item.getInt("zoneId");
+				int radius = item.getInt("radius");
+				double latitude = item.getDouble("latitude");
+				double longitude = item.getDouble("longitud");
+
+				String sensorType = LocationSensor.TYPE;
+				String key = "zone";
+				String value = description + ";" + zoneId + ";" + radius + ";" + latitude + ";" + longitude;
+
+				zoneConfig.add(new SensorConfiguration(sensorType, key, value));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return zoneConfig;
 	}
 	
 	/**
@@ -369,4 +442,94 @@ public class JSONManager {
 		}
 		return connectionConfig;
 	}
+	
+	/**
+	 * Method that returns the condition in the policy 
+	 * 
+	 * @param jsonString
+	 * @return
+	 */
+	
+	public static String getPolicyCondition(String jsonString) {
+        String cond = "";
+        try {
+            JSONObject responseJSON = new JSONObject(jsonString);
+            JSONObject filesJSON = responseJSON.getJSONObject("files");
+            JSONObject actionJSON = filesJSON.getJSONObject("action");
+            JSONObject denyJSON = actionJSON.getJSONObject("deny");
+            JSONObject conditionJSON = denyJSON.getJSONObject("condition");
+
+            cond = conditionJSON.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return cond;
+    }
+	
+	public static boolean isAccessbilityEnabled(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject sensorsJSON = requestJSON.getJSONObject("sensor");
+			JSONObject deviceProtectionAttributesJSON = sensorsJSON.getJSONObject("CONTEXT_SENSOR_DEVICE_PROTECTION");
+			boolean accessbilityEnabled = deviceProtectionAttributesJSON.getBoolean("accessibilityenabled");
+			return accessbilityEnabled;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static long getScreenTimeout(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject sensorsJSON = requestJSON.getJSONObject("sensor");
+			JSONObject deviceProtectionAttributesJSON = sensorsJSON.getJSONObject("CONTEXT_SENSOR_DEVICE_PROTECTION");
+			long screenTimeoutInSeconds = deviceProtectionAttributesJSON.getLong("screentimeoutinseconds");
+			return screenTimeoutInSeconds;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	public static String getWifiEncryption(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject sensorsJSON = requestJSON.getJSONObject("sensor");
+			JSONObject deviceProtectionAttributesJSON = sensorsJSON.getJSONObject("CONTEXT_SENSOR_CONNECTIVITY");
+			String wifiEncryption = deviceProtectionAttributesJSON.getString("wifiencryption");
+			return wifiEncryption;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static String getFilePath(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject actionJSON = requestJSON.getJSONObject("action");
+			JSONObject propertiesJSON = actionJSON.getJSONObject("properties");
+			String path = propertiesJSON.getString("path");
+			return path;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+	public static String getActionType(String jsonString){
+		try {
+			JSONObject requestJSON = new JSONObject(jsonString);
+			JSONObject actionJSON = requestJSON.getJSONObject("action");
+			String actionType = actionJSON.getString("type");
+			return actionType;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	
+	
 }

@@ -9,9 +9,9 @@ package eu.musesproject.client.contextmonitoring.sensors;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,206 +25,214 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
-import eu.musesproject.client.utils.MusesUtils;
+import eu.musesproject.client.model.contextmonitoring.Zone;
 import eu.musesproject.contextmodel.ContextEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LocationSensor implements ISensor, LocationListener {
-	private static final String TAG = LocationSensor.class.getSimpleName();
+    private static final String TAG = LocationSensor.class.getSimpleName();
 
-	// sensor identifier
-	public static final String TYPE = "CONTEXT_SENSOR_LOCATION";
+    // sensor identifier
+    public static final String TYPE = "CONTEXT_SENSOR_LOCATION";
+
+    // time in milliseconds when the sensor polls information
+    private static int OBSERVATION_INTERVAL                 = 600000;
 
     // context property keys
-    public static final String PROPERTY_KEY_ID 						= "id";
-    public static final String PROPERTY_KEY_IS_WITHIN_SECURE_ZONE	= "insecurezone";
-    
+    public static final String PROPERTY_KEY_ID 			    = "hashid";
+    public static final String PROPERTY_KEY_IS_WITHIN_ZONE  = "isWithinZone";
+
     // config keys
-    public static final String CONFIG_KEY_MIN_DIS 				= "mindistance";
-    public static final String CONFIG_KEY_MIN_TIME				= "mindtime";
-    public static final String CONFIG_KEY_LONGITUDE_SECURE_ZONE	= "locationlong";
-    public static final String CONFIG_KEY_LATITUDE_SECURE_ZONE	= "locationlat";
-    public static final String CONFIG_KEY_SECURE_ZONE_RADIUS	= "radius";
-    
+    public static final String CONFIG_KEY_ZONE              = "zone";
+    public static final int CONFIG_KEY_DESCRIPTION_POS      = 0;
+    public static final int CONFIG_KEY_ZONE_ID_POS          = 1;
+    public static final int CONFIG_KEY_RADIUS_POS           = 2;
+    public static final int CONFIG_KEY_LATITUDE_POS         = 3;
+    public static final int CONFIG_KEY_LONGITUDE_POS        = 4;
 
-	private Context context;
-	private ContextListener listener;
+    // default values
+    public static final String DEFAULT_USER_IS_IN_NO_ZONE   = "no_zone";
 
-	// history of fired context events
-	List<ContextEvent> contextEventHistory;
+    private Context context;
+    private ContextListener listener;
 
-	// holds a value that indicates if the sensor is enabled or disabled
-	private boolean sensorEnabled;
+    // history of fired context events
+    List<ContextEvent> contextEventHistory;
 
-	private LocationManager locationManager;
-	private String provider;
+    // holds a value that indicates if the sensor is enabled or disabled
+    private boolean sensorEnabled;
 
-	// configuration
-	Location allowedZoneCentralPoint;
-	float allowedZoneRadius;
-	int minTimeBetweenLocationUpdates; // in milliseconds
-	int minDistanceBetweenLocationUpdates; // in meter
-	boolean isWithinSecureZone;
+    private LocationManager locationManager;
+    private Location currentLocation;
 
-	public LocationSensor(Context context) {
-		this.context = context;
-		
-		init();
-	}
+    private List<Zone> zones;
 
-	private void init() {
+    private boolean isNetworkEnabled = false;
+
+
+    // configuration
+    private static final long MIN_TIME_CHANGE_FOR_UPDATES = OBSERVATION_INTERVAL; // in milliseconds
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES =  0; // in meter
+
+
+    public LocationSensor(Context context) {
+        this.context = context;
+
+        init();
+    }
+
+    private void init() {
         sensorEnabled = false;
         contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
-        
-		allowedZoneRadius = 12.0f; // default radius; radius in m
-		minTimeBetweenLocationUpdates = 400; // default, value in ms
-		minDistanceBetweenLocationUpdates = 10;
+        zones = new ArrayList<Zone>();
+    }
 
-		isWithinSecureZone = false; // default value
+    public Location getCurrentLocation() {
+        Log.d(TAG, "getCurrentLocation called");
+        // Get the location manager
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-		// Get the location manager
-		locationManager = (LocationManager) context
-				.getSystemService(Context.LOCATION_SERVICE);
-		provider = LocationManager.NETWORK_PROVIDER; // default location tracking accuracy -> Wi-Fi & Cell Tower
-		Location location = locationManager.getLastKnownLocation(provider);
+        isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-		// Initialize the location fields
-		if (location != null) {
-			onLocationChanged(location);
-		} else {
-			Log.d(TAG, "no location available");
-		}
-	}
+        if(isNetworkEnabled) {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_CHANGE_FOR_UPDATES,
+                    MIN_DISTANCE_CHANGE_FOR_UPDATES, this, Looper.getMainLooper());
 
-	@Override
-	public void addContextListener(ContextListener listener) {
-		this.listener = listener;
-	}
+            currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        }
 
-	@Override
-	public void removeContextListener(ContextListener listener) {
-		this.listener = listener;
-	}
+        // Initialize the location fields
+        if (currentLocation != null) {
+            createContextEvent();
+        }
 
-	@Override
-	public void enable() {
-//		Log.d(MusesUtils.TEST_TAG, "location=enable");
-		if (!sensorEnabled && allowedZoneCentralPoint != null) {
-			sensorEnabled = true;
-			locationManager.requestLocationUpdates(
-					provider, 
-					minTimeBetweenLocationUpdates, 
-					minDistanceBetweenLocationUpdates, 
-					this
-			);
-		}
-	}
+        return currentLocation;
+    }
 
-	@Override
-	public void disable() {
-		if (sensorEnabled) {
-			this.sensorEnabled = false;
-			locationManager.removeUpdates(this);
-		}
-	}
+    @Override
+    public void addContextListener(ContextListener listener) {
+        this.listener = listener;
+    }
 
-	@Override
-	public ContextEvent getLastFiredContextEvent() {
-		if(contextEventHistory.size() > 0) {
+    @Override
+    public void removeContextListener(ContextListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void enable() {
+        if (!sensorEnabled) {
+            sensorEnabled = true;
+            Log.d(TAG, "ENABLE");
+
+            getCurrentLocation();
+        }
+    }
+
+    @Override
+    public void disable() {
+        Log.d(TAG, "DISABLE");
+        if (sensorEnabled) {
+            sensorEnabled = false;
+            locationManager.removeUpdates(this);
+        }
+    }
+
+    @Override
+    public ContextEvent getLastFiredContextEvent() {
+        if(contextEventHistory.size() > 0) {
             return contextEventHistory.get(contextEventHistory.size() - 1);
         }
         else {
             return null;
         }
-	}
+    }
 
-	@Override
-	public void configure(List<SensorConfiguration> config) {
-//		Log.d(MusesUtils.TEST_TAG, "configure(List<SensorConfiguration> config)");
-		try {
-			for (SensorConfiguration item : config) {
-				if(item.getKey().equals(CONFIG_KEY_MIN_DIS)) {
-					minDistanceBetweenLocationUpdates = Integer.valueOf(item.getValue());
-//					Log.d(MusesUtils.TEST_TAG, "minDistanceBetweenLocationUpdates="+minDistanceBetweenLocationUpdates);
-				}
-				else if(item.getKey().equals(CONFIG_KEY_MIN_TIME)) {
-					minTimeBetweenLocationUpdates = Integer.valueOf(item.getValue());
-//					Log.d(MusesUtils.TEST_TAG, "minTimeBetweenLocationUpdates="+minTimeBetweenLocationUpdates);
-				}
-				else if(item.getKey().equals(CONFIG_KEY_LONGITUDE_SECURE_ZONE)) {
-					// just use this config item if longitude and latitude is provided
-					for (SensorConfiguration subItem : config) {
-						if(item.getKey().equals(CONFIG_KEY_LATITUDE_SECURE_ZONE)) {
-							allowedZoneCentralPoint = new Location(provider);
-							allowedZoneCentralPoint.setLongitude(Double.valueOf(item.getValue()));
-							allowedZoneCentralPoint.setLatitude(Double.valueOf(subItem.getValue()));
-//							Log.d(MusesUtils.TEST_TAG, "lat=" + allowedZoneCentralPoint.getLatitude() + " long=" +allowedZoneCentralPoint.getLongitude());
-						}
-					}
-				}
-				else if(item.getKey().equals(CONFIG_KEY_SECURE_ZONE_RADIUS)) {
-					allowedZoneRadius = Float.valueOf(item.getValue());
-//					Log.d(MusesUtils.TEST_TAG, "allowedZoneRadius=" + allowedZoneRadius);
-				}
-			}
-		} catch (Exception e) {
-//			Log.e(TAG, "could not map config value to correct type");
-		}
-	}
+    @Override
+    public void configure(List<SensorConfiguration> config) {
+        for (SensorConfiguration sensorConfiguration : config) {
+            if(sensorConfiguration.getKey().equals(CONFIG_KEY_ZONE)) {
+                try {
+                    String[] configItems = sensorConfiguration.getValue().split(";");
+                    Zone zone = new Zone();
+                    zone.setDescription(configItems[CONFIG_KEY_DESCRIPTION_POS]);
+                    zone.setZoneId(Integer.parseInt(configItems[CONFIG_KEY_ZONE_ID_POS]));
+                    zone.setRadius(Float.parseFloat(configItems[CONFIG_KEY_RADIUS_POS]));
+                    zone.setLatitude(Double.parseDouble(configItems[CONFIG_KEY_LATITUDE_POS]));
+                    zone.setLongitude(Double.parseDouble(configItems[CONFIG_KEY_LONGITUDE_POS]));
 
-	@Override
-	public void onLocationChanged(Location location) {
-//		Log.d(TAG, "location sensor - : onLocationChanged");
-		if (allowedZoneCentralPoint != null) {
-			int distance = (int) location.distanceTo(allowedZoneCentralPoint);
-			if (distance > allowedZoneRadius) {
-//				Log.d(TAG, "location sensor - is within secure zone: " + false + "; distance=" + distance);
-				if (isWithinSecureZone) { // just fire a context event if the user went from a secure zone to an insecure
-					createContextEvent(false);
-				}
-			} else {
-//				Log.d(TAG, "location sensor - is within secure zone: " + true + "; distance=" + distance);
-				if (!isWithinSecureZone) { // just fire a context event if the user went from a insecure zone to a secure
-					createContextEvent(true);
-				}
-			}
-		}
-	}
+                    Log.d(TAG, configItems[CONFIG_KEY_DESCRIPTION_POS] + " lat=" + configItems[CONFIG_KEY_LATITUDE_POS] + " long=" + configItems[CONFIG_KEY_LONGITUDE_POS] + " radius=" +configItems[CONFIG_KEY_RADIUS_POS]);
+                    zones.add(zone);
+                } catch (Exception e) {
+                    Log.w(TAG, e.getMessage());
+                }
+            }
+        }
+    }
 
-	private void createContextEvent(boolean isWithinSecureZone) {
-		this.isWithinSecureZone = isWithinSecureZone;
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d(TAG, "onLocationChanged");
+        currentLocation = location;
+        createContextEvent();
+    }
 
-		ContextEvent contextEvent = new ContextEvent();
-		contextEvent.setType(TYPE);
-		contextEvent.setTimestamp(System.currentTimeMillis());
-		contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
-		contextEvent.addProperty(PROPERTY_KEY_IS_WITHIN_SECURE_ZONE, String.valueOf(isWithinSecureZone));
-		contextEvent.generateId();
+    private void createContextEvent() {
+        if(currentLocation != null) {
+            String isInZones = "";
+            for (Zone zone : zones) {
+                Location location = new Location("zone_center");
+                location.setLongitude(zone.getLongitude());
+                location.setLatitude(zone.getLatitude());
 
-		if (listener != null) {
-			listener.onEvent(contextEvent);
-		}
-	}
+                Log.d(TAG, "distance to " + zone.getDescription() + " is " + currentLocation.distanceTo(location) + "m");
+                if(currentLocation.distanceTo(location) <= zone.getRadius()) {
+                    isInZones += zone.getZoneId() + ",";
+                }
+            }
 
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-	}
+            if(isInZones.isEmpty()) {
+                isInZones = DEFAULT_USER_IS_IN_NO_ZONE;
+            }
+            else {
+                if(isInZones.contains(",")) {
+                    isInZones = isInZones.substring(0, isInZones.length() - 1); // remove ',' as the last char
+                }
+            }
+            Log.d(TAG, "is in zones: " + isInZones);
 
-	@Override
-	public void onProviderEnabled(String provider) {
-	}
+            ContextEvent contextEvent = new ContextEvent();
+            contextEvent.setType(TYPE);
+            contextEvent.setTimestamp(System.currentTimeMillis());
+            contextEvent.addProperty(PROPERTY_KEY_IS_WITHIN_ZONE, isInZones);
+            contextEvent.generateId();
 
-	@Override
-	public void onProviderDisabled(String provider) {
-	}
+            if (listener != null) {
+                listener.onEvent(contextEvent);
+            }
+        }
+    }
 
-	@Override
-	public String getSensorType() {
-		return TYPE;
-	}
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+    }
+
+    @Override
+    public String getSensorType() {
+        return TYPE;
+    }
 }

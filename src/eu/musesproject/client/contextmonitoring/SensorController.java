@@ -114,7 +114,6 @@ public class SensorController {
 
     		Log.d(MusesUtils.TEST_TAG, "SC - config test: sensor type="+sensor.getClass().getSimpleName() + ", no. config items="+configItems.size());
     		sensor.configure(configItems);
-    		sensor.enable();
     		activeSensors.put(sensorType, sensor);
 		}
     	
@@ -161,6 +160,9 @@ public class SensorController {
 				 sensor = new NotificationSensor(context);
 			 } 
 		}
+        else if(sensorType.equals(PeripheralSensor.TYPE)) {
+            sensor = new PeripheralSensor(context);
+        }
     	
     	return sensor;
     }

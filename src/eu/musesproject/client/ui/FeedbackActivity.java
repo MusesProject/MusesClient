@@ -63,7 +63,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			if (MESSAGE.contains("You want to access a file, but you do not have the permission") || 
 					MESSAGE.contains("You are trying to open an application which is considered") || 
 					MESSAGE.contains("You have a virus and you want to send an attachment via E-Mail") ){
-				pressHomeButton();	
+//				pressHomeButton();
 			}
 			break;
 		case R.id.cancel_btn:
@@ -76,7 +76,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 			if (MESSAGE.contains("You want to access a file, but you do not have the permission") || 
 					MESSAGE.contains("You are trying to open an application which is considered") || 
 					MESSAGE.contains("You have a virus and you want to send an attachment via E-Mail") ){
-				pressHomeButton();	
+//				pressHomeButton();
 			}
 			break;
 		}
@@ -101,6 +101,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 		feedBackDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		feedBackDialog.setContentView(R.layout.feedback_dialog);
 		
+		feedBackDialog.setCanceledOnTouchOutside(false);
 		// Views	
 		feedbackView = (TextView)feedBackDialog.findViewById(R.id.feedback_txt);
 		feedbackTitleView = (TextView)feedBackDialog.findViewById(R.id.feedback_title_txt);
@@ -183,7 +184,7 @@ public class FeedbackActivity extends Activity implements View.OnClickListener {
 //		}, 100);
 
 	}
-	
+
 	
 	@Override
 	protected void onDestroy() {

@@ -37,5 +37,6 @@ public final class Statuses {
 	public static final int CONNECTION_FAILED = 5;
 	public static final int CONNECTION_OK = 6;
 	public static final int DISCONNECTED = 7;
+	public static final int NEW_SESSION_CREATED = 8;
 
 }

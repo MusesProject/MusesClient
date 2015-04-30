@@ -21,6 +21,7 @@ package eu.musesproject.client.contextmonitoring;
  */
 
 import android.content.Context;
+import android.util.Log;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.contextmonitoring.UISource;
@@ -45,7 +46,8 @@ import java.util.Map;
  */
 public class UserContextMonitoringController implements
         IUserContextMonitoringController {
-    private static UserContextMonitoringController ucmController = null;
+    private static final String INTERNAL_SENSOR_TAG = "INTERNAL_SENSOR_TAG";
+	private static UserContextMonitoringController ucmController = null;
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
     private Context context;
@@ -85,9 +87,12 @@ public class UserContextMonitoringController implements
             sendUserBehavior(action);
         }
         else if(src == UISource.MUSES_AWARE_APP_UI) {
-            uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
+            Action musesAwareAction = action;
+            musesAwareAction.setRequestedByMusesAwareApp(true);
+            uceHandler.send(musesAwareAction, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
         else if(src == UISource.INTERNAL) {
+        	Log.d(INTERNAL_SENSOR_TAG, "action:"+action.getActionType()+ " properties:"+properties.toString());
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
     }

@@ -46,9 +46,9 @@ public class RecursiveFileSensor implements ISensor {
     public static final String TYPE = "CONTEXT_SENSOR_FILEOBSERVER";
     
     // context property keys
-    public static final String PROPERTY_KEY_ID 			= "id";
     public static final String PROPERTY_KEY_FILE_EVENT 	= "fileevent";
     public static final String PROPERTY_KEY_PATH 		= "path";
+    public static final String PROPERTY_KEY_NAME 		= "resourceName";
 
 	// config keys
     public static final String CONFIG_KEY_PATH = "path";
@@ -101,7 +101,7 @@ public class RecursiveFileSensor implements ISensor {
     /**
      * This method enables the sensor and initiates the context event collection.
      * If the implemented File Observer fires an event it will be created in
-     * {@link RecursiveFileSensor#createContextEvent(String, String)}
+     * {@link RecursiveFileSensor#createContextEvent(String, String, String)}
      */
     @Override
     public void enable() {
@@ -148,18 +148,17 @@ public class RecursiveFileSensor implements ISensor {
      * create the context event for this sensor
      * @param eventText private static field of {@link RecursiveFileSensor} that describes the event.
      * @param path related to the file that fires the event
+     * @param name
      */
-    public void createContextEvent(String eventText, String path) {
-        String id = String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : - 1);
-
+    public void createContextEvent(String eventText, String path, String name) {
         ContextEvent contextEvent = new ContextEvent();
         contextEvent.setType(TYPE);
         contextEvent.setTimestamp(System.currentTimeMillis());
-        contextEvent.addProperty(PROPERTY_KEY_ID, id);
         contextEvent.addProperty(PROPERTY_KEY_FILE_EVENT, eventText);
         contextEvent.addProperty(PROPERTY_KEY_PATH, path);
+        contextEvent.addProperty(PROPERTY_KEY_NAME, name);
         contextEvent.generateId();
-        Log.d(TAG, "event received: " + eventText + " path: " +path);
+        Log.d(TAG, "event received: " + eventText + " path: " +path + " name: " + name);
 
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
@@ -249,7 +248,7 @@ public class RecursiveFileSensor implements ISensor {
 		
 
 		@Override
-		public void onEvent(int event, String path) {
+		public void onEvent(int event, String name) {
 			 long eventTimeStamp = System.currentTimeMillis();
 
              // add ALL_EVENTS to erase high bit values
@@ -274,11 +273,11 @@ public class RecursiveFileSensor implements ISensor {
                      case FileObserver.CLOSE_NOWRITE: eventText = RecursiveFileSensor.CLOSE_NOWRITE;break;
                      default: break;
                  }
-                 if((eventText != null) && (path != null)) {
-                	 path = rootPath + "/" + path;
+                 if((eventText != null) && (name != null)) {
+                	 String path = rootPath + "/" + name;
                 	 File file = new File(path);
                 	 if(file.isFile()) {
-                		 createContextEvent(eventText, path);
+                		 createContextEvent(eventText, rootPath, name);
                 	 }
                  }
              }

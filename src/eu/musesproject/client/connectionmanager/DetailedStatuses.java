@@ -29,12 +29,22 @@ public class DetailedStatuses {
 
 	private DetailedStatuses(){};
 	// Detailed Server Statuses
+	
 	public static final int SUCCESS = 101;     				// ---> 200 OK
 	public static final int INCORRECT_URL = 102;				// ---> 400 Bad Request
 	public static final int NOT_ALLOWED_FROM_SERVER = 103;	// ---> 401 Unauthorized
 	public static final int SERVER_NOT_AVAIABLE = 104;		// ---> 404 Not Found
 	public static final int UNKNOWN_ERROR = 105;
 	public static final int NO_INTERNET_CONNECTION = 106;
+	public static final int SUCCESS_NEW_SESSION = 107;
+	
+	public static final int INCORRECT_CERTIFICATE = 200;
+	
+	
+	public static final int SESSION_NEW = 1001;
+	public static final int SESSION_UPDATED = 1002;
+	public static final int SESSION_EXPIRED = 1003;
+	
 	// Should define more responses if needed in future
 
 }

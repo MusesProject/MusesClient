@@ -97,6 +97,8 @@ public class DeviceProtectionSensor implements ISensor {
 		sensorEnabled = false;
 
 		trustedAVs = new ArrayList<String>();
+        trustedAVs.add("com.antivirus");
+        Log.d(TAG, "init");
 		RootTools.debugMode = false;
 	}
 
@@ -116,7 +118,7 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.setTimestamp(System.currentTimeMillis());
 		contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory .size() + 1) : -1));
 		contextEvent.addProperty(PROPERTY_KEY_IS_ROOTED, String.valueOf(checkDeviceRooted()));
-		contextEvent.addProperty(PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN, String.valueOf(checkRootPermissionGiven()));
+//		contextEvent.addProperty(PROPERTY_KEY_IS_ROOT_PERMISSION_GIVEN, String.valueOf(checkRootPermissionGiven()));
 		contextEvent.addProperty(PROPERTY_KEY_IP_ADRESS, getIPAddress(true));
 		contextEvent.addProperty(PROPERTY_KEY_IS_PASSWORD_PROTECTED, String.valueOf(isPasswordProtected()));
 		contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS, String.valueOf(getScreenTimeout()));
@@ -124,7 +126,6 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_EXISTS, String.valueOf(musesDatabaseExist(context, DBManager.DATABASE_NAME)));
 		contextEvent.addProperty(PROPERTY_KEY_ACCESSIBILITY_ENABLED, String.valueOf(isAccessibilityForMusesEnabled()));
 		contextEvent.generateId();
-
 
 		if(contextEventHistory.size() > 0) {
 			ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
@@ -137,7 +138,7 @@ public class DeviceProtectionSensor implements ISensor {
 				}
 
 				if (contextEvent != null && listener != null) {
-					debug(contextEvent);
+//					debug(contextEvent);
 					listener.onEvent(contextEvent);
 				}
 			}
@@ -145,7 +146,7 @@ public class DeviceProtectionSensor implements ISensor {
 		else {
 			contextEventHistory.add(contextEvent);
 			if (contextEvent != null && listener != null) {
-				debug(contextEvent);
+//				debug(contextEvent);
 				listener.onEvent(contextEvent);
 			}
 		}
@@ -236,10 +237,9 @@ public class DeviceProtectionSensor implements ISensor {
 			if(appInfo.packageName.equals("com.android.keyguard")) {
 				continue; // implemented to avoid that the log cat is flooded with warnings, because there is no app name for this package
 			}
-			String appName = (String) (appInfo != null ? packageManager.getApplicationLabel(appInfo) : "(unknown)");
 
 			for (String trustedAVName : trustedAVs) {
-				if (trustedAVName.equals(appName)) {
+				if (trustedAVName.equals(appInfo.packageName)) {
 					return true;
 				}
 			}

@@ -1,4 +1,4 @@
-	package eu.musesproject.client.ui;
+package eu.musesproject.client.ui;
 /*
  * #%L
  * MUSES Client
@@ -20,10 +20,8 @@
  */
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,26 +29,23 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
-import eu.musesproject.client.connectionmanager.DetailedStatuses;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.handler.DBManager;
-import eu.musesproject.client.db.handler.MockUpHandler;
+import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
+import eu.musesproject.client.utils.MusesUtils;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * MainActivity class handles List buttons on the main GUI
@@ -66,6 +61,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String DECISION_KEY = "decision";
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
+	public static final String SAVE_CREDENTIALS = "save_credentials";
 	public static final String PREFERENCES_KEY = "eu.musesproject.client";
 	public static final String REGISTER_UI_CALLBACK = "eu.musesproject.client.action.CALLBACK";
 	private static final String TAG = MainActivity.class.getSimpleName();
@@ -77,6 +73,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static boolean isLoggedIn = false;
 	private SharedPreferences prefs;
 	private ProgressDialog progressDialog;
+	private Timer autoUpdate;
+	private Timer oneTimeUpdate;
+	private int serverStatus = -1;
 		
 //	private static final int NOTIFICATION_EX = 1;
 //	private NotificationManager notificationManager;
@@ -86,7 +85,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.muses_main);
 		context = getApplicationContext();
-		setStartUpConfiguration();
 		getActionBar().setDisplayShowTitleEnabled(false);
 		
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
@@ -113,34 +111,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
 		//setAppIconOnStatusBar();
-		
-		// create mock up sensor config in the database
-		new MockUpHandler(this).createMockUpSensorConfiguration();
 	}
 
-	private void setStartUpConfiguration(){
-        DBManager dbManager = new DBManager(context);
-        dbManager.openDB();
-        dbManager.insertConnectionProperties();
-        dbManager.inserRequiredAppList();
-        dbManager.closeDB();
-	}
-	
 	
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		unregisterReceiver(rcReceiver);
-	}
-
-	private BroadcastReceiver rcReceiver = new BroadcastReceiver() {
+		autoUpdate.cancel();
 		
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			registerCallbacks();
-		}
-	};
+	}
 
 	private boolean sendDecisionIfComingFromShowFeedbackDialog(Bundle bundle) {
 		if(bundle!= null){
@@ -186,10 +166,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		IntentFilter rcFilter = new IntentFilter();
-		rcFilter.addAction(REGISTER_UI_CALLBACK);
-		registerReceiver(rcReceiver, rcFilter);
-		
+
 		DBManager dbManager = new DBManager(getApplicationContext());
 		dbManager.openDB();
 		boolean isActive = dbManager.isSilentModeActive();
@@ -198,11 +175,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			if (loginView == null) {
 				loginView = new LoginView(context);
 			}
-			//loginView.updateLoginWithNewServerStatus(); // FIXME commented after cure comments
+			 
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			
-		} 
+		}
+		
+		
+		loginView.setServerStatus();
+		
+		
+		autoUpdate = new Timer();
+		  autoUpdate.schedule(new TimerTask() {
+		   @Override
+		   public void run() {
+		    runOnUiThread(new Runnable() {
+		     public void run() {
+		    	 loginView.updateLoginWithNewServerStatus();
+		     }
+		    });
+		   }
+		  }, 6000, 30000); // updates each 30 secs
 		
 	}
 
@@ -216,15 +209,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
+                Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
-				loginView.updateLoginView();
+
 				isLoggedIn = true;
-				toastMessage(getResources().getString(
-						R.string.login_success_msg));
+				loginView.updateLoginView(true);
+
+                toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
+                Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
-				toastMessage(getResources().getString(R.string.login_fail_msg));
+
+                toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
 				Log.d(TAG, "Action response accepted ..");
@@ -266,18 +263,20 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	};
 	
 	private void startProgress(){
-//		progressDialog = new ProgressDialog(MainActivity.this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
-//		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//		progressDialog.setTitle("Logging in..");
-//		progressDialog.setMessage("Please wait..");
-//		progressDialog.setCancelable(true);
-//		progressDialog.show();
+		progressDialog = new ProgressDialog(MainActivity.this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		progressDialog.setTitle(getResources().getString(
+				R.string.logging_in));
+		progressDialog.setMessage(getResources().getString(
+				R.string.wait));
+		progressDialog.setCancelable(true);
+		progressDialog.show();
 	}
 	
 	private void stopProgress(){
-//		if (progressDialog!=null){
-//			progressDialog.dismiss();
-//		}
+		if (progressDialog!=null){
+			progressDialog.dismiss();
+		}
 	}
 	
 	/**
@@ -321,9 +320,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 * UserContextMonitoringImplementation.
 	 */
 	private void registerCallbacks() {
+		Log.v(MusesUtils.TEST_TAG, "Registring callbacks from MainActivity!");
 		MusesUICallbacksHandler musesUICallbacksHandler = new MusesUICallbacksHandler(
 				context, callbackHandler);
-		ActuatorController.getInstance().registerCallback(
+		ActuatorController.getInstance(this).registerCallback(
 				musesUICallbacksHandler);
 	}
 
@@ -345,7 +345,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		if (checkLoginInputFields(userName, password)) {
 			startProgress();
 			userContextMonitoringController.login(userName, password);
-			loginView.setUsernamePasswordIfSaved();
+			
 		} else {
 			toastMessage(getResources().getString(
 					R.string.empty_login_fields_msg));
@@ -401,6 +401,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		private CheckBox rememberCheckBox, agreeTermsCheckBox;
 		private String userName, password;
 		boolean isPrivacyPolicyAgreementChecked = false;
+		boolean isSaveCredentialsChecked = false;
 		
 		public LoginView(Context context) {
 			super(context);
@@ -431,9 +432,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		 */
 
 		private void populateLoggedInView() {
+			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated())
+			{
+				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
+				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
+			}
+			
 			if (isLoggedIn) {
 				loginLayout2.setVisibility(View.GONE);
 				logoutBtn.setVisibility(View.VISIBLE);
+				loginDetailTextView.setText(String.format("%s %s", getResources()
+						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
 			}
 		}
 
@@ -441,17 +450,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void onCheckedChanged(CompoundButton arg0, boolean isChecked) {
 			switch (arg0.getId()) {
 			case R.id.remember_checkbox:
-				userName = userNameTxt.getText().toString();
-				password = passwordTxt.getText().toString();
 				SharedPreferences.Editor prefEditor = prefs.edit();	
 				if (isChecked){
-					if (checkLoginInputFields(userName, password)){
-						prefEditor.putString(USERNAME, userName);
-						prefEditor.putString(PASSWORD, password);
-						prefEditor.commit();
-					}
+				    isSaveCredentialsChecked = true;
 				} else { 
-					prefEditor.clear();prefEditor.commit();
+					isSaveCredentialsChecked = false;
+					prefEditor.clear();
+					prefEditor.putBoolean(SAVE_CREDENTIALS, false);
+					prefEditor.commit();
 				}
 				break;
 			case R.id.agree_terms_checkbox:
@@ -497,25 +503,74 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		}
 
-		public void updateLoginView() {
+		public void updateLoginView(Boolean loginSuccess) {
+			
+			if (loginSuccess)
+			{
+				userName = userNameTxt.getText().toString();
+				password = passwordTxt.getText().toString();
+				SharedPreferences.Editor prefEditor = prefs.edit();	
+				if (isSaveCredentialsChecked){
+					
+					prefEditor.putString(USERNAME, userName);
+					prefEditor.putString(PASSWORD, password);
+					prefEditor.putBoolean(SAVE_CREDENTIALS, isSaveCredentialsChecked);
+					prefEditor.commit();
+					
+				}
+			}
+			else
+			{
+				setUsernamePasswordIfSaved();
+			}
+			
 			loginLayout2.setVisibility(View.GONE);
 			logoutBtn.setVisibility(View.VISIBLE);
 			loginDetailTextView.setText(String.format("%s %s", getResources()
 					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
-			setUsernamePasswordIfSaved();
+			
+			
+			setServerStatus();
+			loginLabelTextView.setFocusable(true);
+			loginLabelTextView.requestFocus();
+			
+		}
+		
+		private void setServerStatus()
+		{
+			if (isLoggedIn)
+			{
+				serverStatus = Statuses.CURRENT_STATUS;
+				String detailedText = String.format("%s %s", getResources()
+						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString());
+					detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
+					detailedText += serverStatus == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
+						getResources().getString(R.string.current_com_status_3);
+					loginDetailTextView.setText(detailedText);
+			}
 		}
 
 		private void updateLoginWithNewServerStatus(){
-			loginLabelTextView.setText(
-									   String.format("%s %s %s %s", 
-											   						getResources().getString(R.string.login_button_txt), 
-										     																		"(",
-					                                Statuses.CURRENT_STATUS == Statuses.ONLINE ? 
-							  									getResources().getString(R.string.current_com_status_2):
-							  									getResources().getString(R.string.current_com_status_3),
-							  																						")"
-							  					    )
-							  		  );
+			
+			if (serverStatus != Statuses.CURRENT_STATUS )
+			{
+				serverStatus = Statuses.CURRENT_STATUS;
+			
+				/* Not showing status in login screen */
+				if (isLoggedIn)
+				{
+					setServerStatus();
+				}
+			}
+			/* Set label */
+//					String serverStatus = String.format("%s %s %s %s", 
+//							   getResources().getString(R.string.login_button_txt), 
+//							   "(",
+//							   Statuses.CURRENT_STATUS == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
+//			  						   getResources().getString(R.string.current_com_status_3),
+//			  				   ")");
+					//loginLabelTextView.setText(serverStatus );
+			
 		}
 
 		
@@ -525,13 +580,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				password = prefs.getString(PASSWORD, "");
 				userNameTxt.setText(userName);
 				passwordTxt.setText(password);
-				rememberCheckBox.setChecked(true);
+				
 			} else {
 				userNameTxt.setText("");
 				passwordTxt.setText("");
-				rememberCheckBox.setChecked(false);
+				
 				Log.d(TAG, "No username-pass found in preferences");
 			}
+			
+			// Set rememberCheckBox, if no choice done default to true
+			isSaveCredentialsChecked = prefs.getBoolean(SAVE_CREDENTIALS, true);
+			rememberCheckBox.setChecked(isSaveCredentialsChecked);
+			
 		}
 		
 		

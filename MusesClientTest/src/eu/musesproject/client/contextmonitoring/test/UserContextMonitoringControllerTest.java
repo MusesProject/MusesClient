@@ -34,7 +34,7 @@ public class UserContextMonitoringControllerTest extends AndroidTestCase {
     public void testCallback() {
         callback = new IUICallback() {
             @Override
-            public void onLogin(boolean result) {
+            public void onLogin(boolean result, String msg) {
                 assertEquals(false, result);
             }
 
@@ -57,6 +57,11 @@ public class UserContextMonitoringControllerTest extends AndroidTestCase {
             public void onUpToUser(Decision decision) {
                 assertEquals("UP_TO_YOU", decision.getName());
             }
+
+            @Override
+            public void onError() {
+
+            }
         };
 
         decision.setName(Decision.GRANTED_ACCESS);
@@ -72,7 +77,7 @@ public class UserContextMonitoringControllerTest extends AndroidTestCase {
         decision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
         callback.onUpToUser(decision);
 
-        callback.onLogin(false);
+        callback.onLogin(false, "user not authenticated");
     }
 
     @Override
