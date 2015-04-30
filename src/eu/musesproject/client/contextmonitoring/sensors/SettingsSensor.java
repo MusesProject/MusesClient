@@ -101,7 +101,7 @@ public class SettingsSensor implements ISensor {
     	}
     }
     
-    public String getOSVersion() {
+    public static String getOSVersion() {
     	return android.os.Build.VERSION.RELEASE;
     }
     
