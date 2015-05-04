@@ -20,10 +20,7 @@ package eu.musesproject.client.contextmonitoring;
  * #L%
  */
 
-import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
-import eu.musesproject.client.contextmonitoring.sensors.DeviceProtectionSensor;
-import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
-import eu.musesproject.client.contextmonitoring.sensors.RecursiveFileSensor;
+import eu.musesproject.client.contextmonitoring.sensors.*;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -106,6 +103,10 @@ public class UserActionGenerator {
 	        		return action;
 	        	}
         	}
+        }
+        else if(contextEventTrigger.getType().equals(PeripheralSensor.TYPE)) {
+            action.setTimestamp(contextEventTrigger.getTimestamp());
+            action.setActionType(ActionType.USB_DEVICE_CONNECTED);
         }
 
         return null;
