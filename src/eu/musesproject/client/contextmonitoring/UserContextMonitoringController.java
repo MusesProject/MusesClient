@@ -22,13 +22,9 @@ package eu.musesproject.client.contextmonitoring;
 
 import android.content.Context;
 import android.util.Log;
-import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
-import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
-import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
-import eu.musesproject.server.risktrust.RiskTreatment;
 
 import java.util.Map;
 

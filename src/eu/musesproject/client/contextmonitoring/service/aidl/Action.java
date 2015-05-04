@@ -26,6 +26,7 @@ import android.os.Parcelable;
 public class Action implements Parcelable {
 	private String type;
 	private long timestamp;
+	private boolean musesAwareAppRequiresResponse;
 	
 	
 	public Action() {
@@ -84,5 +85,13 @@ public class Action implements Parcelable {
 	
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	public boolean isMusesAwareAppRequiresResponse() {
+		return musesAwareAppRequiresResponse;
+	}
+
+	public void setMusesAwareAppRequiresResponse(boolean musesAwareAppRequiresResponse) {
+		this.musesAwareAppRequiresResponse = musesAwareAppRequiresResponse;
 	}
 }
