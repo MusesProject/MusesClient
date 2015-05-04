@@ -138,6 +138,7 @@ public class UserActionGenerator {
         Action transformedAction = new Action();
         transformedAction.setActionType(transformToActionType(musesAwareAction.getType()));
         transformedAction.setTimestamp(musesAwareAction.getTimestamp());
+        transformedAction.setMusesAwareAppRequiresResponse(musesAwareAction.isMusesAwareAppRequiresResponse());
 
         return transformedAction;
     }

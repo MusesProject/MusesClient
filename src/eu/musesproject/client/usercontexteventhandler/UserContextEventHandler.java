@@ -61,6 +61,7 @@ import java.util.Map;
 
 /**
  * The Class UserContextEventHandler. Singleton
+ *
  * @author Christoph
  * @version 28 feb 2014
  */
@@ -126,6 +127,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	/**
 	 * Method to get the current server status (online, offline)
+	 *
 	 * @return int. {@link Statuses} online: 1; offline:0
 	 */
 	public int getServerStatus() {
@@ -193,7 +195,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		Log.d(MusesUtils.TEST_TAG, "UCEH - send(action, prop, context_events)");
 		Log.d(APP_TAG, "Action: " + action.getActionType());
 		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
-		boolean onlineDecisionRequested = false;
 
 		Decision decision = retrieveDecision(action, properties, contextEvents);
 
@@ -208,9 +209,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 		else { // if there is no local decision, send a request to the server
 			if(serverStatus == Statuses.ONLINE && isUserAuthenticated) { // if the server is online, request a decision
-				// flag that an online decision is requested
-				onlineDecisionRequested = true;
-
 				// temporary store the information so that the decision can be made after the server responded with
 				// an database update (new policies are sent from the server to the client and stored in the database)
 				// In addition, add a timeout to every request
@@ -275,6 +273,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method that takes an {@link eu.musesproject.client.model.decisiontable.Action}
 	 * which contains the decision taken by the user on the MUSES UI.
 	 * This behavior will be send to the server
+	 *
 	 * @param action
 	 */
 	public void sendUserBehavior(Action action) {
@@ -539,6 +538,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	/**
 	 * Should be called when the background service is created
+	 *
 	 * @param context {@link Context}
 	 */
 	public void setContext(Context context) {
