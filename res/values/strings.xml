@@ -12,6 +12,7 @@
     <string name="password_txt">Password:</string>
     <string name="login_button_txt">Login</string>
     <string name="logout_button_txt">Logout</string>
+    <string name="security_quiz_button_txt">Participate in Security Quiz</string>
     <string name="privacy_policy_view_txt">Privacy Policy</string>
     <string name="policy_info_button_txt">MUSES policy information</string>
     <string name="settings_button_txt">Settings</string>

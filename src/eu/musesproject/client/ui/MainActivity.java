@@ -397,7 +397,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		private EditText userNameTxt, passwordTxt;
 		private LinearLayout /*loginLayout1,*/ loginLayout2;
 		private Button loginBtn, logoutBtn;
-		private TextView loginLabelTextView, loginDetailTextView;
+		private TextView loginLabelTextView, loginDetailTextView,securityQuizTextView;
 		private CheckBox rememberCheckBox, agreeTermsCheckBox;
 		private String userName, password;
 		boolean isPrivacyPolicyAgreementChecked = false;
@@ -407,6 +407,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			super(context);
 			inflate(context, R.layout.login_view, this);
 			loginLabelTextView = (TextView) findViewById(R.id.login_text_view);
+			securityQuizTextView = (TextView) findViewById(R.id.security_quiz_txtView);
 			userNameTxt = (EditText) findViewById(R.id.username_text);
 			passwordTxt = (EditText) findViewById(R.id.pass_text);
 			userName = userNameTxt.getText().toString();
@@ -422,6 +423,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginBtn.setOnClickListener(this);
 			logoutBtn = (Button) findViewById(R.id.logout_button);
 			logoutBtn.setOnClickListener(this);
+			securityQuizTextView.setOnClickListener(this);
 			setUsernamePasswordIfSaved();
 			populateLoggedInView();
 		}
@@ -498,6 +500,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 						R.string.logout_successfully_msg));
 				isLoggedIn = false;
 				setUsernamePasswordIfSaved();
+				break;
+			case R.id.security_quiz_txtView:
+				startSecurityQuiz();
 				break;
 			}
 
@@ -589,7 +594,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			}
 			
 			// Set rememberCheckBox, if no choice done default to true
-			isSaveCredentialsChecked = prefs.getBoolean(SAVE_CREDENTIALS, true);
+			isSaveCredentialsChecked = prefs.getBoolean(SAVE_CREDENTIALS, false);
 			rememberCheckBox.setChecked(isSaveCredentialsChecked);
 			
 		}
@@ -663,5 +668,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 //		// mId allows you to update the notification later on.
 //		mNotificationManager.notify(1, mBuilder.build());
 //	}
+
+	public void startSecurityQuiz() {
+		Log.d(TAG, "UNIGE=>Xavier please put your code here for security quiz.");
+		
+	}
 
 }
