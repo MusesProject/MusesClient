@@ -9,7 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:visibility="gone"
+        android:visibility="visible"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -37,20 +37,7 @@
                     android:textSize="25sp" />
 
                 <Button
-                    android:id="@+id/security_info_list_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="70dp"
-                    android:background="#808080"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="14dp"
-                    android:paddingRight="7dp"
-                    android:text="@string/security_info_button_txt"
-                    android:textColor="#ffffff"
-                    android:visibility="gone"
-                    android:textSize="25sp" />
-                
-                <Button
-                    android:id="@+id/security_points_list_button"
+                    android:id="@+id/security_quiz_list_button"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
                     android:background="#808080"
@@ -59,7 +46,7 @@
                     android:paddingRight="7dp"
                     android:text="@string/security_points_button_txt"
                     android:textColor="#ffffff"
-                   	android:visibility="gone"
+                   	android:visibility="visible"
                     android:textSize="25sp" />
 
             </LinearLayout>
@@ -88,7 +75,6 @@
                 android:id="@+id/top_layout"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="#ff818181"
                 android:orientation="vertical" >
             </LinearLayout>
         </ScrollView>
