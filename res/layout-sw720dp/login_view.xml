@@ -28,7 +28,7 @@
                 android:textSize="15sp"
                 android:textColor="#1710DC"
                 android:text="@string/security_quiz_button_txt"
-                android:visibility="visible" />
+                android:visibility="gone" />
             
             <TextView
                 android:id="@+id/login_text_view"

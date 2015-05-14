@@ -492,6 +492,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				break;
 			case R.id.logout_button:
 				UserContextEventHandler.getInstance().logout();
+				securityQuizTextView.setVisibility(View.GONE);
 				logoutBtn.setVisibility(View.GONE);
 				loginDetailTextView.setText(getResources().getString(
 						R.string.login_detail_view_txt));
@@ -514,6 +515,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			{
 				userName = userNameTxt.getText().toString();
 				password = passwordTxt.getText().toString();
+				securityQuizTextView.setVisibility(View.VISIBLE);
 				SharedPreferences.Editor prefEditor = prefs.edit();	
 				if (isSaveCredentialsChecked){
 					
@@ -525,7 +527,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				}
 			}
 			else
-			{
+			{	
+				securityQuizTextView.setVisibility(View.GONE);
 				setUsernamePasswordIfSaved();
 			}
 			
