@@ -66,7 +66,7 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
         cancelButton = (Button) layout.findViewById(R.id.dialog_deny_button_cancel);
 
         dialogHeader.setText(title);
-        dialogBody.setText(body);
+        dialogBody.setText(body.split("\\n")[0]);
 
         detailsButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
@@ -83,7 +83,7 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
                 detailsButton.setVisibility(View.INVISIBLE);
 
                 dialogHeader.setText(title);
-                dialogBody.setText(body);
+                dialogBody.setText(body.split("\\n")[1]);
                 break;
             case R.id.dialog_deny_button_cancel:
                 this.dismiss();
