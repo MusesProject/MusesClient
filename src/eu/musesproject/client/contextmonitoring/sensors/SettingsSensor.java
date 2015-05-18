@@ -27,6 +27,7 @@ import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,9 +120,11 @@ public class SettingsSensor implements ISensor {
 			imei =telephonyManager.getDeviceId();
 			
 		}
-		if (imei == null || imei.length() == 0)
-			imei = Secure.getString(context.getContentResolver(),
-					Secure.ANDROID_ID);
+		if (imei == null || imei.length() == 0) {
+            imei = Secure.getString(context.getContentResolver(),
+                    Secure.ANDROID_ID);
+            imei = new BigInteger(imei, 16).longValue()+"";
+        }
 		return imei;
     }
 
