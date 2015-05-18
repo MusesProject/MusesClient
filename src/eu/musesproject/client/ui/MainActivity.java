@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.SimpleAdapter.ViewBinder;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
@@ -66,9 +67,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String REGISTER_UI_CALLBACK = "eu.musesproject.client.action.CALLBACK";
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private LinearLayout topLayout;
-	private Button loginListBtn, securityInformationListbtn;
+	private Button loginListBtn, securityQuizListbtn;
 	private Context context;
 	private LoginView loginView;
+	private SecurityQuizView securityQuizView;
 	private UserContextMonitoringController userContextMonitoringController;
 	public static boolean isLoggedIn = false;
 	private SharedPreferences prefs;
@@ -89,9 +91,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
 		loginListBtn = (Button) findViewById(R.id.login_list_button);
-		securityInformationListbtn = (Button) findViewById(R.id.security_info_list_button);
+		securityQuizListbtn = (Button) findViewById(R.id.security_quiz_list_button);
 		loginListBtn.setOnClickListener(this);
-		securityInformationListbtn.setOnClickListener(this);
+		securityQuizListbtn.setOnClickListener(this);
 
 		userContextMonitoringController = UserContextMonitoringController
 				.getInstance(context);
@@ -108,8 +110,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 		
 		loginView = new LoginView(context);
+		securityQuizView = new SecurityQuizView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
+		topLayout.addView(securityQuizView);
+
 		//setAppIconOnStatusBar();
 	}
 
@@ -155,10 +160,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			break;
-		case R.id.security_info_list_button:
-			if (isLoggedIn) {
-				//topLayout.removeAllViews();
-			}
+		case R.id.security_quiz_list_button:
+			topLayout.removeAllViews();
+			topLayout.addView(securityQuizView);
 			break;
 		}
 	}
@@ -175,9 +179,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			if (loginView == null) {
 				loginView = new LoginView(context);
 			}
-			 
+			
+			if (securityQuizView == null){
+				securityQuizView = new SecurityQuizView(context);
+			}
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
+			topLayout.addView(securityQuizView);
 			
 		}
 		
@@ -214,14 +222,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 				isLoggedIn = true;
 				loginView.updateLoginView(true);
-
+				securityQuizView.updateSecurityQuizView(true);
                 toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
                 Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
-
-                toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
+				securityQuizView.updateSecurityQuizView(false);
+				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
 				Log.d(TAG, "Action response accepted ..");
@@ -397,7 +405,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		private EditText userNameTxt, passwordTxt;
 		private LinearLayout /*loginLayout1,*/ loginLayout2;
 		private Button loginBtn, logoutBtn;
-		private TextView loginLabelTextView, loginDetailTextView,securityQuizTextView;
+		private TextView loginLabelTextView, loginDetailTextView;
 		private CheckBox rememberCheckBox, agreeTermsCheckBox;
 		private String userName, password;
 		boolean isPrivacyPolicyAgreementChecked = false;
@@ -407,7 +415,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			super(context);
 			inflate(context, R.layout.login_view, this);
 			loginLabelTextView = (TextView) findViewById(R.id.login_text_view);
-			securityQuizTextView = (TextView) findViewById(R.id.security_quiz_txtView);
 			userNameTxt = (EditText) findViewById(R.id.username_text);
 			passwordTxt = (EditText) findViewById(R.id.pass_text);
 			userName = userNameTxt.getText().toString();
@@ -423,7 +430,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginBtn.setOnClickListener(this);
 			logoutBtn = (Button) findViewById(R.id.logout_button);
 			logoutBtn.setOnClickListener(this);
-//			securityQuizTextView.setOnClickListener(this);
 			setUsernamePasswordIfSaved();
 			populateLoggedInView();
 		}
@@ -492,6 +498,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				break;
 			case R.id.logout_button:
 				UserContextEventHandler.getInstance().logout();
+				securityQuizView.updateSecurityQuizView(false);
 				logoutBtn.setVisibility(View.GONE);
 				loginDetailTextView.setText(getResources().getString(
 						R.string.login_detail_view_txt));
@@ -500,9 +507,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 						R.string.logout_successfully_msg));
 				isLoggedIn = false;
 				setUsernamePasswordIfSaved();
-				break;
-			case R.id.security_quiz_txtView:
-				startSecurityQuiz();
 				break;
 			}
 
@@ -525,7 +529,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				}
 			}
 			else
-			{
+			{	
 				setUsernamePasswordIfSaved();
 			}
 			
@@ -604,38 +608,42 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 
 	/**
-	 * PrivacyPolicyView class shows privacy details on the main GUI
-	 * 
-	 * @author Yasir Ali
-	 * @version Jan 27, 2014
-	 */
-
-	private class PrivacyPolicyView extends LinearLayout {
-
-		public PrivacyPolicyView(Context context) {
-			super(context);
-			//inflate(context, R.layout.privacy_policy_view, this);
-		}
-
-	}
-
-	/**
 	 * SecurityInformationView class shows security information on the main GUI
 	 * 
 	 * @author Yasir Ali
 	 * @version Jan 27, 2014
 	 */
 
-	public class SecurityInformationView extends LinearLayout {
+	private class SecurityQuizView extends LinearLayout implements 
+					View.OnClickListener {
 
-		public SecurityInformationView(Context context) {
+		private TextView securityQuizTextView;
+
+		public SecurityQuizView(Context context) {
 			super(context);
-			//inflate(context, R.layout.security_information_view, this);
-			setSecurityInformationViewAttiributesHere();
+			inflate(context, R.layout.security_quiz, this);
+			securityQuizTextView = (TextView) findViewById(R.id.security_quiz_txtView);
+			securityQuizTextView.setOnClickListener(this);
 		}
-
-		private void setSecurityInformationViewAttiributesHere() {
-			// TBD
+		
+		public void updateSecurityQuizView(Boolean loginSuccess) {
+			
+			if (loginSuccess) {
+				securityQuizTextView.setVisibility(View.VISIBLE);
+			}
+			else {	
+				securityQuizTextView.setVisibility(View.GONE);
+			}
+			
+		}
+		
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.security_quiz_txtView:
+				startSecurityQuiz();
+				break;
+			}
 		}
 
 	}
@@ -671,6 +679,29 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	public void startSecurityQuiz() {
 		Log.d(TAG, "UNIGE=>Xavier please put your code here for security quiz.");
+
+         String userName = prefs.getString(USERNAME, "");
+        String password = prefs.getString(PASSWORD, "");
+
+        String finalUrl = "javascript:" +
+                "var to = 'https://muses-securityquizz.rhcloud.com/LoginServlet';" +
+                "var p = {j_username:'"+userName+"',j_password:'"+password+"'};"+
+                "var myForm = document.createElement('form');" +
+                "myForm.method='post' ;" +
+                "myForm.action = to;" +
+                "for (var k in p) {" +
+                "var myInput = document.createElement('input') ;" +
+                "myInput.setAttribute('type', 'text');" +
+                "myInput.setAttribute('name', k) ;" +
+                "myInput.setAttribute('value', p[k]);" +
+                "myForm.appendChild(myInput) ;" +
+                "}" +
+                "document.body.appendChild(myForm) ;" +
+                "myForm.submit() ;" +
+                "document.body.removeChild(myForm) ;";
+        Intent browserIntent = new Intent(android.content.Intent.ACTION_VIEW,
+                Uri.parse(finalUrl));
+        startActivity(browserIntent);
 		
 	}
 

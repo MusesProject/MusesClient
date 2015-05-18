@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="horizontal" 
-    android:background="#ffffff">
+    android:background="#ffffff"
+    android:orientation="horizontal" >
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:visibility="gone"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:visibility="gone" >
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -37,20 +37,7 @@
                     android:textSize="25sp" />
 
                 <Button
-                    android:id="@+id/security_info_list_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="70dp"
-                    android:background="#808080"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="14dp"
-                    android:paddingRight="7dp"
-                    android:text="@string/security_info_button_txt"
-                    android:textColor="#ffffff"
-                    android:visibility="gone"
-                    android:textSize="25sp" />
-                
-                <Button
-                    android:id="@+id/security_points_list_button"
+                    android:id="@+id/security_quiz_list_button"
                     android:layout_width="match_parent"
                     android:layout_height="70dp"
                     android:background="#808080"
@@ -59,40 +46,39 @@
                     android:paddingRight="7dp"
                     android:text="@string/security_points_button_txt"
                     android:textColor="#ffffff"
-                   	android:visibility="gone"
-                    android:textSize="25sp" />
-
+                    android:textSize="25sp"
+                    android:visibility="visible" />
+                
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
-        <LinearLayout
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="0.5"
         android:orientation="vertical" >
-    
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:orientation="vertical" >
 
-        <ScrollView
-            android:id="@+id/login_scrollView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp" >
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
 
-            <LinearLayout
-                android:id="@+id/top_layout"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="#ff818181"
-                android:orientation="vertical" >
-            </LinearLayout>
-        </ScrollView>
+            <ScrollView
+                android:id="@+id/login_scrollView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp" >
+
+                <LinearLayout
+                    android:id="@+id/top_layout"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:orientation="vertical" >
+                </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
     </LinearLayout>
-	
-    </LinearLayout>
+
 </LinearLayout>
