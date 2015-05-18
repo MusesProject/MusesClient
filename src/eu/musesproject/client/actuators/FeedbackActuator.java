@@ -21,13 +21,14 @@ package eu.musesproject.client.actuators;
  */
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
-import eu.musesproject.client.model.actuators.ActuatorInstruction;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.client.ui.DialogController;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -73,7 +74,7 @@ public class FeedbackActuator implements IFeedbackActuator {
                 e.printStackTrace();
             }
             decisionQueue.add(decision);
-            Log.d(TAG, "new feedback dialog request; queue size:" + decisionQueue.size());
+            Log.d(TAG, "new feedback dialog request; queue size:" + decisionQueue.size() + " " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
 
             // just show a new dialog if there is no other currently displayed
             if (decisionQueue.size() == 1) {
@@ -83,16 +84,20 @@ public class FeedbackActuator implements IFeedbackActuator {
     }
 
     private void showNextFeedback(Decision decision) {
-        Log.d(TAG, "showNextFeedback");
+        Log.d(TAG, "showNextFeedback " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
         sendCallback(decision);
     }
 
     private void sendCallback(Decision decision) {
         if (callback == null) Log.e(TAG, "********** callback is null!!");
         if(callback != null && decision != null && decision.getName() != null) {
-            Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName() );
+            Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
+
+            Intent dialogIntent = new Intent(context, DialogController.class);
+            int dialogPolicy = -1;
+            String dialogTitle = "";
+            String dialogBody = decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription();
             if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
-                callback.onAccept();
                 // remove it from the queue, because it does not provide a dialog in which the user can click
                 // on a button
                 removeFeedbackFromQueue();
@@ -104,17 +109,29 @@ public class FeedbackActuator implements IFeedbackActuator {
                 if(context != null) {
                     UserContextMonitoringController.getInstance(context).sendUserBehavior(action);
                 }
+                return;
             }
             else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
-                callback.onMaybe(decision);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
             }
             else if(decision.getName().equalsIgnoreCase(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
-                callback.onUpToUser(decision);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.UP_TO_USER);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
             }
             else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS) ||
                     decision.getName().equalsIgnoreCase(Decision.DEFAULT_DENY_ACCESS)) {
-                callback.onDeny(decision);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.DEFAULT_DENY_ACCESS);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.DENY);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
+                dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
             }
+
+            context.startActivity(dialogIntent);
         }
         else if(callback != null && decision == null) {
             callback.onError();
@@ -143,25 +160,21 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     @Override
     public void removeFeedbackFromQueue() {
-        Log.d(TAG, "remove feedback from queue");
+        Log.d(TAG, "1 . remove feedback from queue");
         // removes the last feedback dialog
         if(decisionQueue != null && decisionQueue.size() > 0) {
             try {
+                Log.d(TAG, "2. remove decision " + decisionQueue.peek().getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
                 decisionQueue.remove();
             } catch (Exception e) {
                 // ignore, no more element in the queue
             }
         }
         // triggers to show the next feedback dialog if there is any
-        if (decisionQueue != null) Log.d(TAG, "Decision queue size is (after removal): " + decisionQueue.size());
+        if (decisionQueue != null) Log.d(TAG, "3. Decision queue size is (after removal): " + decisionQueue.size());
         if(decisionQueue != null && decisionQueue.size() > 0) {
             showNextFeedback(decisionQueue.element());
         }
-    }
-
-    @Override
-    public void perform(ActuatorInstruction instruction) {
-
     }
 
     public void sendLoginResponseToUI(boolean result, String msg) {
@@ -178,5 +191,10 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     public void unregisterCallback(IUICallback iUICallback) {
         callback = iUICallback;
+    }
+
+    @Override
+    public void perform() {
+
     }
 }
