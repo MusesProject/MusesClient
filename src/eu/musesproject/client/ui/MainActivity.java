@@ -679,6 +679,29 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	public void startSecurityQuiz() {
 		Log.d(TAG, "UNIGE=>Xavier please put your code here for security quiz.");
+
+         String userName = prefs.getString(USERNAME, "");
+        String password = prefs.getString(PASSWORD, "");
+
+        String finalUrl = "javascript:" +
+                "var to = 'https://muses-securityquizz.rhcloud.com/LoginServlet';" +
+                "var p = {j_username:'"+userName+"',j_password:'"+password+"'};"+
+                "var myForm = document.createElement('form');" +
+                "myForm.method='post' ;" +
+                "myForm.action = to;" +
+                "for (var k in p) {" +
+                "var myInput = document.createElement('input') ;" +
+                "myInput.setAttribute('type', 'text');" +
+                "myInput.setAttribute('name', k) ;" +
+                "myInput.setAttribute('value', p[k]);" +
+                "myForm.appendChild(myInput) ;" +
+                "}" +
+                "document.body.appendChild(myForm) ;" +
+                "myForm.submit() ;" +
+                "document.body.removeChild(myForm) ;";
+        Intent browserIntent = new Intent(android.content.Intent.ACTION_VIEW,
+                Uri.parse(finalUrl));
+        startActivity(browserIntent);
 		
 	}
 
