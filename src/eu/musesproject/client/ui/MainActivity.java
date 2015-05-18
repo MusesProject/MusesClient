@@ -423,7 +423,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			loginBtn.setOnClickListener(this);
 			logoutBtn = (Button) findViewById(R.id.logout_button);
 			logoutBtn.setOnClickListener(this);
-			securityQuizTextView.setOnClickListener(this);
+//			securityQuizTextView.setOnClickListener(this);
 			setUsernamePasswordIfSaved();
 			populateLoggedInView();
 		}

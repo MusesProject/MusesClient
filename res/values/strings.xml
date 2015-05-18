@@ -139,4 +139,13 @@ If you have any questions regarding this Privacy Policy, you can contact us by e
 
 info@muses.com</string>
 
+
+    <!-- Dialogs -->
+    <string name="button_details">details</string>
+    <string name="button_cancel">cancel</string>
+    <string name="button_help_me">help me!</string>
+    <string name="button_fix_it">fix it!</string>
+    <string name="button_ok">ok</string>
+    <string name="button_proceed">proceed</string>
+
 </resources>
