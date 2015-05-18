@@ -257,12 +257,14 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
     	                        String childText = nodeInfoChild.getText() + "";
 								Log.d(TAG, "childText: " + childText);
 	                        	if (childText.contains(to)) {
-    	                            Log.d(TAG, "to pos: " + nodeInfoRoot.getChild(i+1).getText());
-    	                            content.setTo(nodeInfoRoot.getChild(i+1).getText() + "");
+									String toText = nodeInfoRoot.getChild(i+1).getText() + "";
+									Log.d(TAG, "to pos: " + toText);
+									content.setTo("@" + toText.split("@")[1]);
     	                        }
 	                        	if (childText.contains(cc)) {
-	                        		Log.d(TAG, "Cc pos: " + nodeInfoRoot.getChild(i+1).getText());
-    	                            content.setCc(nodeInfoRoot.getChild(i+1).getText() + "");
+									String ccText = nodeInfoRoot.getChild(i+1).getText() + "";
+	                        		Log.d(TAG, "Cc pos: " + ccText);
+    	                            content.setCc("@" + ccText.split("@")[1]);
     	                        }
 	                        	if (childText.contains(bcc)) {
 	                        		Log.d(TAG, "Bcc pos: " + nodeInfoRoot.getChild(i+1).getText());
