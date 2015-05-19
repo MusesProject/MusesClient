@@ -170,6 +170,9 @@ public class FeedbackActuator implements IFeedbackActuator {
                 showNextFeedback(decisionQueue.element());
 
             }
+
+            // update the notification bar to visualize if there are dialogs/messages or not
+            NotificationController.getInstance(context).create(decisionQueue.size());
         }
     }
 
