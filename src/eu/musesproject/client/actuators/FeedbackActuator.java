@@ -105,6 +105,9 @@ public class FeedbackActuator implements IFeedbackActuator {
         dialogIntent.putExtra(DialogController.KEY_DECISION_ID, decisionId);
         dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
         dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
+        dialogIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
             // remove it from the queue, because it does not provide a dialog in which the user can click
