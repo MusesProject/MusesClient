@@ -70,17 +70,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public static final String TAG_RQT = "REQUEST_TIMEOUT";
 	public static final String TAG_RQT2 = "REQUEST_TIMEOUT2";
 	public static final String TAG_DB = "DATABASE_TEST_CODE";
-	public static final String TAG_MUSES_AWARE = "MUSES_AWARE";
 	public static final String APP_TAG = "APP_TAG";
 	public static final String APP_TAG2 = "APP_TAG2";
 
 	private static UserContextEventHandler userContextEventHandler = null;
-	//	private static final String MUSES_SERVER_URL = "http://192.168.44.101:8888/commain";
-//	private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server/commain";
-//  private static final String MUSES_SERVER_URL = "https://192.168.44.101:8443/server-0.0.1-SNAPSHOT/commain";
-//  private static final String MUSES_SERVER_URL = "http://192.168.44.107:8080/server/commain";
-//  private static final String MUSES_SERVER_URL = "http://192.168.35.198/server/commain";
-	private static final String MUSES_SERVER_URL = "https://172.17.3.5:8443/server/commain";
 
 	private Context context;
 
