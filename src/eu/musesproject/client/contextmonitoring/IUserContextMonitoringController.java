@@ -40,7 +40,7 @@ public interface IUserContextMonitoringController {
 	 * which contains the decision taken by the user on the MUSES UI.
      * @param action {@link eu.musesproject.client.model.decisiontable.Action}. action received from a MUSES aware app
      */
-    void sendUserBehavior(Action action);
+    void sendUserBehavior(Action action, int decisionId);
 
     /**
      * Method to change the settings / configuration of the sensors

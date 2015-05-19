@@ -78,11 +78,7 @@ public class UserContextMonitoringController implements
 
     @Override
     public void sendUserAction(UISource src, Action action, Map<String, String> properties) {
-        if(src == UISource.MUSES_UI) {
-            // send the user decision back to the server
-            sendUserBehavior(action);
-        }
-        else if(src == UISource.MUSES_AWARE_APP_UI) {
+        if(src == UISource.MUSES_AWARE_APP_UI) {
             Action musesAwareAction = action;
             musesAwareAction.setRequestedByMusesAwareApp(true);
             uceHandler.send(musesAwareAction, properties, SensorController.getInstance(context).getLastFiredEvents());
@@ -95,8 +91,8 @@ public class UserContextMonitoringController implements
 
 
     @Override
-    public void sendUserBehavior(Action action) {
-        uceHandler.sendUserBehavior(action);
+    public void sendUserBehavior(Action action, int decisionId) {
+        uceHandler.sendUserBehavior(action, decisionId);
     }
 
 

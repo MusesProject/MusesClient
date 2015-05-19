@@ -46,7 +46,7 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
 
     private int actuationIdentifier;
 
-    public static MaybeDialogFragment newInstance(String title, String body, int actuationIdentifier) {
+    public static MaybeDialogFragment newInstance(String title, String body, int decisionId, int actuationIdentifier) {
         MaybeDialogFragment denyDialogFragment = new MaybeDialogFragment();
         denyDialogFragment.title = title;
         denyDialogFragment.body = body;

@@ -46,7 +46,7 @@ public class UpToUserDialogFragment extends DialogFragment implements View.OnCli
 
     private int actuationIdentifier;
 
-    public static UpToUserDialogFragment newInstance(String title, String body, int actuationIdentifier) {
+    public static UpToUserDialogFragment newInstance(String title, String body, int decisionId, int actuationIdentifier) {
         UpToUserDialogFragment denyDialogFragment = new UpToUserDialogFragment();
         denyDialogFragment.title = title;
         denyDialogFragment.body = body;

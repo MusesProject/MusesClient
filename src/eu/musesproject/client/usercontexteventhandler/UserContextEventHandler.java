@@ -269,7 +269,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 *
 	 * @param action
 	 */
-	public void sendUserBehavior(Action action) {
+	public void sendUserBehavior(Action action, int decisionId) {
         // display next Feedback dialog if there is any
         ActuatorController.getInstance(context).removeFeedbackFromQueue();
 
@@ -277,7 +277,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
 			Log.d(MusesUtils.TEST_TAG, "UCEH - sendUserBehavior(Action action)");
 			Log.d(APP_TAG, "Info U, sending user behavior to server with action");
-			JSONObject userBehaviorJSON = JSONManager.createUserBehaviorJSON(getImei(), getUserName(), action.getActionType());
+			JSONObject userBehaviorJSON = JSONManager.createUserBehaviorJSON(getImei(), getUserName(), action.getActionType(), decisionId);
 			sendRequestToServer(userBehaviorJSON);
 		}
 		else {

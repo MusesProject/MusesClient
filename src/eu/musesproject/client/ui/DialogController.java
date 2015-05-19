@@ -30,6 +30,7 @@ import android.util.Log;
  */
 public class DialogController extends Activity {
     public static final String KEY_DIALOG       = "dialog_policy";
+    public static final String KEY_DECISION_ID  = "decision_id";
     public static final String KEY_DIALOG_TITLE = "dialog_title";
     public static final String KEY_DIALOG_BODY  = "dialog_body";
     public static final String KEY_DIALOG_CMD   = "dialog_actuation_command";
@@ -43,8 +44,8 @@ public class DialogController extends Activity {
         super.onCreate(savedInstanceState);
 
         Bundle bundle = getIntent().getExtras();
-
         int policy = bundle.getInt(KEY_DIALOG);
+        int decisionId = bundle.getInt(KEY_DECISION_ID);
         String dialogTitle = bundle.getString(KEY_DIALOG_TITLE);
         String dialogBody = bundle.getString(KEY_DIALOG_BODY);
         int actuationCommand = bundle.getInt(KEY_DIALOG_CMD);
@@ -54,30 +55,31 @@ public class DialogController extends Activity {
         DialogFragment targetDialogFragment = null;
         switch (policy) {
             case DENY:
-                targetDialogFragment = createDenyDialog(dialogTitle, dialogBody, actuationCommand);
+                targetDialogFragment = createDenyDialog(dialogTitle, dialogBody, decisionId, actuationCommand);
                 break;
             case MAYBE:
-                targetDialogFragment = createMaybeDialog(dialogTitle, dialogBody, actuationCommand);
+                targetDialogFragment = createMaybeDialog(dialogTitle, dialogBody, decisionId, actuationCommand);
                 break;
             case UP_TO_USER:
-                targetDialogFragment = createUpToUserDialog(dialogTitle, dialogBody, actuationCommand);
+                targetDialogFragment = createUpToUserDialog(dialogTitle, dialogBody, decisionId, actuationCommand);
                 break;
         }
         if(targetDialogFragment != null) {
             targetDialogFragment.setCancelable(false);
+//            targetDialogFragment.setShowsDialog(true);
             targetDialogFragment.show(getFragmentManager(), "dialog");
         }
     }
 
-    private DialogFragment createDenyDialog(String title, String body, int actuationCommand) {
-        return DenyDialogFragment.newInstance(title, body, actuationCommand);
+    private DialogFragment createDenyDialog(String title, String body, int decisionId, int actuationCommand) {
+        return DenyDialogFragment.newInstance(title, body, decisionId, actuationCommand);
     }
 
-    private DialogFragment createMaybeDialog(String title, String body, int actuationCommand) {
-        return MaybeDialogFragment.newInstance(title,body, actuationCommand);
+    private DialogFragment createMaybeDialog(String title, String body, int decisionId, int actuationCommand) {
+        return MaybeDialogFragment.newInstance(title,body, decisionId, actuationCommand);
     }
 
-    private DialogFragment createUpToUserDialog(String title, String body, int actuationCommand) {
-        return UpToUserDialogFragment.newInstance(title, body, actuationCommand);
+    private DialogFragment createUpToUserDialog(String title, String body, int decisionId, int actuationCommand) {
+        return UpToUserDialogFragment.newInstance(title, body, decisionId, actuationCommand);
     }
 }

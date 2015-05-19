@@ -18,8 +18,8 @@ package eu.musesproject.client.ui;
  * limitations under the License.
  * #L%
  */
-import android.app.Activity;
-import android.app.ProgressDialog;
+
+import android.app.*;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,7 +31,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.SimpleAdapter.ViewBinder;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
@@ -318,8 +317,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 */
 
 	private void sendUserDecisionToMusDM(Action action) {
-		userContextMonitoringController.sendUserAction(UISource.MUSES_UI,
-				action, null);
 	}
 
 
@@ -647,35 +644,35 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 
 	}
-//	private void setAppIconOnStatusBar() {
-//		Notification.Builder mBuilder =
-//		        new Notification.Builder(this)
-//		        .setSmallIcon(R.drawable.muses_main)
-//		        .setContentTitle("")
-//		        .setContentText("");
-//		// Creates an explicit intent for an Activity in your app
-//		Intent resultIntent = new Intent(this, MainActivity.class);
-//
-//		// The stack builder object will contain an artificial back stack for the
-//		// started Activity.
-//		// This ensures that navigating backward from the Activity leads out of
-//		// your application to the Home screen.
-//		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-//		// Adds the back stack for the Intent (but not the Intent itself)
-//		stackBuilder.addParentStack(MainActivity.class);
-//		// Adds the Intent that starts the Activity to the top of the stack
-//		stackBuilder.addNextIntent(resultIntent);
-//		PendingIntent resultPendingIntent =
-//		        stackBuilder.getPendingIntent(
-//		            0,
-//		            PendingIntent.FLAG_UPDATE_CURRENT
-//		        );
-//		mBuilder.setContentIntent(resultPendingIntent);
-//		NotificationManager mNotificationManager =
-//		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//		// mId allows you to update the notification later on.
-//		mNotificationManager.notify(1, mBuilder.build());
-//	}
+	private void setAppIconOnStatusBar() {
+		Notification.Builder mBuilder =
+		        new Notification.Builder(this)
+		        .setSmallIcon(R.drawable.muses_logo)
+		        .setContentTitle("")
+		        .setContentText("");
+		// Creates an explicit intent for an Activity in your app
+		Intent resultIntent = new Intent(this, MainActivity.class);
+
+		// The stack builder object will contain an artificial back stack for the
+		// started Activity.
+		// This ensures that navigating backward from the Activity leads out of
+		// your application to the Home screen.
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		// Adds the back stack for the Intent (but not the Intent itself)
+		stackBuilder.addParentStack(MainActivity.class);
+		// Adds the Intent that starts the Activity to the top of the stack
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent =
+		        stackBuilder.getPendingIntent(
+		            0,
+		            PendingIntent.FLAG_UPDATE_CURRENT
+		        );
+		mBuilder.setContentIntent(resultPendingIntent);
+		NotificationManager mNotificationManager =
+		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		// mId allows you to update the notification later on.
+		mNotificationManager.notify(1, mBuilder.build());
+	}
 
 	public void startSecurityQuiz() {
 		Log.d(TAG, "UNIGE=>Xavier please put your code here for security quiz.");

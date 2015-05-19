@@ -29,7 +29,6 @@ import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.ui.DialogController;
-import eu.musesproject.client.ui.LabelDialog;
 import eu.musesproject.client.ui.NotificationController;
 
 import java.util.LinkedList;
@@ -97,10 +96,16 @@ public class FeedbackActuator implements IFeedbackActuator {
     private void sendCallback(Decision decision) {
         Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
 
-        Intent dialogIntent = new Intent(context, DialogController.class);
         int dialogPolicy = -1;
+        int decisionId = decision.hashCode();// todo add real id
         String dialogTitle = "";
         String dialogBody = decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription();
+
+        Intent dialogIntent = new Intent(context, DialogController.class);
+        dialogIntent.putExtra(DialogController.KEY_DECISION_ID, decisionId);
+        dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
+        dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
+
         if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
             // remove it from the queue, because it does not provide a dialog in which the user can click
             // on a button
@@ -111,33 +116,35 @@ public class FeedbackActuator implements IFeedbackActuator {
             // automatic generated behavior, which is GRANTED
             Action action = new Action(Decision.GRANTED_ACCESS, System.currentTimeMillis());
             if(context != null) {
-                UserContextMonitoringController.getInstance(context).sendUserBehavior(action);
+                UserContextMonitoringController.getInstance(context).sendUserBehavior(action, decisionId);
             }
             return;
         }
         else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
-            Intent dialogIntent2 = new Intent(context, LabelDialog.class);
-            dialogIntent2.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
-            dialogIntent2.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
-            dialogIntent2.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
-            dialogIntent2.putExtra(DialogController.KEY_DIALOG_CMD, -1);
-            context.startActivity(dialogIntent2);
+            /*
+             * test code -> ignore
+             */
+//            Intent dialogIntent2 = new Intent(context, LabelDialog.class);
+//            dialogIntent2.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+//            dialogIntent2.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
+//            dialogIntent2.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
+//            dialogIntent2.putExtra(DialogController.KEY_DIALOG_CMD, -1);
+//            context.startActivity(dialogIntent2);
+
+            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+            dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
         }
         else if(decision.getName().equalsIgnoreCase(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
             dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.UP_TO_USER);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
+            dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.UP_TO_USER);;
         }
         else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS) ||
                 decision.getName().equalsIgnoreCase(Decision.DEFAULT_DENY_ACCESS)) {
             dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.STRONG_DENY_ACCESS);
             dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.DENY);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
         }
 
-//        context.startActivity(dialogIntent);
+        context.startActivity(dialogIntent);
     }
 
     @Override
