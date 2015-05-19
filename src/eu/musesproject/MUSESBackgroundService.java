@@ -57,7 +57,7 @@ public class MUSESBackgroundService extends Service {
 	public void onCreate() {
 		Log.d(TAG, "BACKGROUND - onCreate");
 
-		isAppInitialized = false;
+		isAppInitialized = true;
 		UserContextMonitoringController.getInstance(this);
 		userContextEventHandler = UserContextEventHandler.getInstance();
 
@@ -66,16 +66,18 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		if(intent.hasExtra(BootCompletedReceiver.TAG) &&
+				intent.getBooleanExtra(BootCompletedReceiver.TAG, false)) {
+			isAppInitialized = false;
+		}
 		Log.d(TAG, "BACKGROUND - on startComment called");
 		if(!isAppInitialized) {
 			Log.d(MusesUtils.TEST_TAG, "BACKGROUND - MUSES service started!!");
 			isAppInitialized = true;
 
-			MUSESBackgroundService mService = MUSESBackgroundService.this;
-			Intent mainActivityintent = new Intent(mService.getApplicationContext(), MainActivity.class);
-			mainActivityintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			mService.startActivity(mainActivityintent);
-//			UserContextMonitoringController.getInstance(this).startContextObservation();
+			Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
+			mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(mainActivityIntent);
 
 			// try to auto login user
 			userContextEventHandler.setContext(this);

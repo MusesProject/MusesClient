@@ -31,11 +31,13 @@ import android.util.Log;
  * Broadcast to start the MUSES application after a phone boot
  */
 public class BootCompletedReceiver extends BroadcastReceiver {
-    private static final String TAG = BootCompletedReceiver.class.getSimpleName();
+    public static final String TAG = BootCompletedReceiver.class.getSimpleName();
 
     @Override
     public void onReceive(Context context, Intent arg1) {
         Log.w(TAG, "starting MUSES background service...");
-        context.startService(new Intent(context, MUSESBackgroundService.class));
+        Intent intent = new Intent(context, MUSESBackgroundService.class);
+        intent.putExtra(TAG, true);
+        context.startService(intent);
     }
 }
