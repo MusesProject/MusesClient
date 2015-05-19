@@ -121,16 +121,6 @@ public class FeedbackActuator implements IFeedbackActuator {
             return;
         }
         else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
-            /*
-             * test code -> ignore
-             */
-//            Intent dialogIntent2 = new Intent(context, LabelDialog.class);
-//            dialogIntent2.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
-//            dialogIntent2.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
-//            dialogIntent2.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
-//            dialogIntent2.putExtra(DialogController.KEY_DIALOG_CMD, -1);
-//            context.startActivity(dialogIntent2);
-
             dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
             dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
         }
