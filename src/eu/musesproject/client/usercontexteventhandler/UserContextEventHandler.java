@@ -517,7 +517,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		Log.d(MusesUtils.TEST_TAG, "UCEH - sendRequestToServer(JSONObject requestJSON)");
 		Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
         Log.d(APP_TAG2, requestJSON.toString());
-		if (requestJSON != null) {
+		if (requestJSON != null && !requestJSON.toString().isEmpty()) {
 			if(serverStatus == Statuses.ONLINE) {
                 String sendData  = requestJSON.toString();
                 Log.d(TAG, "sendData:"+sendData);
