@@ -44,6 +44,7 @@ public class JSONManagerTest extends AndroidTestCase {
     private String responseJSON;
     private String configUpdateJSON;
     private String policyCondition;
+    private int decisionId;
 
     @Override
     protected void setUp() throws Exception {
@@ -57,6 +58,8 @@ public class JSONManagerTest extends AndroidTestCase {
         deviceId = "123456";
         userName = "muses";
         password = "muses";
+
+        decisionId = 1;
 
         actionTimestamp = System.currentTimeMillis();
         actionType = ActionType.ACCESS;
@@ -120,7 +123,7 @@ public class JSONManagerTest extends AndroidTestCase {
     }
 
     public void testCreateUserBehaviorJSON() throws JSONException {
-        JSONObject resultJSON = JSONManager.createUserBehaviorJSON(deviceId, userName, userBehavior);
+        JSONObject resultJSON = JSONManager.createUserBehaviorJSON(deviceId, userName, userBehavior, decisionId);
         assertNotNull(resultJSON);
 
         assertEquals("request type", RequestType.USER_ACTION, resultJSON.getString(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER));
@@ -130,6 +133,7 @@ public class JSONManagerTest extends AndroidTestCase {
         JSONObject userBehaviorJSON = resultJSON.getJSONObject(JSONIdentifiers.USER_BEHAVIOR);
         assertNotNull(userBehaviorJSON);
         assertEquals("user behavior", userBehavior, userBehaviorJSON.getString(JSONIdentifiers.ACTION_IDENTIFIER));
+        assertEquals("decision id", decisionId, resultJSON.getInt(JSONIdentifiers.DECISION_IDENTIFIER));
     }
 
     public void testCreateLoginJSON() throws JSONException {
