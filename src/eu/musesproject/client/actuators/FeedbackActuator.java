@@ -29,6 +29,8 @@ import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.ui.DialogController;
+import eu.musesproject.client.ui.LabelDialog;
+import eu.musesproject.client.ui.NotificationController;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -81,6 +83,9 @@ public class FeedbackActuator implements IFeedbackActuator {
             if (decisionQueue.size() == 1) {
                 sendCallback(decision);
             }
+
+            // update the notification bar to visualize if there are dialogs/messages or not
+            NotificationController.getInstance(context).create(decisionQueue.size());
         }
     }
 
@@ -111,10 +116,12 @@ public class FeedbackActuator implements IFeedbackActuator {
             return;
         }
         else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
+            Intent dialogIntent2 = new Intent(context, LabelDialog.class);
+            dialogIntent2.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+            dialogIntent2.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
+            dialogIntent2.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
+            dialogIntent2.putExtra(DialogController.KEY_DIALOG_CMD, -1);
+            context.startActivity(dialogIntent2);
         }
         else if(decision.getName().equalsIgnoreCase(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
             dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
@@ -130,7 +137,7 @@ public class FeedbackActuator implements IFeedbackActuator {
             dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
         }
 
-        context.startActivity(dialogIntent);
+//        context.startActivity(dialogIntent);
     }
 
     @Override
