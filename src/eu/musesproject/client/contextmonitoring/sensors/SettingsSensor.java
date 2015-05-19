@@ -21,6 +21,7 @@ package eu.musesproject.client.contextmonitoring.sensors;
  */
 
 import android.content.Context;
+import android.os.Build;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import eu.musesproject.client.contextmonitoring.ContextListener;
@@ -48,6 +49,7 @@ public class SettingsSensor implements ISensor {
     public static final String PROPERTY_KEY_OS_VERSION 			= "osversion";
     public static final String PROPERTY_KEY_SDK_VERSION 		= "sdkversion";
     public static final String PROPERTY_KEY_IMEI		 		= "imei";
+    public static final String PROPERTY_KEY_DEVICE_MODEL_NAME   = "devicemodel";
 
     private Context context;
     private ContextListener listener;
@@ -88,6 +90,7 @@ public class SettingsSensor implements ISensor {
     	contextEvent.addProperty(PROPERTY_KEY_OS_VERSION, getOSVersion());
     	contextEvent.addProperty(PROPERTY_KEY_SDK_VERSION, getSDKVersion());
     	contextEvent.addProperty(PROPERTY_KEY_IMEI, getIMEI());
+    	contextEvent.addProperty(PROPERTY_KEY_DEVICE_MODEL_NAME, getDeviceName());
     	contextEvent.generateId();
     	
         if (listener != null) {
@@ -126,6 +129,29 @@ public class SettingsSensor implements ISensor {
             imei = new BigInteger(imei, 16).longValue()+"";
         }
 		return imei;
+    }
+
+    public String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        if (model.startsWith(manufacturer)) {
+            return capitalize(model);
+        } else {
+            return capitalize(manufacturer) + " " + model;
+        }
+    }
+
+
+    private String capitalize(String s) {
+        if (s == null || s.length() == 0) {
+            return "";
+        }
+        char first = s.charAt(0);
+        if (Character.isUpperCase(first)) {
+            return s;
+        } else {
+            return Character.toUpperCase(first) + s.substring(1);
+        }
     }
 
     @Override
