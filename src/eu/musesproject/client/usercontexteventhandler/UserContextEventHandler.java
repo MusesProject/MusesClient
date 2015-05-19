@@ -704,12 +704,11 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             }
 			else if(status == Statuses.OFFLINE) {
 				if(detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION) {
-					// todo fill this case
+					// no special case at the moment
 				}
 				serverStatus = status;
 				// Can still be authenticated, but server not reachable. 
 				// Depends on new session or not when ONLINE
-				// isAuthenticatedRemotely = false;
 				updateServerOnlineAndUserAuthenticated();
 			}
             else if(status == Statuses.DATA_SEND_OK) {
@@ -732,10 +731,16 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 autoLogin();
             }
 			else if(status == Statuses.CONNECTION_FAILED && detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION) {
-				// todo fill this case
+				serverStatus = status;
+				// Can still be authenticated, but server not reachable.
+				// Depends on new session or not when ONLINE
+				updateServerOnlineAndUserAuthenticated();
 			}
 			else if(status == Statuses.DISCONNECTED && detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION) {
-				// todo fill this case
+				serverStatus = status;
+				// Can still be authenticated, but server not reachable.
+				// Depends on new session or not when ONLINE
+				updateServerOnlineAndUserAuthenticated();
 			}
 
             if(status == Statuses.ONLINE ) {
