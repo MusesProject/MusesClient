@@ -79,6 +79,7 @@ public class MUSESBackgroundService extends Service {
 
 			Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
 			mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			mainActivityIntent.putExtra("is_from_service_restart", true);
 			startActivity(mainActivityIntent);
 
 			// try to auto login user

@@ -84,6 +84,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		Bundle bundle = getIntent().getExtras();
+		if (bundle != null){
+			if (bundle.getBoolean("is_from_service_restart")){
+				registerCallbacks();
+				finish();
+			}
+		}
+		
 		setContentView(R.layout.muses_main);
 		context = getApplicationContext();
 		getActionBar().setDisplayShowTitleEnabled(false);
