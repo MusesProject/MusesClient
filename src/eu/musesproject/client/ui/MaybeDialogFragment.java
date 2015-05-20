@@ -24,6 +24,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,12 +37,15 @@ import eu.musesproject.client.actuators.ActuatorController;
  * Created by christophstanik on 5/17/15.
  */
 public class MaybeDialogFragment extends DialogFragment implements View.OnClickListener {
+    public static final String TAG = MaybeDialogFragment.class.getSimpleName();
+
     private TextView dialogHeader;
     private TextView dialogBody;
     private Button actionButton; // help me, fix it, ok
     private Button cancelButton;
 
     private String title;
+    private String[] splitBody;
     private String body;
 
     private int actuationIdentifier;
@@ -66,7 +70,23 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
         cancelButton = (Button) layout.findViewById(R.id.dialog_maybe_button_cancel);
 
         dialogHeader.setText(title);
-        dialogBody.setText(body);
+
+        if(body == null || body.isEmpty()) {
+            // if there is no message that we can show to the user, just dismiss the dialog
+            Log.d(TAG, "no message found for the dialog");
+            dismiss();
+            onDestroy();
+        }
+
+        try {
+            splitBody = body.split("\\n");
+        } catch (NullPointerException e) {
+            Log.d(TAG, "cannot split string, therefore make the details text the same as the title");
+            splitBody = new String[2];
+            splitBody[0] = body;
+            splitBody[1] = body;
+        }
+        dialogBody.setText(splitBody[0]);
 
         actionButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);

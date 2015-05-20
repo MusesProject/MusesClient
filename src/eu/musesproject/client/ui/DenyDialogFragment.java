@@ -24,6 +24,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,12 +37,15 @@ import eu.musesproject.client.actuators.ActuatorController;
  * Created by christophstanik on 5/17/15.
  */
 public class DenyDialogFragment extends DialogFragment implements View.OnClickListener {
+    public static final String TAG = DenyDialogFragment.class.getSimpleName();
+
     private TextView dialogHeader;
     private TextView dialogBody;
     private Button detailsButton;
     private Button cancelButton;
 
     private String title;
+    private String[] splitBody;
     private String body;
 
     private int actuationIdentifier;
@@ -66,7 +70,23 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
         cancelButton = (Button) layout.findViewById(R.id.dialog_deny_button_cancel);
 
         dialogHeader.setText(title);
-        dialogBody.setText(body.split("\\n")[0]);
+
+        if(body == null || body.isEmpty()) {
+            // if there is no message that we can show to the user, just dismiss the dialog
+            Log.d(TAG, "no message found for the dialog");
+            dismiss();
+            onDestroy();
+        }
+
+        try {
+            splitBody = body.split("\\n");
+        } catch (NullPointerException e) {
+            Log.d(TAG, "cannot split string, therefore make the details text the same as the title");
+            splitBody = new String[2];
+            splitBody[0] = body;
+            splitBody[1] = body;
+        }
+        dialogBody.setText(splitBody[0]);
 
         detailsButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
@@ -83,7 +103,7 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
                 detailsButton.setVisibility(View.INVISIBLE);
 
                 dialogHeader.setText(title);
-                dialogBody.setText(body.split("\\n")[1]);
+                dialogBody.setText(splitBody[1]);
                 break;
             case R.id.dialog_deny_button_cancel:
                 this.dismiss();
