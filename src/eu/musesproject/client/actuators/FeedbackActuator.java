@@ -106,7 +106,6 @@ public class FeedbackActuator implements IFeedbackActuator {
         dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
         dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         if(decision.getName().equalsIgnoreCase(Decision.GRANTED_ACCESS)){
@@ -165,8 +164,11 @@ public class FeedbackActuator implements IFeedbackActuator {
         // removes the last feedback dialog
         if(decisionQueue != null) {
             Log.d(TAG, "2. remove decision " + decisionQueue.peek().getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
-            decisionQueue.poll();
-
+            try {
+                decisionQueue.remove();
+            } catch (Exception e) {
+                Log.d(TAG, "no more entries in the queue");
+            }
             if(!decisionQueue.isEmpty()) {
                 // triggers to show the next feedback dialog if there is any
                 Log.d(TAG, "3. Decision queue size is (after removal): " + decisionQueue.size());
