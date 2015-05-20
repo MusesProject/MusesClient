@@ -86,6 +86,7 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
             splitBody[0] = body;
             splitBody[1] = body;
         }
+
         dialogBody.setText(splitBody[0]);
 
         detailsButton.setOnClickListener(this);
@@ -103,7 +104,12 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
                 detailsButton.setVisibility(View.INVISIBLE);
 
                 dialogHeader.setText(title);
-                dialogBody.setText(splitBody[1]);
+                try {
+                    dialogBody.setText(splitBody[1]);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    Log.d(TAG, "no second screen text found, showing the first one instead");
+                    dialogBody.setText(splitBody[0]);
+                }
                 break;
             case R.id.dialog_deny_button_cancel:
                 this.dismiss();
