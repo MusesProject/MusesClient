@@ -68,7 +68,7 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if(intent.hasExtra(INTENT_REBOOT) &&
+		if(intent != null && intent.hasExtra(INTENT_REBOOT) &&
 				intent.getBooleanExtra(INTENT_REBOOT, false)) {
 			isAppInitialized = false;
 		}
