@@ -37,7 +37,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent arg1) {
         Log.w(TAG, "starting MUSES background service...");
         Intent intent = new Intent(context, MUSESBackgroundService.class);
-        intent.putExtra(TAG, true);
+        intent.putExtra(MUSESBackgroundService.INTENT_REBOOT, true);
         context.startService(intent);
     }
 }

@@ -44,6 +44,8 @@ import eu.musesproject.client.utils.MusesUtils;
 public class MUSESBackgroundService extends Service {
 	private static final String TAG = MUSESBackgroundService.class.getSimpleName();
 
+	public static final String INTENT_REBOOT = "INTENT_REBOOT";
+
 	private UserContextEventHandler userContextEventHandler;
 
 	private boolean isAppInitialized;
@@ -66,8 +68,8 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if(intent.hasExtra(BootCompletedReceiver.TAG) &&
-				intent.getBooleanExtra(BootCompletedReceiver.TAG, false)) {
+		if(intent.hasExtra(INTENT_REBOOT) &&
+				intent.getBooleanExtra(INTENT_REBOOT, false)) {
 			isAppInitialized = false;
 		}
 		Log.d(TAG, "BACKGROUND - on startComment called");
