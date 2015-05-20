@@ -1174,9 +1174,9 @@ public class DBManager {
 		//TODO Manage the insertion or update, avoiding duplicated entries
 
 		ContentValues values = new ContentValues();
-		values.put(TEXTUAL_DESCRIPTION, riskTreatment.getTextualdescription());
+		values.put(TEXTUAL_DESCRIPTION, riskTreatment.getTextualdescription().replaceAll("'", "\\'"));
 
-		RiskTreatment riskTreatmentInDb = getRiskTreatmentFromDescription(riskTreatment.getTextualdescription());
+		RiskTreatment riskTreatmentInDb = getRiskTreatmentFromDescription(riskTreatment.getTextualdescription().replaceAll("'", "\\'"));
 		if (riskTreatmentInDb.getId()==0){
 			Log.d(TAG,"Risktreatment not found, inserting a new one...");
 			if (sqLiteDatabase == null){//Open database in case it is closed
@@ -1593,7 +1593,7 @@ public class DBManager {
 		ContentValues values = new ContentValues();
 		values.put(CONTEXT_EVENT_ID, property.getContextevent_id());
 		values.put(KEY, property.getKey());
-		values.put(VALUE, property.getValue());
+		values.put(VALUE, property.getValue().replaceAll("'", "\\'"));
 		if (sqLiteDatabase == null){//Open database in case it is closed
 			openDB();
 		}
