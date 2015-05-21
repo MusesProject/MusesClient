@@ -687,7 +687,7 @@ public class DBManager {
 		values.put(DECISION_ID, decisionTable.getDecision_id());
 		values.put(SUBJECT_ID, decisionTable.getSubject_id());
 		values.put(RISKCOMMUNICATION_ID, decisionTable.getRiskcommunication_id());
-		values.put(MODIFICATION, "03-09-2011");
+		values.put(MODIFICATION, decisionTable.getModification());
 
 
 		Log.d("DBManager", "Adding DT with action_id:"+decisionTable.getAction_id()+" decision_id:"+decisionTable.getDecision_id()+" riskCommunication_id:"+decisionTable.getRiskcommunication_id());
