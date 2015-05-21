@@ -79,7 +79,7 @@ public class SensorController {
         if(!isCollectingData) {
             Log.d(MusesUtils.TEST_TAG, "SC - 2. data collection in enabled");
             List<String> enabledSensor;
-            boolean sensorConfigExists = false;
+            boolean sensorConfigExists;
             dbManager.openDB();
             sensorConfigExists = dbManager.hasSensorConfig();
             dbManager.closeDB();
