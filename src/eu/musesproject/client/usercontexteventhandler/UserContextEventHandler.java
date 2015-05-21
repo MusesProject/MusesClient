@@ -549,15 +549,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	public void updateServerOnlineAndUserAuthenticated() {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - updateServerOnlineAndUserAuthenticated Server="+(serverStatus==Statuses.ONLINE) + " auth=" +isUserAuthenticated);
-        if(isAuthenticatedRemotely) {
-            isUserAuthenticated = true;
-        }
-		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
-			serverOnlineAndUserAuthenticated = true;
-		}
-		else {
-			serverOnlineAndUserAuthenticated= false;
-		}
+		isUserAuthenticated = isAuthenticatedRemotely;
+		serverOnlineAndUserAuthenticated = ((serverStatus == Statuses.ONLINE) && isUserAuthenticated);
 	}
 
 	private class ConnectionCallback implements IConnectionCallbacks {
