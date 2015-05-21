@@ -442,7 +442,9 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                                else if(contentDescription != null && text != null && contentDescription.equalsIgnoreCase("Bcc")) {
 	                                    content.setBcc(text);
 	                                }
-	                            } catch (NullPointerException e) {}
+	                            } catch (NullPointerException e) {
+									Log.e(TAG, e.getMessage());
+								}
 	                        }
 	                        else if(subChild.getClassName().equals("android.widget.RelativeLayout")) { // subject and attachments
 	                            AccessibilityNodeInfo subSubChild = subChild.getChild(0);
@@ -453,7 +455,9 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                            				String subject = subSubChild.getText().toString();
 	                            				content.setSubject(subject);
 	                            				subjectHierarchyLevelReached = true;
-	                            			} catch (NullPointerException e) {}
+	                            			} catch (NullPointerException e) {
+												Log.e(TAG, e.getMessage());
+											}
 	                            		}
 	                            	}
 	                            	else if(subSubChild.getClassName() != null && subSubChild.getClassName().equals("android.widget.TextView")) { // attachments

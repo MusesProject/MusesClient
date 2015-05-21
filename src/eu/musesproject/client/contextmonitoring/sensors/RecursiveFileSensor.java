@@ -184,7 +184,9 @@ public class RecursiveFileSensor implements ISensor {
                 fileObserver.stopWatching();
                 running = false;
                 Log.d(TAG, "confirmation: file observation stopped");
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
         }
     }
 
