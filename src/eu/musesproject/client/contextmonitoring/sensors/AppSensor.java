@@ -163,7 +163,7 @@ public class AppSensor implements ISensor {
                 PackageInfo foregroundAppPackageInfo;
                 String foregroundTaskAppName = "";
                 int appVersion;
-                List<RunningServiceInfo> runningServices = null;
+                List<RunningServiceInfo> runningServices;
                 try {
                     foregroundAppPackageInfo = pm.getPackageInfo(foregroundTaskPackageName, 0);
                     foregroundTaskAppName = foregroundAppPackageInfo.applicationInfo.loadLabel(pm).toString();
