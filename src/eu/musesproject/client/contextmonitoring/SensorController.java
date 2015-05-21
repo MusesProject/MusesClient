@@ -21,7 +21,6 @@ package eu.musesproject.client.contextmonitoring;
  */
 
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.*;
 import eu.musesproject.client.db.entity.SensorConfiguration;
@@ -154,11 +153,6 @@ public class SensorController {
 		}
 		else if(sensorType.equals(InteractionSensor.TYPE)) {
 			sensor = new InteractionSensor();
-		}
-		else if(sensorType.equals(NotificationSensor.TYPE)) {
-			 if (Build.VERSION.SDK_INT > 17){
-				 sensor = new NotificationSensor(context);
-			 } 
 		}
         else if(sensorType.equals(PeripheralSensor.TYPE)) {
             sensor = new PeripheralSensor(context);

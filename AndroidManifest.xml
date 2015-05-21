@@ -70,13 +70,6 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibilityconfig" />
         </service>
-        <service
-            android:name="eu.musesproject.client.contextmonitoring.sensors.NotificationSensor$NotificationService"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
-            <intent-filter>
-                <action android:name="android.service.notification.NotificationListenerService" />
-            </intent-filter>
-        </service>
 
         <receiver android:name="eu.musesproject.client.ui.MusesEventBroadcastReceiver" >
             <intent-filter>
