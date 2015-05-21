@@ -651,7 +651,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					connectionConfig.setSilentMode(isSilentModeActivated ? 1 : 0);
 					Log.d(MusesUtils.TEST_TAG, "UCEH - isSilentModeActivated="+isSilentModeActivated);
 					// 2.2 & 3.2 insert new config in the db
-					if(connectionConfig != null) {
+					if(!connectionConfig.toString().isEmpty()) {
 						dbManager.openDB();
 						dbManager.insertConfiguration(connectionConfig);
 						dbManager.closeDB();
