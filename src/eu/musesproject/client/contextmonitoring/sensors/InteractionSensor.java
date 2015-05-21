@@ -186,16 +186,16 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 
 	private void createUserAction(Action action, Map<String, String> actionProperties) {
 		Log.d(TAG, "FINISH createUserAction: " + action.getActionType());
-		if(action.getActionType() == ActionType.FILE_ATTACHED) {
+		if(action.getActionType().equalsIgnoreCase(ActionType.FILE_ATTACHED)) {
 			UserContextMonitoringController.getInstance(this).sendUserAction(UISource.INTERNAL, action, null);
 		}
-		else if(action.getActionType() == ActionType.SEND_MAIL) {
+		else if(action.getActionType().equalsIgnoreCase(ActionType.SEND_MAIL)) {
 			UserContextMonitoringController.getInstance(this).sendUserAction(UISource.INTERNAL, action, actionProperties);
 			for(Map.Entry<String, String> entry : actionProperties.entrySet()) {
 				Log.d(TAG, "mail test : " + entry.getKey() + ":" + entry.getValue());
 			}
 		}
-		else if(action.getActionType() == ActionType.USER_ENTERED_PASSWORD_FIELD) {
+		else if(action.getActionType().equalsIgnoreCase(ActionType.USER_ENTERED_PASSWORD_FIELD)) {
 			UserContextMonitoringController.getInstance(this).sendUserAction(UISource.INTERNAL, action, actionProperties);
 		}
 	}
