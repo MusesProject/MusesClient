@@ -128,7 +128,7 @@ public class FeedbackActuator implements IFeedbackActuator {
         }
         else if(decision.getName().equalsIgnoreCase(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
             dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
-            dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.UP_TO_USER);;
+            dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.UP_TO_USER);
         }
         else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS) ||
                 decision.getName().equalsIgnoreCase(Decision.DEFAULT_DENY_ACCESS)) {

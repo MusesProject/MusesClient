@@ -20,8 +20,6 @@ package eu.musesproject.client.contextmonitoring.service.aidl;
  * #L%
  */
 
-import java.util.Map;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,6 +31,8 @@ import eu.musesproject.client.contextmonitoring.UserActionGenerator;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.contextmonitoring.UISource;
+
+import java.util.Map;
 
 public class MusesServiceProvider extends Service {
 	private static final String TAG = MusesServiceProvider.class.getSimpleName();
@@ -63,7 +63,7 @@ public class MusesServiceProvider extends Service {
     }
 
     private final IMusesService.Stub binder = new IMusesService.Stub() {
-		
+
 		@Override
 		public void unregisterCallback(IMusesServiceCallback callback)
 				throws RemoteException {

@@ -27,7 +27,7 @@ import eu.musesproject.contextmodel.ContextEvent;
 import java.util.List;
 
 public interface ISensor {
-	public static String CONFIG_KEY_ENABLED = "enabled"; 
+	public static String CONFIG_KEY_ENABLED = "enabled";
 	
     /**
      * max size of the array for the context event history
