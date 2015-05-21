@@ -18,8 +18,9 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
-
-import android.util.Log;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -29,10 +30,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import android.util.Log;
 
 /**
  * Helper class for connection Manager handles POST and GET request with the server
@@ -43,7 +41,7 @@ import java.util.List;
 
 
 public abstract class HttpConnectionsHelper {
-	public static Cookie current_cookie;
+	public static Cookie current_cookie = null;
 	private static Date cookieExpiryDate = new Date();
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
@@ -55,7 +53,6 @@ public abstract class HttpConnectionsHelper {
 	private static final String TAG = HttpConnectionsHelper.class.getSimpleName();
 	private static String APP_TAG = "APP_TAG"; 
 	public static final String BUG_TAG = "BUG_TAG";
-		
 	
 	/**
 	 * 
@@ -82,6 +79,7 @@ public abstract class HttpConnectionsHelper {
         httpPost.addHeader("connection-type", type);
         httpPost.setEntity(s);
         httpPost.addHeader("accept", "application/xml");
+        
         if (current_cookie == null || current_cookie.isExpired(new Date())) {
         	try {
         		httpResponse = httpclient.execute(httpPost);
@@ -128,14 +126,15 @@ public abstract class HttpConnectionsHelper {
 	 */
 	
 	public HttpResponseHandler doSecurePost(Request request, String cert) throws ClientProtocolException, IOException {
-	
+
 		HttpResponse httpResponse = null;
 		HttpResponseHandler serverResponse = new HttpResponseHandler(request.getType(), request.getDataId());
 		HttpPost httpPost = null;
 		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
-		Log.v(BUG_TAG, request.getData());
 
+		Log.v(TAG,"_COOKIE"+ "   Cookie value is: "+current_cookie);
+		
 		if (httpclient !=null) {
 			httpPost = new HttpPost(request.getUrl());
 			
@@ -153,26 +152,24 @@ public abstract class HttpConnectionsHelper {
 	        httpPost.setHeader("poll-interval", getInStringSeconds(request.getPollInterval()));
 		}
 
-		if (current_cookie != null && !current_cookie.isExpired(new Date()) /*!isSessionExpired(new Date(), AlarmReceiver.LAST_SENT_POLL_INTERVAL)*/) {
+		if (current_cookie != null ) {
 			httpclient.getCookieStore().addCookie(current_cookie);
 			Log.d(TAG+"_COOKIE","doSecurePost("+request.getType()+"), valid cookie: "+current_cookie.toString());
 		    try {
 		        httpResponse = httpclient.execute(httpPost);
 		        serverResponse.setResponse(httpResponse);
-		        /* For testing */
-		        //DBG SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
 			    /* Cookie could be changed by server */
 			    List<Cookie> cookies = httpclient.getCookieStore().getCookies();
 			    if (!cookies.isEmpty())
 			    {
 				    if (current_cookie.isExpired(new Date())) {
 		 	    		current_cookie = cookies.get(0);
-			    			serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
-			    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
+			    		serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
+			    		Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
 		 	    	}
 		 	    	else if (current_cookie.equals(cookies.get(0))) {
-			    			current_cookie = cookies.get(0);
-			    			serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
+			    			//current_cookie = cookies.get(0);
+			    			//serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
 			    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
 		 	    	}
 			    }
@@ -208,8 +205,8 @@ public abstract class HttpConnectionsHelper {
 	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
 		 	    	}
 		 	    	else if (current_cookie.equals(cookies.get(0))) {
-	 	    			current_cookie = cookies.get(0);
-	 	    			serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
+	 	    			//current_cookie = cookies.get(0);
+	 	    			//serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
 	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
 		 	    	}
 		 	    	else
@@ -233,32 +230,9 @@ public abstract class HttpConnectionsHelper {
 		
     }
 
-	
-//	private boolean isSessionExpired(Date newDate, int pollInterval){
-//		long diff = newDate.getTime() - lastDate.getTime();
-//		long diffSeconds = (diff / 1000) % 60;
-//		Log.d(TAG,"Diffrence secondds: " + diffSeconds);
-//		Log.d(TAG,"NewDate: " + newDate);
-//		Log.d(TAG,"LastDate: " + lastDate);
-//		lastDate = newDate;
-//		if (diffSeconds > getInSeconds(AlarmReceiver.LAST_SENT_POLL_INTERVAL)*2){
-//			return true;
-//		}
-//		return false;
-//	}
-
-
-//	private int getInSeconds(int pollInterval) {
-//		int pollIntervalInSeconds = (pollInterval / 1000) % 60 ;
-//		return pollIntervalInSeconds;
-//	}
-	
 	private static String getInStringSeconds(String pollInterval) {
 		int pollIntervalInSeconds = (Integer.parseInt(pollInterval) / 1000) % 60 ;
 		return Integer.toString(pollIntervalInSeconds);
 	}
 
-//	public HttpResponse getHttpResponse(){
-//		return httpResponse;
-//	}
 }

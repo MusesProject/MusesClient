@@ -62,7 +62,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	static private int lastSentStatus = Statuses.OFFLINE;
 	private AtomicInteger mCommandOngoing = new AtomicInteger(0);
 	private AlarmReceiver alarmReceiver;
-	private Context context;
+	public static Context context;
 	private int detailedOnlineStatus;
 	public static boolean isNewSession = true;
 		
@@ -409,7 +409,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				} else if (request.getType().contentEquals(DISCONNECT))
 				{
 					callBacks.statusCb(Statuses.DISCONNECTED, DetailedStatuses.NO_INTERNET_CONNECTION, request.getDataId());
-					HttpConnectionsHelper.current_cookie = null;
+					//HttpConnectionsHelper.current_cookie = null;
 				}
 			}
 			else
@@ -436,7 +436,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 				
 				if (request.getType().contentEquals(DISCONNECT))
 				{
-					HttpConnectionsHelper.current_cookie = null;
+					//HttpConnectionsHelper.current_cookie = null;
 				}
 			}
 			
