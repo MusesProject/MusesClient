@@ -52,7 +52,7 @@ public class MusesUtils {
 	private static String inputStreamToString(InputStream is) throws IOException {
 		ByteArrayOutputStream byeArrayOutputStream = new ByteArrayOutputStream(8192);
 		byte[] buffer = new byte[8192];
-		int count = 0;
+		int count;
 		try {
 		  while ((count = is.read(buffer)) != -1) {
 		    byeArrayOutputStream.write(buffer, 0, count);
