@@ -152,7 +152,7 @@ public class AppSensor implements ISensor {
 
         @Override
         protected Void doInBackground(Void... params) {
-            String previousApp = "";
+            String previousApp = "MUSES";
 
             while (sensorEnabled) {
                 // get the first item in the list, because it is the foreground task
@@ -181,15 +181,9 @@ public class AppSensor implements ISensor {
 
                     }
 
-                    // fill previousApp with the first one in session
-                    // and set the start time of the first application
-                    if(previousApp.equals("")) {
-                        createContextEvent(foregroundTaskAppName, foregroundTaskPackageName, appVersion, runningServices);
-                        previousApp = foregroundTaskAppName;
-                    }
-
                     // if the foreground application changed, create a context event
                     if(!foregroundTaskAppName.equals(previousApp)) {
+                        Log.d(TAG, "foreground app name=" + foregroundTaskAppName + " | previous app name" + previousApp + " | is same="+(foregroundTaskAppName.equals(previousApp)));
                         if(!foregroundTaskAppName.equals(context.getResources().getString(R.string.app_name))) {
                             createContextEvent(foregroundTaskAppName, foregroundTaskPackageName, appVersion, runningServices);
                             previousApp = foregroundTaskAppName;
@@ -242,8 +236,7 @@ public class AppSensor implements ISensor {
 
 	@Override
 	public void configure(List<SensorConfiguration> config) {
-		// TODO Auto-generated method stub
-		
+		// this sensor does not need any configuration
 	}
 
 	@Override
