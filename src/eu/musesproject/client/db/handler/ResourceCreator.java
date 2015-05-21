@@ -53,6 +53,10 @@ public class ResourceCreator {
 				properties.get(MailProperties.PROPERTY_KEY_ATTACHMENT_COUNT);
 			}
 			else if(action.getActionType().equals(ActionType.VIRUS_FOUND)) {
+				resType.setName(properties.get("name"));
+				res.setResourceType(resType);
+				res.setPath(properties.get("path"));
+				res.setSeverity(properties.get("severity"));
 			}
 			else if(action.getActionType().equals(ActionType.VIRUS_CLEANED)) {
 				resType.setName(properties.get("name"));
