@@ -142,10 +142,10 @@ info@muses.com</string>
 
     <!-- Dialogs -->
     <string name="button_details">details</string>
-    <string name="button_cancel">cancel</string>
+    <string name="button_cancel">@android:string/cancel</string>
     <string name="button_help_me">help me!</string>
     <string name="button_fix_it">fix it!</string>
-    <string name="button_ok">ok</string>
+    <string name="button_ok">@android:string/ok</string>
     <string name="button_proceed">proceed</string>
 
 </resources>
