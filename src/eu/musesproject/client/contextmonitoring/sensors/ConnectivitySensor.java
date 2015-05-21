@@ -227,7 +227,7 @@ public class ConnectivitySensor implements ISensor {
                 contextEvent.addProperty(PROPERTY_KEY_BLUETOOTH_CONNECTED,String.valueOf(bluetoothState));
 
                 // Airplane mode
-                boolean airplaneMode = false;
+                boolean airplaneMode;
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
                     airplaneMode = Settings.System.getInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
                 }
