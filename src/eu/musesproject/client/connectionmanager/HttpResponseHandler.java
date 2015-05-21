@@ -18,15 +18,15 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
+
+import android.util.Log;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-
-import android.util.Log;
 
 
 /**

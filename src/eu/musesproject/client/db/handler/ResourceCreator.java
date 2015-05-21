@@ -22,14 +22,14 @@ package eu.musesproject.client.db.handler;
  */
 
 
-import java.util.Map;
-
 import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.model.contextmonitoring.MailProperties;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Resource;
 import eu.musesproject.client.model.decisiontable.ResourceType;
+
+import java.util.Map;
 
 public class ResourceCreator {
 

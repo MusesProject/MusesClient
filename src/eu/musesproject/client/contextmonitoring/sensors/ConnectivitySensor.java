@@ -37,7 +37,9 @@ import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.contextmonitoring.BluetoothState;
 import eu.musesproject.contextmodel.ContextEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**

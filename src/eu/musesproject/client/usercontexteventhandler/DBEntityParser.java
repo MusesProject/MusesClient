@@ -21,16 +21,16 @@ package eu.musesproject.client.usercontexteventhandler;
  * #L%
  */
 
+import eu.musesproject.client.db.entity.ActionProperty;
+import eu.musesproject.client.db.entity.ContextEvent;
+import eu.musesproject.client.db.entity.Property;
+import eu.musesproject.client.model.decisiontable.Action;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import eu.musesproject.client.db.entity.ActionProperty;
-import eu.musesproject.client.db.entity.ContextEvent;
-import eu.musesproject.client.db.entity.Property;
-import eu.musesproject.client.model.decisiontable.Action;
 
 /**
  * Created by christophstanik on 4/22/14.

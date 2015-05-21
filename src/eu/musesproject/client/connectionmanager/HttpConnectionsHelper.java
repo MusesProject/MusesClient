@@ -18,13 +18,8 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.List;
 
+import android.util.Log;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -35,7 +30,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 
-import android.util.Log;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Helper class for connection Manager handles POST and GET request with the server

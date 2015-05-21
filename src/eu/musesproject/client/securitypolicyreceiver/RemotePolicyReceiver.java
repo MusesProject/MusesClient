@@ -4,15 +4,13 @@
  */
 package eu.musesproject.client.securitypolicyreceiver;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.util.Log;
 import eu.musesproject.client.db.entity.DecisionTable;
-import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.JSONIdentifiers;
 import eu.musesproject.client.model.decisiontable.PolicyDT;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * The Class RemotePolicyReceiver.

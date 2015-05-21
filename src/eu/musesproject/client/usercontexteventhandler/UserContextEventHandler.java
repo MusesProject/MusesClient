@@ -51,7 +51,6 @@ import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
 import eu.musesproject.client.ui.MainActivity;
 import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
-
 import org.json.JSONObject;
 
 import java.util.ArrayList;

@@ -1,21 +1,12 @@
 package eu.musesproject.client.securitypolicyreceiver;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.util.Log;
-import eu.musesproject.client.db.entity.Action;
-import eu.musesproject.client.db.entity.Decision;
-import eu.musesproject.client.db.entity.DecisionTable;
-import eu.musesproject.client.db.entity.Resource;
-import eu.musesproject.client.db.entity.ResourceType;
-import eu.musesproject.client.db.entity.RiskCommunication;
-import eu.musesproject.client.db.entity.RiskTreatment;
-import eu.musesproject.client.db.entity.Role;
-import eu.musesproject.client.db.entity.Subject;
+import eu.musesproject.client.db.entity.*;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.JSONIdentifiers;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DevicePolicyHelper {
 	

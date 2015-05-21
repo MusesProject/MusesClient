@@ -1,9 +1,5 @@
 package eu.musesproject.client.connectionmanager;
 
-import org.apache.http.client.ClientProtocolException;
-
-import android.util.Log;
-
 /*
  * #%L
  * MUSES Client

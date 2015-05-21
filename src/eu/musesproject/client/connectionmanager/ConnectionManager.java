@@ -18,12 +18,7 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -34,6 +29,13 @@ import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.client.utils.BuildConfig;
 import eu.musesproject.client.utils.BuildConfig.RUNNING_MODE;
 import eu.musesproject.client.utils.ResponseJSON;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Connection Manager class implements the iConnection interface

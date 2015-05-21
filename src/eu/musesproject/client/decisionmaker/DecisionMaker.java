@@ -4,26 +4,22 @@
  */
 package eu.musesproject.client.decisionmaker;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
-import eu.musesproject.client.db.entity.Action;
-import eu.musesproject.client.db.entity.DecisionTable;
-import eu.musesproject.client.db.entity.Resource;
-import eu.musesproject.client.db.entity.RiskCommunication;
-import eu.musesproject.client.db.entity.RiskTreatment;
+import eu.musesproject.client.db.entity.*;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.contextmodel.ContextEvent;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**

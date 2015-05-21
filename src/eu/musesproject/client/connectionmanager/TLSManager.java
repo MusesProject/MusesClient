@@ -18,11 +18,8 @@ package eu.musesproject.client.connectionmanager;
  * limitations under the License.
  * #L%
  */
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
+
+import android.util.Log;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
@@ -37,8 +34,12 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import android.util.Log;
-import eu.musesproject.client.utils.MusesUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 
 /**
  * Handle TLS/SSL communication with the server

@@ -3,7 +3,7 @@ package eu.musesproject.client.contextmonitoring.test;
 import android.content.Context;
 import android.test.AndroidTestCase;
 import eu.musesproject.client.contextmonitoring.SensorController;
-import eu.musesproject.client.contextmonitoring.sensors.*;
+import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.contextmodel.ContextEvent;
 
 import java.util.List;

@@ -1,10 +1,10 @@
 package eu.musesproject.client.application;
 
 import android.app.Application;
-
-import org.acra.*;
-import org.acra.annotation.*;
+import org.acra.ACRA;
 import org.acra.ReportField;
+import org.acra.ReportingInteractionMode;
+import org.acra.annotation.ReportsCrashes;
 
 @ReportsCrashes(
     formKey = "", // This is required for backward compatibility but not used

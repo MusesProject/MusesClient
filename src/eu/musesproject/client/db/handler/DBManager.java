@@ -1,10 +1,5 @@
 package eu.musesproject.client.db.handler;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,23 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
-import eu.musesproject.client.db.entity.Action;
-import eu.musesproject.client.db.entity.ActionProperty;
-import eu.musesproject.client.db.entity.Configuration;
-import eu.musesproject.client.db.entity.ContextEvent;
-import eu.musesproject.client.db.entity.Decision;
+import eu.musesproject.client.db.entity.*;
 import eu.musesproject.client.db.entity.DecisionTable;
-import eu.musesproject.client.db.entity.Property;
-import eu.musesproject.client.db.entity.RequiredApp;
-import eu.musesproject.client.db.entity.Resource;
-import eu.musesproject.client.db.entity.ResourceProperty;
-import eu.musesproject.client.db.entity.ResourceType;
-import eu.musesproject.client.db.entity.RiskCommunication;
-import eu.musesproject.client.db.entity.RiskTreatment;
-import eu.musesproject.client.db.entity.Role;
-import eu.musesproject.client.db.entity.SensorConfiguration;
-import eu.musesproject.client.db.entity.Subject;
 import eu.musesproject.client.utils.MusesUtils;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DBManager {
 	private static final String TAG = DBManager.class.getSimpleName();

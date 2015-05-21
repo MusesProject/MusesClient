@@ -21,11 +21,11 @@ package eu.musesproject.client.connectionmanager;
  * #L%
  */
 
-import java.util.List;
-import java.util.Map;
-
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.contextmodel.ContextEvent;
+
+import java.util.List;
+import java.util.Map;
 
 public class RequestHolder {
 	private int id;
