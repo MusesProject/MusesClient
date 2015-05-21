@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
@@ -194,7 +193,6 @@ public class PackageSensor implements ISensor {
 
         PackageManager packageManager = context.getPackageManager();
         List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-        PackageInfo pInfo; 
         for(ApplicationInfo appInfo : installedApps) {
             String appName = appInfo.loadLabel(packageManager).toString();
             String packageName = appInfo.packageName;
