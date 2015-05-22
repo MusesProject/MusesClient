@@ -21,6 +21,7 @@ package eu.musesproject.client.connectionmanager;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -30,7 +31,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
+import eu.musesproject.client.ui.MainActivity;
 
 /**
  * Helper class for connection Manager handles POST and GET request with the server
@@ -53,7 +58,9 @@ public abstract class HttpConnectionsHelper {
 	private static final String TAG = HttpConnectionsHelper.class.getSimpleName();
 	private static String APP_TAG = "APP_TAG"; 
 	public static final String BUG_TAG = "BUG_TAG";
-	
+	SharedPreferences prefs;
+
+
 	/**
 	 * 
 	 * @param type
@@ -132,8 +139,12 @@ public abstract class HttpConnectionsHelper {
 		HttpPost httpPost = null;
 		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
-
-		Log.v(TAG,"_COOKIE"+ "   Cookie value is: "+current_cookie);
+		//updateCookieIfSavedInPrefs();
+		if (current_cookie == null){
+			Log.v(TAG,"_COOKIE"+ "   Cookie value is: "+current_cookie);
+		}else {
+			Log.v(TAG,"_COOKIE"+ "   Cookie value is: "+current_cookie.getValue() + " expires: " + current_cookie.getExpiryDate().toString());
+		}
 		
 		if (httpclient !=null) {
 			httpPost = new HttpPost(request.getUrl());
@@ -164,12 +175,14 @@ public abstract class HttpConnectionsHelper {
 			    {
 				    if (current_cookie.isExpired(new Date())) {
 		 	    		current_cookie = cookies.get(0);
+		 	    		//saveCookieAttributesInPrefs(current_cookie);
 			    		serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
 			    		Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
 		 	    	}
 		 	    	else if (current_cookie.equals(cookies.get(0))) {
-			    			//current_cookie = cookies.get(0);
-			    			//serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
+			    			//current_cookie = cookies.get(0); FIXME
+			    			//saveCookieAttributesInPrefs(current_cookie);
+			    			//serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED); FIXME
 			    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
 		 	    	}
 			    }
@@ -192,11 +205,12 @@ public abstract class HttpConnectionsHelper {
 		        /* For testing */
 		        //DBG SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
         		List<Cookie> cookies = httpclient.getCookieStore().getCookies();
+				//saveCookieAttributesInPrefs(cookies.get(0));
 		 	    if (!cookies.isEmpty()) {
 		 	    	
 		 	    	if (current_cookie == null) {
 		 	    		current_cookie = cookies.get(0);
-	 	    			serverResponse.setNewSession(DetailedStatuses.SESSION_NEW);
+	 	    			//serverResponse.setNewSession(DetailedStatuses.SESSION_NEW); FIXME
 	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, New cookie used: "+current_cookie.toString());
 		 	    	} 
 		 	    	else if (current_cookie.isExpired(new Date())) {
@@ -229,6 +243,29 @@ public abstract class HttpConnectionsHelper {
         return serverResponse;
 		
     }
+
+	private Cookie updateCookieIfSavedInPrefs() {
+		prefs = ConnectionManager.context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+				Context.MODE_PRIVATE);
+		if(prefs.contains("value")){
+			current_cookie = new SessionCookie();
+			return current_cookie;
+		}
+		return current_cookie;
+	}
+
+	private void saveCookieAttributesInPrefs(Cookie cookie) {
+		prefs = ConnectionManager.context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+				Context.MODE_PRIVATE);
+		SharedPreferences.Editor prefEditor = prefs.edit();
+		prefEditor.clear();
+		prefEditor.putString("name", 	cookie.getName());
+		prefEditor.putString("value", 	cookie.getValue());
+		prefEditor.putString("comment", cookie.getComment());
+		prefEditor.putLong("expiry", cookie.getExpiryDate().getTime());
+		prefEditor.commit();
+
+	}
 
 	private static String getInStringSeconds(String pollInterval) {
 		int pollIntervalInSeconds = (Integer.parseInt(pollInterval) / 1000) % 60 ;
