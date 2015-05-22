@@ -244,28 +244,28 @@ public abstract class HttpConnectionsHelper {
 		
     }
 
-	private Cookie updateCookieIfSavedInPrefs() {
-		prefs = ConnectionManager.context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
-				Context.MODE_PRIVATE);
-		if(prefs.contains("value")){
-			current_cookie = new SessionCookie();
-			return current_cookie;
-		}
-		return current_cookie;
-	}
-
-	private void saveCookieAttributesInPrefs(Cookie cookie) {
-		prefs = ConnectionManager.context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
-				Context.MODE_PRIVATE);
-		SharedPreferences.Editor prefEditor = prefs.edit();
-		prefEditor.clear();
-		prefEditor.putString("name", 	cookie.getName());
-		prefEditor.putString("value", 	cookie.getValue());
-		prefEditor.putString("comment", cookie.getComment());
-		prefEditor.putLong("expiry", cookie.getExpiryDate().getTime());
-		prefEditor.commit();
-
-	}
+//	private Cookie updateCookieIfSavedInPrefs() {
+//		prefs = ConnectionManager.context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+//				Context.MODE_PRIVATE);
+//		if(prefs.contains("value")){
+//			current_cookie = new SessionCookie();
+//			return current_cookie;
+//		}
+//		return current_cookie;
+//	}
+//
+//	private void saveCookieAttributesInPrefs(Cookie cookie) {
+//		prefs = ConnectionManager.context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+//				Context.MODE_PRIVATE);
+//		SharedPreferences.Editor prefEditor = prefs.edit();
+//		prefEditor.clear();
+//		prefEditor.putString("name", 	cookie.getName());
+//		prefEditor.putString("value", 	cookie.getValue());
+//		prefEditor.putString("comment", cookie.getComment());
+//		prefEditor.putLong("expiry", cookie.getExpiryDate().getTime());
+//		prefEditor.commit();
+//
+//	}
 
 	private static String getInStringSeconds(String pollInterval) {
 		int pollIntervalInSeconds = (Integer.parseInt(pollInterval) / 1000) % 60 ;
