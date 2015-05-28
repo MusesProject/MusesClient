@@ -43,7 +43,6 @@ public class HttpResponseHandler {
 	private String receivedHttpResponseData = null;
 	private HttpResponse httpResponse = null;
 	private boolean isNewSession = false;
-	private int sessionUpdateReason = 0;
 	private String requestType;
 	private int dataId;
 
@@ -79,7 +78,7 @@ public class HttpResponseHandler {
 				if (isNewSession){
 					isNewSession = false;
 					if (Statuses.CURRENT_STATUS == Statuses.ONLINE){
-						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason, dataId);
+						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, DetailedStatuses.SUCCESS_NEW_SESSION, dataId);
 					}
 				}
 				
@@ -132,7 +131,6 @@ public class HttpResponseHandler {
 				Log.d(APP_TAG, "Server is OFFLINE .. Incorrect URL");
 
 				if (isSendDataRequest(requestType)){
-					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.INCORRECT_URL)+",0,0");
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.INCORRECT_URL, dataId);
 				}
 				
@@ -145,21 +143,39 @@ public class HttpResponseHandler {
 				Log.d(APP_TAG, "Server is OFFLINE .. Request not allowed from Server..");
 				
 				if (isSendDataRequest(requestType)){
-					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.NOT_ALLOWED_FROM_SERVER)+",0,0");
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED, dataId);
 				}
-
+				
 				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED, dataId);
+				AlarmReceiver.increasePollTime();
+				break;
+			case DetailedStatuses.NOT_FOUND:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
+				Log.d(APP_TAG, "Server is OFFLINE .. Error: NOt found");
+				
+				if (isSendDataRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_FOUND, dataId);
+				}
+				
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_FOUND, dataId);
+				AlarmReceiver.increasePollTime();
+				break;
+			case DetailedStatuses.INTERNAL_SERVER_ERROR:
+				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
+				Log.d(APP_TAG, "Server is OFFLINE .. Internal Server Error");
+				
+				if (isSendDataRequest(requestType)){
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.INTERNAL_SERVER_ERROR, dataId);
+				}
+				
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.INTERNAL_SERVER_ERROR, dataId);
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.SERVER_NOT_AVAIABLE:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Server not available..");
-				
 				if (isSendDataRequest(requestType)){
-					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.SERVER_NOT_AVAIABLE)+",0,0");
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.SERVER_NOT_AVAIABLE, dataId);
-					
 				}
 				
 				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.SERVER_NOT_AVAIABLE, dataId);
@@ -169,7 +185,6 @@ public class HttpResponseHandler {
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error:"+getStatusCodeResponse(httpResponse));
 				if (isSendDataRequest(requestType)){
-					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(getStatusCodeResponse(httpResponse))+",0,0");
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
 				}
 				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR, dataId);
