@@ -45,7 +45,7 @@ public class HttpResponseHandler {
 	private boolean isNewSession = false;
 	private String requestType;
 	private int dataId;
-
+	private int sessionUpdateReason = 0;
 	/**
 	 * Constructor initialise with httpResponse and request type (connect,data,poll etc)
 	 * @param httpResponse
@@ -78,7 +78,7 @@ public class HttpResponseHandler {
 				if (isNewSession){
 					isNewSession = false;
 					if (Statuses.CURRENT_STATUS == Statuses.ONLINE){
-						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, DetailedStatuses.SUCCESS_NEW_SESSION, dataId);
+						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason, dataId);
 					}
 				}
 				
