@@ -371,14 +371,6 @@ public class HttpResponseHandler {
 	
 	private String reteiveDataFromHttpResponseHeader(HttpResponse response) {
 		
-//		Header [] dataReceived = response.getAllHeaders();
-//		for (Header responseHeader : dataReceived){
-//			if (responseHeader.getName().equals("data")){
-//				receivedHttpResponseData = responseHeader.getValue();
-//				break;
-//			}
-//			
-//		}
 		BufferedReader reader;
 		String json = "";
 		try {
@@ -396,9 +388,8 @@ public class HttpResponseHandler {
 		return receivedHttpResponseData;
 	}
 
-	public void setNewSession(int reason) {
-		// TODO Auto-generated method stub
-		isNewSession = true;
+	public void setNewSession(boolean isNewSession, int reason) {
+		this.isNewSession = isNewSession;
 		sessionUpdateReason = reason;
 	}
 

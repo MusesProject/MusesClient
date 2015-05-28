@@ -21,21 +21,20 @@ package eu.musesproject.client.connectionmanager;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
-
-import android.content.Context;
-import android.content.SharedPreferences;
+import org.apache.http.protocol.BasicHttpContext;
 import android.util.Log;
-import eu.musesproject.client.ui.MainActivity;
+import eu.musesproject.client.db.handler.DBManager;
 
 /**
  * Helper class for connection Manager handles POST and GET request with the server
@@ -57,10 +56,11 @@ public abstract class HttpConnectionsHelper {
 	public static int POLLING_ENABLED = 1;
 	private static final String TAG = HttpConnectionsHelper.class.getSimpleName();
 	private static String APP_TAG = "APP_TAG"; 
-	public static final String BUG_TAG = "BUG_TAG";
-	SharedPreferences prefs;
-
-
+	private DBManager dbManager;
+	
+	private BasicCookieStore cookieStore;
+	private BasicHttpContext localContext;
+	
 	/**
 	 * 
 	 * @param type
@@ -139,13 +139,11 @@ public abstract class HttpConnectionsHelper {
 		HttpPost httpPost = null;
 		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
-		//updateCookieIfSavedInPrefs();
-		if (current_cookie == null){
-			Log.v(TAG,"_COOKIE"+ "   Cookie value is: "+current_cookie);
-		}else {
-			Log.v(TAG,"_COOKIE"+ "   Cookie value is: "+current_cookie.getValue() + " expires: " + current_cookie.getExpiryDate().toString());
-		}
-		
+
+		cookieStore = new BasicCookieStore();
+		localContext = new BasicHttpContext();
+		localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
 		if (httpclient !=null) {
 			httpPost = new HttpPost(request.getUrl());
 			
@@ -163,110 +161,75 @@ public abstract class HttpConnectionsHelper {
 	        httpPost.setHeader("poll-interval", getInStringSeconds(request.getPollInterval()));
 		}
 
-		if (current_cookie != null ) {
-			httpclient.getCookieStore().addCookie(current_cookie);
-			Log.d(TAG+"_COOKIE","doSecurePost("+request.getType()+"), valid cookie: "+current_cookie.toString());
-		    try {
-		        httpResponse = httpclient.execute(httpPost);
-		        serverResponse.setResponse(httpResponse);
-			    /* Cookie could be changed by server */
-			    List<Cookie> cookies = httpclient.getCookieStore().getCookies();
-			    if (!cookies.isEmpty())
-			    {
-				    if (current_cookie.isExpired(new Date())) {
-		 	    		current_cookie = cookies.get(0);
-		 	    		//saveCookieAttributesInPrefs(current_cookie);
-			    		serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
-			    		Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
-		 	    	}
-		 	    	else if (current_cookie.equals(cookies.get(0))) {
-			    			//current_cookie = cookies.get(0); FIXME
-			    			//saveCookieAttributesInPrefs(current_cookie);
-			    			//serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED); FIXME
-			    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
-		 	    	}
-			    }
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-				Log.e(APP_TAG,"doSecurePost"+ e.toString());
-			} catch (IOException e) {
-				e.printStackTrace();
-				Log.e(APP_TAG, "doSecurePost"+e.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-				Log.e(APP_TAG, "doSecurePost"+e.toString());
-			}
-		    
-		} else {
-			try {
-				Log.d(TAG+"_COOKIE","doSecurePost ("+request.getType()+"), no valid cookie!! ");
-        		httpResponse = httpclient.execute(httpPost);
-        		serverResponse.setResponse(httpResponse);
-		        /* For testing */
-		        //DBG SweFileLog.write("<->,"+Integer.toString(request.getData().length())+", "+serverResponse.getDataLength());
-        		List<Cookie> cookies = httpclient.getCookieStore().getCookies();
-				//saveCookieAttributesInPrefs(cookies.get(0));
-		 	    if (!cookies.isEmpty()) {
-		 	    	
-		 	    	if (current_cookie == null) {
-		 	    		current_cookie = cookies.get(0);
-	 	    			//serverResponse.setNewSession(DetailedStatuses.SESSION_NEW); FIXME
-	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, New cookie used: "+current_cookie.toString());
-		 	    	} 
-		 	    	else if (current_cookie.isExpired(new Date())) {
-		 	    		current_cookie = cookies.get(0);
-	 	    			serverResponse.setNewSession(DetailedStatuses.SESSION_EXPIRED);
-	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie expired, new used: "+current_cookie.toString());
-		 	    	}
-		 	    	else if (current_cookie.equals(cookies.get(0))) {
-	 	    			//current_cookie = cookies.get(0);
-	 	    			//serverResponse.setNewSession(DetailedStatuses.SESSION_UPDATED);
-	 	    			Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+current_cookie.toString());
-		 	    	}
-		 	    	else
-		 	    	{
-		 	    		Log.d(TAG+"_COOKIE","After doSecurePost, New cookie received, not used: "+cookies.get(0).toString());
-		 	    	}
-		 	    } 
-		 	   
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-				Log.e(APP_TAG,e.toString());
-			} catch (IOException e) {
-				e.printStackTrace();
-				Log.e(APP_TAG,e.toString());
-			}catch (Exception e) {
-				e.printStackTrace();
-				Log.e(APP_TAG,e.toString());
-			}
+	    try {
+			Cookie retreivedCookie = getCookieFromDB();
+			boolean isCookieStoreEmpty = cookieStore.getCookies().size() == 0 ? true : false; 
+			httpResponse = httpclient.execute(httpPost,localContext);
+	        serverResponse.setResponse(httpResponse);
+		    boolean cookieFound = false;
+		    if (!isCookieStoreEmpty){
+		    	for (Cookie c : cookieStore.getCookies()){
+		    		if (retreivedCookie != null){
+		    			if (c.getValue().equals(retreivedCookie.getValue()) ){
+		    				cookieFound = true;
+		    				serverResponse.setNewSession(false,DetailedStatuses.SESSION_UPDATED);
+		    				Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+retreivedCookie.toString());
+		    			    Log.d(TAG+"_COOKIE","After doSecurePost, Retreived cookie : "+ retreivedCookie.getValue());
+		    			}
+		    		}
+		    	}
+		    	if (!cookieFound) {
+		    		serverResponse.setNewSession(true,DetailedStatuses.SESSION_NEW);
+		    		retreivedCookie = cookieStore.getCookies().get(0);
+		    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
+		    	}
+		    } else {
+	    		serverResponse.setNewSession(true,DetailedStatuses.SESSION_NEW);
+	    		retreivedCookie = cookieStore.getCookies().get(0);
+	    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
+		    }
+			saveCookiesToDB();
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+			Log.e(APP_TAG,"doSecurePost"+ e.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			Log.e(APP_TAG, "doSecurePost"+e.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.e(APP_TAG, "doSecurePost"+e.toString());
 		}
+		
+
         return serverResponse;
 		
     }
 
-//	private Cookie updateCookieIfSavedInPrefs() {
-//		prefs = ConnectionManager.context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
-//				Context.MODE_PRIVATE);
-//		if(prefs.contains("value")){
-//			current_cookie = new SessionCookie();
-//			return current_cookie;
-//		}
-//		return current_cookie;
-//	}
-//
-//	private void saveCookieAttributesInPrefs(Cookie cookie) {
-//		prefs = ConnectionManager.context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
-//				Context.MODE_PRIVATE);
-//		SharedPreferences.Editor prefEditor = prefs.edit();
-//		prefEditor.clear();
-//		prefEditor.putString("name", 	cookie.getName());
-//		prefEditor.putString("value", 	cookie.getValue());
-//		prefEditor.putString("comment", cookie.getComment());
-//		prefEditor.putLong("expiry", cookie.getExpiryDate().getTime());
-//		prefEditor.commit();
-//
-//	}
+	public void saveCookiesToDB() {
+		List<Cookie> cookies = cookieStore.getCookies();
+		if (cookies.isEmpty()) {
+			Log.d(TAG, "No cookies");
+		} else {
+			dbManager = new DBManager(ConnectionManager.context);
+			dbManager.openDB();
+			for (Cookie c : cookies) {
+				dbManager.insertCookie(c);
+			}
+		}
 
+	}
+	
+	public Cookie getCookieFromDB() {
+		cookieStore.clear();
+		dbManager = new DBManager(ConnectionManager.context);
+		dbManager.openDB();
+
+		if (dbManager.getCookie(cookieStore)!=null){
+			return dbManager.getCookie(cookieStore);
+		}
+		return null;
+	}
+	
 	private static String getInStringSeconds(String pollInterval) {
 		int pollIntervalInSeconds = (Integer.parseInt(pollInterval) / 1000) % 60 ;
 		return Integer.toString(pollIntervalInSeconds);

@@ -11,10 +11,18 @@ import eu.musesproject.client.db.entity.*;
 import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.utils.MusesUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.BasicClientCookie;
 
 public class DBManager {
 	private static final String TAG = DBManager.class.getSimpleName();
@@ -24,39 +32,42 @@ public class DBManager {
 
 	// Creating tables queries run at the start
 	private static final String CREATE_DECISIONTABLE_TABLE_QUERY = "CREATE TABLE decisiontable ( "
-			+ "id INTEGER PRIMARY KEY,"
-			+ "action_id INT NOT NULL,"   // fk action.id
+			+ "id INTEGER PRIMARY KEY," + "action_id INT NOT NULL," // fk
+																	// action.id
 			+ "resource_id INT NOT NULL," // fk resource.id
 			+ "decision_id INT NOT NULL," // fk decision.id
-			+ "subject_id INT NOT NULL,"  // fk subject.id
-			+ "riskcommunication_id INT NOT NULL,"  // fk riskCommunication.id
+			+ "subject_id INT NOT NULL," // fk subject.id
+			+ "riskcommunication_id INT NOT NULL," // fk riskCommunication.id
 			+ "modification TIMESTAMP NOT NULL);";
 	private static final String CREATE_ACTION_TABLE_QUERY = "CREATE TABLE action ( "
-			+ "id INTEGER PRIMARY KEY,"
-			+ "description VARCHAR(45)," // FIXME don't commit should be not null
-			+ "action_type VARCHAR(45),"  // FIXME don't commit should be not null
+			+ "id INTEGER PRIMARY KEY," + "description VARCHAR(45)," // FIXME
+																		// don't
+																		// commit
+																		// should
+																		// be
+																		// not
+																		// null
+			+ "action_type VARCHAR(45)," // FIXME don't commit should be not
+											// null
 			+ "timestamp TIMESTAMP NOT NULL);";
 	private static final String CREATE_OFFLINE_ACTION_TABLE_QUERY = "CREATE TABLE offline_action ( "
 			+ "id INTEGER PRIMARY KEY,"
-			+ "description VARCHAR(45)," 
-			+ "action_type VARCHAR(45)," 
-			+ "timestamp TIMESTAMP NOT NULL);";
+			+ "description VARCHAR(45),"
+			+ "action_type VARCHAR(45)," + "timestamp TIMESTAMP NOT NULL);";
 	private static final String CREATE_ACTION_PROPERTY_TABLE_QUERY = "CREATE TABLE action_property ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "action_id INT NOT NULL,"
-			+ "key VARCHAR(45) NOT NULL,"
-			+ "value VARCHAR(500) NOT NULL);";
+			+ "key VARCHAR(45) NOT NULL," + "value VARCHAR(500) NOT NULL);";
 	private static final String CREATE_OFFLINE_ACTION_PROPERTY_TABLE_QUERY = "CREATE TABLE offline_action_property ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "action_id INT NOT NULL,"
-			+ "key VARCHAR(45) NOT NULL,"
-			+ "value VARCHAR(500) NOT NULL);";
-	private static final String CREATE_RESOURCE_TABLE_QUERY ="CREATE TABLE resource ( "
+			+ "key VARCHAR(45) NOT NULL," + "value VARCHAR(500) NOT NULL);";
+	private static final String CREATE_RESOURCE_TABLE_QUERY = "CREATE TABLE resource ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "description VARCHAR(45) NOT NULL,"
 			+ "path VARCHAR(45) NOT NULL,"
 			+ "condition VARCHAR(200),"
-			+ "resourcetype INT NOT NULL," 		// fk resourceType.id
+			+ "resourcetype INT NOT NULL," // fk resourceType.id
 			+ "name VARCHAR(45) NOT NULL,"
 			+ "severity VARCHAR(45) NOT NULL,"
 			+ "type VARCHAR(45) NOT NULL,"
@@ -68,50 +79,46 @@ public class DBManager {
 	private static final String CREATE_RESOURCE_PROPERTY_TABLE_QUERY = "CREATE TABLE resource_property ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "resource_id INT NOT NULL,"
-			+ "key VARCHAR(45) NOT NULL,"
-			+ "value VARCHAR(500) NOT NULL);";
+			+ "key VARCHAR(45) NOT NULL," + "value VARCHAR(500) NOT NULL);";
 	private static final String CREATE_DECISION_TABLE_QUERY = "CREATE TABLE decision ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "name VARCHAR(45) NOT NULL,"
-			+ "condition VARCHAR(45),"
-			+ "modification TIMESTAMP NOT NULL);";
+			+ "condition VARCHAR(45)," + "modification TIMESTAMP NOT NULL);";
 	private static final String CREATE_SUBJECT_TABLE_QUERY = "CREATE TABLE subject ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "description VARCHAR(45) NOT NULL,"
-			+ "role_id INT NOT NULL,"				// fk role.id
+			+ "role_id INT NOT NULL," // fk role.id
 			+ "modification TIMESTAMP NOT NULL);";
-	private static final String CREATE_ROLE_TABLE_QUERY =  "CREATE TABLE role ( "
+	private static final String CREATE_ROLE_TABLE_QUERY = "CREATE TABLE role ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "description VARCHAR(45) NOT NULL,"
 			+ "modification TIMESTAMP NOT NULL);";
-	private static final String CREATE_RISK_TREATMENT_TABLE_QUERY =  "CREATE TABLE risktreatment ( "
+	private static final String CREATE_RISK_TREATMENT_TABLE_QUERY = "CREATE TABLE risktreatment ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "textualdescription VARCHAR(45) NOT NULL);";
-	private static final String CREATE_RISK_COMMUNICATION_TABLE_QUERY =  "CREATE TABLE riskcommunication	 ( "
+	private static final String CREATE_RISK_COMMUNICATION_TABLE_QUERY = "CREATE TABLE riskcommunication	 ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "communication_sequence INT NOT NULL,"
 			+ "risktreatment_id INT NOT NULL);";
-	//  MusDM
-	private static final String CREATE_CONTEXT_EVENTS_TABLE_QUERY =  "CREATE TABLE contextevent	 ( "
-			+ "id INTEGER PRIMARY KEY,"
-			+ "action_id INT NOT NULL,"  // fk to action table
-			+ "type VARCHAR(45) NOT NULL,"
-			+ "timestamp TIMESTAMP NOT NULL);";
-	private static final String CREATE_PROPERTY_TABLE_QUERY =  "CREATE TABLE property	 ( "
+	// MusDM
+	private static final String CREATE_CONTEXT_EVENTS_TABLE_QUERY = "CREATE TABLE contextevent	 ( "
+			+ "id INTEGER PRIMARY KEY," + "action_id INT NOT NULL," // fk to
+																	// action
+																	// table
+			+ "type VARCHAR(45) NOT NULL," + "timestamp TIMESTAMP NOT NULL);";
+	private static final String CREATE_PROPERTY_TABLE_QUERY = "CREATE TABLE property	 ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "contextevent_id INT NOT NULL,"
-			+ "key VARCHAR(45) NOT NULL,"
-			+ "value VARCHAR(45) NOT NULL);";
-	private static final String CREATE_USER_CREDENTIALS_TABLE_QUERY =  "CREATE TABLE user_credentials	 ( "
+			+ "key VARCHAR(45) NOT NULL," + "value VARCHAR(45) NOT NULL);";
+	private static final String CREATE_USER_CREDENTIALS_TABLE_QUERY = "CREATE TABLE user_credentials	 ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "device_id VARCHAR(45) NOT NULL,"
 			+ "username VARCHAR(45) NOT NULL,"
 			+ "password VARCHAR(45) NOT NULL);";
-	private static final String CREATE_SENSOR_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE sensor_configuration	 ( "
+	private static final String CREATE_SENSOR_CONFIGURATION_TABLE_QUERY = "CREATE TABLE sensor_configuration	 ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "sensor_type VARCHAR(45) NOT NULL,"
-			+ "key VARCHAR(45) NOT NULL,"
-			+ "value VARCHAR(45) NOT NULL);";
+			+ "key VARCHAR(45) NOT NULL," + "value VARCHAR(45) NOT NULL);";
 
 	private static final String CREATE_REQUIRED_APPS_TABLE_QUERY = "CREATE TABLE required_apps ( "
 			+ "id INTEGER PRIMARY KEY,"
@@ -119,7 +126,7 @@ public class DBManager {
 			+ "version VARCHAR(45) NOT NULL,"
 			+ "unique_name VARCHAR(45) NOT NULL);";
 
-	private static final String CREATE_CONFIGURATION_TABLE_QUERY =  "CREATE TABLE configuration	 ( "
+	private static final String CREATE_CONFIGURATION_TABLE_QUERY = "CREATE TABLE configuration	 ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
 			+ "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
@@ -134,7 +141,16 @@ public class DBManager {
 			+ "login_attempts INTEGER NOT NULL DEFAULT 5,"
 			+ "silent_mode INTEGER NOT NULL DEFAULT 0);";
 
-	// Tables name 
+	private static final String CREATE_COOKIE_STORE_TABLE_QUERY = "CREATE TABLE cookie_store ( "
+			+ "id INTEGER PRIMARY KEY,"
+			+ "name VARCHAR(45) NOT NULL,"
+			+ "domain VARCHAR(45) NOT NULL,"
+			+ "value VARCHAR(45) NOT NULL,"
+			+ "path VARCHAR(45) NOT NULL,"
+			+ "version VARCHAR(45) NOT NULL,"
+			+ "expiry VARCHAR(45) NOT NULL);";
+
+	// Tables name
 	public static final String TABLE_POLICES = "polices";
 	public static final String TABLE_DECISIONTABLE = "decisiontable";
 	public static final String TABLE_DECISION = "decision";
@@ -155,6 +171,7 @@ public class DBManager {
 	public static final String TABLE_CONFIGURATION = "configuration";
 	public static final String TABLE_SENSOR_CONFIGURATION = "sensor_configuration";
 	public static final String TABLE_REQUIRED_APPS_CONFIGURATION = "required_apps";
+	public static final String TABLE_COOKIE_STORE = "cookie_store";
 
 	// Columns name
 	private static final String ID = "id";
@@ -199,6 +216,13 @@ public class DBManager {
 	private static final String UNIQUE_NAME = "unique_name";
 	private static final String SEVERITY = "severity";
 	private static final String ACTION_TYPE = "action_type";
+	
+	private static final String COOKIE_NAME = "name";
+	private static final String COOKIE_DOMAIN = "domain";
+	private static final String COOKIE_VALUE = "value";
+	private static final String COOKIE_PATH = "path";
+	private static final String COOKIE_VERSION = "version";
+	private static final String COOKIE_EXPIRY = "expiry";
 
 	private Context context;
 	private static DatabaseHelper databaseHelper;
@@ -207,51 +231,47 @@ public class DBManager {
 
 	public DBManager(Context context) {
 		this.context = context;
-		if (databaseHelper == null)
-		{
+		if (databaseHelper == null) {
 			databaseHelper = new DatabaseHelper(context);
 		}
 	}
 
-
 	public synchronized DBManager openDB() { // always returns writableDB
 		// Get new DB only if not available..
 		if (mDbOpenCounter.incrementAndGet() == 1) {
-			
+
 			sqLiteDatabase = databaseHelper.getWritableDatabase();
 		}
-		Log.d(TAG, "opening database, counter: "+mDbOpenCounter.get());
+		Log.d(TAG, "opening database, counter: " + mDbOpenCounter.get());
 		return this;
 	}
 
 	public synchronized void closeDB() {
-		if (sqLiteDatabase !=null){
+		if (sqLiteDatabase != null) {
 			// Close DB only if last user of DB..
-			if(mDbOpenCounter.decrementAndGet() == 0) {
-				//databaseHelper.close();
+			if (mDbOpenCounter.decrementAndGet() == 0) {
+				// databaseHelper.close();
 			}
 		}
-		Log.d(TAG, "closing database, counter: "+mDbOpenCounter.get());
+		Log.d(TAG, "closing database, counter: " + mDbOpenCounter.get());
 
 	}
 
-	public void encryptDB()  {
+	public void encryptDB() {
 		// TBD
 	}
 
-	public void decryptDB(){
+	public void decryptDB() {
 		// TBD
 	}
 
 	/**
 	 * This is a private class which creates the database when the application
-	 * starts or upgrades it if it already exist by removing the last version
-	 * of the databases
-	 * Create database .. and tables
+	 * starts or upgrades it if it already exist by removing the last version of
+	 * the databases Create database .. and tables
 	 *
 	 */
 	public static class DatabaseHelper extends SQLiteOpenHelper {
-
 
 		DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -259,7 +279,7 @@ public class DBManager {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			Log.d( TAG,"Creating the DB" );
+			Log.d(TAG, "Creating the DB");
 
 			db.execSQL(CREATE_ACTION_TABLE_QUERY);
 			db.execSQL(CREATE_OFFLINE_ACTION_TABLE_QUERY);
@@ -280,13 +300,13 @@ public class DBManager {
 			db.execSQL(CREATE_CONFIGURATION_TABLE_QUERY);
 			db.execSQL(CREATE_SENSOR_CONFIGURATION_TABLE_QUERY);
 			db.execSQL(CREATE_REQUIRED_APPS_TABLE_QUERY);
+			db.execSQL(CREATE_COOKIE_STORE_TABLE_QUERY);
 		}
 
 		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)  {
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			Log.w(TAG, "Updating DB from previous version " + oldVersion
-					+ " to "
-					+ newVersion);
+					+ " to " + newVersion);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_DECISION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_DECISIONTABLE);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTION);
@@ -306,61 +326,63 @@ public class DBManager {
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_REQUIRED_APPS_CONFIGURATION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ACTION_PROPERTY);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_OFFLINE_ACTION_PROPERTY);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_COOKIE_STORE);
 			onCreate(db);
 
 		}
 	}
 
-
 	// All CRUD (Create, retrieve, update and delete ) operations here
 
-	public void insertSensorConfiguration(SensorConfiguration sensorConfiguration){
-//		if(!sensorConfigExists(sensorConfiguration)) {
+	public void insertSensorConfiguration(
+			SensorConfiguration sensorConfiguration) {
+		// if(!sensorConfigExists(sensorConfiguration)) {
 		Log.d(TAG, "DB - insert sensor config");
-			ContentValues values = new ContentValues();
-			values.put(SENSOR_TYPE, sensorConfiguration.getSensorType());
-			values.put(KEY, sensorConfiguration.getKey());
-			values.put(VALUE, sensorConfiguration.getValue());
-			if (sqLiteDatabase == null){//Open database in case it is closed
-				openDB();
-			}
-			sqLiteDatabase.insert(TABLE_SENSOR_CONFIGURATION, null	, values);
-//		}
+		ContentValues values = new ContentValues();
+		values.put(SENSOR_TYPE, sensorConfiguration.getSensorType());
+		values.put(KEY, sensorConfiguration.getKey());
+		values.put(VALUE, sensorConfiguration.getValue());
+		if (sqLiteDatabase == null) {// Open database in case it is closed
+			openDB();
+		}
+		sqLiteDatabase.insert(TABLE_SENSOR_CONFIGURATION, null, values);
+		// }
 	}
 
 	// check if an equal config item exists to avoid duplicate entries
 	private boolean sensorConfigExists(SensorConfiguration sensorConfiguration) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.query(
 				TABLE_SENSOR_CONFIGURATION, // table name
-				null,                    // select
-				SENSOR_TYPE + "=? AND " +
-						KEY + "=? AND " +
-						VALUE + "=?", // where identifier
-				new String[] {sensorConfiguration.getSensorType(), sensorConfiguration.getKey(), sensorConfiguration.getValue()}, // where args
-				null,null,null,null);
+				null, // select
+				SENSOR_TYPE + "=? AND " + KEY + "=? AND " + VALUE + "=?", // where
+																			// identifier
+				new String[] { sensorConfiguration.getSensorType(),
+						sensorConfiguration.getKey(),
+						sensorConfiguration.getValue() }, // where args
+				null, null, null, null);
 
 		if (cursor != null && cursor.moveToFirst()) {
 			Log.d(MusesUtils.TEST_TAG, "DB - sensor config does exist");
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
 
 	public boolean hasSensorConfig() {
-		String selectQuery = "select  COUNT(*) from " + TABLE_SENSOR_CONFIGURATION;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		String selectQuery = "select  COUNT(*) from "
+				+ TABLE_SENSOR_CONFIGURATION;
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
 		if (cursor != null && cursor.moveToFirst()) {
 			int noOfRows = cursor.getInt(0);
-			if(noOfRows > 0) {
+			if (noOfRows > 0) {
 				Log.d(MusesUtils.TEST_TAG, "DB - sensor config does exist");
 				cursor.close();
 
@@ -372,13 +394,13 @@ public class DBManager {
 		return false;
 	}
 
-	public List<SensorConfiguration> getAllSensorConfiguration(){
+	public List<SensorConfiguration> getAllSensorConfiguration() {
 
 		List<SensorConfiguration> configurationList = new ArrayList<SensorConfiguration>();
 
 		// Select All Query
 		String selectQuery = "select  * from " + TABLE_SENSOR_CONFIGURATION;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -399,40 +421,134 @@ public class DBManager {
 	}
 
 	public void inserRequiredAppList() {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		ContentValues values = new ContentValues();
 		values.put(NAME, "Avast");
 		values.put(VERSION, "3.10");
 		values.put(UNIQUE_NAME, "com.avast.security.antivirus");
-		sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null	, values);
+		sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null, values);
 
 		values.put(NAME, "AnyConnect VPN Client");
 		values.put(VERSION, "2.20");
 		values.put(UNIQUE_NAME, "com.anyconnect.vpn.client");
-		sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null	, values);
+		sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null, values);
 
 		values.put(NAME, "Lotus");
 		values.put(VERSION, "1.11");
 		values.put(UNIQUE_NAME, "com.lotus.email.client");
-		sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null	, values);
+		sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null, values);
 
 		values.put(NAME, "Encrypt Plus");
 		values.put(VERSION, "1.08");
 		values.put(UNIQUE_NAME, "com.secure.encryptplus");
-		sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null	, values);
+		sqLiteDatabase.insert(TABLE_REQUIRED_APPS_CONFIGURATION, null, values);
 
 	}
 
-	public List<RequiredApp> getRequiredAppList(){
-		List<RequiredApp> appsList = new ArrayList<RequiredApp>();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+	public long insertCookie(Cookie cookie) {
+		String domain = "*";
+		String value = "*";
+		String path = "*";
+		String expired = "*";
+		String name = cookie.getName();
+		if (cookie.getValue() != null && !cookie.getValue().contentEquals(""))
+			value = cookie.getValue();
+		if (cookie.getDomain() != null)
+			domain = cookie.getDomain();
+		if (cookie.getPath() != null)
+			path = cookie.getPath();
+		int ver = cookie.getVersion();
+		String version = String.valueOf(ver);
+		if (cookie.getExpiryDate() != null
+				&& !cookie.getExpiryDate().toString().contentEquals(""))
+			expired = cookie.getExpiryDate().toString();
+		
+		ContentValues values = new ContentValues();
+		values.put(COOKIE_NAME, name);
+		values.put(COOKIE_DOMAIN, domain);
+		values.put(COOKIE_VALUE, value);
+		values.put(COOKIE_PATH, path);
+		values.put(COOKIE_VERSION, version);
+		values.put(COOKIE_EXPIRY, expired);
+		
+		Log.d(TAG, "cookie_store: " + cookie.toString());
+
+		if (sqLiteDatabase == null) {// Open database in case it is closed
+			openDB();
+		}
+
+		return sqLiteDatabase.insert(TABLE_COOKIE_STORE, null, values);
+	}
+
+	public Cookie getCookie(BasicCookieStore cookieStore) {
+		BasicClientCookie cookies;
+		Cookie retreivedCookie = null;
+		
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
 		// Select All Query
-		String selectQuery = "select  * from " + TABLE_REQUIRED_APPS_CONFIGURATION;
+		String selectQuery = "select  * from " + TABLE_COOKIE_STORE;
+		try {
+			Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+			if (cursor.moveToFirst()) {
+				String name = cursor.getString(1);
+				String domain = cursor.getString(2);
+				String value = cursor.getString(3);
+				String path = cursor.getString(4);
+				String version = cursor.getString(5);
+				String expired = cursor.getString(6);
+				
+				cookies = new BasicClientCookie(name, value);
+				cookies.setDomain(domain);
+				if (value.contentEquals("*"))
+					cookies.setValue(null);
+				cookies.setPath(path);
+				cookies.setVersion(Integer.valueOf(version));
+				cookies.setExpiryDate(getDate(expired));
+				
+				cookieStore.addCookie(cookies);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		if (!cookieStore.getCookies().isEmpty()){
+			retreivedCookie = cookieStore.getCookies().get(0);
+			return retreivedCookie;
+		}
+		return retreivedCookie;
+
+	}
+
+	private Date getDate(String expired) {
+		Date dateExpired = null;
+		SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(
+				"EEE MMM dd HH:mm:ss Z yyyy", Locale.US);
+		try {
+			if (expired != "*") {
+				dateExpired = DATE_FORMATTER.parse(expired.replaceAll(
+						"\\p{Cntrl}", ""));
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return dateExpired;
+	}
+
+	public List<RequiredApp> getRequiredAppList() {
+		List<RequiredApp> appsList = new ArrayList<RequiredApp>();
+		if (sqLiteDatabase == null) {// Open database in case it is closed
+			openDB();
+		}
+
+		// Select All Query
+		String selectQuery = "select  * from "
+				+ TABLE_REQUIRED_APPS_CONFIGURATION;
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		RequiredApp requiredApp = new RequiredApp();
 
@@ -449,43 +565,42 @@ public class DBManager {
 		return appsList;
 	}
 
-	public void insertCredentials(String deviceId, String userName, String password){
+	public void insertCredentials(String deviceId, String userName,
+			String password) {
 		ContentValues values = new ContentValues();
 		values.put(DEVICE_ID, deviceId);
 		values.put(USERNAME, userName);
 		values.put(PASSWORD, password);
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null	, values);
+		sqLiteDatabase.insert(TABLE_USER_CREADENTIALS, null, values);
 	}
 
-	public boolean isUserAuthenticated(String deviceId, String userName, String password) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+	public boolean isUserAuthenticated(String deviceId, String userName,
+			String password) {
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(
-				TABLE_USER_CREADENTIALS, // table name
-				null,                    // select
-				DEVICE_ID + "=? AND " +
-						USERNAME + "=? AND " +
-						PASSWORD + "=?", // where identifier
-				new String[] {deviceId, userName, password}, // where args
-				null,null,null,null);
+		Cursor cursor = sqLiteDatabase.query(TABLE_USER_CREADENTIALS, // table
+																		// name
+				null, // select
+				DEVICE_ID + "=? AND " + USERNAME + "=? AND " + PASSWORD + "=?", // where
+																				// identifier
+				new String[] { deviceId, userName, password }, // where args
+				null, null, null, null);
 
 		if (cursor != null && cursor.moveToFirst()) {
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
 
-
-	public String getDevId(){
+	public String getDevId() {
 		String device_id = "";
 		String selectQuery = "select  * from " + TABLE_USER_CREADENTIALS;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -499,26 +614,27 @@ public class DBManager {
 	}
 
 	// Configuration related queries
-	public void insertConnectionProperties(){
+	public void insertConnectionProperties() {
 		ContentValues values = new ContentValues();
 		values.put(SERVER_IP, MusesUtils.getMusesConf());
 		values.put(SERVER_PORT, 8443);
 		values.put(SERVER_CONTEXT_PATH, "/server");
 		values.put(SERVER_SERVLET_PATH, "/commain");
-		values.put(SERVER_CERTIFICATE, MusesUtils.getCertificateFromSDCard(context));
+		values.put(SERVER_CERTIFICATE,
+				MusesUtils.getCertificateFromSDCard(context));
 		values.put(CLIENT_CERTIFICATE, "");
 		values.put(TIMEOUT, 5000);
 		values.put(POLL_TIMEOUT, 11000);
 		values.put(SLEEP_POLL_TIMEOUT, 55000);
 		values.put(POLLING_ENABLED, 1);
 		values.put(LOGIN_ATTEMPTS, 5);
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
+		sqLiteDatabase.insert(TABLE_CONFIGURATION, null, values);
 	}
 
-	public void insertConfiguration(Configuration configuration){
+	public void insertConfiguration(Configuration configuration) {
 		ContentValues values = new ContentValues();
 		values.put(SERVER_IP, configuration.getServerIP());
 		values.put(SERVER_PORT, configuration.getServerPort());
@@ -532,30 +648,30 @@ public class DBManager {
 		values.put(POLLING_ENABLED, configuration.getPollingEnabled());
 		values.put(LOGIN_ATTEMPTS, configuration.getLoginAttempts());
 		values.put(SILENT_MODE, configuration.getSilentMode());
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		sqLiteDatabase.insert(TABLE_CONFIGURATION, null	, values);
+		sqLiteDatabase.insert(TABLE_CONFIGURATION, null, values);
 	}
 
-	public void deleteConnectionProperties(int id){
-		if (sqLiteDatabase == null){//Open database in case it is closed
+	public void deleteConnectionProperties(int id) {
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		sqLiteDatabase.delete(TABLE_CONFIGURATION, "id="+id, null);
+		sqLiteDatabase.delete(TABLE_CONFIGURATION, "id=" + id, null);
 	}
 
 	public String getServerCertificate() {
 		String certificate = "";
 		String selectQuery = "select  * from " + TABLE_CONFIGURATION;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		if (cursor.moveToFirst()) {
 			do {
 				certificate = cursor.getString(5);
-			}while (cursor.moveToNext());
+			} while (cursor.moveToNext());
 		}
 		return certificate;
 	}
@@ -563,21 +679,21 @@ public class DBManager {
 	public String getClientCertificate() {
 		String certificate = "";
 		String selectQuery = "select  * from " + TABLE_CONFIGURATION;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		if (cursor.moveToFirst()) {
 			do {
 				certificate = cursor.getString(6);
-			}while (cursor.moveToNext());
+			} while (cursor.moveToNext());
 		}
 		return certificate;
 	}
 
-	public Configuration getConfigurations(){
+	public Configuration getConfigurations() {
 		String selectQuery = "select  * from " + TABLE_CONFIGURATION;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -603,10 +719,10 @@ public class DBManager {
 
 	}
 
-	public List<Configuration> getConfiguration(){
+	public List<Configuration> getConfiguration() {
 		List<Configuration> conList = new ArrayList<Configuration>();
 		String selectQuery = "select  * from " + TABLE_CONFIGURATION;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -634,19 +750,18 @@ public class DBManager {
 
 	}
 
-
 	public boolean isSilentModeActive() {
 		boolean isSilentModeActive = false;
 
 		// Select All Query
 		String selectQuery = "select silent_mode from " + TABLE_CONFIGURATION;
 		try {
-			if (sqLiteDatabase == null){//Open database in case it is closed
+			if (sqLiteDatabase == null) {// Open database in case it is closed
 				openDB();
 			}
 			Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
-			if(cursor.moveToLast()) {
+			if (cursor.moveToLast()) {
 				isSilentModeActive = cursor.getInt(0) == 1;
 			}
 
@@ -658,41 +773,46 @@ public class DBManager {
 		return isSilentModeActive;
 	}
 
-
 	// Decision Maker related queries
 	/**
 	 * Adds decision table in the DB
+	 * 
 	 * @param decisionTable
 	 */
 
-	public long addDecisionTable(DecisionTable decisionTable){
+	public long addDecisionTable(DecisionTable decisionTable) {
 
 		ContentValues values = new ContentValues();
 		values.put(ACTION_ID, decisionTable.getAction_id());
 		values.put(RESOURCE_ID, decisionTable.getResource_id());
 		values.put(DECISION_ID, decisionTable.getDecision_id());
 		values.put(SUBJECT_ID, decisionTable.getSubject_id());
-		values.put(RISKCOMMUNICATION_ID, decisionTable.getRiskcommunication_id());
+		values.put(RISKCOMMUNICATION_ID,
+				decisionTable.getRiskcommunication_id());
 		values.put(MODIFICATION, decisionTable.getModification());
 
-
-		Log.d("DBManager", "Adding DT with action_id:"+decisionTable.getAction_id()+" decision_id:"+decisionTable.getDecision_id()+" riskCommunication_id:"+decisionTable.getRiskcommunication_id());
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		Log.d("DBManager",
+				"Adding DT with action_id:" + decisionTable.getAction_id()
+						+ " decision_id:" + decisionTable.getDecision_id()
+						+ " riskCommunication_id:"
+						+ decisionTable.getRiskcommunication_id());
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		return sqLiteDatabase.insert(TABLE_DECISIONTABLE, null	, values);
+		return sqLiteDatabase.insert(TABLE_DECISIONTABLE, null, values);
 	}
 
 	/**
 	 * Retrieve all decision tables
+	 * 
 	 * @return list of Decision tables
 	 */
 
-	public List<DecisionTable> getAllDecisionTables(){
+	public List<DecisionTable> getAllDecisionTables() {
 
 		List<DecisionTable> decisionTableList = new ArrayList<DecisionTable>();
 		String selectQuery = "select  * from " + TABLE_DECISIONTABLE;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -714,36 +834,28 @@ public class DBManager {
 		return decisionTableList;
 	}
 
-
 	/**
 	 * Retrieve decision table from action_id
+	 * 
 	 * @param action_id
 	 * @return DecisionTable
 	 */
 
 	public DecisionTable getDecisionTableFromActionID(String action_id) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
-						ID,
-						ACTION_ID,
-						RESOURCE_ID,
-						DECISION_ID,
-						SUBJECT_ID,
-						RISKCOMMUNICATION_ID,
-						MODIFICATION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String[] {
+				ID, ACTION_ID, RESOURCE_ID, DECISION_ID, SUBJECT_ID,
+				RISKCOMMUNICATION_ID, MODIFICATION },
 
-				ACTION_ID + "=?",
-				new String[] {String.valueOf(action_id)},
-				null,
-				null,
-				null);
+		ACTION_ID + "=?", new String[] { String.valueOf(action_id) }, null,
+				null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
-			while (!cursor.isAfterLast()){
+			while (!cursor.isAfterLast()) {
 				// Now create the decision table object from the cursor
 				Log.d(TAG, "id" + cursor.getString(0));
 				Log.d(TAG, "action_id" + cursor.getString(1));
@@ -755,7 +867,6 @@ public class DBManager {
 				cursor.moveToNext();
 			}
 
-
 		}
 
 		return new DecisionTable();
@@ -763,44 +874,49 @@ public class DBManager {
 
 	/**
 	 * Retrieve decision table from action_id and resource_id
+	 * 
 	 * @param action_id
 	 * @param resource_id
 	 * @return DecisionTable
 	 */
 
-	public DecisionTable getDecisionTableFromActionAndResource(String action_id, String resource_id/*Action action, Resource resource*/) {
+	public DecisionTable getDecisionTableFromActionAndResource(
+			String action_id, String resource_id/*
+												 * Action action, Resource
+												 * resource
+												 */) {
 
 		DecisionTable decisionTable = null;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
-						ID,
-						ACTION_ID,
-						RESOURCE_ID,
-						DECISION_ID,
-						SUBJECT_ID,
-						RISKCOMMUNICATION_ID,
-						MODIFICATION},
-				//ACTION_ID + " LIKE " + action_id + " AND " + RESOURCE_ID + " LIKE " + resource_id,
+		Cursor cursor = sqLiteDatabase.query(
+				TABLE_DECISIONTABLE,
+				new String[] { ID, ACTION_ID, RESOURCE_ID, DECISION_ID,
+						SUBJECT_ID, RISKCOMMUNICATION_ID, MODIFICATION },
+				// ACTION_ID + " LIKE " + action_id + " AND " + RESOURCE_ID +
+				// " LIKE " + resource_id,
 				ACTION_ID + "=? AND " + RESOURCE_ID + "=?",
-				//RESOURCE_ID + "=?",
-				new String[] {String.valueOf(action_id),String.valueOf(resource_id)},
-				//new String[] {String.valueOf(resource_id)},
-				null,
-				null,
-				null);
+				// RESOURCE_ID + "=?",
+				new String[] { String.valueOf(action_id),
+						String.valueOf(resource_id) },
+				// new String[] {String.valueOf(resource_id)},
+				null, null, null);
 
-		if (cursor != null){
+		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				// Now create the decision table object from the cursor
 				decisionTable = new DecisionTable();
 				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
-				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
-				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
-				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
+				decisionTable
+						.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor
+						.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor
+						.getString(3)));
 				cursor.moveToNext();
 			}
 		}
@@ -808,86 +924,80 @@ public class DBManager {
 		return new DecisionTable();
 	}
 
-	public DecisionTable getDecisionTableFromResourceId(String resource_id, String action_id) {
+	public DecisionTable getDecisionTableFromResourceId(String resource_id,
+			String action_id) {
 
 		DecisionTable decisionTable = new DecisionTable();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
-						ID,
-						ACTION_ID,
-						RESOURCE_ID,
-						DECISION_ID,
-						SUBJECT_ID,
-						RISKCOMMUNICATION_ID,
-						MODIFICATION},
-				//ID + "=?",
-				//RESOURCE_ID + "=?",
-				RESOURCE_ID + "=?"+" AND " + ACTION_ID + "=?",
-				new String[] {String.valueOf(resource_id),String.valueOf(action_id)},
-				//null,
-				null,
-				null,
-				null);
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE,
+				new String[] { ID, ACTION_ID, RESOURCE_ID, DECISION_ID,
+						SUBJECT_ID, RISKCOMMUNICATION_ID, MODIFICATION },
+				// ID + "=?",
+				// RESOURCE_ID + "=?",
+				RESOURCE_ID + "=?" + " AND " + ACTION_ID + "=?",
+				new String[] { String.valueOf(resource_id),
+						String.valueOf(action_id) },
+				// null,
+				null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				// Now create the decision object from the cursor
 				decisionTable = new DecisionTable();
 				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
-				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
-				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
-				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
-				decisionTable.setSubject_id(Integer.parseInt(cursor.getString(4)));
-				decisionTable.setRiskcommunication_id(Integer.parseInt(cursor.getString(5)));
+				decisionTable
+						.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor
+						.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor
+						.getString(3)));
+				decisionTable.setSubject_id(Integer.parseInt(cursor
+						.getString(4)));
+				decisionTable.setRiskcommunication_id(Integer.parseInt(cursor
+						.getString(5)));
 				cursor.moveToNext();
 			}
-
 
 		}
 
 		return decisionTable;
 	}
 
-
 	public DecisionTable getDecisionTableFromID(String decisiontable_id) {
 
 		DecisionTable decisionTable = new DecisionTable();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
-						ID,
-						ACTION_ID,
-						RESOURCE_ID,
-						DECISION_ID,
-						SUBJECT_ID,
-						RISKCOMMUNICATION_ID,
-						MODIFICATION},
-				ID + "=?",
-				//"",
-				new String[] {String.valueOf(decisiontable_id)},
-				//null,
-				null,
-				null,
-				null);
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String[] {
+				ID, ACTION_ID, RESOURCE_ID, DECISION_ID, SUBJECT_ID,
+				RISKCOMMUNICATION_ID, MODIFICATION }, ID + "=?",
+		// "",
+				new String[] { String.valueOf(decisiontable_id) },
+				// null,
+				null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				// Now create the decision object from the cursor
 				decisionTable = new DecisionTable();
 				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
-				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
-				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
-				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
+				decisionTable
+						.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor
+						.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor
+						.getString(3)));
 				cursor.moveToNext();
 			}
-
 
 		}
 
@@ -896,42 +1006,40 @@ public class DBManager {
 
 	/**
 	 * Retrieve decision table from action_id and subject_id
+	 * 
 	 * @param action_id
 	 * @param subject_id
 	 * @return DecisionTable
 	 */
 
-	public DecisionTable getDecisionTableFromActionAndSubject(String action_id, String subject_id/*Action action, Subject subject*/) {
+	public DecisionTable getDecisionTableFromActionAndSubject(String action_id,
+			String subject_id/* Action action, Subject subject */) {
 
 		DecisionTable decisionTable = null;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
-						ID,
-						ACTION_ID,
-						RESOURCE_ID,
-						DECISION_ID,
-						SUBJECT_ID,
-						RISKCOMMUNICATION_ID,
-						MODIFICATION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String[] {
+				ID, ACTION_ID, RESOURCE_ID, DECISION_ID, SUBJECT_ID,
+				RISKCOMMUNICATION_ID, MODIFICATION },
 
-				ACTION_ID + " like " + action_id + " and " + SUBJECT_ID + " like " + subject_id,
-				null,
-				null,
-				null,
-				null);
+		ACTION_ID + " like " + action_id + " and " + SUBJECT_ID + " like "
+				+ subject_id, null, null, null, null);
 
-		if (cursor != null){
+		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				// Now create the decision table object from the cursor
 				decisionTable = new DecisionTable();
 				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
-				decisionTable.setAction_id(Integer.parseInt(cursor.getString(1)));
-				decisionTable.setResource_id(Integer.parseInt(cursor.getString(2)));
-				decisionTable.setDecision_id(Integer.parseInt(cursor.getString(3)));
+				decisionTable
+						.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor
+						.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor
+						.getString(3)));
 				cursor.moveToNext();
 			}
 		}
@@ -941,34 +1049,37 @@ public class DBManager {
 
 	/**
 	 * Retrieve decision table from action_id, resource_id and subject_id
+	 * 
 	 * @param action_id
 	 * @param resource_id
 	 * @param subject_id
 	 * @return DecisionTable
 	 */
 
-	public DecisionTable getDecisionTableFromActionAndRecourceAndSubject(String action_id, String resource_id, String subject_id/*Action action, Resource resource, Subject subject*/) {
+	public DecisionTable getDecisionTableFromActionAndRecourceAndSubject(
+			String action_id, String resource_id, String subject_id/*
+																	 * Action
+																	 * action,
+																	 * Resource
+																	 * resource,
+																	 * Subject
+																	 * subject
+																	 */) {
 		DecisionTable decisionTable = null;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String [] {
-						ID,
-						ACTION_ID,
-						RESOURCE_ID,
-						DECISION_ID,
-						SUBJECT_ID,
-						RISKCOMMUNICATION_ID,
-						MODIFICATION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE, new String[] {
+				ID, ACTION_ID, RESOURCE_ID, DECISION_ID, SUBJECT_ID,
+				RISKCOMMUNICATION_ID, MODIFICATION },
 
-				ACTION_ID + " like " + action_id + " and " + RESOURCE_ID + " like " + resource_id
-						+ " and " + SUBJECT_ID + " like " + subject_id, // may be _id
-				null,
-				null,
-				null,
-				null);
+		ACTION_ID + " like " + action_id + " and " + RESOURCE_ID + " like "
+				+ resource_id + " and " + SUBJECT_ID + " like " + subject_id, // may
+																				// be
+																				// _id
+				null, null, null, null);
 
-		if (cursor != null){
+		if (cursor != null) {
 			cursor.moveToFirst();
 			// Now create the decision table object from the cursor
 			decisionTable = new DecisionTable();
@@ -978,73 +1089,75 @@ public class DBManager {
 			decisionTable.setDecision_id(cursor.getInt(3));
 			Log.d(TAG, "modification" + cursor.getString(6));
 
-		}else{
-			Log.e(TAG, "No decision table element found with action_id: "+action_id + " and resource_id:" + resource_id);
+		} else {
+			Log.e(TAG, "No decision table element found with action_id: "
+					+ action_id + " and resource_id:" + resource_id);
 		}
 
 		return decisionTable;
 	}
 
-
-	public long addAction(Action action){
+	public long addAction(Action action) {
 		ContentValues values = new ContentValues();
 		values.put(DESCRIPTION, action.getDescription());
 		values.put(ACTION_TYPE, action.getActionType());
 		values.put(TIME_STAMP, action.getTimestamp());
-		Log.d(TAG, "action type: " + action.getActionType() + " description: " + action.getDescription());
-		
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		Log.d(TAG, "action type: " + action.getActionType() + " description: "
+				+ action.getDescription());
+
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
 		return sqLiteDatabase.insert(TABLE_ACTION, null, values);
 	}
 
-
-	public long addOfflineAction(Action action){
+	public long addOfflineAction(Action action) {
 		ContentValues values = new ContentValues();
 		values.put(DESCRIPTION, action.getDescription());
 		values.put(ACTION_TYPE, action.getActionType());
 		values.put(TIME_STAMP, action.getTimestamp());
-		Log.d(TAG, "action type: " + action.getActionType() + " description: " + action.getDescription());
-		
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		Log.d(TAG, "action type: " + action.getActionType() + " description: "
+				+ action.getDescription());
+
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
 		return sqLiteDatabase.insert(TABLE_OFFLINE_ACTION, null, values);
 	}
-	
+
 	public long addActionProperty(ActionProperty actionProperty) {
 		ContentValues values = new ContentValues();
 		values.put(ACTION_ID, actionProperty.getActionId());
 		values.put(KEY, actionProperty.getKey());
 		values.put(VALUE, actionProperty.getValue());
-		
-		if (sqLiteDatabase == null){//Open database in case it is closed
+
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
 		return sqLiteDatabase.insert(TABLE_ACTION_PROPERTY, null, values);
 	}
-	
+
 	public long addOfflineActionProperty(ActionProperty actionProperty) {
 		ContentValues values = new ContentValues();
 		values.put(ACTION_ID, actionProperty.getActionId());
 		values.put(KEY, actionProperty.getKey());
 		values.put(VALUE, actionProperty.getValue());
-		
-		if (sqLiteDatabase == null){//Open database in case it is closed
+
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
-		return sqLiteDatabase.insert(TABLE_OFFLINE_ACTION_PROPERTY, null, values);
+		return sqLiteDatabase.insert(TABLE_OFFLINE_ACTION_PROPERTY, null,
+				values);
 	}
 
 	public List<ActionProperty> getActionPropertyList() {
 		List<ActionProperty> actionPropertyList = new ArrayList<ActionProperty>();
 		String selectQuery = "select  * from " + TABLE_ACTION_PROPERTY;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -1064,23 +1177,16 @@ public class DBManager {
 	}
 
 	public List<ActionProperty> getOfflineActionPropertiesOfAction(int actionId) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_OFFLINE_ACTION_PROPERTY, new String [] {
-						ID,
-						ACTION_ID,
-						KEY,
-						VALUE},
-				ACTION_ID + " = ?",
-				new String[] {String.valueOf(actionId)},
-				null,
-				null,
-				null);
+		Cursor cursor = sqLiteDatabase.query(TABLE_OFFLINE_ACTION_PROPERTY,
+				new String[] { ID, ACTION_ID, KEY, VALUE }, ACTION_ID + " = ?",
+				new String[] { String.valueOf(actionId) }, null, null, null);
 		List<ActionProperty> actionPropertyList = new ArrayList<ActionProperty>();
 		ActionProperty actionProperty;
 		if (cursor != null) {
-			if(cursor.moveToFirst()) {
+			if (cursor.moveToFirst()) {
 				do {
 					actionProperty = new ActionProperty();
 					actionProperty.setId(cursor.getInt(0));
@@ -1098,7 +1204,7 @@ public class DBManager {
 	public List<Action> getOfflineActionList() {
 		List<Action> actionList = new ArrayList<Action>();
 		String selectQuery = "select  * from " + TABLE_OFFLINE_ACTION;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -1118,27 +1224,20 @@ public class DBManager {
 	}
 
 	private Action getActionFromDescription(String description) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
-						ID,
-						DESCRIPTION,
-						ACTION_TYPE,
-						TIME_STAMP
-						},
+		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String[] { ID,
+				DESCRIPTION, ACTION_TYPE, TIME_STAMP },
 
-				DESCRIPTION + " LIKE '" + description + "'",
-				null,
-				null,
-				null,
-				null);
+		DESCRIPTION + " LIKE '" + description + "'", null, null, null, null);
 
 		Action action = new Action();
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				Log.d(TAG, cursor.getString(0));
 				action.setId(cursor.getInt(0));
 				action.setDescription(cursor.getString(1));
@@ -1150,52 +1249,52 @@ public class DBManager {
 		return action;
 	}
 
-
 	/**
 	 * Inserts into riskTreatment table in the DB
+	 * 
 	 * @param riskTreatment
 	 */
 
-	public long addRiskTreatment(RiskTreatment riskTreatment){
-		//TODO Manage the insertion or update, avoiding duplicated entries
+	public long addRiskTreatment(RiskTreatment riskTreatment) {
+		// TODO Manage the insertion or update, avoiding duplicated entries
 
 		ContentValues values = new ContentValues();
-		values.put(TEXTUAL_DESCRIPTION, riskTreatment.getTextualdescription().replaceAll("'", "\\'"));
+		values.put(TEXTUAL_DESCRIPTION, riskTreatment.getTextualdescription()
+				.replaceAll("'", "\\'"));
 
-		RiskTreatment riskTreatmentInDb = getRiskTreatmentFromDescription(riskTreatment.getTextualdescription().replaceAll("'", "\\'"));
-		if (riskTreatmentInDb.getId()==0){
-			Log.d(TAG,"Risktreatment not found, inserting a new one...");
-			if (sqLiteDatabase == null){//Open database in case it is closed
+		RiskTreatment riskTreatmentInDb = getRiskTreatmentFromDescription(riskTreatment
+				.getTextualdescription().replaceAll("'", "\\'"));
+		if (riskTreatmentInDb.getId() == 0) {
+			Log.d(TAG, "Risktreatment not found, inserting a new one...");
+			if (sqLiteDatabase == null) {// Open database in case it is closed
 				openDB();
 			}
-			return sqLiteDatabase.insert(TABLE_RISK_TREATMENT, null	, values);
-		}else{
-			Log.d(TAG,"Risktreatment found, returning the existing one..."+riskTreatmentInDb.getId());
+			return sqLiteDatabase.insert(TABLE_RISK_TREATMENT, null, values);
+		} else {
+			Log.d(TAG, "Risktreatment found, returning the existing one..."
+					+ riskTreatmentInDb.getId());
 			return riskTreatmentInDb.getId();
 		}
 
 	}
 
-
-	private RiskTreatment getRiskTreatmentFromDescription(String textualdescription) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+	private RiskTreatment getRiskTreatmentFromDescription(
+			String textualdescription) {
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_TREATMENT, new String [] {
-						ID,
-						TEXTUAL_DESCRIPTION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_TREATMENT,
+				new String[] { ID, TEXTUAL_DESCRIPTION },
 
 				TEXTUAL_DESCRIPTION + " LIKE '" + textualdescription + "'",
-				null,
-				null,
-				null,
-				null);
+				null, null, null, null);
 
 		RiskTreatment riskTreatment = new RiskTreatment();
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				Log.d(TAG, cursor.getString(0));
 				riskTreatment.setId(Integer.parseInt(cursor.getString(0)));
 				riskTreatment.setTextualdescription(cursor.getString(1));
@@ -1205,33 +1304,34 @@ public class DBManager {
 		return riskTreatment;
 	}
 
-
 	/**
 	 * Inserts into resourceType table in the DB
+	 * 
 	 * @param resourceType
 	 */
 
-	public long addResourceType(ResourceType resourceType){
-		//TODO Manage the insertion or update, avoiding duplicated entries
+	public long addResourceType(ResourceType resourceType) {
+		// TODO Manage the insertion or update, avoiding duplicated entries
 
 		ContentValues values = new ContentValues();
 		values.put(NAME, resourceType.getName());
 		values.put(MODIFICATION, "03-09-2011");
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		return sqLiteDatabase.insert(TABLE_RESOURCE_TYPE, null	, values);
+		return sqLiteDatabase.insert(TABLE_RESOURCE_TYPE, null, values);
 	}
 
 	/**
 	 * Inserts into resource table in the DB
+	 * 
 	 * @param resource
 	 */
 
-	public long addResource(Resource resource){
-		//TODO Manage the insertion or update, avoiding duplicated entries
+	public long addResource(Resource resource) {
+		// TODO Manage the insertion or update, avoiding duplicated entries
 
-		Log.d(TAG,"");
+		Log.d(TAG, "");
 		int size = controlDB("before");
 
 		ContentValues values = new ContentValues();
@@ -1244,165 +1344,165 @@ public class DBManager {
 		values.put(SEVERITY, resource.getSeverity());
 		values.put(TYPE, resource.getType());
 
-		Resource resourceInDb = getResourceFromPathAndCondition(resource.getPath(), resource.getCondition());
-		Log.d(TAG, "Resource path: "+resource.getPath());
-		Log.d(TAG, "Resource condition: "+resource.getCondition());
-		Log.d(TAG, "ResourceInDb id: "+resourceInDb.getId());
-		Log.d(TAG, "ResourceInDb condition: "+resourceInDb.getCondition());
-		Log.d(TAG, "ResourceInDb path: "+resourceInDb.getPath());
-		if (resourceInDb.getId()==0){
-			Log.d(TAG,"Resource not found, inserting a new one...");
-			//long id = sqLiteDatabase.insertWithOnConflict(TABLE_RESOURCE, null, values, SQLiteDatabase.CONFLICT_ABORT);
-			if (sqLiteDatabase == null){//Open database in case it is closed
+		Resource resourceInDb = getResourceFromPathAndCondition(
+				resource.getPath(), resource.getCondition());
+		Log.d(TAG, "Resource path: " + resource.getPath());
+		Log.d(TAG, "Resource condition: " + resource.getCondition());
+		Log.d(TAG, "ResourceInDb id: " + resourceInDb.getId());
+		Log.d(TAG, "ResourceInDb condition: " + resourceInDb.getCondition());
+		Log.d(TAG, "ResourceInDb path: " + resourceInDb.getPath());
+		if (resourceInDb.getId() == 0) {
+			Log.d(TAG, "Resource not found, inserting a new one...");
+			// long id = sqLiteDatabase.insertWithOnConflict(TABLE_RESOURCE,
+			// null, values, SQLiteDatabase.CONFLICT_ABORT);
+			if (sqLiteDatabase == null) {// Open database in case it is closed
 				openDB();
 			}
 			long id = sqLiteDatabase.insert(TABLE_RESOURCE, null, values);
-			controlDB("after "+ id);
-			Log.d(TAG,"");
+			controlDB("after " + id);
+			Log.d(TAG, "");
 			return id;
-		}else{
-			Log.d(TAG,"Resource found, returning the existing one..."+resourceInDb.getId());
-			controlDB("after "+ resourceInDb.getId());
-			Log.d(TAG,"");
+		} else {
+			Log.d(TAG, "Resource found, returning the existing one..."
+					+ resourceInDb.getId());
+			controlDB("after " + resourceInDb.getId());
+			Log.d(TAG, "");
 			return resourceInDb.getId();
 		}
 
-
 	}
 
-
-	public int controlDB(String control){
+	public int controlDB(String control) {
 		List<Resource> allConditionResources = getAllResources();
 
-		Log.d(TAG, control +" Found..."+allConditionResources.size());
+		Log.d(TAG, control + " Found..." + allConditionResources.size());
 
 		for (Iterator iterator = allConditionResources.iterator(); iterator
 				.hasNext();) {
 			Resource resource = (Resource) iterator.next();
-			if (resource.getCondition()!=null){
-				Log.d(TAG, "Condition:"+resource.getCondition());
+			if (resource.getCondition() != null) {
+				Log.d(TAG, "Condition:" + resource.getCondition());
 			}
-			if (resource.getPath()!=null){
-				Log.d(TAG, "Path:"+resource.getPath());
+			if (resource.getPath() != null) {
+				Log.d(TAG, "Path:" + resource.getPath());
 			}
-			Log.d(TAG, "	Id:"+resource.getId());
+			Log.d(TAG, "	Id:" + resource.getId());
 
 		}
 		return allConditionResources.size();
 	}
 
-
 	/**
 	 * Inserts into riskCommunication table in the DB
+	 * 
 	 * @param riskCommunication
 	 */
 
-	public long addRiskCommunication(RiskCommunication riskCommunication){
-		//TODO Manage the insertion or update, avoiding duplicated entries
+	public long addRiskCommunication(RiskCommunication riskCommunication) {
+		// TODO Manage the insertion or update, avoiding duplicated entries
 
 		ContentValues values = new ContentValues();
-		values.put(COMMUNICATION_SEQUENCE, riskCommunication.getCommunication_sequence());
+		values.put(COMMUNICATION_SEQUENCE,
+				riskCommunication.getCommunication_sequence());
 		values.put(RISKTREATMENT_ID, riskCommunication.getRisktreatment_id());
 
-		RiskCommunication riskCommunicationInDb = getRiskCommunicationFromTreatmentId(riskCommunication.getRisktreatment_id());
-		if (riskCommunicationInDb.getId()==0){
-			Log.d(TAG,"RiskCommunication not found, inserting a new one...");
-			if (sqLiteDatabase == null){//Open database in case it is closed
+		RiskCommunication riskCommunicationInDb = getRiskCommunicationFromTreatmentId(riskCommunication
+				.getRisktreatment_id());
+		if (riskCommunicationInDb.getId() == 0) {
+			Log.d(TAG, "RiskCommunication not found, inserting a new one...");
+			if (sqLiteDatabase == null) {// Open database in case it is closed
 				openDB();
 			}
-			return sqLiteDatabase.insert(TABLE_RISK_COMMUNICATION, null	, values);
-		}else{
-			Log.d(TAG,"RiskCommunication found, returning the existing one...");
+			return sqLiteDatabase
+					.insert(TABLE_RISK_COMMUNICATION, null, values);
+		} else {
+			Log.d(TAG, "RiskCommunication found, returning the existing one...");
 			return riskCommunicationInDb.getId();
 		}
-
 
 	}
 
 	private RiskCommunication getRiskCommunicationFromTreatmentId(
 			int risktreatment_id) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION, new String [] {
-						ID,
-						COMMUNICATION_SEQUENCE,
-						RISKTREATMENT_ID},
+		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION,
+				new String[] { ID, COMMUNICATION_SEQUENCE, RISKTREATMENT_ID },
 
-				RISKTREATMENT_ID + " = " + risktreatment_id + "",
-				null,
-				null,
-				null,
-				null);
+				RISKTREATMENT_ID + " = " + risktreatment_id + "", null, null,
+				null, null);
 
 		RiskCommunication riskCommunication = new RiskCommunication();
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				Log.d(TAG, cursor.getString(0));
 				riskCommunication.setId(Integer.parseInt(cursor.getString(0)));
-				riskCommunication.setCommunication_sequence(Integer.parseInt(cursor.getString(1)));
-				riskCommunication.setRisktreatment_id(Integer.parseInt(cursor.getString(2)));
+				riskCommunication.setCommunication_sequence(Integer
+						.parseInt(cursor.getString(1)));
+				riskCommunication.setRisktreatment_id(Integer.parseInt(cursor
+						.getString(2)));
 				cursor.moveToNext();
 			}
 		}
 		return riskCommunication;
 	}
 
-
 	/**
 	 * Inserts into role table in the DB
+	 * 
 	 * @param role
 	 */
 
-	public long addRole(Role role){
-		//TODO Manage the insertion or update, avoiding duplicated entries
-
+	public long addRole(Role role) {
+		// TODO Manage the insertion or update, avoiding duplicated entries
 
 		ContentValues values = new ContentValues();
 		values.put(DESCRIPTION, role.getDescription());
 		values.put(TIME_STAMP, role.getTimestamp());
 		values.put(MODIFICATION, "03-09-2011");
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		return sqLiteDatabase.insert(TABLE_ROLE, null	, values);
+		return sqLiteDatabase.insert(TABLE_ROLE, null, values);
 	}
 
 	/**
 	 * Inserts into subject table in the DB
+	 * 
 	 * @param role
 	 */
 
-	public long addSubject(Subject subject){
-		//TODO Manage the insertion or update, avoiding duplicated entries
+	public long addSubject(Subject subject) {
+		// TODO Manage the insertion or update, avoiding duplicated entries
 
 		ContentValues values = new ContentValues();
 		values.put(DESCRIPTION, subject.getDescription());
 		values.put(ROLE_ID, subject.getRoleID());
 		values.put(MODIFICATION, "03-09-2011");
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		return sqLiteDatabase.insert(TABLE_SUBJECT, null	, values);
+		return sqLiteDatabase.insert(TABLE_SUBJECT, null, values);
 	}
-
 
 	// Policy related queries
 
-	public void addDevicePolicy(Policy policy){
+	public void addDevicePolicy(Policy policy) {
 		String insertQuery = "TBD";
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		sqLiteDatabase.execSQL(insertQuery);
 		// TBD
 	}
 
-	public int updateDevicePolicy(Policy policy){
+	public int updateDevicePolicy(Policy policy) {
 		String updateQuery = "TBD";
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		sqLiteDatabase.execSQL(updateQuery);
@@ -1410,9 +1510,9 @@ public class DBManager {
 		return 0;
 	}
 
-	public int getNoOfDevicePoliciesStored(){
+	public int getNoOfDevicePoliciesStored() {
 		String selectQuery = "TBD";
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		sqLiteDatabase.execSQL(selectQuery);
@@ -1420,10 +1520,9 @@ public class DBManager {
 		return 0;
 	}
 
-
-	public Policy getStoredDevicePolicy(int index){
+	public Policy getStoredDevicePolicy(int index) {
 		String selectQuery = "TBD";
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		sqLiteDatabase.execSQL(selectQuery);
@@ -1431,16 +1530,14 @@ public class DBManager {
 		return new Policy();
 	}
 
-	public void deleteDevicePolicy(Policy policy){
+	public void deleteDevicePolicy(Policy policy) {
 		String deleteQuery = "TBD";
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		sqLiteDatabase.execSQL(deleteQuery);
 		// TBD
 	}
-
-
 
 	// Context Event related queries
 
@@ -1449,47 +1546,42 @@ public class DBManager {
 		values.put(ACTION_ID, event.getActionId());
 		values.put(TYPE, event.getType());
 		values.put(TIME_STAMP, event.getTimestamp());
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		return sqLiteDatabase.insert(TABLE_CONTEXT_EVENT, null	, values);
+		return sqLiteDatabase.insert(TABLE_CONTEXT_EVENT, null, values);
 	}
 
 	public int getNoOfContextEventsStored() {
 
 		String selectQuery = "select  * from " + TABLE_CONTEXT_EVENT;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 		return cursor.getCount();
 
 	}
+
 	public List<Property> getPropertiesOfContextEvent(int contextevent_id) {
 		List<Property> propertyList = new ArrayList<Property>();
-		
-		if (sqLiteDatabase == null){//Open database in case it is closed
+
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
-		Cursor cursor = sqLiteDatabase.query(TABLE_PROPERTY, new String [] {
-						ID,
-						CONTEXT_EVENT_ID,
-						KEY,
-						VALUE},
+		Cursor cursor = sqLiteDatabase.query(TABLE_PROPERTY, new String[] { ID,
+				CONTEXT_EVENT_ID, KEY, VALUE },
 
-				CONTEXT_EVENT_ID + " like " + contextevent_id,
-				null,
-				null,
-				null,
-				null);
+		CONTEXT_EVENT_ID + " like " + contextevent_id, null, null, null, null);
 
 		// loop through all rows and adding to list
 		if (cursor.moveToFirst()) {
 			do {
 				Property property = new Property();
 				property.setId(Integer.parseInt(cursor.getString(0)));
-				property.setContextevent_id(Integer.parseInt(cursor.getString(1)));
+				property.setContextevent_id(Integer.parseInt(cursor
+						.getString(1)));
 				property.setKey(cursor.getString(2));
 				property.setValue(cursor.getString(3));
 				propertyList.add(property);
@@ -1501,20 +1593,13 @@ public class DBManager {
 	}
 
 	public ContextEvent getStoredContextEvent(String id) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String [] {
-						ID,
-						ACTION_ID,
-						TYPE,
-						TIME_STAMP},
+		Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String[] {
+				ID, ACTION_ID, TYPE, TIME_STAMP },
 
-				ID + " like " + id,
-				null,
-				null,
-				null,
-				null);
+		ID + " like " + id, null, null, null, null);
 
 		ContextEvent contextEvent = new ContextEvent();
 		if (cursor != null) {
@@ -1530,20 +1615,13 @@ public class DBManager {
 	}
 
 	public List<ContextEvent> getStoredContextEventByActionId(int id) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String [] {
-						ID,
-						ACTION_ID,
-						TYPE,
-						TIME_STAMP},
+		Cursor cursor = sqLiteDatabase.query(TABLE_CONTEXT_EVENT, new String[] {
+				ID, ACTION_ID, TYPE, TIME_STAMP },
 
-				ACTION_ID + " = " + id,
-				null,
-				null,
-				null,
-				null);
+		ACTION_ID + " = " + id, null, null, null, null);
 
 		List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
 		ContextEvent contextEvent;
@@ -1565,14 +1643,13 @@ public class DBManager {
 		return contextEvents;
 	}
 
-	public void deleteStoredContextEvent(String id	){
-		if (sqLiteDatabase == null){//Open database in case it is closed
+	public void deleteStoredContextEvent(String id) {
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
-		sqLiteDatabase.delete(TABLE_CONTEXT_EVENT,
-				ID+ "=?",
-				new String[] {String.valueOf(id)});
+		sqLiteDatabase.delete(TABLE_CONTEXT_EVENT, ID + "=?",
+				new String[] { String.valueOf(id) });
 	}
 
 	public void addProperty(Property property) {
@@ -1580,17 +1657,17 @@ public class DBManager {
 		values.put(CONTEXT_EVENT_ID, property.getContextevent_id());
 		values.put(KEY, property.getKey());
 		values.put(VALUE, property.getValue().replaceAll("'", "\\'"));
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		sqLiteDatabase.insert(TABLE_PROPERTY, null	, values);
+		sqLiteDatabase.insert(TABLE_PROPERTY, null, values);
 	}
 
 	public List<ContextEvent> getAllStoredContextEvents() {
 		List<ContextEvent> contextEventsList = new ArrayList<ContextEvent>();
 		// Select All Query
 		String selectQuery = "SELECT  * FROM " + TABLE_CONTEXT_EVENT;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -1609,12 +1686,11 @@ public class DBManager {
 		return contextEventsList;
 	}
 
-
 	public List<Property> getAllProperties() {
 		List<Property> propertyList = new ArrayList<Property>();
 		// Select All Query
 		String selectQuery = "SELECT  * FROM " + TABLE_PROPERTY;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
@@ -1623,7 +1699,8 @@ public class DBManager {
 			do {
 				Property property = new Property();
 				property.setId(Integer.parseInt(cursor.getString(0)));
-				property.setContextevent_id(Integer.parseInt(cursor.getString(1)));
+				property.setContextevent_id(Integer.parseInt(cursor
+						.getString(1)));
 				property.setKey(cursor.getString(2));
 				property.setValue(cursor.getString(3));
 				propertyList.add(property);
@@ -1633,19 +1710,20 @@ public class DBManager {
 		return propertyList;
 	}
 
-    public void resetStoredContextEventTables(){
-        if(sqLiteDatabase == null) {
-            openDB();
-        }
+	public void resetStoredContextEventTables() {
+		if (sqLiteDatabase == null) {
+			openDB();
+		}
 
-        sqLiteDatabase.delete(TABLE_OFFLINE_ACTION, null, null);
-        sqLiteDatabase.delete(TABLE_OFFLINE_ACTION_PROPERTY, null, null);
-        sqLiteDatabase.delete(TABLE_CONTEXT_EVENT, null, null);
-        sqLiteDatabase.delete(TABLE_PROPERTY, null, null);
-    }
+		sqLiteDatabase.delete(TABLE_OFFLINE_ACTION, null, null);
+		sqLiteDatabase.delete(TABLE_OFFLINE_ACTION_PROPERTY, null, null);
+		sqLiteDatabase.delete(TABLE_CONTEXT_EVENT, null, null);
+		sqLiteDatabase.delete(TABLE_PROPERTY, null, null);
+	}
 
 	/**
 	 * Retrieve decision from id
+	 * 
 	 * @param decision_id
 	 * @return Decision
 	 */
@@ -1653,24 +1731,18 @@ public class DBManager {
 	public Decision getDecisionFromID(String decision_id) {
 
 		Decision decision = new Decision();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
-						ID,
-						NAME,
-						CONDITION,
-						MODIFICATION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String[] { ID,
+				NAME, CONDITION, MODIFICATION },
 
-				ID + "=?",
-				new String[] {String.valueOf(decision_id)},
-				null,
-				null,
+		ID + "=?", new String[] { String.valueOf(decision_id) }, null, null,
 				null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
-			while (!cursor.isAfterLast()){
+			while (!cursor.isAfterLast()) {
 				// Now create the decision object from the cursor
 				Log.d(TAG, "id " + cursor.getString(0));
 				decision.setId(Integer.valueOf(cursor.getString(0)));
@@ -1679,55 +1751,51 @@ public class DBManager {
 				Log.d(TAG, "condition " + cursor.getString(2));
 				decision.setCondition(cursor.getString(2));
 				Log.d(TAG, "modification " + cursor.getString(3));
-				//decision.setModification(Long.valueOf(cursor.getString(2)));
+				// decision.setModification(Long.valueOf(cursor.getString(2)));
 				cursor.moveToNext();
 			}
-
 
 		}
 
 		return decision;
 	}
 
-
-
 	/**
 	 * Retrieve risk_communication from id
+	 * 
 	 * @param risk_communication_id
 	 * @return RiskCommunication
 	 */
 
-	public RiskCommunication getRiskCommunicationFromID(String risk_communication_id) {
+	public RiskCommunication getRiskCommunicationFromID(
+			String risk_communication_id) {
 
 		RiskCommunication comm = new RiskCommunication();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION, new String [] {
-						ID,
-						COMMUNICATION_SEQUENCE,
-						RISKTREATMENT_ID},
+		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_COMMUNICATION,
+				new String[] { ID, COMMUNICATION_SEQUENCE, RISKTREATMENT_ID },
 
 				ID + "=?",
-				new String[] {String.valueOf(risk_communication_id)},
-				null,
-				null,
-				null);
+				new String[] { String.valueOf(risk_communication_id) }, null,
+				null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				// Now create the decision object from the cursor
 				Log.d(TAG, "id" + cursor.getString(0));
 				comm.setId(Integer.valueOf(cursor.getString(0)));
 				Log.d(TAG, "comm_sequence" + cursor.getString(1));
-				comm.setCommunication_sequence(Integer.valueOf(cursor.getString(1)));
+				comm.setCommunication_sequence(Integer.valueOf(cursor
+						.getString(1)));
 				Log.d(TAG, "risk_treatment_id" + cursor.getString(2));
 				comm.setRisktreatment_id(Integer.valueOf(cursor.getString(2)));
 				cursor.moveToNext();
 			}
-
 
 		}
 
@@ -1736,6 +1804,7 @@ public class DBManager {
 
 	/**
 	 * Retrieve risk_treatment from id
+	 * 
 	 * @param risk_treatment_id
 	 * @return RiskTreatment
 	 */
@@ -1743,23 +1812,20 @@ public class DBManager {
 	public RiskTreatment getRiskTreatmentFromID(String risk_treatment_id) {
 
 		RiskTreatment treatment = new RiskTreatment();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_TREATMENT, new String [] {
-						ID,
-						TEXTUAL_DESCRIPTION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_RISK_TREATMENT,
+				new String[] { ID, TEXTUAL_DESCRIPTION },
 
-				ID + "=?",
-				new String[] {String.valueOf(risk_treatment_id)},
-				null,
-				null,
-				null);
+				ID + "=?", new String[] { String.valueOf(risk_treatment_id) },
+				null, null, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				Log.d(TAG, "id" + cursor.getString(0));
 				treatment.setId(Integer.valueOf(cursor.getString(0)));
 				Log.d(TAG, "textual_description" + cursor.getString(1));
@@ -1772,15 +1838,14 @@ public class DBManager {
 		return treatment;
 	}
 
-
 	// Server and Client Certificates related query
 
-	public boolean setServerCert(ServerCertificate serverCertificate ){
+	public boolean setServerCert(ServerCertificate serverCertificate) {
 		return false;
 	}
 
 	// For future
-	public ServerCertificate getServerCert(){
+	public ServerCertificate getServerCert() {
 		return new ServerCertificate();
 	}
 
@@ -1789,38 +1854,33 @@ public class DBManager {
 		return false;
 	}
 
-	public UserDeviceCertificate getUserDeviceCert(){
+	public UserDeviceCertificate getUserDeviceCert() {
 		return new UserDeviceCertificate();
 	}
 
-
 	public long addDecision(Decision decision) {
 		long result = 0;
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
-						ID,
-						NAME,
-						MODIFICATION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String[] { ID,
+				NAME, MODIFICATION },
 
-				NAME + " like '" + decision.getName()+"'",
-				null,
-				null,
-				null,
-				null);
+		NAME + " like '" + decision.getName() + "'", null, null, null, null);
 
 		ContentValues values = new ContentValues();
 		values.put(NAME, decision.getName());
 		values.put(CONDITION, decision.getCondition());
 		values.put(MODIFICATION, "09-08-2012");
 
-		Decision decisionInDb = getDecisionFromNameAndCondition(decision.getName(), decision.getCondition());
-		if (decisionInDb.getId()==0){
-			Log.d(TAG,"Decision not found, inserting a new one...");
+		Decision decisionInDb = getDecisionFromNameAndCondition(
+				decision.getName(), decision.getCondition());
+		if (decisionInDb.getId() == 0) {
+			Log.d(TAG, "Decision not found, inserting a new one...");
 			result = sqLiteDatabase.insert(TABLE_DECISION, null, values);
-		}else{
-			Log.d(TAG,"Decision found, returning the existing one..."+decisionInDb.getId());
+		} else {
+			Log.d(TAG, "Decision found, returning the existing one..."
+					+ decisionInDb.getId());
 			return decisionInDb.getId();
 		}
 
@@ -1828,27 +1888,22 @@ public class DBManager {
 	}
 
 	private Decision getDecisionFromNameAndCondition(String name,
-													 String condition) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+			String condition) {
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String [] {
-						ID,
-						NAME,
-						CONDITION,
-						MODIFICATION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String[] { ID,
+				NAME, CONDITION, MODIFICATION },
 
-				NAME + " LIKE '" + name + "' AND " + CONDITION + " LIKE '" + condition + "'"  ,
-				null,
-				null,
-				null,
-				null);
+		NAME + " LIKE '" + name + "' AND " + CONDITION + " LIKE '" + condition
+				+ "'", null, null, null, null);
 
 		Decision decision = new Decision();
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				Log.d(TAG, cursor.getString(0));
 				decision.setId(Integer.parseInt(cursor.getString(0)));
 				decision.setName(cursor.getString(1));
@@ -1859,30 +1914,21 @@ public class DBManager {
 		return decision;
 	}
 
-
 	public Resource getResourceFromPath(String path) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
-						ID,
-						DESCRIPTION,
-						PATH,
-						CONDITION,
-						RESOURCE_TYPE,
-						MODIFICATION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String[] { ID,
+				DESCRIPTION, PATH, CONDITION, RESOURCE_TYPE, MODIFICATION },
 
-				PATH + " LIKE '" + path + "'",
-				null,
-				null,
-				null,
-				null);
+		PATH + " LIKE '" + path + "'", null, null, null, null);
 
 		Resource resource = new Resource();
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				Log.d(TAG, cursor.getString(0));
 				resource.setId(Integer.parseInt(cursor.getString(0)));
 				resource.setDescription(cursor.getString(1));
@@ -1895,29 +1941,21 @@ public class DBManager {
 
 	}
 
-
-
 	public Action getActionFromType(String type) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String [] {
-						ID,
-						DESCRIPTION,
-						ACTION_TYPE,
-						TIME_STAMP},
+		Cursor cursor = sqLiteDatabase.query(TABLE_ACTION, new String[] { ID,
+				DESCRIPTION, ACTION_TYPE, TIME_STAMP },
 
-				DESCRIPTION + " LIKE '" + type + "'",
-				null,
-				null,
-				null,
-				null);
+		DESCRIPTION + " LIKE '" + type + "'", null, null, null, null);
 
 		Action action = new Action();
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				action.setId(cursor.getInt(0));
 				action.setDescription(cursor.getString(1));
 				action.setActionType(cursor.getString(2));
@@ -1929,13 +1967,17 @@ public class DBManager {
 
 	}
 
-	public List<SensorConfiguration> getAllSensorConfigItemsBySensorType(String type) {
+	public List<SensorConfiguration> getAllSensorConfigItemsBySensorType(
+			String type) {
 		List<SensorConfiguration> configurationList = new ArrayList<SensorConfiguration>();
-		Log.d(TAG, "type="  + type);
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		Log.d(TAG, "type=" + type);
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.rawQuery("SELECT key, value FROM sensor_configuration WHERE sensor_type=?", new String[] {type});
+		Cursor cursor = sqLiteDatabase
+				.rawQuery(
+						"SELECT key, value FROM sensor_configuration WHERE sensor_type=?",
+						new String[] { type });
 
 		if (cursor != null && cursor.moveToFirst()) {
 			while (!cursor.isAfterLast()) {
@@ -1954,16 +1996,15 @@ public class DBManager {
 
 	public List<String> getAllEnabledSensorTypes() {
 		List<String> enabledSensors = new ArrayList<String>();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(
-				TABLE_SENSOR_CONFIGURATION, // table name
-				new String[] {SENSOR_TYPE}, // select
-				KEY + "=? AND " +
-						VALUE + "=?",
-				new String[] {ISensor.CONFIG_KEY_ENABLED, "true"},// where args
-				null,null,null,null);
+		Cursor cursor = sqLiteDatabase.query(TABLE_SENSOR_CONFIGURATION, // table
+																			// name
+				new String[] { SENSOR_TYPE }, // select
+				KEY + "=? AND " + VALUE + "=?", new String[] {
+						ISensor.CONFIG_KEY_ENABLED, "true" },// where args
+				null, null, null, null);
 
 		if (cursor != null && cursor.moveToFirst()) {
 			while (!cursor.isAfterLast()) {
@@ -1978,23 +2019,18 @@ public class DBManager {
 	public List<ResourceProperty> getPropertiesFromResourceId(String resource_id) {
 
 		List<ResourceProperty> properties = new ArrayList<ResourceProperty>();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE_PROPERTY, new String [] {
-						ID,
-						RESOURCE_ID,
-						KEY,
-						VALUE},
-				RESOURCE_ID + "=?",
-				new String[] {String.valueOf(resource_id)},
-				//null,
-				null,
-				null,
-				null);
+		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE_PROPERTY,
+				new String[] { ID, RESOURCE_ID, KEY, VALUE }, RESOURCE_ID
+						+ "=?", new String[] { String.valueOf(resource_id) },
+				// null,
+				null, null, null);
 
-		//Cursor cursor = sqLiteDatabase.rawQuery("SELECT key, value FROM properties WHERE resource_id=?", new String[] {String.valueOf(resource_id)});
-
+		// Cursor cursor =
+		// sqLiteDatabase.rawQuery("SELECT key, value FROM properties WHERE resource_id=?",
+		// new String[] {String.valueOf(resource_id)});
 
 		if (cursor != null && cursor.moveToFirst()) {
 			while (!cursor.isAfterLast()) {
@@ -2010,28 +2046,20 @@ public class DBManager {
 	}
 
 	public Resource getResourceFromCondition(String condition) {
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
-						ID,
-						DESCRIPTION,
-						PATH,
-						CONDITION,
-						RESOURCE_TYPE,
-						MODIFICATION},
+		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String[] { ID,
+				DESCRIPTION, PATH, CONDITION, RESOURCE_TYPE, MODIFICATION },
 
-				CONDITION + " LIKE '" + condition + "'",
-				null,
-				null,
-				null,
-				null);
+		CONDITION + " LIKE '" + condition + "'", null, null, null, null);
 
 		Resource resource = new Resource();
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				Log.d(TAG, cursor.getString(0));
 				resource.setId(Integer.parseInt(cursor.getString(0)));
 				resource.setDescription(cursor.getString(1));
@@ -2047,22 +2075,14 @@ public class DBManager {
 	public List<Resource> getAllResourcesWithCondition() {
 
 		List<Resource> resourceList = new ArrayList<Resource>();
-		if (sqLiteDatabase == null){//Open database in case it is closed
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
-						ID,
-						DESCRIPTION,
-						PATH,
-						CONDITION,
-						RESOURCE_TYPE,
-						MODIFICATION},
-				ID + " IS NOT NULL",
-				//CONDITION + " IS NOT NULL",
-				null,
-				null,
-				null,
-				null);
+		Cursor cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String[] { ID,
+				DESCRIPTION, PATH, CONDITION, RESOURCE_TYPE, MODIFICATION }, ID
+				+ " IS NOT NULL",
+		// CONDITION + " IS NOT NULL",
+				null, null, null, null);
 
 		Resource resource = new Resource();
 		if (cursor != null && cursor.moveToFirst()) {
@@ -2083,13 +2103,15 @@ public class DBManager {
 
 	public List<Resource> getAllResources() {
 		List<Resource> resourceList = new ArrayList<Resource>();
-		
-		if (sqLiteDatabase == null){//Open database in case it is closed
+
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
 
-		Cursor cursor = sqLiteDatabase.rawQuery("SELECT id, description, path, condition, resourceType FROM resource",null);
-
+		Cursor cursor = sqLiteDatabase
+				.rawQuery(
+						"SELECT id, description, path, condition, resourceType FROM resource",
+						null);
 
 		if (cursor != null && cursor.moveToFirst()) {
 			while (!cursor.isAfterLast()) {
@@ -2101,7 +2123,7 @@ public class DBManager {
 				resource.setPath(cursor.getString(2));
 				String condition = cursor.getString(3);
 				resource.setCondition(condition);
-				Log.d(TAG, "getAllResources condition:"+condition);
+				Log.d(TAG, "getAllResources condition:" + condition);
 				resourceList.add(resource);
 				cursor.moveToNext();
 			}
@@ -2110,50 +2132,37 @@ public class DBManager {
 		return resourceList;
 	}
 
-	public Resource getResourceFromPathAndCondition(String path, String condition) {
+	public Resource getResourceFromPathAndCondition(String path,
+			String condition) {
 
 		Cursor cursor = null;
-		
-		if (sqLiteDatabase == null){//Open database in case it is closed
+
+		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
-		if ((condition==null)||(condition.equals("null"))){
+		if ((condition == null) || (condition.equals("null"))) {
 
-			cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
-							ID,
-							DESCRIPTION,
-							PATH,
-							CONDITION,
-							RESOURCE_TYPE,
-							MODIFICATION},
+			cursor = sqLiteDatabase.query(TABLE_RESOURCE,
+					new String[] { ID, DESCRIPTION, PATH, CONDITION,
+							RESOURCE_TYPE, MODIFICATION },
 
-					PATH + " LIKE '" + path + "'" ,
-					null,
-					null,
-					null,
-					null);
+					PATH + " LIKE '" + path + "'", null, null, null, null);
 
-		}else{
+		} else {
 
-			cursor = sqLiteDatabase.query(TABLE_RESOURCE, new String [] {
-							ID,
-							DESCRIPTION,
-							PATH,
-							CONDITION,
-							RESOURCE_TYPE,
-							MODIFICATION},
+			cursor = sqLiteDatabase.query(TABLE_RESOURCE,
+					new String[] { ID, DESCRIPTION, PATH, CONDITION,
+							RESOURCE_TYPE, MODIFICATION },
 
-					PATH + " LIKE '" + path + "' AND " + CONDITION + " LIKE '" + condition + "'"  ,
-					null,
-					null,
-					null,
-					null);
+					PATH + " LIKE '" + path + "' AND " + CONDITION + " LIKE '"
+							+ condition + "'", null, null, null, null);
 		}
 		Resource resource = new Resource();
 		if (cursor != null) {
 			cursor.moveToFirst();
-			Log.d(TAG, String.valueOf(cursor.getCount())+ " isAfterLast:"+cursor.isAfterLast());
-			while (!cursor.isAfterLast()){
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
 				Log.d(TAG, cursor.getString(0));
 				resource.setId(Integer.parseInt(cursor.getString(0)));
 				resource.setDescription(cursor.getString(1));
