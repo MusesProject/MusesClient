@@ -60,7 +60,6 @@ public class HttpResponseHandler {
 	}
 
 	public HttpResponseHandler(String requestType, int dataId) {
-		// TODO Auto-generated constructor stub
 		this.requestType = requestType;
 		this.dataId = dataId;
 	}
@@ -75,23 +74,18 @@ public class HttpResponseHandler {
 			case DetailedStatuses.SUCCESS:
 				// Only send if Success in connection
 				int detailedOnlineStatus = DetailedStatuses.SUCCESS;
-				if (isNewSession )
-				{
+				Statuses.CURRENT_STATUS = Statuses.ONLINE;
+
+				if (isNewSession){
 					isNewSession = false;
-					if (Statuses.CURRENT_STATUS == Statuses.ONLINE)
-					{
-						// For testing
-						//DBG SweFileLog.write("New sessionId, ,");
+					if (Statuses.CURRENT_STATUS == Statuses.ONLINE){
 						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason, dataId);
 					}
-					else
-					{
+					else{
 						// If this is a new session, inform using detailed status
 						detailedOnlineStatus = DetailedStatuses.SUCCESS_NEW_SESSION;
 					}
 				}
-
-				Statuses.CURRENT_STATUS = Statuses.ONLINE;
 				
 				if (isPollRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);

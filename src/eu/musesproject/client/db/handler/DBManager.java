@@ -210,7 +210,6 @@ public class DBManager {
 	private static final String SERVER_CERTIFICATE = "server_certificate";
 	private static final String CLIENT_CERTIFICATE = "client_certificate";
 	private static final String SENSOR_TYPE = "sensor_type";
-	private static final String ENABLED = "enabled";
 	private static final String LOGIN_ATTEMPTS = "login_attempts";
 	private static final String VERSION = "version";
 	private static final String UNIQUE_NAME = "unique_name";
@@ -239,7 +238,6 @@ public class DBManager {
 	public synchronized DBManager openDB() { // always returns writableDB
 		// Get new DB only if not available..
 		if (mDbOpenCounter.incrementAndGet() == 1) {
-
 			sqLiteDatabase = databaseHelper.getWritableDatabase();
 		}
 		Log.d(TAG, "opening database, counter: " + mDbOpenCounter.get());
@@ -255,14 +253,6 @@ public class DBManager {
 		}
 		Log.d(TAG, "closing database, counter: " + mDbOpenCounter.get());
 
-	}
-
-	public void encryptDB() {
-		// TBD
-	}
-
-	public void decryptDB() {
-		// TBD
 	}
 
 	/**
@@ -332,8 +322,6 @@ public class DBManager {
 		}
 	}
 
-	// All CRUD (Create, retrieve, update and delete ) operations here
-
 	public void insertSensorConfiguration(
 			SensorConfiguration sensorConfiguration) {
 		// if(!sensorConfigExists(sensorConfiguration)) {
@@ -350,7 +338,7 @@ public class DBManager {
 	}
 
 	// check if an equal config item exists to avoid duplicate entries
-	private boolean sensorConfigExists(SensorConfiguration sensorConfiguration) {
+	public boolean sensorConfigExists(SensorConfiguration sensorConfiguration) {
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
@@ -613,7 +601,6 @@ public class DBManager {
 		return device_id;
 	}
 
-	// Configuration related queries
 	public void insertConnectionProperties() {
 		ContentValues values = new ContentValues();
 		values.put(SERVER_IP, MusesUtils.getMusesConf());
@@ -1223,7 +1210,7 @@ public class DBManager {
 		return actionList;
 	}
 
-	private Action getActionFromDescription(String description) {
+	public Action getActionFromDescription(String description) {
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
@@ -1489,27 +1476,6 @@ public class DBManager {
 		return sqLiteDatabase.insert(TABLE_SUBJECT, null, values);
 	}
 
-	// Policy related queries
-
-	public void addDevicePolicy(Policy policy) {
-		String insertQuery = "TBD";
-		if (sqLiteDatabase == null) {// Open database in case it is closed
-			openDB();
-		}
-		sqLiteDatabase.execSQL(insertQuery);
-		// TBD
-	}
-
-	public int updateDevicePolicy(Policy policy) {
-		String updateQuery = "TBD";
-		if (sqLiteDatabase == null) {// Open database in case it is closed
-			openDB();
-		}
-		sqLiteDatabase.execSQL(updateQuery);
-		// TBD
-		return 0;
-	}
-
 	public int getNoOfDevicePoliciesStored() {
 		String selectQuery = "TBD";
 		if (sqLiteDatabase == null) {// Open database in case it is closed
@@ -1518,25 +1484,6 @@ public class DBManager {
 		sqLiteDatabase.execSQL(selectQuery);
 		// TBD
 		return 0;
-	}
-
-	public Policy getStoredDevicePolicy(int index) {
-		String selectQuery = "TBD";
-		if (sqLiteDatabase == null) {// Open database in case it is closed
-			openDB();
-		}
-		sqLiteDatabase.execSQL(selectQuery);
-		// TBD
-		return new Policy();
-	}
-
-	public void deleteDevicePolicy(Policy policy) {
-		String deleteQuery = "TBD";
-		if (sqLiteDatabase == null) {// Open database in case it is closed
-			openDB();
-		}
-		sqLiteDatabase.execSQL(deleteQuery);
-		// TBD
 	}
 
 	// Context Event related queries
@@ -1836,26 +1783,6 @@ public class DBManager {
 		}
 
 		return treatment;
-	}
-
-	// Server and Client Certificates related query
-
-	public boolean setServerCert(ServerCertificate serverCertificate) {
-		return false;
-	}
-
-	// For future
-	public ServerCertificate getServerCert() {
-		return new ServerCertificate();
-	}
-
-	// For future
-	public boolean setUserDeviceCert(UserDeviceCertificate userDeviceCertificate) {
-		return false;
-	}
-
-	public UserDeviceCertificate getUserDeviceCert() {
-		return new UserDeviceCertificate();
 	}
 
 	public long addDecision(Decision decision) {
