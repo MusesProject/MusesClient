@@ -81,10 +81,6 @@ public class HttpResponseHandler {
 					if (Statuses.CURRENT_STATUS == Statuses.ONLINE){
 						setServerStatusAndCallBack(Statuses.NEW_SESSION_CREATED, sessionUpdateReason, dataId);
 					}
-					else{
-						// If this is a new session, inform using detailed status
-						detailedOnlineStatus = DetailedStatuses.SUCCESS_NEW_SESSION;
-					}
 				}
 				
 				if (isPollRequest(requestType)) {
@@ -144,16 +140,16 @@ public class HttpResponseHandler {
 				
 				AlarmReceiver.increasePollTime();
 				break;
-			case DetailedStatuses.NOT_ALLOWED_FROM_SERVER:
+			case DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Request not allowed from Server..");
 				
 				if (isSendDataRequest(requestType)){
 					//DBG SweFileLog.write("DATA_SEND_FAILED:"+Integer.toString(DetailedStatuses.NOT_ALLOWED_FROM_SERVER)+",0,0");
-					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_ALLOWED_FROM_SERVER, dataId);
+					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED, dataId);
 				}
 
-				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER, dataId);
+				setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED, dataId);
 				AlarmReceiver.increasePollTime();
 				break;
 			case DetailedStatuses.SERVER_NOT_AVAIABLE:
@@ -186,7 +182,6 @@ public class HttpResponseHandler {
 			Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 			setServerStatusAndCallBack(Statuses.OFFLINE, DetailedStatuses.UNKNOWN_ERROR, dataId);
 			if (isSendDataRequest(requestType)){
-				//DBG SweFileLog.write("DATA_SEND_FAILED, No resp:,0,0");
 				setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
 			} 
 			if (isConnectRequest(requestType)){
@@ -346,8 +341,12 @@ public class HttpResponseHandler {
 		case 400 :
 			return DetailedStatuses.INCORRECT_URL;
 		case 401 :
-			return DetailedStatuses.NOT_ALLOWED_FROM_SERVER;
+			return DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED;
 		case 404 :
+			return DetailedStatuses.NOT_FOUND;
+		case 500 :
+			return DetailedStatuses.INTERNAL_SERVER_ERROR;
+		case 503 :
 			return DetailedStatuses.SERVER_NOT_AVAIABLE;
 		default :
 			return DetailedStatuses.UNKNOWN_ERROR;

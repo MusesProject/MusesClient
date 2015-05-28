@@ -179,12 +179,12 @@ public abstract class HttpConnectionsHelper {
 		    		}
 		    	}
 		    	if (!cookieFound) {
-		    		serverResponse.setNewSession(true,DetailedStatuses.SESSION_NEW);
+		    		serverResponse.setNewSession(true,DetailedStatuses.SUCCESS_NEW_SESSION);
 		    		retreivedCookie = cookieStore.getCookies().get(0);
 		    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
 		    	}
 		    } else {
-	    		serverResponse.setNewSession(true,DetailedStatuses.SESSION_NEW);
+	    		serverResponse.setNewSession(true,DetailedStatuses.SUCCESS_NEW_SESSION);
 	    		retreivedCookie = cookieStore.getCookies().get(0);
 	    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
 		    }
@@ -215,6 +215,7 @@ public abstract class HttpConnectionsHelper {
 			for (Cookie c : cookies) {
 				dbManager.insertCookie(c);
 			}
+			dbManager.closeDB();
 		}
 
 	}

@@ -27,7 +27,6 @@ package eu.musesproject.client.connectionmanager;
  */
 
 public final class Statuses {
-	private Statuses(){}
 	public static final int OFFLINE = 0;
 	public static final int ONLINE = 1;
 	public static int CURRENT_STATUS = 1; 
@@ -38,5 +37,4 @@ public final class Statuses {
 	public static final int CONNECTION_OK = 6;
 	public static final int DISCONNECTED = 7;
 	public static final int NEW_SESSION_CREATED = 8;
-
 }
