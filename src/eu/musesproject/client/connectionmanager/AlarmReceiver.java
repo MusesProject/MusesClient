@@ -158,7 +158,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
 	public void setPollInterval(int pollInterval, int sleepPollInterval) {
-		// TODO Auto-generated method stub
 		POLL_INTERVAL = pollInterval;
 		SLEEP_POLL_INTERVAL = sleepPollInterval;
 		POLL_INTERVAL_UPDATED = true;

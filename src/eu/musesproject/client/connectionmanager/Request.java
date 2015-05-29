@@ -145,6 +145,23 @@ public class Request {
 	public void setDataId(int dataId) {
 		this.dataId = dataId;
 	}
+
+	/**
+	 * Get certificate associated with request
+	 * @return
+	 */
+	public String getCert() {
+		return cert;
+	}
+
+	/**
+	 * Set certificate associated with request
+	 * @param cert
+	 */
+	public void setCert(String cert) {
+		this.cert = cert;
+	}
+	
 	
 	
 }

@@ -21,6 +21,7 @@ package eu.musesproject.client.connectionmanager;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -33,6 +34,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
+
 import android.util.Log;
 import eu.musesproject.client.db.handler.DBManager;
 
@@ -212,10 +214,16 @@ public abstract class HttpConnectionsHelper {
 		} else {
 			dbManager = new DBManager(ConnectionManager.context);
 			dbManager.openDB();
-			for (Cookie c : cookies) {
-				dbManager.insertCookie(c);
+			try {
+				for (Cookie c : cookies) {
+					dbManager.insertCookie(c);
+				}
+				dbManager.closeDB();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				if (dbManager != null) dbManager.closeDB();
 			}
-			dbManager.closeDB();
 		}
 
 	}
@@ -225,8 +233,16 @@ public abstract class HttpConnectionsHelper {
 		dbManager = new DBManager(ConnectionManager.context);
 		dbManager.openDB();
 
-		if (dbManager.getCookie(cookieStore)!=null){
-			return dbManager.getCookie(cookieStore);
+		try {
+			if (dbManager.getCookie(cookieStore)!=null){
+				Cookie cookie = dbManager.getCookie(cookieStore);
+				dbManager.closeDB();
+				return cookie;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally{
+			if (dbManager != null) dbManager.closeDB();
 		}
 		return null;
 	}
