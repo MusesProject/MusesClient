@@ -335,7 +335,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to try to login with existing credentials in the database
 	 */
 	public void autoLogin() {
-		Log.d(MusesUtils.TEST_TAG, "UCEH - autoLogin()");
+		Log.d(MusesUtils.LOGIN_TAG, "UCEH - autoLogin()");
 		if(prefs == null) {
 			prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
 					Context.MODE_PRIVATE);
@@ -345,6 +345,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		if(userName.isEmpty() || password.isEmpty()) {
 			Log.d("auto_login_test", "cannot auto login");
+			Log.d(MusesUtils.LOGIN_TAG, "cannot auto login");
 			return; // user wasn't logged in before
 		}
 

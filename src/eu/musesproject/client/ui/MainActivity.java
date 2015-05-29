@@ -84,10 +84,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		Log.d(MusesUtils.LOGIN_TAG, "onCreate called");
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null){
 			if (bundle.getBoolean("is_from_service_restart")){
+				Log.d(MusesUtils.LOGIN_TAG, "from service restart, register callback and finish activity");
 				registerCallbacks();
 				finish();
 			}
@@ -114,13 +115,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		// starts the background service of MUSES
 		startService(new Intent(this, MUSESBackgroundService.class));
 		Log.v(TAG, "muses service started ...");
-		
+		Log.v(MusesUtils.LOGIN_TAG, "muses service started ...");
 		loginView = new LoginView(context);
 		securityQuizView = new SecurityQuizView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
 		topLayout.addView(securityQuizView);
-
+		
 	}
 
 
@@ -148,23 +149,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-
+		Log.d(MusesUtils.LOGIN_TAG, "onResume called..");
 		DBManager dbManager = new DBManager(getApplicationContext());
 		dbManager.openDB();
 		boolean isActive = dbManager.isSilentModeActive();
 		dbManager.closeDB();
 		if (!isActive) {
 			if (loginView == null) {
+				Log.v(MusesUtils.LOGIN_TAG, "login view is null, creating new view");
 				loginView = new LoginView(context);
 			}
 			
 			if (securityQuizView == null){
+				Log.v(MusesUtils.LOGIN_TAG, "security view is null, creating new view");
 				securityQuizView = new SecurityQuizView(context);
 			}
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			topLayout.addView(securityQuizView);
 			
+			loginView.updateLoginView();
+			securityQuizView.updateSecurityQuizView();
 		}
 		
 		
@@ -195,14 +200,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
 				isLoggedIn = true;
-				loginView.updateLoginView(true);
-				securityQuizView.updateSecurityQuizView(true);
+				loginView.updateLoginView();
+				securityQuizView.updateSecurityQuizView();
                 toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
                 Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
-				securityQuizView.updateSecurityQuizView(false);
+				isLoggedIn = false;
+				loginView.updateLoginView();
+				securityQuizView.updateSecurityQuizView();
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			}
@@ -386,7 +393,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				break;
 			case R.id.logout_button:
 				UserContextEventHandler.getInstance().logout();
-				securityQuizView.updateSecurityQuizView(false);
 				logoutBtn.setVisibility(View.GONE);
 				loginDetailTextView.setText(getResources().getString(
 						R.string.login_detail_view_txt));
@@ -394,53 +400,52 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				toastMessage(getResources().getString(
 						R.string.logout_successfully_msg));
 				isLoggedIn = false;
+				securityQuizView.updateSecurityQuizView();
 				setUsernamePasswordIfSaved();
 				break;
 			}
 
 		}
 
-		public void updateLoginView(Boolean loginSuccess) {
+		public void updateLoginView() {
 			
-			if (loginSuccess){
+			if (isLoggedIn){
+				Log.v(MusesUtils.LOGIN_TAG, "login success in, updating login");
 				userName = userNameTxt.getText().toString();
 				password = passwordTxt.getText().toString();
 				SharedPreferences.Editor prefEditor = prefs.edit();	
 				if (isSaveCredentialsChecked){
-					
 					prefEditor.putString(USERNAME, userName);
 					prefEditor.putString(PASSWORD, password);
 					prefEditor.putBoolean(SAVE_CREDENTIALS, isSaveCredentialsChecked);
 					prefEditor.commit();
 					
 				}
+				
+				loginLayout2.setVisibility(View.GONE);
+				logoutBtn.setVisibility(View.VISIBLE);
+				loginDetailTextView.setText(String.format("%s %s", getResources()
+						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
+				
+				
+				setServerStatus();
+				loginLabelTextView.setFocusable(true);
+				loginLabelTextView.requestFocus();
 			}
 			else {	
 				setUsernamePasswordIfSaved();
 			}
 			
-			loginLayout2.setVisibility(View.GONE);
-			logoutBtn.setVisibility(View.VISIBLE);
-			loginDetailTextView.setText(String.format("%s %s", getResources()
-					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
-			
-			
-			setServerStatus();
-			loginLabelTextView.setFocusable(true);
-			loginLabelTextView.requestFocus();
-			
 		}
 		
 		private void setServerStatus() {
-			if (isLoggedIn) {
-				serverStatus = Statuses.CURRENT_STATUS;
-				String detailedText = String.format("%s %s", getResources()
-						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString());
-					detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
-					detailedText += serverStatus == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
-						getResources().getString(R.string.current_com_status_3);
-					loginDetailTextView.setText(detailedText);
-			}
+			serverStatus = Statuses.CURRENT_STATUS;
+			String detailedText = String.format("%s %s", getResources()
+					.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString());
+			detailedText += "\n" + getResources().getString(R.string.current_com_status_pre);
+			detailedText += serverStatus == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
+				getResources().getString(R.string.current_com_status_3);
+			loginDetailTextView.setText(detailedText);
 		}
 
 		private void updateLoginWithNewServerStatus(){
@@ -448,6 +453,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				serverStatus = Statuses.CURRENT_STATUS;
 				/* Not showing status in login screen */
 				if (isLoggedIn) {
+					Log.v(MusesUtils.LOGIN_TAG, "logged in, updating server status");
 					setServerStatus();
 				}
 			}
@@ -497,9 +503,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			securityQuizTextView.setOnClickListener(this);
 		}
 		
-		public void updateSecurityQuizView(Boolean loginSuccess) {
+		public void updateSecurityQuizView() {
 			
-			if (loginSuccess) {
+			if (isLoggedIn) {
 				securityQuizTextView.setVisibility(View.VISIBLE);
 			}
 			else {	

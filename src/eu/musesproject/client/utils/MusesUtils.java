@@ -34,6 +34,7 @@ import android.os.Environment;
 
 public class MusesUtils {
 	public static final String TEST_TAG = "muses_work_flow_tag";
+	public static final String LOGIN_TAG = "bug_test_for_login_and_autologin";
 	public static String serverCertificate = "";
 	public static String getCertificateFromSDCard(Context context)  {
 		serverCertificate = "";

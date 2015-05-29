@@ -39,14 +39,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="eu.musesproject.client.ui.FeedbackActivity"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.NoDisplay" >
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
                 android:name=".ui.DialogController"
                 android:theme="@android:style/Theme.NoDisplay"
                 android:noHistory="true"
@@ -71,11 +63,6 @@
                 android:resource="@xml/accessibilityconfig" />
         </service>
 
-        <receiver android:name="eu.musesproject.client.ui.MusesEventBroadcastReceiver" >
-            <intent-filter>
-                <action android:name="eu.musesproject.client.intent.muses.feedback" />
-            </intent-filter>
-        </receiver>
         <receiver android:name="eu.musesproject.BootCompletedReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
