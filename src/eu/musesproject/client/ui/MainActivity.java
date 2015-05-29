@@ -19,10 +19,7 @@ package eu.musesproject.client.ui;
  * #L%
  */
 
-import java.util.Timer;
-import java.util.TimerTask;
-import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.*;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,14 +29,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.*;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
@@ -47,8 +38,13 @@ import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.JSONIdentifiers;
+import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.client.utils.MusesUtils;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * MainActivity class handles List buttons on the main GUI
@@ -78,8 +74,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private SharedPreferences prefs;
 	private ProgressDialog progressDialog;
 	private Timer autoUpdate;
+	private Timer oneTimeUpdate;
 	private int serverStatus = -1;
 		
+//	private static final int NOTIFICATION_EX = 1;
+//	private NotificationManager notificationManager;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +110,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
 				Context.MODE_PRIVATE);
 		
-		// starts the background service of MUSES
-		startService(new Intent(this, MUSESBackgroundService.class));
-		Log.v(TAG, "muses service started ...");
+		if (!sendDecisionIfComingFromShowFeedbackDialog(super.getIntent().getExtras())) {
+			// starts the background service of MUSES
+			startService(new Intent(this, MUSESBackgroundService.class));
+			Log.v(TAG, "muses service started ...");
+		}
 		
 		loginView = new LoginView(context);
 		securityQuizView = new SecurityQuizView(context);
@@ -121,14 +122,42 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		topLayout.addView(loginView);
 		topLayout.addView(securityQuizView);
 
+		//setAppIconOnStatusBar();
 	}
 
+	
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		autoUpdate.cancel();
 		
+	}
+
+	private boolean sendDecisionIfComingFromShowFeedbackDialog(Bundle bundle) {
+		if(bundle!= null){
+			moveTaskToBack(true); // Forcing activity to go in background
+			String userDecision = bundle.getString(DECISION_KEY);
+			if (userDecision != null) {
+				if (userDecision.equals(DECISION_OK)){
+					Action okAction = new Action();
+					okAction.setActionType(ActionType.OK);
+					okAction.setTimestamp(System.currentTimeMillis());
+					Log.e(TAG, "user pressed ok..");
+					sendUserDecisionToMusDM(okAction);
+					
+				}
+				if (userDecision.equals(DECISION_CANCEL)){
+					Action cancelAction = new Action();
+					cancelAction.setActionType(ActionType.CANCEL);
+					cancelAction.setTimestamp(System.currentTimeMillis());
+					Log.e(TAG, "user pressed cancel..");
+					sendUserDecisionToMusDM(cancelAction);
+				}
+				return true;
+			} else return false;
+			
+		} else return false;
 	}
 
 	@Override
@@ -188,12 +217,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	private Handler callbackHandler = new Handler() {
 
+		private String decisionName;
+		private String riskTextualDecp;
+
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
                 Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
+
 				isLoggedIn = true;
 				loginView.updateLoginView(true);
 				securityQuizView.updateSecurityQuizView(true);
@@ -205,6 +238,40 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				securityQuizView.updateSecurityQuizView(false);
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
+			case MusesUICallbacksHandler.ACTION_RESPONSE_ACCEPTED:
+				Log.d(TAG, "Action response accepted ..");
+				// FIXME This action should not be sent here, if action is
+				// granted then it should be sent directly from MusDM
+//				Action action = new Action();
+//				action.setActionType(ActionType.OK);
+//				action.setDescription("OK");
+//				action.setTimestamp(System.currentTimeMillis());
+//				Log.e(TAG, "user pressed ok..");
+//				sendUserDecisionToMusDM(action);
+				// No Pop-up necessary FIXME
+				break;
+			case MusesUICallbacksHandler.ACTION_RESPONSE_DENIED:
+				Log.d(TAG, "Action response denied ..");
+				decisionName = msg.getData().getString("name");
+				riskTextualDecp = msg.getData().getString("risk_textual_decp");
+				showResultDialog(riskTextualDecp,
+						MusesUICallbacksHandler.ACTION_RESPONSE_DENIED);
+				break;
+			case MusesUICallbacksHandler.ACTION_RESPONSE_MAY_BE:
+				Log.d(TAG, "Action response maybe ..");
+				decisionName = msg.getData().getString("name");
+				riskTextualDecp = msg.getData().getString("risk_textual_decp");
+				showResultDialog(riskTextualDecp,
+						MusesUICallbacksHandler.ACTION_RESPONSE_MAY_BE);
+				break;
+			case MusesUICallbacksHandler.ACTION_RESPONSE_UP_TO_USER:
+				Log.d(TAG, "Action response upToUser ..");
+				decisionName = msg.getData().getString("name");
+				riskTextualDecp = msg.getData().getString("risk_textual_decp");
+				showResultDialog(riskTextualDecp,
+						MusesUICallbacksHandler.ACTION_RESPONSE_UP_TO_USER);
+				break;
+
 			}
 		}
 
@@ -226,6 +293,40 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			progressDialog.dismiss();
 		}
 	}
+	
+	/**
+	 * Shows the result dialog to the user
+	 * 
+	 * @param message
+	 */
+
+
+	private void showResultDialog(String message, int type) {
+		Intent showFeedbackIntent = new Intent(
+				getApplicationContext(), FeedbackActivity.class);
+		showFeedbackIntent.putExtra("message", message);
+		showFeedbackIntent.putExtra("type", type);
+		showFeedbackIntent
+				.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK
+						| Intent.FLAG_ACTIVITY_CLEAR_TOP
+						| Intent.FLAG_ACTIVITY_NEW_TASK);
+		
+		Bundle extras = new Bundle();
+		extras.putString(MainActivity.DECISION_KEY, MainActivity.DECISION_OK);
+		showFeedbackIntent.putExtras(extras);
+		startActivity(showFeedbackIntent);
+	}
+
+	/**
+	 * Send user's decision back to MusDM which will either allow MusesAwareApp
+	 * or not
+	 * 
+	 * @param action
+	 */
+
+	private void sendUserDecisionToMusDM(Action action) {
+	}
+
 
 	/**
 	 * Registers for callbacks using MusesUICallbacksHandler in
@@ -264,6 +365,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 	}
 
+	private void openApp(String packageName){   
+		Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+	    if (intent != null) {
+	        /* We found the activity now start the activity */
+	        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        context.startActivity(intent);
+	    } else {
+	        /* Bring user to the market or let them choose an app? */
+	        intent = new Intent(Intent.ACTION_VIEW);
+	        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        intent.setData(Uri.parse("market://details?id=" + packageName));
+	        context.startActivity(intent);
+	    }
+	}
+	
 	/**
 	 * Check input fields are not empty before sending it for authentication
 	 * 
@@ -329,7 +445,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		 */
 
 		private void populateLoggedInView() {
-			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated()) {
+			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated())
+			{
 				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
 				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
 			}
@@ -402,7 +519,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		public void updateLoginView(Boolean loginSuccess) {
 			
-			if (loginSuccess){
+			if (loginSuccess)
+			{
 				userName = userNameTxt.getText().toString();
 				password = passwordTxt.getText().toString();
 				SharedPreferences.Editor prefEditor = prefs.edit();	
@@ -415,7 +533,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					
 				}
 			}
-			else {	
+			else
+			{	
 				setUsernamePasswordIfSaved();
 			}
 			
@@ -431,8 +550,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			
 		}
 		
-		private void setServerStatus() {
-			if (isLoggedIn) {
+		private void setServerStatus()
+		{
+			if (isLoggedIn)
+			{
 				serverStatus = Statuses.CURRENT_STATUS;
 				String detailedText = String.format("%s %s", getResources()
 						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString());
@@ -444,13 +565,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 
 		private void updateLoginWithNewServerStatus(){
-			if (serverStatus != Statuses.CURRENT_STATUS ) {
+			
+			if (serverStatus != Statuses.CURRENT_STATUS )
+			{
 				serverStatus = Statuses.CURRENT_STATUS;
+			
 				/* Not showing status in login screen */
-				if (isLoggedIn) {
+				if (isLoggedIn)
+				{
 					setServerStatus();
 				}
 			}
+			/* Set label */
+//					String serverStatus = String.format("%s %s %s %s", 
+//							   getResources().getString(R.string.login_button_txt), 
+//							   "(",
+//							   Statuses.CURRENT_STATUS == Statuses.ONLINE ? getResources().getString(R.string.current_com_status_2):
+//			  						   getResources().getString(R.string.current_com_status_3),
+//			  				   ")");
+					//loginLabelTextView.setText(serverStatus );
+			
 		}
 
 		
@@ -518,11 +652,40 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 
 	}
+	private void setAppIconOnStatusBar() {
+		Notification.Builder mBuilder =
+		        new Notification.Builder(this)
+		        .setSmallIcon(R.drawable.muses_logo)
+		        .setContentTitle("")
+		        .setContentText("");
+		// Creates an explicit intent for an Activity in your app
+		Intent resultIntent = new Intent(this, MainActivity.class);
+
+		// The stack builder object will contain an artificial back stack for the
+		// started Activity.
+		// This ensures that navigating backward from the Activity leads out of
+		// your application to the Home screen.
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		// Adds the back stack for the Intent (but not the Intent itself)
+		stackBuilder.addParentStack(MainActivity.class);
+		// Adds the Intent that starts the Activity to the top of the stack
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent =
+		        stackBuilder.getPendingIntent(
+		            0,
+		            PendingIntent.FLAG_UPDATE_CURRENT
+		        );
+		mBuilder.setContentIntent(resultPendingIntent);
+		NotificationManager mNotificationManager =
+		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		// mId allows you to update the notification later on.
+		mNotificationManager.notify(1, mBuilder.build());
+	}
 
 	public void startSecurityQuiz() {
-		Log.d(TAG, "Taking user to security quiz.");
+		Log.d(TAG, "UNIGE=>Xavier please put your code here for security quiz.");
 
-        String userName = prefs.getString(USERNAME, "");
+         String userName = prefs.getString(USERNAME, "");
         String password = prefs.getString(PASSWORD, "");
 
         String finalUrl = "javascript:" +
