@@ -167,14 +167,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			topLayout.addView(securityQuizView);
-			
-			loginView.updateLoginView();
-			securityQuizView.updateSecurityQuizView();
 		}
-		
-		
-		loginView.setServerStatus();
-		
 		
 		autoUpdate = new Timer();
 		  autoUpdate.schedule(new TimerTask() {
