@@ -57,7 +57,7 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public void onCreate() {
-		Log.d(MusesUtils.LOGIN_TAG, "BACKGROUND - onCreate");
+		Log.d(MusesUtils.LOGIN_TAG, "MUSESBACKGROUNDService - onCreate");
 
 		isAppInitialized = true;
 		UserContextMonitoringController.getInstance(this);
@@ -71,11 +71,11 @@ public class MUSESBackgroundService extends Service {
 		if(intent != null && intent.hasExtra(INTENT_REBOOT) &&
 				intent.getBooleanExtra(INTENT_REBOOT, false)) {
 			isAppInitialized = false;
-			Log.d(MusesUtils.LOGIN_TAG, "App initialized");
+			Log.d(MusesUtils.LOGIN_TAG, "App initialized"); // FIXME
 		}
-		Log.d(MusesUtils.LOGIN_TAG, "BACKGROUND - on startComment called");
+		Log.d(MusesUtils.LOGIN_TAG, "MUSESBACKGROUNDService - on startComment called");
 		if(!isAppInitialized) {
-			Log.d(MusesUtils.LOGIN_TAG, "BACKGROUND - MUSES service started!!");
+			Log.d(MusesUtils.LOGIN_TAG, "MUSESBACKGROUNDService - MUSES service started!!");
 			isAppInitialized = true;
 			Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
 			mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -97,7 +97,7 @@ public class MUSESBackgroundService extends Service {
 
 	@Override
 	public void onDestroy() {
-		Log.v(MusesUtils.LOGIN_TAG, "BACKGROUND - onDestroy()");
+		Log.v(MusesUtils.LOGIN_TAG, "MUSESBACKGROUNDService - onDestroy()");
 		isAppInitialized = false;
 
 		// send status of the service

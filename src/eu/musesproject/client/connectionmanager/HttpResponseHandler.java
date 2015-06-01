@@ -106,7 +106,7 @@ public class HttpResponseHandler {
 				} else if (isAckRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
-					Log.d(TAG, "Ack by the server");
+					Log.d(APP_TAG, "Ack by the server");
 				} else if (isConnectRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS, dataId);

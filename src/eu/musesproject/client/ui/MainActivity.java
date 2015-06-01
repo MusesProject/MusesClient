@@ -21,6 +21,7 @@ package eu.musesproject.client.ui;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -68,6 +69,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String PREFERENCES_KEY = "eu.musesproject.client";
 	public static final String REGISTER_UI_CALLBACK = "eu.musesproject.client.action.CALLBACK";
 	private static final String TAG = MainActivity.class.getSimpleName();
+	private static final String IS_MUSES_SERVICE_INITIALIZED = "is_muses_service_initialized";
+	private static final String IS_LOGGED_IN = "is_logged_in";
 	private LinearLayout topLayout;
 	private Button loginListBtn, securityQuizListbtn;
 	private Context context;
@@ -75,6 +78,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private SecurityQuizView securityQuizView;
 	private UserContextMonitoringController userContextMonitoringController;
 	public static boolean isLoggedIn = false;
+	public static boolean isMUSESServiceInitialized = false;
 	private SharedPreferences prefs;
 	private ProgressDialog progressDialog;
 	private Timer autoUpdate;
@@ -84,7 +88,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(MusesUtils.LOGIN_TAG, "onCreate called");
+		Log.d(MusesUtils.LOGIN_TAG, "onCreate called in MainActivity");
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null){
 			if (bundle.getBoolean("is_from_service_restart")){
@@ -113,15 +117,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				Context.MODE_PRIVATE);
 		
 		// starts the background service of MUSES
-		startService(new Intent(this, MUSESBackgroundService.class));
-		Log.v(TAG, "muses service started ...");
-		Log.v(MusesUtils.LOGIN_TAG, "muses service started ...");
+		isMUSESServiceInitialized = isMUSESServiceInitializedInPrefs();
+		if (!isMUSESServiceInitialized) { // If not initialized
+			startService(new Intent(this, MUSESBackgroundService.class));
+			setMUSESServiceInitializedInPrefs();
+			Log.v(MusesUtils.LOGIN_TAG, "muses service started ... from MainActivity");
+		}
+
 		loginView = new LoginView(context);
 		securityQuizView = new SecurityQuizView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
 		topLayout.addView(securityQuizView);
-		
+		isLoggedIn = checkIfLoggedInPrefs();
+		Log.d(MusesUtils.LOGIN_TAG, "isloggedin: "+isLoggedIn);
+		Log.d(MusesUtils.LOGIN_TAG, "isloggedin in UserContextEventHandler: "+ UserContextEventHandler.getInstance().isUserAuthenticated());
 	}
 
 
@@ -132,6 +142,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		Log.d(MusesUtils.LOGIN_TAG, "onDestroy called in MainActivity");
+	}
+	
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -149,7 +165,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		Log.d(MusesUtils.LOGIN_TAG, "onResume called..");
+		Log.d(MusesUtils.LOGIN_TAG, "onResume called in MainActivity");
 		DBManager dbManager = new DBManager(getApplicationContext());
 		dbManager.openDB();
 		boolean isActive = dbManager.isSilentModeActive();
@@ -193,6 +209,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
 				isLoggedIn = true;
+				updateLoginInPrefs(true);
 				loginView.updateLoginView();
 				securityQuizView.updateSecurityQuizView();
                 toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
@@ -201,6 +218,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
 				isLoggedIn = false;
+				updateLoginInPrefs(false);
 				loginView.updateLoginView();
 				securityQuizView.updateSecurityQuizView();
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
@@ -232,7 +250,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 * UserContextMonitoringImplementation.
 	 */
 	private void registerCallbacks() {
-		Log.v(MusesUtils.TEST_TAG, "Registring callbacks from MainActivity!");
+		Log.v(MusesUtils.LOGIN_TAG, "Registring callbacks from MainActivity!");
 		MusesUICallbacksHandler musesUICallbacksHandler = new MusesUICallbacksHandler(
 				context, callbackHandler);
 		ActuatorController.getInstance(this).registerCallback(
@@ -280,6 +298,42 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		return true;
 	}
 
+	private void setMUSESServiceInitializedInPrefs(){
+		SharedPreferences.Editor prefEditor = prefs.edit();	
+		prefEditor.putBoolean(IS_MUSES_SERVICE_INITIALIZED,true);
+		prefEditor.commit();
+		Log.d(MusesUtils.LOGIN_TAG, "MUSES_SERVICE_INIT_FLAG set in preferences");
+	}
+	
+	private boolean isMUSESServiceInitializedInPrefs(){
+		if (prefs.contains(IS_MUSES_SERVICE_INITIALIZED)) {
+			return prefs.getBoolean(IS_MUSES_SERVICE_INITIALIZED,false);
+		} else {
+			Log.d(MusesUtils.LOGIN_TAG, "No MUSES_SERVICE_INIT_FLAG found in preferences");
+		}
+		return false;
+	}
+	
+	private void updateLoginInPrefs(boolean value) {
+		SharedPreferences.Editor prefEditor = prefs.edit();	
+		prefEditor.putBoolean(IS_LOGGED_IN,true);
+		prefEditor.commit();
+		Log.d(MusesUtils.LOGIN_TAG, "IS_LOGGED_IN set in preferences with value: "+value);
+	}
+	
+	private boolean checkIfLoggedInPrefs(){
+		if (prefs.contains(IS_LOGGED_IN)) {
+			return prefs.getBoolean(IS_LOGGED_IN,false);
+		} else {
+			Log.d(MusesUtils.LOGIN_TAG, "No IS_LOGGED_IN found in preferences");
+		}
+		return false;
+		
+	}
+
+	
+	
+	
 	/**
 	 * LoginView class handles Login GUI (Username, passwords etc ) on the main
 	 * GUI
@@ -331,6 +385,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		private void populateLoggedInView() {
 			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated()) {
 				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
+				Log.d(MusesUtils.LOGIN_TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
 				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
 			}
 			
@@ -463,8 +518,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			} else {
 				userNameTxt.setText("");
 				passwordTxt.setText("");
-				
-				Log.d(TAG, "No username-pass found in preferences");
+				Log.d(MusesUtils.LOGIN_TAG, "No username-pass found in preferences");
 			}
 			
 			// Set rememberCheckBox, if no choice done default to true
