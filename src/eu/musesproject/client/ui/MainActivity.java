@@ -21,7 +21,6 @@ package eu.musesproject.client.ui;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -44,7 +43,6 @@ import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
-import eu.musesproject.client.connectionmanager.DetailedStatuses;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.handler.DBManager;
@@ -129,7 +127,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		securityQuizView = new SecurityQuizView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
-		topLayout.addView(securityQuizView);
 		isLoggedIn = checkIfLoggedInPrefs();
 		Log.d(MusesUtils.LOGIN_TAG, "isloggedin: "+isLoggedIn);
 		Log.d(MusesUtils.LOGIN_TAG, "isloggedin in UserContextEventHandler: "+ UserContextEventHandler.getInstance().isUserAuthenticated());
@@ -181,9 +178,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				Log.v(MusesUtils.LOGIN_TAG, "security view is null, creating new view");
 				securityQuizView = new SecurityQuizView(context);
 			}
-			topLayout.removeAllViews();
-			topLayout.addView(loginView);
-			topLayout.addView(securityQuizView);
+//			topLayout.removeAllViews();
+//			topLayout.addView(loginView);
+//			topLayout.addView(securityQuizView);
 		}
 		
 		autoUpdate = new Timer();
