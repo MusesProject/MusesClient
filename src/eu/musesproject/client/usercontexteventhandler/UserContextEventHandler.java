@@ -691,7 +691,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
     				}
 				// Since new session not authenticated remotely
 				isAuthenticatedRemotely = false;
-				updateServerOnlineAndUserAuthenticated()
+				updateServerOnlineAndUserAuthenticated();
                 autoLogin();
             }
 			else if(status == Statuses.OFFLINE) {
