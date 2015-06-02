@@ -20,13 +20,7 @@ package eu.musesproject.client.actuators;
  * #L%
  */
 
-import eu.musesproject.client.model.decisiontable.Decision;
 
 public interface IUICallback {
-	void onLogin(boolean result, String msg);
-    void onAccept();
-    void onDeny(Decision decision);
-    void onMaybe(Decision decision);
-    void onUpToUser(Decision decision);
-    void onError();
+	void onLogin(boolean result, String msg, int errorCode);
 }
