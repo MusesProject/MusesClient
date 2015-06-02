@@ -691,6 +691,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
     				}
 				// Since new session not authenticated remotely
 				isAuthenticatedRemotely = false;
+				updateServerOnlineAndUserAuthenticated()
                 autoLogin();
             }
 			else if(status == Statuses.OFFLINE) {
@@ -715,6 +716,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             }
             else if(status == Statuses.NEW_SESSION_CREATED && detailedStatus == DetailedStatuses.SUCCESS_NEW_SESSION) {
                 isAuthenticatedRemotely = false;
+				updateServerOnlineAndUserAuthenticated();
 				//TODO reset flags
                 autoLogin();
             }
