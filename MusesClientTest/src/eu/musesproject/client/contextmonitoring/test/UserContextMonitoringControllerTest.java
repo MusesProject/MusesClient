@@ -34,50 +34,12 @@ public class UserContextMonitoringControllerTest extends AndroidTestCase {
     public void testCallback() {
         callback = new IUICallback() {
             @Override
-            public void onLogin(boolean result, String msg) {
+            public void onLogin(boolean result, String msg, int errorCode) {
                 assertEquals(false, result);
-            }
-
-            @Override
-            public void onAccept() {
-                assertEquals("GRANTED", decision.getName());
-            }
-
-            @Override
-            public void onDeny(Decision decision) {
-                assertEquals("STRONG_DENY", decision.getName());
-            }
-
-            @Override
-            public void onMaybe(Decision decision) {
-                assertEquals("MAYBE", decision.getName());
-            }
-
-            @Override
-            public void onUpToUser(Decision decision) {
-                assertEquals("UP_TO_YOU", decision.getName());
-            }
-
-            @Override
-            public void onError() {
-
             }
         };
 
-        decision.setName(Decision.GRANTED_ACCESS);
-        callback.onAccept();
-
-        decision.setName(Decision.STRONG_DENY_ACCESS);
-        callback.onDeny(decision);
-
-        decision.setName(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
-        callback.onMaybe(decision);
-
-
-        decision.setName(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
-        callback.onUpToUser(decision);
-
-        callback.onLogin(false, "user not authenticated");
+        callback.onLogin(false, "user not authenticated", -1);
     }
 
     @Override
