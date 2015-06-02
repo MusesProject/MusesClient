@@ -733,12 +733,18 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				ActuatorController.getInstance(context).showFeedback(null);
 			}
 
-			if(JSONManager.getRequestType(pendingJSONRequest.get(dataId).toString()).equals(RequestType.LOGIN)) {
-				if((detailedStatus == DetailedStatuses.INCORRECT_CERTIFICATE) || (detailedStatus == DetailedStatuses.INCORRECT_URL)
-						|| (detailedStatus == DetailedStatuses.INTERNAL_SERVER_ERROR) || (detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION)
-						|| (detailedStatus == DetailedStatuses.UNKNOWN_ERROR) || (detailedStatus == DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED)) {
-					ActuatorController.getInstance(context).sendLoginResponse(false, "", detailedStatus);
+			// if the user tries to login and the server responses with an error, this error code will be send in the
+			// login callback
+			try {
+				if (pendingJSONRequest.size() > 0 && JSONManager.getRequestType(pendingJSONRequest.get(dataId).toString()).equals(RequestType.LOGIN)) {
+					if ((detailedStatus == DetailedStatuses.INCORRECT_CERTIFICATE) || (detailedStatus == DetailedStatuses.INCORRECT_URL)
+							|| (detailedStatus == DetailedStatuses.INTERNAL_SERVER_ERROR) || (detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION)
+							|| (detailedStatus == DetailedStatuses.UNKNOWN_ERROR) || (detailedStatus == DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED)) {
+						ActuatorController.getInstance(context).sendLoginResponse(false, "", detailedStatus);
+					}
 				}
+			} catch (NullPointerException e) {
+				// json string is empty
 			}
 
             //Log.d(APP_TAG, "statusCb status: " + (serverStatus == Statuses.ONLINE));
