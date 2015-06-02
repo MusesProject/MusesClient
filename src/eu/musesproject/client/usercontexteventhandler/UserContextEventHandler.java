@@ -73,6 +73,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public static final String APP_TAG2 = "APP_TAG2";
 
 	private static UserContextEventHandler userContextEventHandler = null;
+	public static final String PREF_KEY_USER_AUTHENTICATED = "PREF_KEY_USER_AUTHENTICATED";
+	public static final String PREF_KEY_USER_AUTHENTICATED_REMOTELY = "PREF_KEY_USER_AUTHENTICATED_REMOTELY";
 
 	private Context context;
 
@@ -86,7 +88,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
     private boolean isAuthenticatedRemotely;
     private boolean isUserAuthenticated;
-	public static boolean serverOnlineAndUserAuthenticated;
 
 	private DecisionMaker decisionMaker;
 
@@ -106,15 +107,15 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		serverStatus = Statuses.CURRENT_STATUS;
 		serverDetailedStatus = Statuses.OFFLINE;
-        isAuthenticatedRemotely = false;
+		isAuthenticatedRemotely = false;
 		isUserAuthenticated = false;
-		serverOnlineAndUserAuthenticated = false;
 
 		decisionMaker = new DecisionMaker();
 
 		mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
         pendingJSONRequest = new HashMap<Integer, JSONObject>();
         failedJSONRequest = new HashMap<Integer, JSONObject>();
+
 	}
 
 	/**
@@ -536,21 +537,25 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void setContext(Context context) {
 		this.context = context;
+
+		// update the flags
+		prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY, Context.MODE_PRIVATE);
+		isAuthenticatedRemotely = prefs.getBoolean(PREF_KEY_USER_AUTHENTICATED_REMOTELY, false);
+		isUserAuthenticated = prefs.getBoolean(PREF_KEY_USER_AUTHENTICATED, false);
 	}
 
 	public Context getContext(){
 		return this.context;
 	}
 
-
-	public static boolean isServerOnlineAndUserAuthenticated() {
-		return serverOnlineAndUserAuthenticated;
-	}
-
 	public void updateServerOnlineAndUserAuthenticated() {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - updateServerOnlineAndUserAuthenticated Server="+(serverStatus==Statuses.ONLINE) + " auth=" +isUserAuthenticated);
 		isUserAuthenticated = isAuthenticatedRemotely;
-		serverOnlineAndUserAuthenticated = ((serverStatus == Statuses.ONLINE) && isUserAuthenticated);
+
+		SharedPreferences.Editor prefEditor = prefs.edit();
+		prefEditor.putBoolean(PREF_KEY_USER_AUTHENTICATED, isUserAuthenticated);
+		prefEditor.putBoolean(PREF_KEY_USER_AUTHENTICATED_REMOTELY, isAuthenticatedRemotely);
+		prefEditor.commit();
 	}
 
 	private class ConnectionCallback implements IConnectionCallbacks {
@@ -774,11 +779,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
     public boolean isUserAuthenticated() {
         return isUserAuthenticated;
     }
-
-    public void setUserAuthenticated(boolean isUserAuthenticated) {
-        this.isUserAuthenticated = isUserAuthenticated;
-    }
-
 
 	public String getUserName() {
 		if(isUserAuthenticated) {
