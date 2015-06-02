@@ -321,7 +321,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			dbManager.openDB();
 			isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword);
 			dbManager.closeDB();
-			ActuatorController.getInstance(context).sendLoginResponse(isUserAuthenticated, context.getString(R.string.default_msg_local_login));
+			ActuatorController.getInstance(context).sendLoginResponse(isUserAuthenticated, context.getString(R.string.default_msg_local_login), -1);
 			if (isUserAuthenticated){
 				sendConfigSyncRequest();
 			}
@@ -606,7 +606,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						updateServerOnlineAndUserAuthenticated();
 						sendConfigSyncRequest();
 					}
-					ActuatorController.getInstance(context).sendLoginResponse(isAuthenticatedRemotely, authMessage);
+					ActuatorController.getInstance(context).sendLoginResponse(isAuthenticatedRemotely, authMessage, -1);
 				}
 				else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
                 	/*
@@ -708,9 +708,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 failedJSONRequest.put(dataId, pendingJSONRequest.get(dataId));
                 Log.d(MusesUtils.TEST_TAG, "data send failed.failedJSONRequest size=" + failedJSONRequest.size());
             }
-            else if(status == Statuses.NEW_SESSION_CREATED) {
+            else if(status == Statuses.NEW_SESSION_CREATED && detailedStatus == DetailedStatuses.SUCCESS_NEW_SESSION) {
                 isAuthenticatedRemotely = false;
-
+				//TODO reset flags
                 autoLogin();
             }
 			else if(status == Statuses.CONNECTION_FAILED && detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION) {
@@ -731,6 +731,14 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				Log.d(MusesUtils.TEST_TAG, "UCEH - UNKNOWN_ERROR callback");
 				// fires the unknown error feedback
 				ActuatorController.getInstance(context).showFeedback(null);
+			}
+
+			if(JSONManager.getRequestType(pendingJSONRequest.get(dataId).toString()).equals(RequestType.LOGIN)) {
+				if((detailedStatus == DetailedStatuses.INCORRECT_CERTIFICATE) || (detailedStatus == DetailedStatuses.INCORRECT_URL)
+						|| (detailedStatus == DetailedStatuses.INTERNAL_SERVER_ERROR) || (detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION)
+						|| (detailedStatus == DetailedStatuses.UNKNOWN_ERROR) || (detailedStatus == DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED)) {
+					ActuatorController.getInstance(context).sendLoginResponse(false, "", detailedStatus);
+				}
 			}
 
             //Log.d(APP_TAG, "statusCb status: " + (serverStatus == Statuses.ONLINE));

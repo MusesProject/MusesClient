@@ -181,11 +181,11 @@ public class FeedbackActuator implements IFeedbackActuator {
         }
     }
 
-    public void sendLoginResponseToUI(boolean result, String msg) {
+    public void sendLoginResponseToUI(boolean result, String msg, int detailedStatus) {
     	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator sending login response with result: " + result);
         Log.d(TAG, "called: sendLoginResponseToUI(boolean result)");
         if(callback!=null) {
-            callback.onLogin(result, msg,0); // FIXME temp 0
+            callback.onLogin(result, msg, detailedStatus);
         }
     }
 
