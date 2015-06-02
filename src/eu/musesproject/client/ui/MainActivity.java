@@ -44,6 +44,7 @@ import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
+import eu.musesproject.client.connectionmanager.DetailedStatuses;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.db.handler.DBManager;
@@ -222,6 +223,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				loginView.updateLoginView();
 				securityQuizView.updateSecurityQuizView();
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
+				break;
+			default:  // No need to handle all error code right now, as we will a fixed message, but can be used in future
+				stopProgress();
+				isLoggedIn = false;
+				updateLoginInPrefs(false);
+				loginView.updateLoginView();
+				securityQuizView.updateSecurityQuizView();
+				toastMessage(getResources().getString(R.string.unknown_error_toast_text));
 				break;
 			}
 		}

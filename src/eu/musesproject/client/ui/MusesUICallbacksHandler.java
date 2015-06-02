@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import eu.musesproject.client.actuators.IUICallback;
+import eu.musesproject.client.connectionmanager.DetailedStatuses;
 import eu.musesproject.client.model.JSONIdentifiers;
 
 public class MusesUICallbacksHandler implements IUICallback {
@@ -49,9 +50,17 @@ public class MusesUICallbacksHandler implements IUICallback {
         Message msg;
 		if (result) {
 			msg = mHandler.obtainMessage(LOGIN_SUCCESSFUL);
-
 		} else {
-			msg = mHandler.obtainMessage(LOGIN_UNSUCCESSFUL);
+			if((errorCode == DetailedStatuses.INCORRECT_CERTIFICATE) || (errorCode == DetailedStatuses.INCORRECT_URL)
+																		|| (errorCode == DetailedStatuses.INTERNAL_SERVER_ERROR) 
+																		|| (errorCode == DetailedStatuses.NO_INTERNET_CONNECTION)
+																		|| (errorCode == DetailedStatuses.UNKNOWN_ERROR)
+																		|| (errorCode == DetailedStatuses.NOT_FOUND) 
+																		|| (errorCode == DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED)) {
+				msg = mHandler.obtainMessage(errorCode);
+			} else{
+				msg = mHandler.obtainMessage(LOGIN_UNSUCCESSFUL);
+			}
 		}
 
         Bundle bundle = new Bundle();

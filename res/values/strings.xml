@@ -52,7 +52,7 @@
     <string name="no_internet_connection_msg">You don\'t have any Internet connection on your device, Please check your Wi-Fi settigns ..</string>
     <string name="logout_successfully_msg">Logged out successfully ..</string>
     <string name="crash_toast_text">Sending crash report..</string>
-    
+    <string name="unknown_error_toast_text">Unknown Error, Please try later..</string> <!-- new -->
     
     <!-- Copied strings -->
     <string name="decent_protection"> Descent protection</string>
