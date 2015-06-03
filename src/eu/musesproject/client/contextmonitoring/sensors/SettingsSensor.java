@@ -21,9 +21,12 @@ package eu.musesproject.client.contextmonitoring.sensors;
  */
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.contextmodel.ContextEvent;
@@ -50,6 +53,7 @@ public class SettingsSensor implements ISensor {
     public static final String PROPERTY_KEY_SDK_VERSION 		= "sdkversion";
     public static final String PROPERTY_KEY_IMEI		 		= "imei";
     public static final String PROPERTY_KEY_DEVICE_MODEL_NAME   = "devicemodel";
+    public static final String PROPERTY_KEY_MUSES_APP_VERSION   = "musesversion";
 
     private Context context;
     private ContextListener listener;
@@ -59,6 +63,7 @@ public class SettingsSensor implements ISensor {
 
     // holds a value that indicates if the sensor is enabled or disabled
     private boolean sensorEnabled;
+    private PackageManager packageManager;
 
     public SettingsSensor(Context context) {
         this.context = context;
@@ -69,6 +74,7 @@ public class SettingsSensor implements ISensor {
     
     private void init() {
         sensorEnabled = false;
+        packageManager  = context.getPackageManager();
     	// create an initial context event since the information
     	// gathered by this sensor does not change often
     	createContextEvent();
@@ -82,17 +88,19 @@ public class SettingsSensor implements ISensor {
     }
 
     private void createContextEvent() {
-    	// create context event
-    	ContextEvent contextEvent = new ContextEvent();
-    	contextEvent.setType(TYPE);
-    	contextEvent.setTimestamp(System.currentTimeMillis());
-    	contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
-    	contextEvent.addProperty(PROPERTY_KEY_OS_VERSION, getOSVersion());
-    	contextEvent.addProperty(PROPERTY_KEY_SDK_VERSION, getSDKVersion());
-    	contextEvent.addProperty(PROPERTY_KEY_IMEI, getIMEI());
-    	contextEvent.addProperty(PROPERTY_KEY_DEVICE_MODEL_NAME, getDeviceName());
-    	contextEvent.generateId();
-    	
+        // create context event
+        ContextEvent contextEvent = new ContextEvent();
+        contextEvent.setType(TYPE);
+        contextEvent.setTimestamp(System.currentTimeMillis());
+        contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
+        contextEvent.addProperty(PROPERTY_KEY_OS_VERSION, getOSVersion());
+        contextEvent.addProperty(PROPERTY_KEY_SDK_VERSION, getSDKVersion());
+        contextEvent.addProperty(PROPERTY_KEY_IMEI, getIMEI());
+        contextEvent.addProperty(PROPERTY_KEY_DEVICE_MODEL_NAME, getDeviceName());
+        contextEvent.addProperty(PROPERTY_KEY_MUSES_APP_VERSION, getMusesAppVersion());
+        contextEvent.generateId();
+        Log.d("test_version_name", "version=" + getMusesAppVersion());
+
         if (listener != null) {
             listener.onEvent(contextEvent);
         }
@@ -184,4 +192,15 @@ public class SettingsSensor implements ISensor {
 	public String getSensorType() {
 		return TYPE;
 	}
+
+    public String getMusesAppVersion() {
+        try {
+            PackageInfo info = packageManager.getPackageInfo(context.getPackageName(), 0);
+            String versionName = info.versionName;
+
+            return  versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return "unknown";
+        }
+    }
 }
