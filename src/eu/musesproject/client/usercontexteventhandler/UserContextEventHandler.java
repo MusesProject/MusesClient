@@ -744,9 +744,12 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			// login callback
 			try {
 				if (pendingJSONRequest.size() > 0 && JSONManager.getRequestType(pendingJSONRequest.get(dataId).toString()).equals(RequestType.LOGIN)) {
-					if ((detailedStatus == DetailedStatuses.INCORRECT_CERTIFICATE) || (detailedStatus == DetailedStatuses.INCORRECT_URL)
-							|| (detailedStatus == DetailedStatuses.INTERNAL_SERVER_ERROR) || (detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION)
-							|| (detailedStatus == DetailedStatuses.UNKNOWN_ERROR) || (detailedStatus == DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED)
+					if ((detailedStatus == DetailedStatuses.INCORRECT_CERTIFICATE)
+							|| (detailedStatus == DetailedStatuses.INCORRECT_URL)
+							|| (detailedStatus == DetailedStatuses.INTERNAL_SERVER_ERROR)
+							|| (detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION)
+							|| (detailedStatus == DetailedStatuses.UNKNOWN_ERROR)
+							|| (detailedStatus == DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED)
 							|| (detailedStatus == DetailedStatuses.NOT_FOUND)) {
 						ActuatorController.getInstance(context).sendLoginResponse(false, "", detailedStatus);
 					}
