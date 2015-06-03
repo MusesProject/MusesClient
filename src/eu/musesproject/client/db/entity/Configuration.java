@@ -157,4 +157,9 @@ public class Configuration {
 				+ loginAttempts + ", silentMode=" + silentMode + "]";
 	}
 
+	public boolean hasItems() {
+		return (getServerIP() != null) || (getServerPort() != -1) || (getServerContextPath() != null)
+				|| (getServerServletPath() != null) || (getServerCertificate() != null) || (getTimeout() != -1)
+				|| (getPollTimeout() != -1) || (getSleepPollTimeout() != -1) || (getSilentMode() != -1);
+	}
 }

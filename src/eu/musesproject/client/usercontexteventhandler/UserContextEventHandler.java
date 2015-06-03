@@ -1,6 +1,6 @@
 /*
  * MUSES High-Level Object Oriented Model
- * Copyright MUSES project (European Commission FP7) - 2013 
+ * Copyright MUSES project (European Commission FP7) - 2013
  */
 package eu.musesproject.client.usercontexteventhandler;
 
@@ -14,12 +14,12 @@ package eu.musesproject.client.usercontexteventhandler;
  * it under the terms stoof the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * #L%
@@ -140,8 +140,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public void connectToServer() {
 		Configuration config = getServerConfigurationFromDB();
 		String url = "https://" + config.getServerIP() + ":" + config.getServerPort() + config.getServerContextPath() + config.getServerServletPath();
-		
-		
+
+
 		connectionManager.connect(
 				url,
 				config.getServerCertificate(),
@@ -152,7 +152,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		);
 		/* No need to do now, but shall be done if it changes.. */
 		connectionManager.setPollTimeOuts(config.getPollTimeout(), config.getSleepPollTimeout());
-		
+
 	}
 
 	private Configuration getServerConfigurationFromDB() {
@@ -163,8 +163,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		dbManager.openDB();
 		Configuration config = dbManager.getConfigurations();
 		/* Check if config is available */
-		if (config.getServerIP() == null)
-		{
+		if (config.getServerIP() == null) {
 			/* DB Connection config is empty, set initial config */
 			dbManager.insertConnectionProperties();
 		}
@@ -287,7 +286,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	/**
 	 * Method to log in to MUSES.
-	 * Necessary to establish server communication and for 
+	 * Necessary to establish server communication and for
 	 * using this application
 	 *
 	 * @param userName
@@ -644,13 +643,13 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	 */
 					// 2.1
 					boolean isSilentModeActivated = JSONManager.isSilentModeActivated(receivedData);
-                	
-                	
+
+
                 	/*
                 	 *  connection configuration
                 	 *  3.1 load config from JSON
                 	 *  3.2 insert new config in the db
-                	 *  3.3 update the connection manager 
+                	 *  3.3 update the connection manager
                 	 */
 					// 3.1 load config from JSON
 					Configuration connectionConfig = JSONManager.getConnectionConfiguration(receivedData, getContext());
@@ -696,7 +695,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             }
 			else if(status == Statuses.OFFLINE) {
 				serverStatus = status;
-				// Can still be authenticated, but server not reachable. 
+				// Can still be authenticated, but server not reachable.
 				// Depends on new session or not when ONLINE
 				updateServerOnlineAndUserAuthenticated();
 			}
