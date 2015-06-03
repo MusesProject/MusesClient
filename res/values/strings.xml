@@ -4,6 +4,8 @@
     <string name="app_name">MUSES</string>
     <string name="login_list_button_txt">L o g i n</string>
     <string name="security_info_button_txt">My Security Policies</string>
+    <string name="statistics_info_button_txt">Statistics</string> <!-- new -->
+    <string name="no_statistics_available_txt">No statistics available, please come back later.</string> <!-- new -->
     <string name="security_points_button_txt">Security Quiz</string>
     <string name="action_settings">Settings</string>
 

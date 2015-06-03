@@ -71,10 +71,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private static final String IS_MUSES_SERVICE_INITIALIZED = "is_muses_service_initialized";
 	private static final String IS_LOGGED_IN = "is_logged_in";
 	private LinearLayout topLayout;
-	private Button loginListBtn, securityQuizListbtn;
+	private Button loginListBtn, securityQuizListbtn, statisticsListButton;
 	private Context context;
 	private LoginView loginView;
 	private SecurityQuizView securityQuizView;
+	private StatisticsView statisticsView;
 	private UserContextMonitoringController userContextMonitoringController;
 	public static boolean isLoggedIn = false;
 	public static boolean isMUSESServiceInitialized = false;
@@ -104,9 +105,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
 		loginListBtn = (Button) findViewById(R.id.login_list_button);
 		securityQuizListbtn = (Button) findViewById(R.id.security_quiz_list_button);
+		statisticsListButton = (Button) findViewById(R.id.statistics_list_button);
 		loginListBtn.setOnClickListener(this);
 		securityQuizListbtn.setOnClickListener(this);
-
+		statisticsListButton.setOnClickListener(this);
+		
 		userContextMonitoringController = UserContextMonitoringController
 				.getInstance(context);
 		
@@ -125,6 +128,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		loginView = new LoginView(context);
 		securityQuizView = new SecurityQuizView(context);
+		statisticsView = new StatisticsView(context);
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
 		isLoggedIn = checkIfLoggedInPrefs();
@@ -156,6 +160,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		case R.id.security_quiz_list_button:
 			topLayout.removeAllViews();
 			topLayout.addView(securityQuizView);
+			break;
+		case R.id.statistics_list_button:
+			topLayout.removeAllViews();
+			topLayout.addView(statisticsView);
 			break;
 		}
 	}
@@ -210,6 +218,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				updateLoginInPrefs(true);
 				loginView.updateLoginView();
 				securityQuizView.updateSecurityQuizView();
+				statisticsView.updateStatisticsView();
                 toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
@@ -219,6 +228,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				updateLoginInPrefs(false);
 				loginView.updateLoginView();
 				securityQuizView.updateSecurityQuizView();
+				statisticsView.updateStatisticsView();
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			default:  // No need to handle all error code right now, as we will a fixed message, but can be used in future
@@ -227,6 +237,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				updateLoginInPrefs(false);
 				loginView.updateLoginView();
 				securityQuizView.updateSecurityQuizView();
+				statisticsView.updateStatisticsView();
 				toastMessage(getResources().getString(R.string.unknown_error_toast_text));
 				break;
 			}
@@ -455,6 +466,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 						R.string.logout_successfully_msg));
 				isLoggedIn = false;
 				securityQuizView.updateSecurityQuizView();
+				statisticsView.updateStatisticsView();
 				setUsernamePasswordIfSaved();
 				break;
 			}
@@ -578,7 +590,61 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	}
 
-	public void startSecurityQuiz() {
+	
+	/**
+	 * Statistics Information class shows statistics information about user actions
+	 * 
+	 * @author Yasir Ali
+	 * @version Jan 27, 2014
+	 */
+
+	private class StatisticsView extends LinearLayout implements 
+					View.OnClickListener {
+
+		private TextView statisticsInfoTextView;
+
+		public StatisticsView(Context context) {
+			super(context);
+			inflate(context, R.layout.statistics_view, this);
+			statisticsInfoTextView = (TextView) findViewById(R.id.statistics_info_txtView);
+			statisticsInfoTextView.setOnClickListener(this);
+		}
+		
+		public void updateStatisticsView() {
+			
+			if (isLoggedIn) {
+				statisticsInfoTextView.setVisibility(View.VISIBLE);
+			}
+			else {	
+				statisticsInfoTextView.setVisibility(View.GONE);
+			}
+			
+		}
+		
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.statistics_info_txtView:
+				showStatistics();
+				break;
+			}
+		}
+
+
+	}
+	/**
+	 * Show user activity statistics in terms of graph
+	 */
+	private void showStatistics() {
+		// TBD
+		Log.d(TAG, "No Statistics available, TBD");
+	}
+	
+	/**
+	 * Allow the user to participate in security quiz
+	 */
+	
+	private void startSecurityQuiz() {
 		Log.d(TAG, "Taking user to security quiz.");
 
         String userName = prefs.getString(USERNAME, "");
