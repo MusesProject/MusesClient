@@ -98,7 +98,7 @@ public class NotificationController {
                 .setContentText(msg)
                 .setPriority(Notification.PRIORITY_MAX)
                 .setOngoing(true)
-                .setSmallIcon(dialogCounter == 0 ? R.drawable.muses_logo : R.drawable.muses_logo_has_message)
+                .setSmallIcon(dialogCounter == 0 ? R.drawable.muses_logo_no_message : R.drawable.muses_logo_has_message)
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(false);
 

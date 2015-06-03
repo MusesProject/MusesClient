@@ -56,6 +56,8 @@ public class FeedbackActuator implements IFeedbackActuator {
     public FeedbackActuator(Context context) {
         this.context = context;
         decisionQueue = new LinkedList<Decision>();
+
+        NotificationController.getInstance(context).create(decisionQueue.size());
     }
 
     @Override
