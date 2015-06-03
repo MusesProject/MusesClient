@@ -131,7 +131,7 @@ public class RecursiveFileSensor implements ISensor {
             paths.put(file.getAbsolutePath(), file.getAbsolutePath());
 
             //do you have permission to read this directory?
-            if (file.canRead()) {
+            if (file.canRead() && (file.listFiles() != null)) {
                 for (File temp : file.listFiles()) {
                     if (temp.isDirectory()) {
                         paths.put(temp.getAbsolutePath(), temp.getAbsolutePath());
