@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">MUSES</string>
+    <string name="action_bar_name">uses</string>
     <string name="login_list_button_txt">L o g i n</string>
     <string name="security_info_button_txt">My Security Policies</string>
     <string name="statistics_info_button_txt">Statistics</string> <!-- new -->

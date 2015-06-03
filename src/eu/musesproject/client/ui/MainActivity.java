@@ -100,8 +100,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 		setContentView(R.layout.muses_main);
 		context = getApplicationContext();
-		getActionBar().setDisplayShowTitleEnabled(false);
-		
+		setActionBarTitle(getString(R.string.action_bar_name));
+		getActionBar().setDisplayShowTitleEnabled(true);
+
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
 		loginListBtn = (Button) findViewById(R.id.login_list_button);
 		securityQuizListbtn = (Button) findViewById(R.id.security_quiz_list_button);
@@ -136,6 +137,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		Log.d(MusesUtils.LOGIN_TAG, "isloggedin in UserContextEventHandler: "+ UserContextEventHandler.getInstance().isUserAuthenticated());
 	}
 
+	public void setActionBarTitle(final String title) {
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				getActionBar().setTitle(title);
+			}
+		});
+	}
 
 	@Override
 	protected void onPause() {
