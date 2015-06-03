@@ -69,6 +69,7 @@ public class DeviceProtectionSensor implements ISensor {
 	public static final String PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS 	= "screentimeoutinseconds";
 	public static final String PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED 	= "istrustedantivirusinstalled";
 	public static final String PROPERTY_KEY_MUSES_DATABASE_EXISTS 		= "musesdatabaseexists";
+	public static final String PROPERTY_KEY_MUSES_DATABASE_CONTAINS_CFG = "musesdatabasecontainscfg";
 	public static final String PROPERTY_KEY_ACCESSIBILITY_ENABLED 		= "accessibilityenabled";
 
 	// config keys
@@ -85,6 +86,8 @@ public class DeviceProtectionSensor implements ISensor {
 
 	// list with names of trusted anti virus applications
 	private List<String> trustedAVs;
+
+	private DBManager dbManager;
 
 	public DeviceProtectionSensor(Context context) {
 		this.context = context;
@@ -124,6 +127,7 @@ public class DeviceProtectionSensor implements ISensor {
 		contextEvent.addProperty(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS, String.valueOf(getScreenTimeout()));
 		contextEvent.addProperty(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED, String.valueOf(isTrustedAntiVirInstalled()));
 		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_EXISTS, String.valueOf(musesDatabaseExist(context, DBManager.DATABASE_NAME)));
+		contextEvent.addProperty(PROPERTY_KEY_MUSES_DATABASE_CONTAINS_CFG, String.valueOf(musesDatabaseContainsCFG(context)));
 		contextEvent.addProperty(PROPERTY_KEY_ACCESSIBILITY_ENABLED, String.valueOf(isAccessibilityForMusesEnabled()));
 		contextEvent.generateId();
 
@@ -138,7 +142,7 @@ public class DeviceProtectionSensor implements ISensor {
 				}
 
 				if (contextEvent != null && listener != null) {
-//					debug(contextEvent);
+					debug(contextEvent);
 					listener.onEvent(contextEvent);
 				}
 			}
@@ -146,11 +150,24 @@ public class DeviceProtectionSensor implements ISensor {
 		else {
 			contextEventHistory.add(contextEvent);
 			if (contextEvent != null && listener != null) {
-//				debug(contextEvent);
+				debug(contextEvent);
 				listener.onEvent(contextEvent);
 			}
 		}
 
+	}
+
+	/**
+	 * method to check whether the database contains a configuration
+	 * @param context
+	 * @return true, if the database contains the server configuration and the sensor configuration
+	 */
+	private boolean musesDatabaseContainsCFG(Context context) {
+		if(dbManager == null) {
+			dbManager = new DBManager(context);
+		}
+
+		return dbManager.getConfigurations().hasItems() && dbManager.hasSensorConfig();
 	}
 
 	public void debug(ContextEvent contextEvent) {
