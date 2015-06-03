@@ -2,12 +2,15 @@
 <resources>
 
     <string name="app_name">MUSES</string>
-    <string name="action_bar_name">uses</string>
+    <string name="action_bar_name">Muses</string>
     <string name="login_list_button_txt">L o g i n</string>
     <string name="security_info_button_txt">My Security Policies</string>
     <string name="statistics_info_button_txt">Statistics</string> <!-- new -->
     <string name="no_statistics_available_txt">No statistics available, please come back later.</string> <!-- new -->
-    <string name="security_points_button_txt">Security Quiz</string>
+    <string name="login_first_for_statictics_txt">Please login first from the login menu to see Statistics.</string> <!-- new -->
+    <string name="security_points_button_txt">Quiz</string> <!-- new -->
+    <string name="login_first_for_quiz_txt">Please login first from the login menu to participate in Quiz.</string> <!-- new -->
+    
     <string name="action_settings">Settings</string>
 
     <!-- Login view strings -->
@@ -15,7 +18,7 @@
     <string name="password_txt">Password:</string>
     <string name="login_button_txt">Login</string>
     <string name="logout_button_txt">Logout</string>
-    <string name="security_quiz_button_txt">Participate in Security Quiz</string>
+    <string name="security_quiz_button_txt">Participate in Security Quiz</string> <!-- new -->
     <string name="privacy_policy_view_txt">Privacy Policy</string>
     <string name="policy_info_button_txt">MUSES policy information</string>
     <string name="settings_button_txt">Settings</string>

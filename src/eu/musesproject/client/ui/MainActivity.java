@@ -111,6 +111,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		securityQuizListbtn.setOnClickListener(this);
 		statisticsListButton.setOnClickListener(this);
 		
+		loginListBtn.setSelected(true);
+		
 		userContextMonitoringController = UserContextMonitoringController
 				.getInstance(context);
 		
@@ -164,14 +166,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.login_list_button:
+			loginListBtn.setSelected(true);
+			securityQuizListbtn.setSelected(false);
+			statisticsListButton.setSelected(false);
+
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
 			break;
 		case R.id.security_quiz_list_button:
+			securityQuizListbtn.setSelected(true);
+			loginListBtn.setSelected(false);
+			statisticsListButton.setSelected(false);
+			
 			topLayout.removeAllViews();
 			topLayout.addView(securityQuizView);
 			break;
 		case R.id.statistics_list_button:
+			statisticsListButton.setSelected(true);
+			securityQuizListbtn.setSelected(false);
+			loginListBtn.setSelected(false);
+
 			topLayout.removeAllViews();
 			topLayout.addView(statisticsView);
 			break;
@@ -581,10 +595,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void updateSecurityQuizView() {
 			
 			if (isLoggedIn) {
-				securityQuizTextView.setVisibility(View.VISIBLE);
+				securityQuizTextView.setText(getResources().getString(R.string.security_quiz_button_txt));
 			}
 			else {	
-				securityQuizTextView.setVisibility(View.GONE);
+				securityQuizTextView.setText(getResources().getString(R.string.login_first_for_quiz_txt));
 			}
 			
 		}
@@ -623,10 +637,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void updateStatisticsView() {
 			
 			if (isLoggedIn) {
-				statisticsInfoTextView.setVisibility(View.VISIBLE);
+				statisticsInfoTextView.setText(getResources().getString(R.string.no_statistics_available_txt));
 			}
 			else {	
-				statisticsInfoTextView.setVisibility(View.GONE);
+				statisticsInfoTextView.setText(getResources().getString(R.string.login_first_for_statictics_txt));
 			}
 			
 		}
