@@ -259,16 +259,17 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                        	if (childText.contains(to)) {
 									String toText = nodeInfoRoot.getChild(i+1).getText() + "";
 									Log.d(TAG, "to pos: " + toText);
-									content.setTo("@" + toText.split("@")[1]);
+									content.setTo("@" + toText.replaceAll("[\\w\\.]*@", "@"));
     	                        }
 	                        	if (childText.contains(cc)) {
 									String ccText = nodeInfoRoot.getChild(i+1).getText() + "";
 	                        		Log.d(TAG, "Cc pos: " + ccText);
-    	                            content.setCc("@" + ccText.split("@")[1]);
+    	                            content.setCc("@" + ccText.replaceAll("[\\w\\.]*@", "@"));
     	                        }
 	                        	if (childText.contains(bcc)) {
-	                        		Log.d(TAG, "Bcc pos: " + nodeInfoRoot.getChild(i+1).getText());
-    	                            content.setBcc(nodeInfoRoot.getChild(i+1).getText() + "");
+									String bccText = nodeInfoRoot.getChild(i+1).getText() + "";
+	                        		Log.d(TAG, "Bcc pos: " + bccText.replaceAll("[\\w\\.]*@", "@"));
+    	                            content.setBcc(bccText);
     	                        }
 	                        	if (childText.contains(subject)) {
 	                        		Log.d(TAG, "Subject pos: " + nodeInfoRoot.getChild(i+1).getText());
@@ -437,10 +438,10 @@ public class InteractionSensor extends AccessibilityService implements ISensor {
 	                                String contentDescription  = subSubChild.getContentDescription().toString();
 	                                String text = subSubChild.getText().toString();
 	                                if(contentDescription != null && text != null && contentDescription.equalsIgnoreCase("Cc")) {
-	                                    content.setCc(text);
+	                                    content.setCc(text.replaceAll("[\\w\\.]*@", "@"));
 	                                }
 	                                else if(contentDescription != null && text != null && contentDescription.equalsIgnoreCase("Bcc")) {
-	                                    content.setBcc(text);
+	                                    content.setBcc(text.replaceAll("[\\w\\.]*@", "@"));
 	                                }
 	                            } catch (NullPointerException e) {
 									Log.e(TAG, e.getMessage());
