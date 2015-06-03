@@ -41,8 +41,8 @@
         <activity
                 android:name=".ui.DialogController"
                 android:theme="@android:style/Theme.NoDisplay"
-                android:noHistory="true"
-                android:excludeFromRecents="true"/>
+                android:launchMode="singleTop"
+                android:excludeFromRecents="false"/>
 
         <service android:name="eu.musesproject.MUSESBackgroundService" >
         </service>

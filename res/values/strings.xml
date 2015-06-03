@@ -31,6 +31,8 @@
     <string name="wait">Please wait..</string>
     <string name="default_msg_local_login">logged in locally</string>
     
+    <!-- Notification strings -->
+    <string name="unread_feedback_dialogs">You have %1$d unread messages</string>
     <!-- Feedback dialog strings -->
     <string name="feedback_title_txt">Muses Policy Warning</string>
     <string name="details_btn_txt_deny">I want to know more!</string>

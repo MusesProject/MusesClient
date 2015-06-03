@@ -2,8 +2,10 @@ package eu.musesproject.client.ui;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import eu.musesproject.client.actuators.ActuatorController;
 
 /*
  * #%L
@@ -66,7 +68,6 @@ public class DialogController extends Activity {
         }
         if(targetDialogFragment != null) {
             targetDialogFragment.setCancelable(false);
-//            targetDialogFragment.setShowsDialog(true);
             targetDialogFragment.show(getFragmentManager(), "dialog");
         }
     }
@@ -81,5 +82,13 @@ public class DialogController extends Activity {
 
     private DialogFragment createUpToUserDialog(String title, String body, int decisionId, int actuationCommand) {
         return UpToUserDialogFragment.newInstance(title, body, decisionId, actuationCommand);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        // user clicked on the notification. Therefore we show him the current notification of the notification stack
+        ActuatorController.getInstance(this).showCurrentTopFeedback();
+        finish();
     }
 }

@@ -77,6 +77,10 @@ public class ActuatorController implements IActuatorController {
         feedbackActuator.showFeedback(decision);
     }
 
+    public void showCurrentTopFeedback() {
+        feedbackActuator.showCurrentTopFeedback();
+    }
+
     public void removeFeedbackFromQueue() {
         feedbackActuator.removeFeedbackFromQueue();
     }

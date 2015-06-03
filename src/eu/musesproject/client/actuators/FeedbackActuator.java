@@ -80,7 +80,7 @@ public class FeedbackActuator implements IFeedbackActuator {
 
             // just show a new dialog if there is no other currently displayed
             if (decisionQueue.size() == 1) {
-                sendCallback(decision);
+                createFeedbackDialog(decision);
             }
 
             // update the notification bar to visualize if there are dialogs/messages or not
@@ -90,10 +90,10 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     private void showNextFeedback(Decision decision) {
         Log.d(TAG, "showNextFeedback " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
-        sendCallback(decision);
+        createFeedbackDialog(decision);
     }
 
-    private void sendCallback(Decision decision) {
+    private void createFeedbackDialog(Decision decision) {
         Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
 
         int dialogPolicy = -1;
@@ -182,6 +182,13 @@ public class FeedbackActuator implements IFeedbackActuator {
         }
     }
 
+    @Override
+    public void showCurrentTopFeedback() {
+        if(decisionQueue != null && decisionQueue.size() > 0) {
+            createFeedbackDialog(decisionQueue.peek());
+        }
+    }
+
     public void sendLoginResponseToUI(boolean result, String msg, int detailedStatus) {
     	Log.d(APP_TAG, "Info U, Actuator -> FeedbackActuator sending login response with result: " + result);
         Log.d(TAG, "called: sendLoginResponseToUI(boolean result)");
@@ -202,4 +209,5 @@ public class FeedbackActuator implements IFeedbackActuator {
     public void perform() {
 
     }
+
 }
