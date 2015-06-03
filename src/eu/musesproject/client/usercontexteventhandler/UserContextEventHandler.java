@@ -716,7 +716,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             else if(status == Statuses.NEW_SESSION_CREATED && detailedStatus == DetailedStatuses.SUCCESS_NEW_SESSION) {
                 isAuthenticatedRemotely = false;
 				updateServerOnlineAndUserAuthenticated();
-				//TODO reset flags
                 autoLogin();
             }
 			else if(status == Statuses.CONNECTION_FAILED && detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION) {
