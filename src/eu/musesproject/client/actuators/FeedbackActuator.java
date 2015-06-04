@@ -166,7 +166,6 @@ public class FeedbackActuator implements IFeedbackActuator {
         Log.d(TAG, "1 . remove feedback from queue");
         // removes the last feedback dialog
         if(decisionQueue != null) {
-            Log.d(TAG, "2. remove decision " + decisionQueue.peek().getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
             try {
                 decisionQueue.remove();
             } catch (Exception e) {
@@ -174,7 +173,7 @@ public class FeedbackActuator implements IFeedbackActuator {
             }
             if(!decisionQueue.isEmpty()) {
                 // triggers to show the next feedback dialog if there is any
-                Log.d(TAG, "3. Decision queue size is (after removal): " + decisionQueue.size());
+                Log.d(TAG, "2. Decision queue size is (after removal): " + decisionQueue.size());
                 showNextFeedback(decisionQueue.element());
 
             }
