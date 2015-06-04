@@ -29,14 +29,15 @@
                 android:focusableInTouchMode="true"
                 android:text="@string/login_button_txt"
                 android:textColor="#663399"
-                android:textSize="35dp" />
+                android:visibility="visible"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/login_detail_text_view"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:text="@string/login_detail_view_txt"
@@ -47,15 +48,16 @@
             <Button
                 android:id="@+id/logout_button"
                 android:layout_width="fill_parent"
-                android:layout_height="94dp"
-                android:layout_marginLeft="40sp"
-                android:layout_marginRight="40sp"
+                android:layout_height="0dp"
+                android:layout_marginLeft="100sp"
+                android:layout_marginRight="100sp"
                 android:layout_marginTop="20sp"
                 android:layout_weight="1"
-                android:background="#544E56"
+                android:background="@drawable/roundedbutton"
                 android:text="@string/logout_button_txt"
                 android:textColor="#ffffff"
-                android:textSize="35sp"
+                android:textSize="15sp"
+                android:textStyle="bold"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -189,18 +191,19 @@
                     android:text="@string/agree_term_condition_txt"
                     android:textColor="#000000" />
             </LinearLayout>
-
+			<!-- margin left and right are hard coded, should not -->
             <Button
                 android:id="@+id/login_button"
                 android:layout_width="fill_parent"
-                android:layout_height="94dp"
-                android:layout_marginLeft="40sp"
-                android:layout_marginRight="40sp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="100sp"  
+                android:layout_marginRight="100sp"
                 android:layout_marginTop="20sp"
-                android:background="#544E56"
+                android:background="@drawable/roundedbutton"
                 android:text="@string/login_button_txt"
                 android:textColor="#ffffff"
-                android:textSize="35sp" />
+                android:textStyle="bold"
+                android:textSize="15sp" />
         </LinearLayout>
 
         <LinearLayout
