@@ -974,6 +974,48 @@ public class DBManager {
 
 		return decisionTable;
 	}
+	
+	public DecisionTable getDecisionTableFromDecisionId(String decision_id) {
+
+		DecisionTable decisionTable = new DecisionTable();
+		if (sqLiteDatabase == null) {// Open database in case it is closed
+			openDB();
+		}
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE,
+				new String[] { ID, ACTION_ID, RESOURCE_ID, DECISION_ID,
+						SUBJECT_ID, RISKCOMMUNICATION_ID, MODIFICATION },
+				// ID + "=?",
+				// RESOURCE_ID + "=?",
+				DECISION_ID + "=?",
+				new String[] { String.valueOf(decision_id) },
+				// null,
+				null, null, null);
+
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
+				// Now create the decision object from the cursor
+				decisionTable = new DecisionTable();
+				decisionTable.setId(Integer.parseInt(cursor.getString(0)));
+				decisionTable
+						.setAction_id(Integer.parseInt(cursor.getString(1)));
+				decisionTable.setResource_id(Integer.parseInt(cursor
+						.getString(2)));
+				decisionTable.setDecision_id(Integer.parseInt(cursor
+						.getString(3)));
+				decisionTable.setSubject_id(Integer.parseInt(cursor
+						.getString(4)));
+				decisionTable.setRiskcommunication_id(Integer.parseInt(cursor
+						.getString(5)));
+				cursor.moveToNext();
+			}
+
+		}
+
+		return decisionTable;
+	}
 
 	public DecisionTable getDecisionTableFromID(String decisiontable_id) {
 
@@ -2045,6 +2087,33 @@ public class DBManager {
 		}
 
 		return resourceList;
+
+	}
+	
+	public List<Decision> getAllDecisionsWithCondition() {
+
+		List<Decision> decisionList = new ArrayList<Decision>();
+		if (sqLiteDatabase == null) {// Open database in case it is closed
+			openDB();
+		}
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String[] { ID, 
+				NAME, CONDITION, MODIFICATION }, ID
+				+ " IS NOT NULL",
+				null, null, null, null);
+
+		Decision decision = new Decision();
+		if (cursor != null && cursor.moveToFirst()) {
+			while (!cursor.isAfterLast()) {
+				Log.d(TAG, cursor.getString(0));
+				decision.setId(Integer.parseInt(cursor.getString(0)));
+				decision.setName(cursor.getString(1));
+				decision.setCondition(cursor.getString(2));
+				decisionList.add(decision);
+				cursor.moveToNext();
+			}
+		}
+
+		return decisionList;
 
 	}
 

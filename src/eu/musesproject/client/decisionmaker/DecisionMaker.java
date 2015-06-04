@@ -4,22 +4,27 @@
  */
 package eu.musesproject.client.decisionmaker;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.ConnectivitySensor;
 import eu.musesproject.client.contextmonitoring.sensors.PackageSensor;
-import eu.musesproject.client.db.entity.*;
+import eu.musesproject.client.db.entity.Action;
+import eu.musesproject.client.db.entity.DecisionTable;
+import eu.musesproject.client.db.entity.Resource;
+import eu.musesproject.client.db.entity.RiskCommunication;
+import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.contextmodel.ContextEvent;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -48,6 +53,94 @@ public class DecisionMaker {
 
 	
 	}	
+	private String getConditionType(String condition) {
+		if (condition.contains("installedApps")){
+			return "event";
+		}else{
+			return "property";
+		}
+	}
+	public Decision manageDecision(Request request, List<ContextEvent> eventList, Map<String, String> properties){
+		Log.d(TAG, "called: manageDecision(Request request, List<ContextEvent> eventList)");
+		Decision resultDecision = null;
+		Map<String,String> conditions = new HashMap<String,String>();
+		Map<String,String> eventProperties = new HashMap<String,String>();
+		String condition = null;
+		eu.musesproject.client.db.entity.Decision entityDecision = null;
+		eu.musesproject.client.db.entity.DecisionTable dt = null;
+		eu.musesproject.client.db.entity.RiskCommunication comm = null;
+		eu.musesproject.client.db.entity.RiskTreatment treatment = null;
+		boolean match = false;
+		
+		DBManager dbManager = new DBManager(UserContextEventHandler.getInstance().getContext());
+        dbManager.openDB();
+        
+        //List<Resource> list = dbManager.getAllResourcesWithCondition();
+        List<eu.musesproject.client.db.entity.Decision> list = dbManager.getAllDecisionsWithCondition();
+        Log.d(TAG+"SZL","conditions:"+list.size());
+        //get all conditions for all current device policy decisions (only for elements that are meant to appear in the eventList, not properties)
+        for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+        	eu.musesproject.client.db.entity.Decision decision = (eu.musesproject.client.db.entity.Decision) iterator.next();
+        	condition = decision.getCondition();
+        	Log.d(TAG+"SZL","	condition:"+condition);
+        	if  (getConditionType(condition).equals("event")){
+        		//conditions.put(decision.getCondition(), getConditionType(condition));
+        		conditions.put(decision.getCondition(), String.valueOf(decision.getId()));
+        	}			
+		}
+        
+        // Now, check if any ContextEvent in the eventList satisfies such conditions
+        
+        for (Map.Entry<String, String> entry : conditions.entrySet())
+        {
+            Log.d(TAG+"SZL","1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
+            Log.d(TAG+"SZL","Event List size:"+eventList.size());
+            //Iterate over eventList
+            for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
+				ContextEvent contextEvent = (ContextEvent) iterator.next();
+				//Get properties of such contextEvent
+				eventProperties= contextEvent.getProperties();
+				//Iterate over the event properties to check if the condition is in place
+				for (Map.Entry<String, String> propEntry : eventProperties.entrySet()){
+					String propKey = propEntry.getKey();
+					 Log.d(TAG+"SZL","2. Property event to be checked: "+propEntry.getKey() + "/" + propEntry.getValue());
+					 if (entry.getKey().toLowerCase().contains(propKey.toLowerCase())){
+						 String value = entry.getKey()
+									.substring(
+											entry.getKey()
+													.indexOf(":") + 1,
+													entry.getKey()
+													.length() - 1);
+						 if ((propKey.contains("installedapps"))&&(!propEntry.getValue().contains(value))){
+							Log.d(TAG+"SZL","3.installedapps Match!");
+							match = true;
+						 }else if (propEntry.getValue().contains(value)){
+							 Log.d(TAG+"SZL","3.Match!");
+							 match = true;
+						 }
+					 }
+				}
+			}
+            if (match){
+            	entityDecision = dbManager.getDecisionFromID(entry.getValue());
+				dt = dbManager.getDecisionTableFromDecisionId(String.valueOf(entityDecision.getId()));
+				comm= dbManager.getRiskCommunicationFromID(String.valueOf(dt.getRiskcommunication_id()));
+		        	if (comm != null){
+		        		treatment = dbManager.getRiskTreatmentFromID(String.valueOf(comm.getRisktreatment_id()));
+		        	}
+		        	resultDecision = composeDecision(entityDecision, comm, treatment);
+				 return resultDecision;
+            }else{
+            	return null;
+            }
+        }
+ 
+		
+		return resultDecision;
+		
+	}
+
+
 	/**
 	 * Info DC
 	 * 
@@ -60,6 +153,13 @@ public class DecisionMaker {
 	 */
 	
 	public Decision makeDecision(Request request, List<ContextEvent> eventList, Map<String, String> properties){
+		
+		Decision priorDecision = manageDecision(request, eventList, properties);
+		if (priorDecision != null){
+			Logger.getLogger(TAG).log(Level.WARNING, "Policy Device Decision: " + priorDecision.getName());
+			return priorDecision;
+		}
+		
 		Log.d(APP_TAG, "Info DC, DecisionMaker=> Making decision with request and events");
         Log.d(TAG, "called: makeDecision(Request request, List<ContextEvent> eventList)");
         String resourceCondition = null;
