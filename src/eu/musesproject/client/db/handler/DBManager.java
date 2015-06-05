@@ -28,7 +28,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.db.entity.*;
-import eu.musesproject.client.db.entity.DecisionTable;
 import eu.musesproject.client.utils.MusesUtils;
 
 import java.text.ParseException;
@@ -38,6 +37,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.cookie.Cookie;
@@ -530,13 +531,10 @@ public class DBManager {
 
 	private Date getDate(String expired) {
 		Date dateExpired = null;
-		SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(
-				"EEE MMM dd HH:mm:ss Z yyyy", Locale.US);
+		SimpleDateFormat dateFormattor = new SimpleDateFormat(
+				"EEE MMM dd HH:mm:ss z yyyy");
 		try {
-			if (expired != "*") {
-				dateExpired = DATE_FORMATTER.parse(expired.replaceAll(
-						"\\p{Cntrl}", ""));
-			}
+			dateExpired = dateFormattor.parse(expired);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
