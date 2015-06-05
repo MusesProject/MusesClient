@@ -41,7 +41,7 @@ public class ActuatorController implements IActuatorController {
     private final UserContextEventHandler uceHandler = UserContextEventHandler.getInstance();
 
     private FeedbackActuator feedbackActuator;
-    private FileEraserActuator fileEraserActuator;
+    private ActuatorCommandAPI actuateCMD;
     private IBlockActuator blockActuator;
     
     private DBManager dbManager;
@@ -49,7 +49,7 @@ public class ActuatorController implements IActuatorController {
     public ActuatorController(Context context) {
         this.context = context;
         this.feedbackActuator = new FeedbackActuator(context);
-        this.fileEraserActuator = new FileEraserActuator();
+        this.actuateCMD = new ActuatorCommandAPI(context);
         this.blockActuator = new BlockActuator(uceHandler.getContext());
         this.dbManager = new DBManager(uceHandler.getContext());
     }
@@ -100,7 +100,7 @@ public class ActuatorController implements IActuatorController {
      * @param folderPath
      */
     public void eraseFolderContent(String folderPath) {
-        fileEraserActuator.eraseFolderContent(folderPath);
+        actuateCMD.eraseFolderContent(folderPath);
     }
     
     /**
