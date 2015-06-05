@@ -481,7 +481,7 @@ public class DBManager {
 		values.put(COOKIE_VERSION, version);
 		values.put(COOKIE_EXPIRY, expired);
 		
-		Log.d(TAG, "cookie_store: " + cookie.toString());
+		Log.d(TAG, "insert cookie_store: " + cookie.getExpiryDate().toString());
 
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
@@ -492,7 +492,6 @@ public class DBManager {
 
 	public Cookie getCookie(BasicCookieStore cookieStore) {
 		BasicClientCookie cookies;
-		Cookie retreivedCookie = null;
 		
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
@@ -519,16 +518,13 @@ public class DBManager {
 				cookies.setExpiryDate(getDate(expired));
 				
 				cookieStore.addCookie(cookies);
+				return cookies;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
-		if (!cookieStore.getCookies().isEmpty()){
-			retreivedCookie = cookieStore.getCookies().get(0);
-			return retreivedCookie;
-		}
-		return retreivedCookie;
+		return null;
 
 	}
 
@@ -544,7 +540,7 @@ public class DBManager {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-
+		Log.d(TAG, "retreived cookie_store: " + dateExpired.toString());
 		return dateExpired;
 	}
 

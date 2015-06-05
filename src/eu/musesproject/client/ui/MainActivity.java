@@ -71,9 +71,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private static final String IS_MUSES_SERVICE_INITIALIZED = "is_muses_service_initialized";
 	private static final String IS_LOGGED_IN = "is_logged_in";
 	private LinearLayout topLayout;
-	private Button loginListBtn, securityQuizListbtn, statisticsListButton;
+	private Button loginListBtn, informationSecurityBehaviourListbtn, securityQuizListbtn, statisticsListButton;
 	private Context context;
 	private LoginView loginView;
+	private InformationSecurityBehaviourView informationSecurityBehaviourView;
 	private SecurityQuizView securityQuizView;
 	private StatisticsView statisticsView;
 	private UserContextMonitoringController userContextMonitoringController;
@@ -105,9 +106,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		topLayout = (LinearLayout) findViewById(R.id.top_layout);
 		loginListBtn = (Button) findViewById(R.id.login_list_button);
+		informationSecurityBehaviourListbtn = (Button) findViewById(R.id.info_security_behaviour_list_button);
 		securityQuizListbtn = (Button) findViewById(R.id.security_quiz_list_button);
 		statisticsListButton = (Button) findViewById(R.id.statistics_list_button);
+		
 		loginListBtn.setOnClickListener(this);
+		informationSecurityBehaviourListbtn.setOnClickListener(this);
 		securityQuizListbtn.setOnClickListener(this);
 		statisticsListButton.setOnClickListener(this);
 		
@@ -130,8 +134,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 
 		loginView = new LoginView(context);
+		informationSecurityBehaviourView = new InformationSecurityBehaviourView(context);
 		securityQuizView = new SecurityQuizView(context);
 		statisticsView = new StatisticsView(context);
+		
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
 		isLoggedIn = checkIfLoggedInPrefs();
@@ -167,15 +173,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		switch (v.getId()) {
 		case R.id.login_list_button:
 			loginListBtn.setSelected(true);
+			informationSecurityBehaviourListbtn.setSelected(false);
 			securityQuizListbtn.setSelected(false);
 			statisticsListButton.setSelected(false);
-
+			
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
+			break;
+		case R.id.info_security_behaviour_list_button:
+			informationSecurityBehaviourListbtn.setSelected(true);
+			loginListBtn.setSelected(false);
+			securityQuizListbtn.setSelected(false);
+			statisticsListButton.setSelected(false);
+			
+			topLayout.removeAllViews();
+			topLayout.addView(informationSecurityBehaviourView);
 			break;
 		case R.id.security_quiz_list_button:
 			securityQuizListbtn.setSelected(true);
 			loginListBtn.setSelected(false);
+			informationSecurityBehaviourListbtn.setSelected(false);
 			statisticsListButton.setSelected(false);
 			
 			topLayout.removeAllViews();
@@ -183,8 +200,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			break;
 		case R.id.statistics_list_button:
 			statisticsListButton.setSelected(true);
-			securityQuizListbtn.setSelected(false);
 			loginListBtn.setSelected(false);
+			informationSecurityBehaviourListbtn.setSelected(false);
+			securityQuizListbtn.setSelected(false);
 
 			topLayout.removeAllViews();
 			topLayout.addView(statisticsView);
@@ -240,28 +258,37 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				stopProgress();
 				isLoggedIn = true;
 				updateLoginInPrefs(true);
+				
 				loginView.updateLoginView();
+				informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
 				securityQuizView.updateSecurityQuizView();
 				statisticsView.updateStatisticsView();
-                toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
+                
+				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
                 Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
 				isLoggedIn = false;
 				updateLoginInPrefs(false);
+				
 				loginView.updateLoginView();
+				informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
 				securityQuizView.updateSecurityQuizView();
 				statisticsView.updateStatisticsView();
+				
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			default:  // No need to handle all error code right now, as we will a fixed message, but can be used in future
 				stopProgress();
 				isLoggedIn = false;
 				updateLoginInPrefs(false);
+				
 				loginView.updateLoginView();
+				informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
 				securityQuizView.updateSecurityQuizView();
 				statisticsView.updateStatisticsView();
+				
 				toastMessage(getResources().getString(R.string.unknown_error_toast_text));
 				break;
 			}
@@ -269,6 +296,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	};
 	
+	/**
+	 * Starts the progress bar when user try to login
+	 */
 	private void startProgress(){
 		progressDialog = new ProgressDialog(MainActivity.this, ProgressDialog.THEME_DEVICE_DEFAULT_DARK);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -279,6 +309,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		progressDialog.setCancelable(true);
 		progressDialog.show();
 	}
+	
+	/**
+	 * Stops the progress bar when a reply is received from server
+	 */
 	
 	private void stopProgress(){
 		if (progressDialog!=null){
@@ -489,8 +523,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				toastMessage(getResources().getString(
 						R.string.logout_successfully_msg));
 				isLoggedIn = false;
+				
+				informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
 				securityQuizView.updateSecurityQuizView();
 				statisticsView.updateStatisticsView();
+				
 				setUsernamePasswordIfSaved();
 				break;
 			}
@@ -572,6 +609,59 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 		
 	}
+	
+	/**
+	 * Information on Security Behaviour class shows information about user behaviour
+	 * 
+	 * @author Yasir Ali
+	 * @version Jan 27, 2014
+	 */
+
+	private class InformationSecurityBehaviourView extends LinearLayout implements 
+					View.OnClickListener {
+
+		private TextView infoSecurityBehaviourTextView;
+
+		public InformationSecurityBehaviourView(Context context) {
+			super(context);
+			inflate(context, R.layout.info_sec_view, this);
+			infoSecurityBehaviourTextView = (TextView) findViewById(R.id.info_sec_txtView);
+			infoSecurityBehaviourTextView.setOnClickListener(this);
+		}
+		
+		public void updateInformationSecurityBehaviourView() {
+			
+			if (isLoggedIn) {
+				infoSecurityBehaviourTextView.setText(getResources().getString(R.string.no_info_sec_available_txt));
+			}
+			else {	
+				infoSecurityBehaviourTextView.setText(getResources().getString(R.string.login_first_for_info_security_behaviour_txt));
+			}
+			
+		}
+		
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.info_sec_txtView:
+				showInformationSecurityBehaviour();
+				break;
+			}
+		}
+
+
+
+	}
+	
+	/**
+	 * Show information security behaviour
+	 */
+	private void showInformationSecurityBehaviour() {
+		// TBD
+		Log.d(TAG, "Nothing to show in information security ´behaviour");
+	}
+	
+	
 
 	/**
 	 * SecurityInformationView class shows security information on the main GUI
