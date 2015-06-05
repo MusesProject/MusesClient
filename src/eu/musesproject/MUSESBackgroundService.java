@@ -33,6 +33,9 @@ import eu.musesproject.client.ui.MainActivity;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.client.utils.MusesUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This class is responsible to start the background
  * service which enables the application to run properly.
@@ -87,7 +90,9 @@ public class MUSESBackgroundService extends Service {
 
 			// send status of the service
 			String actionDescription = getString(R.string.action_description_started);
-			userContextEventHandler.send(createAction(actionDescription), null, null);
+			Map<String, String> properties = new HashMap<String, String>();
+			properties.put("status", actionDescription);
+			userContextEventHandler.send(createAction(actionDescription), properties, null);
 		}
 		startService(new Intent(this, MusesServiceProvider.class));
 
@@ -102,7 +107,9 @@ public class MUSESBackgroundService extends Service {
 
 		// send status of the service
 		String actionDescription = getString(R.string.action_description_stopped);
-		userContextEventHandler.send(createAction(actionDescription), null, null);
+		Map<String, String> properties = new HashMap<String, String>();
+		properties.put("status", actionDescription);
+		userContextEventHandler.send(createAction(actionDescription), properties, null);
 
 		super.onDestroy();
 	}
