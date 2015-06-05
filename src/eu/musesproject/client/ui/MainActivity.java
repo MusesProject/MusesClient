@@ -132,9 +132,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 		
 		if (!isMUSESServiceInitialized) { // If not initialized
-			// FIXME
+			// FIXME If we  force close the app, nobody is restarting the service.
 			startService(new Intent(this, MUSESBackgroundService.class));
-			setMUSESServiceInitializedInPrefs(); FIXME
+			setMUSESServiceInitializedInPrefs(); 
 			Log.v(MusesUtils.LOGIN_TAG, "muses service started ... from MainActivity");
 			Log.v(APP_TAG, "muses service started ... from MainActivity");
 		}
