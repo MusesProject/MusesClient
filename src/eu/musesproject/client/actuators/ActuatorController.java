@@ -94,15 +94,10 @@ public class ActuatorController implements IActuatorController {
         feedbackActuator.sendLoginResponseToUI(loginResponse, msg, detailedStatus);
     }
 
-    /**
-     * Method to erase files from a given folder path.
-     * The folder structure (sub-folders) are not deleted, just the files itself
-     * @param folderPath
-     */
-    public void eraseFolderContent(String folderPath) {
-        actuateCMD.eraseFolderContent(folderPath);
+    public ActuatorCommandAPI getActuateCMD() {
+        return actuateCMD;
     }
-    
+
     /**
      * Method to block a specific app by killing its process
      * 
