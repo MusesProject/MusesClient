@@ -21,6 +21,7 @@ package eu.musesproject.client.ui;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -70,6 +71,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private static final String IS_MUSES_SERVICE_INITIALIZED = "is_muses_service_initialized";
 	private static final String IS_LOGGED_IN = "is_logged_in";
+	private static final String APP_TAG = "APP_TAG";
 	private LinearLayout topLayout;
 	private Button loginListBtn, informationSecurityBehaviourListbtn, securityQuizListbtn, statisticsListButton;
 	private Context context;
@@ -127,10 +129,14 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 		// starts the background service of MUSES
 		isMUSESServiceInitialized = isMUSESServiceInitializedInPrefs();
+		
+		
 		if (!isMUSESServiceInitialized) { // If not initialized
+			// FIXME
 			startService(new Intent(this, MUSESBackgroundService.class));
-			setMUSESServiceInitializedInPrefs();
+			setMUSESServiceInitializedInPrefs(); FIXME
 			Log.v(MusesUtils.LOGIN_TAG, "muses service started ... from MainActivity");
+			Log.v(APP_TAG, "muses service started ... from MainActivity");
 		}
 
 		loginView = new LoginView(context);
@@ -219,22 +225,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		boolean isActive = dbManager.isSilentModeActive();
 		dbManager.closeDB();
 		if (!isActive) {
-			if (loginView == null) {
-				Log.v(MusesUtils.LOGIN_TAG, "login view is null, creating new view");
-				loginView = new LoginView(context);
-			}
+			// FIXME what should be done here??
 			
-			if (securityQuizView == null){
-				Log.v(MusesUtils.LOGIN_TAG, "security view is null, creating new view");
-				securityQuizView = new SecurityQuizView(context);
-			}
 //			topLayout.removeAllViews();
 //			topLayout.addView(loginView);
 //			topLayout.addView(securityQuizView);
 		}
 		
 		autoUpdate = new Timer();
-		  autoUpdate.schedule(new TimerTask() {
+		autoUpdate.schedule(new TimerTask() {
 		   @Override
 		   public void run() {
 		    runOnUiThread(new Runnable() {
@@ -243,11 +242,36 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		     }
 		    });
 		   }
-		  }, 6000, 30000); // updates each 30 secs
-		
+		}, 6000, 30000); // updates each 30 secs
+
+		if (loginView == null) {
+			Log.v(MusesUtils.LOGIN_TAG, "login view is null, creating new view");
+			loginView = new LoginView(context);
+		}
+		if (informationSecurityBehaviourView == null) {
+			Log.v(MusesUtils.LOGIN_TAG, "informationSecurityBehaviourView is null, creating new view");
+			informationSecurityBehaviourView = new InformationSecurityBehaviourView(context);
+		}
+
+		if (securityQuizView == null){
+			Log.v(MusesUtils.LOGIN_TAG, "security view is null, creating new view");
+			securityQuizView = new SecurityQuizView(context);
+		}
+		if (statisticsView == null){
+			Log.v(MusesUtils.LOGIN_TAG, "statistics view is null, creating new view");
+			statisticsView = new StatisticsView(context);
+		}
+		updateViews();
+		  
 	}
 
-
+	private void updateViews() {
+		loginView.updateLoginView();
+		informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
+		securityQuizView.updateSecurityQuizView();
+		statisticsView.updateStatisticsView();
+		
+	}
 	private Handler callbackHandler = new Handler() {
 
 		@Override

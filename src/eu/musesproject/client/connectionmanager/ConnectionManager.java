@@ -21,8 +21,11 @@ package eu.musesproject.client.connectionmanager;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+
+import eu.musesproject.client.usercontexteventhandler.JSONManager;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -124,7 +127,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		String dataIdStr = "";
 		dataIdStr = Integer.toString(dataId);
 		setCommandOngoing();
-		Log.d(APP_TAG, "ConnManager=> send data to server: "+data);
+		Log.d(APP_TAG, "ConnManager=> send data to server with request type: "+JSONManager.getRequestType(data));
 		startHttpThread(DATA, URL, 
 				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, dataIdStr); 
 	}

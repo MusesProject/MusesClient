@@ -85,7 +85,7 @@ public class HttpResponseHandler {
 				if (isPollRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					if (isPayloadInData(httpResponse)) {
-						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
+						Log.d(APP_TAG, "ConnManager=> Poll request=>Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
 						sendAcktoServer();
 					}
@@ -96,7 +96,7 @@ public class HttpResponseHandler {
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
-						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
+						Log.d(APP_TAG, "ConnManager=> SendData request=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
 					}
 
@@ -110,14 +110,14 @@ public class HttpResponseHandler {
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
-						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
+						Log.d(APP_TAG, "ConnManager=> Connect request=> Server responded with JSON: " + receivedHttpResponseData);
 
 						//sendDataToFunctionalLayer();
 					} 
 				} else if (isDisonnectRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DISCONNECTED, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
-						Log.d(APP_TAG, "ConnManager=> Server responded with JSON: " + receivedHttpResponseData);
+						Log.d(APP_TAG, "ConnManager=> Disconnect request=> Server responded with JSON: " + receivedHttpResponseData);
 
 						//sendDataToFunctionalLayer();
 					} 
@@ -150,7 +150,7 @@ public class HttpResponseHandler {
 				break;
 			case DetailedStatuses.NOT_FOUND:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
-				Log.d(APP_TAG, "Server is OFFLINE .. Error: NOt found");
+				Log.d(APP_TAG, "Server is OFFLINE .. Error: Not found");
 				
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_FOUND, dataId);
@@ -172,7 +172,7 @@ public class HttpResponseHandler {
 				break;
 			case DetailedStatuses.SERVER_NOT_AVAIABLE:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
-				Log.d(APP_TAG, "Server is OFFLINE .. Server not available..");
+				Log.d(APP_TAG, "Server is OFFLINE .. Server not available");
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.SERVER_NOT_AVAIABLE, dataId);
 				}
@@ -407,14 +407,13 @@ public class HttpResponseHandler {
 
 	public String getDataLength() {
 		String dataLength = "0";
-		if (httpResponse != null)
-		{
+		if (httpResponse != null){
 			Header header = httpResponse.getFirstHeader("data");
-			if (header!=null)
-			{
-				if (header.getValue().contains("sensor-config"))
+			if (header!=null){
+				if (header.getValue().contains("sensor-config")) {
 					Log.d(APP_TAG, "Sensor-Config");
-				dataLength = Integer.toString(header.getValue().length());
+					dataLength = Integer.toString(header.getValue().length());
+				}
 			}
 		}
 		// new implementation as data header is not used anymore

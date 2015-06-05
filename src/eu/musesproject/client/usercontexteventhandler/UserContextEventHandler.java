@@ -70,7 +70,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public static final String TAG_RQT2 = "REQUEST_TIMEOUT2";
 	public static final String TAG_DB = "DATABASE_TEST_CODE";
 	public static final String APP_TAG = "APP_TAG";
-	public static final String APP_TAG2 = "APP_TAG2";
 
 	private static UserContextEventHandler userContextEventHandler = null;
 	public static final String PREF_KEY_USER_AUTHENTICATED = "PREF_KEY_USER_AUTHENTICATED";
@@ -185,14 +184,13 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - send(action, prop, context_events)");
-		Log.d(APP_TAG, "Action: " + action.getActionType());
+		Log.d(APP_TAG, "UCEH - send(action, prop, context_events) with actionType=>" + action.getActionType());
 		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
 
 		Decision decision = retrieveDecision(action, properties, contextEvents);
 
 		if(decision != null) { // local decision found
-			Log.d(APP_TAG, "Decision is: " + decision.getName());
-			Log.d(APP_TAG, "Info DC, Local decision found, now calling actuator to showFeedback");
+			Log.d(APP_TAG, "Info DC, Local decision found => " + decision.getName() +", now calling actuator to showFeedback");
 			Log.d(TAG_RQT, "Showing feedback for action: "+action.getActionType());
 			ActuatorController.getInstance(context).showFeedback(decision);
             if(action.isRequestedByMusesAwareApp() && action.isMusesAwareAppRequiresResponse()) {
@@ -218,14 +216,13 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				Log.d(TAG_RQT2, "Adding action: "+ requestHolder.getAction().getActionType()+ " current size is: "+ mapOfPendingRequests.size());
 				// create the JSON request and send it to the server
 				JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
-				Log.d(APP_TAG, "Info DC, No Local decision found, Sever is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
+				Log.d(APP_TAG, "Info DC, No Local decision found, Server is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
 				sendRequestToServer(requestObject);
 			}
 			else if(serverStatus == Statuses.ONLINE && !isUserAuthenticated) {
 				storeContextEvent(action, properties, contextEvents);
 			}
 			else if(serverStatus == Statuses.OFFLINE && isUserAuthenticated) {
-				Log.d(APP_TAG, "showFeedback2");
                 // TODO do not show the default policies at this point
 //				ActuatorController.getInstance(context).showFeedback(new DecisionMaker().getDefaultDecision());
 				storeContextEvent(action, properties, contextEvents);
@@ -254,7 +251,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 		Resource resource = ResourceCreator.create(action, properties);
 		Request request = new Request(action, resource);
-		Log.d(APP_TAG, "Info DC, Calling decision maker");
 		if(decisionMaker == null) {
 			decisionMaker = new DecisionMaker();
 		}
@@ -275,7 +271,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
         // send the current user feedback to the server
 		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
 			Log.d(MusesUtils.TEST_TAG, "UCEH - sendUserBehavior(Action action)");
-			Log.d(APP_TAG, "Info U, sending user behavior to server with action");
+			Log.d(APP_TAG, "Info U, sending user behavior to server with action:"+action.getActionType());
 			JSONObject userBehaviorJSON = JSONManager.createUserBehaviorJSON(getImei(), getUserName(), action.getActionType(), decisionId);
 			sendRequestToServer(userBehaviorJSON);
 		}
@@ -310,14 +306,13 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 		dbManager.closeDB();
 
-        Log.d(APP_TAG, "login, server status: " + (serverStatus == Statuses.ONLINE));
 		if(serverStatus == Statuses.ONLINE) {
 			Log.d(APP_TAG, "Info U, Authenticating user login to server with username: "+tmpLoginUserName+" password: "+tmpLoginPassword + " deviceId: " +deviceId);
 			JSONObject requestObject = JSONManager.createLoginJSON(tmpLoginUserName, tmpLoginPassword, deviceId);
 			sendRequestToServer(requestObject);
 		}
 		else {
-			Log.d(APP_TAG, "Info U, Authenticating login with username:"+tmpLoginUserName+" password:"+tmpLoginPassword + " deviceId: " + deviceId + " in localdatabase");
+			Log.d(APP_TAG, "Info U, Authenticating login in localdatabase with username:"+tmpLoginUserName+" password:"+tmpLoginPassword + " deviceId: " + deviceId);
 			dbManager.openDB();
 			isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword);
 			dbManager.closeDB();
@@ -516,7 +511,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	public void sendRequestToServer(JSONObject requestJSON) {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - sendRequestToServer(JSONObject requestJSON)");
 		Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
-        Log.d(APP_TAG2, requestJSON.toString());
 		if (requestJSON != null && !requestJSON.toString().isEmpty()) {
 			if(serverStatus == Statuses.ONLINE) {
                 String sendData  = requestJSON.toString();
@@ -571,10 +565,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				// identify the request type
 				String requestType = JSONManager.getRequestType(receivedData);
 				Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb(); requestType=" +requestType);
-				Log.d(APP_TAG, "Request type was " + requestType);
+				Log.d(APP_TAG, "UCEH - receiveCb(); requestType=" +requestType);
 
 				if(requestType.equals(RequestType.UPDATE_POLICIES)) {
-					Log.d(APP_TAG, "Updating polices");
 					RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
 
 					// look for the related request
@@ -586,14 +579,13 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						mapOfPendingRequests.remove(requestId);
 						Log.d(TAG_RQT2, "Removing action: " +JSONManager.getActionType(receivedData));
 						send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
-                        Log.d(APP_TAG, "condition is: " + JSONManager.getPolicyCondition(receivedData) + " for request id:" + JSONManager.getRequestId(receivedData) + " for action:" + requestHolder.getAction().getActionType());
+                        Log.d(APP_TAG, "UCEH - receiveCb(); Condition is" + JSONManager.getPolicyCondition(receivedData) + " for request id:" + JSONManager.getRequestId(receivedData) + " for action:" + requestHolder.getAction().getActionType());
 					}
 				}
 				else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
 					isAuthenticatedRemotely = JSONManager.getAuthResult(receivedData);
                     isUserAuthenticated = isAuthenticatedRemotely;
                     String authMessage = JSONManager.getAuthMessage(receivedData);
-                    Log.d(APP_TAG, "Retreiving auth response from JSON, authenticated: " + isAuthenticatedRemotely);
                     updateServerOnlineAndUserAuthenticated();
 					if(isAuthenticatedRemotely) {
 						dbManager.openDB();
@@ -756,7 +748,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				// json string is empty
 			}
 
-            //Log.d(APP_TAG, "statusCb status: " + (serverStatus == Statuses.ONLINE));
 			serverDetailedStatus = detailedStatus;
 
 			return 0;
@@ -833,7 +824,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
         // TODO do not show the default policies at this point
 //		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
-//		Log.d(APP_TAG, "           4");
 //		ActuatorController.getInstance(context).showFeedback(decision);
 //		if(requestHolder.getAction().isRequestedByMusesAwareApp()) {
 //			ActuatorController.getInstance(context).sendFeedbackToMUSESAwareApp(decision);
