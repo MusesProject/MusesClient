@@ -33,6 +33,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -641,52 +644,40 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 * @version Jan 27, 2014
 	 */
 
-	private class InformationSecurityBehaviourView extends LinearLayout implements 
-					View.OnClickListener {
+	private class InformationSecurityBehaviourView extends LinearLayout {
 
-		private TextView infoSecurityBehaviourTextView;
+		private WebView infoSecurityBehaviourWebView;
 
 		public InformationSecurityBehaviourView(Context context) {
 			super(context);
 			inflate(context, R.layout.info_sec_view, this);
-			infoSecurityBehaviourTextView = (TextView) findViewById(R.id.info_sec_txtView);
-			infoSecurityBehaviourTextView.setOnClickListener(this);
+			infoSecurityBehaviourWebView = (WebView) findViewById(R.id.info_sec_webview);        
+
+	        final String mimeType = "text/html";
+	        final String encoding = "UTF-8";
+	        String html =getResources().getString(R.string.info_sec_txt_webview);
+	        infoSecurityBehaviourWebView.getSettings().setJavaScriptEnabled(true);
+	        infoSecurityBehaviourWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+	        infoSecurityBehaviourWebView.loadDataWithBaseURL("", html, mimeType, encoding, "");
+			
 		}
 		
 		public void updateInformationSecurityBehaviourView() {
-			
-			if (isLoggedIn) {
-				infoSecurityBehaviourTextView.setText(getResources().getString(R.string.no_info_sec_available_txt));
-			}
-			else {	
-				infoSecurityBehaviourTextView.setText(getResources().getString(R.string.login_first_for_info_security_behaviour_txt));
-			}
-			
+			Log.d(TAG, "Nothing to update for timebeing in webview.");
 		}
 		
-		@Override
-		public void onClick(View v) {
-			switch (v.getId()) {
-			case R.id.info_sec_txtView:
-				showInformationSecurityBehaviour();
-				break;
-			}
+		@JavascriptInterface
+		public void resize(final float height) {
+		    MainActivity.this.runOnUiThread(new Runnable() {
+		        @Override
+		        public void run() {
+		        	infoSecurityBehaviourWebView.setLayoutParams(new LinearLayout.LayoutParams(getResources().getDisplayMetrics().widthPixels, (int) (height * getResources().getDisplayMetrics().density)));
+		        }
+		    });
 		}
-
-
-
+		
 	}
 	
-	/**
-	 * Show information security behaviour
-	 */
-	private void showInformationSecurityBehaviour() {
-		// TBD
-		Log.d(TAG, "Nothing to show in information security �behaviour");
-	}
-	
-	
-
 	/**
 	 * SecurityInformationView class shows security information on the main GUI
 	 * 
