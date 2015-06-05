@@ -183,14 +183,15 @@ public abstract class HttpConnectionsHelper {
 		    	if (!cookieFound) {
 		    		serverResponse.setNewSession(true,DetailedStatuses.SUCCESS_NEW_SESSION);
 		    		retreivedCookie = cookieStore.getCookies().get(0);
+		    		saveCookiesToDB();
 		    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
 		    	}
 		    } else {
 	    		serverResponse.setNewSession(true,DetailedStatuses.SUCCESS_NEW_SESSION);
 	    		retreivedCookie = cookieStore.getCookies().get(0);
+	    		saveCookiesToDB();
 	    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
 		    }
-			saveCookiesToDB();
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 			Log.e(APP_TAG,"doSecurePost"+ e.toString());
@@ -229,7 +230,6 @@ public abstract class HttpConnectionsHelper {
 	}
 	
 	public Cookie getCookieFromDB() {
-		cookieStore.clear();
 		dbManager = new DBManager(ConnectionManager.context);
 		dbManager.openDB();
 

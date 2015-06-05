@@ -7,8 +7,10 @@
     <string name="security_info_button_txt">My Security Policies</string>
     <string name="statistics_info_button_txt">Statistics</string> <!-- new -->
     <string name="no_statistics_available_txt">No statistics available, please come back later.</string> <!-- new -->
+    <string name="no_info_sec_available_txt">No information available, please come back later.</string> <!-- new -->
     <string name="login_first_for_statictics_txt">Please login first from the login menu to see Statistics.</string> <!-- new -->
     <string name="info_security_behaviour_button_txt">Information Security Behaviour</string> <!-- new -->
+    <string name="login_first_for_info_security_behaviour_txt">Please login first from the login menu to see information about security behaviour.</string> <!-- new -->
     <string name="security_points_button_txt">Quiz</string> <!-- new -->
     <string name="login_first_for_quiz_txt">Please login first from the login menu to participate in Quiz.</string> <!-- new -->
     
