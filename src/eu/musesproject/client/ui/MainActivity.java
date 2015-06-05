@@ -682,7 +682,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 */
 	private void showInformationSecurityBehaviour() {
 		// TBD
-		Log.d(TAG, "Nothing to show in information security ´behaviour");
+		Log.d(TAG, "Nothing to show in information security ï¿½behaviour");
 	}
 	
 	

@@ -370,7 +370,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 	}
 
-	private void manageMonitoringComponent() {
+	public void manageMonitoringComponent() {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - manageMonitoringComponent()");
 		if(isUserAuthenticated) {
 			UserContextMonitoringController.getInstance(getContext()).startContextObservation();

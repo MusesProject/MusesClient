@@ -94,6 +94,8 @@ public class MUSESBackgroundService extends Service {
 			properties.put("status", actionDescription);
 			userContextEventHandler.send(createAction(actionDescription), properties, null);
 		}
+		userContextEventHandler.setContext(this);
+		userContextEventHandler.manageMonitoringComponent();
 		startService(new Intent(this, MusesServiceProvider.class));
 
 		return Service.START_STICKY;
