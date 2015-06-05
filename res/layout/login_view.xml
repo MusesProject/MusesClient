@@ -29,7 +29,7 @@
                 android:focusableInTouchMode="true"
                 android:text="@string/login_button_txt"
                 android:textColor="#663399"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:textSize="15sp" />
 
             <TextView
