@@ -182,14 +182,18 @@ public abstract class HttpConnectionsHelper {
 		    	}
 		    	if (!cookieFound) {
 		    		serverResponse.setNewSession(true,DetailedStatuses.SUCCESS_NEW_SESSION);
-		    		retreivedCookie = cookieStore.getCookies().get(0);
-		    		saveCookiesToDB();
+		    		if (cookieStore.getCookies().size() > 0){
+		    			retreivedCookie = cookieStore.getCookies().get(0);
+		    			saveCookiesToDB();
+		    		}
 		    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
 		    	}
 		    } else {
 	    		serverResponse.setNewSession(true,DetailedStatuses.SUCCESS_NEW_SESSION);
-	    		retreivedCookie = cookieStore.getCookies().get(0);
-	    		saveCookiesToDB();
+	    		if (cookieStore.getCookies().size() > 0){
+	    			retreivedCookie = cookieStore.getCookies().get(0);
+	    			saveCookiesToDB();
+	    		}
 	    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
 		    }
 		} catch (ClientProtocolException e) {
