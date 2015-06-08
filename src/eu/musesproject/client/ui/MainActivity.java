@@ -75,6 +75,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private static final String IS_MUSES_SERVICE_INITIALIZED = "is_muses_service_initialized";
 	private static final String IS_LOGGED_IN = "is_logged_in";
 	private static final String APP_TAG = "APP_TAG";
+	public static final String SELECTED_LAYOUT = "selected_layout";
 	private LinearLayout topLayout;
 	private Button loginListBtn, informationSecurityBehaviourListbtn, securityQuizListbtn, statisticsListButton;
 	private Context context;
@@ -165,10 +166,59 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	}
 
 	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		Log.d(MusesUtils.LOGIN_TAG, "onSaveInstanceState called in MainActivity");
+		if (loginListBtn.isSelected()){
+			outState.putString(SELECTED_LAYOUT, "login_view");
+		}
+		if (informationSecurityBehaviourListbtn.isSelected()){
+			outState.putString(SELECTED_LAYOUT, "info_sec_view");
+		}
+		if (securityQuizListbtn.isSelected()){
+			outState.putString(SELECTED_LAYOUT, "sec_quiz_view");
+		}
+		if (statisticsListButton.isSelected()){
+			outState.putString(SELECTED_LAYOUT, "stats_view");
+		}
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		Log.d(MusesUtils.LOGIN_TAG, "onRestoreInstanceState called in MainActivity");
+		if (savedInstanceState != null) {
+			String selectedLayout = savedInstanceState.getString(SELECTED_LAYOUT,"login_view");
+			if (selectedLayout.equals("login_view")){
+				loginListBtn.setSelected(true);
+				informationSecurityBehaviourListbtn.setSelected(false);
+				securityQuizListbtn.setSelected(false);
+				statisticsListButton.setSelected(false);
+			}else if (selectedLayout.equals("info_sec_view")){
+				loginListBtn.setSelected(false);
+				informationSecurityBehaviourListbtn.setSelected(true);
+				securityQuizListbtn.setSelected(false);
+				statisticsListButton.setSelected(false);
+			} else if (selectedLayout.equals("sec_quiz_view")){
+				loginListBtn.setSelected(false);
+				informationSecurityBehaviourListbtn.setSelected(false);
+				securityQuizListbtn.setSelected(true);
+				statisticsListButton.setSelected(false);
+			}else if (selectedLayout.equals("stats_view")){
+				loginListBtn.setSelected(false);
+				informationSecurityBehaviourListbtn.setSelected(false);
+				securityQuizListbtn.setSelected(false);
+				statisticsListButton.setSelected(true);
+			}
+		}
+		updateViews();
+		super.onRestoreInstanceState(savedInstanceState);
+	}
+	
+	@Override
 	protected void onPause() {
 		super.onPause();
 		autoUpdate.cancel();
-		
+		Log.d(MusesUtils.LOGIN_TAG, "onPause called in MainActivity");
 	}
 
 	@Override
