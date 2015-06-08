@@ -199,6 +199,9 @@ public class UserActionGenerator {
         else if(type.equals(ActionType.SAVE_ASSET)) {
         	return ActionType.SAVE_ASSET;
         }
+        else if(type.equals(ActionType.ADD_NOTE)) {
+        	return ActionType.ADD_NOTE;
+        }
         else {
             return null;
         }

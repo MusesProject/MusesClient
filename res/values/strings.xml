@@ -149,5 +149,78 @@ info@muses.com</string>
     <string name="button_fix_it">fix it!</string>
     <string name="button_ok">@android:string/ok</string>
     <string name="button_proceed">proceed</string>
+	
+    <string name="info_sec_txt_webview"><Data><![CDATA[<h1><aname="_Toc421128969">InformationSecurityBehavior</a></h1>
+<p>Inhalt</p>
 
+<p><href="#_Toc421128969">Passwordstrength.2</a></p>
+
+<p><href="#_Toc421128970">Informationsecurityattheworkplace:Strangers.2</a></p>
+
+<p><href="#_Toc421128971">Laptopsecurityinpublic.2</a></p>
+
+<p><href="#_Toc421128972">Securestorageofdata.2</a></p>
+
+<p><href="#_Toc421128973">Securehandlingofspamemails.2</a></p>
+
+<p><href="#_Toc421128974">Securehandlingofemailattachments.3</a></p>
+
+<p><href="#_Toc421128975">Internetconnectionsafety.3</a></p>
+
+<p><href="#_Toc421128976">Securehandlingofsensitiveinformation:Encryption.3</a></p>
+
+<p><href="#_Toc421128977">Webbrowsersecurity.3</a></p>
+
+<p><href="#_Toc421128978">Smartphonesecurity.3</a></p>
+
+<br/>
+<h1><aname="_Toc421128969">Passwordstrength</a></h1>
+
+<p>Apasswordisstrongestwhenithasasufficientnumberof(apparently)meaninglesscharacters–ideally8ormore.Tomakeitstillmemorableitisrecommendedtoturnaphrasethatismeaningfultoyou,suchis“MybirthdayisonSept9,1978”,intoanacronym,suchas“mBd@y=9.9/78”.Alternativelyyoucancreateasentencecombinedwithnumbersandspecialcharacterssuchas“MY_fav0rit3_drag0n_N3EVER_gr0ws_0ld”whichcanbeeasiertomemorizeandsaferduetoitslength.Neverusethesamepasswordformultipleareas,changeyourpasswordsregularly,andalwayslogoutofanyaccountsifyouleaveawebsite.Tolightenthecognitiveloadyoucanalsouseapasswordmanagerprograminwhichcaseyouonlyhavetorememberthemasterpassword.Ifapasswordiscracked,personaldatacanbestolenandidentitytheftcanoccur,usingyourdatatocommitfraudorothercrimesandyouraccountcanbeusedtospamorscamyourcontacts.</p>
+
+<h1><aname="_Toc421128970">Informationsecurityattheworkplace:Strangers</a></h1>
+
+<p>Nobodyshouldeverfollowyou(orcrossyou)throughadoorwaythatcannormallyonlybecrossedwithanaccesscardorakeywithoutanythingthatidentifiesthemasauthorizedandthenbelefttotheirowndevices.Strangersshouldnotwalkaroundinyourofficespaceunaccompaniedbutitisalsonotnecessarytotreateveryoneasapotentialcriminal.Ifyouseesomeoneyoudonotknowstaypolite,gainanunderstandingofwhotheyareandwhomtheyareheretoseeandmakesuretheygettoyourcolleagueortosecuritypersonalwhocanaccompanythempersonally.</p>
+
+<p>Itisstillimportanttobealert,sodonotleaveyourofficewithoutsecuringyourlaptopandanysensitivedocumentsinsomewayandkeepyourworkspaceneattomakesureyounoticeifsomethingismissing.</p>
+
+<h1><aname="_Toc421128971">Laptopsecurityinpublic</a></h1>
+
+<p>Itisalwayssafesttokeepyourlaptopwithyou.Otherwisesomeonecouldgetaccesstocompanyfilesoraddressbooks,installmalware,orsimplystealyourlaptop.Neverleaveitinapublicplace.</p>
+
+<h1><aname="_Toc421128972">Securestorageofdata</a></h1>
+
+<p>Yourworkdatashouldonlybestoredonyourpersonalnetworkdrivewhichisbackedupregularly.Thisis,however,theonlywaytosafelystoreandbackupyourdata.Othertheoreticalback-upoptionssuchasUSBdrives,cloudservices,oryourpersonalcomputerarenotsafeandcreatevulnerabilitiesintermsofimproperaccess.Ifyouonlystoreyourdataonyourharddrive(insteadofyourpersonalnetworkwithinyourcompany’snetwork)itcannotberestoredifitislostsomehow.</p>
+
+<h1><aname="_Toc421128973">Securehandlingofspamemails</a></h1>
+
+<p>IfyoureceiveanemailthatlookslikespamitshouldbeforwardedtoyourITsupportandtheneithererasedormovedtoaseparatefolderandmarkedasspamtohelpyouremailclienttoidentifyspaminthefuture.Don’teverreplyinanywayasthisjustconfirmsyouraccountasactiveandused.Itisalsoneveragoodideatoclickonlinkswhichyoucannotbesurearetrustworthyasyouriskdownloadofmalware.</p>
+
+<h1><aname="_Toc421128974">Securehandlingofemailattachments</a></h1>
+
+<p>Attachedfilesshouldonlybeopenedifitisclearwhattheycontainandifthesendercanbetrusted.Ideallyyoursecuritysoftwarescanseveryattachmentautomaticallyformalware(makesurethesoftwareisalwaysuptodate).Ifthesenderisknownandyoureceiveanunexpectedattachmentitisadvisabletoinformthesenderofthissothatitcanbeclarifiediftheremightbeasafetyissuethatthesendershouldaddress.Thesameprecautionsapplywithfilestransferredviainstantmessaging.Youcanalsocheckifafileisreallyafileoranapplicationviathe<i>GetInfo</i>commandinthefinderwindow.</p>
+
+<h1><aname="_Toc421128975">Internetconnectionsafety</a></h1>
+
+<p>Youcansafelyuseinternetconnectionsoutsideofyourcompany’snetworkaslongasyouensuretheyareencryptedandyoustayonsecurewebsiteswiththeprefixhttps.IfyouhavetheoptionyoucanmakeyouraccessevensaferbyusingaVPN(virtualprivatenetwork)clienttoaccesstheinternet.Thebiggestthreatswhenusinganunsafeinternetconnectionaresomeonetrackingyouronlinemovements,potentiallyseeingpasswords,emails,documents,andmore.</p>
+
+<h1><aname="_Toc421128976">Securehandlingofsensitiveinformation:Encryption</a></h1>
+
+<p>Obsessingoverencryptingeverysinglefileyouownonyourharddriveandinyourcloudstorageisunnecessaryandahasslebutencryptingsensitivefilesforstorageortransferissmartandadvisable.Ifyourharddriveisencryptedyourinformationwillbeprotectedifyourturnedofflaptopisstolenbutifyourlaptopisrunningyourinformationwillbeinadecryptedstate.</p>
+
+<h1><aname="_Toc421128977">Webbrowsersecurity</a></h1>
+
+<p>Nosinglebrowserisevercompletelysafe;itisthereforeimportanttomakeitassafeaspossibleviaallsettingoptionsavailableandmakesureitisuptodate.Itisalsoadvisabletosignuptoalertstostayinformedonnewsecurityissuesandbeparticularlycautiouswithplug-insandextensionsasthesecancompromisetheprotectionofyourbrowser.</p>
+
+<p>Thereare,however,specificsecurityplug-insthatcanboosttheprotectionofyourbrowser,suchas<i>HTTPSEverywhere</i>or<i>WOT(WebofTrust)</i>.Besideallthisitisstillimportanttobrowsesmart–stayalert,thinkbeforeyouclickanddonotclickonanylinksordownloadanythingifyouarenotsurethesourcecanbetrusted.Anonymizingsoftwarecansuccessfullyhideyouridentitybutisnotenoughonitsown;itisalsolikelynotgoingtobepossibletofollowtherequiredprotocoltokeepyoufrombeingidentifiedforallyoureverydayactivities.</p>
+
+<h1><aname="_Toc421128978">Smartphonesecurity</a></h1>
+
+<p>AsmartphoneisessentiallyaconnectedPCthatfitsinyourpocket,somostofthesamesafetyrulesapplywithsomeadditionalonesduetothespecificnatureofthedevice.Usesecuritysoftware,becarefulwithwhatyoudownload,donotreplytoanysuspiciousemailsortextmessage,makesureallsoftwareisalwaysuptodate,encryptyourdata,backyourdataupregularly,anduseascreenlock.</p>
+
+<p>Further,turnoffWifiandBluetoothwheneveryouarenotusingitandspecificallywhenyouarespeakingorenteringsensitiveinformation.Payattentiontopermission/accessrequestswhenyouinstallappsanddonotjailbreak/rootyourphoneasthiswillstripawaysecurity.Makesureyouhaveapossibilitytoremotelydisableyourphoneorwipeitcleanshoulditgetlostorstolenandreactfastinsuchacase.<aname="_GoBack"></a></p>
+]]> </Data>      
+    </string>
+    
+    
 </resources>
