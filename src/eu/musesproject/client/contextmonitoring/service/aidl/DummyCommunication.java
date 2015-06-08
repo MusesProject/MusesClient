@@ -40,7 +40,6 @@ public class DummyCommunication {
 	}
 
 	public void sendResponse(ResponseInfoAP infoAP, RiskTreatment riskTreatment) {
-
 		// send to muses aware app
 		try {
 			musesService = ServiceModel.getInstance().getService();

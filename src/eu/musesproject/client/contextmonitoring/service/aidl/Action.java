@@ -36,7 +36,13 @@ public class Action implements Parcelable {
 		this.type = type;
 		this.timestamp = timestamp;
 	}
-	
+
+	public Action(String type, long timestamp, boolean musesAwareAppRequiresResponse) {
+		this.type = type;
+		this.timestamp = timestamp;
+		this.musesAwareAppRequiresResponse = musesAwareAppRequiresResponse;
+	}
+
 	public Action(Parcel in) {
 		readFromParcel(in);
 	}
@@ -44,7 +50,7 @@ public class Action implements Parcelable {
 	private void readFromParcel(Parcel in) {
 		this.type = in.readString();
 		this.timestamp = in.readLong();
-		
+		this.musesAwareAppRequiresResponse = (in.readInt() == 0) ? false : true;
 	}
 
 	public static final Creator<Action> CREATOR = new Parcelable.Creator<Action>() {
@@ -69,6 +75,7 @@ public class Action implements Parcelable {
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeString(type);
 		out.writeLong(timestamp);
+		out.writeInt(musesAwareAppRequiresResponse ? 1 : 0);
 	}
 	
 	public String getType() {
