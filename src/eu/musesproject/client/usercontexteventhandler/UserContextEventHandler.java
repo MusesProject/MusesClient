@@ -128,6 +128,13 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		return serverStatus;
 	}
 
+	public void setServerStatus(int serverStatus) {
+		this.serverStatus = serverStatus;
+
+		// update the notification icon
+		NotificationController.getInstance(context).updateOnlineStatus();
+	}
+
 	public static UserContextEventHandler getInstance() {
 		if (userContextEventHandler == null) {
             userContextEventHandler = new UserContextEventHandler();
@@ -598,7 +605,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						tmpLoginUserName = "";
 						tmpLoginPassword = "";
 
-						serverStatus = Statuses.ONLINE;
+						setServerStatus(Statuses.ONLINE);
 						sendOfflineStoredContextEventsToServer();
                         resendFailedJSONRequests();
 						updateServerOnlineAndUserAuthenticated();
@@ -671,7 +678,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS) {
 				if(serverStatus == Statuses.OFFLINE) {
 					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
-                    serverStatus = status;
+                    setServerStatus(status);
                     updateServerOnlineAndUserAuthenticated();
                     sendOfflineStoredContextEventsToServer();
                     resendFailedJSONRequests();
@@ -680,7 +687,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
             else if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS_NEW_SESSION) {
 				if(serverStatus == Statuses.OFFLINE) {
 					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
-                    serverStatus = status;
+					setServerStatus(status);
     				}
 				// Since new session not authenticated remotely
 				isAuthenticatedRemotely = false;
@@ -688,7 +695,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 autoLogin();
             }
 			else if(status == Statuses.OFFLINE) {
-				serverStatus = status;
+				setServerStatus(status);
 				// Can still be authenticated, but server not reachable.
 				// Depends on new session or not when ONLINE
 				updateServerOnlineAndUserAuthenticated();
@@ -713,16 +720,16 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 autoLogin();
             }
 			else if(status == Statuses.CONNECTION_FAILED && detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION) {
-				serverStatus = status;
+				setServerStatus(status);
 				updateServerOnlineAndUserAuthenticated();
 			}
 			else if(status == Statuses.DISCONNECTED && detailedStatus == DetailedStatuses.NO_INTERNET_CONNECTION) {
-				serverStatus = status;
+				setServerStatus(status);
 				updateServerOnlineAndUserAuthenticated();
 			}
 
-            if(status == Statuses.ONLINE ) {
-                serverStatus = status;
+            if(status == Statuses.ONLINE) {
+				setServerStatus(status);
                 updateServerOnlineAndUserAuthenticated();
             }
 
@@ -751,7 +758,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			}
 
 			serverDetailedStatus = detailedStatus;
-			NotificationController.getInstance(context).updateOnlineStatus();
 
 			return 0;
 		}
