@@ -84,7 +84,7 @@ public class UserContextMonitoringController implements
             uceHandler.send(musesAwareAction, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
         else if(src == UISource.INTERNAL) {
-        	Log.d(INTERNAL_SENSOR_TAG, "action:"+action.getActionType()+ " properties:"+properties.toString());
+        	Log.d(INTERNAL_SENSOR_TAG, "action:"+action.getActionType());
             uceHandler.send(action, properties, SensorController.getInstance(context).getLastFiredEvents());
         }
     }
