@@ -116,7 +116,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		mapOfPendingRequests = new HashMap<Integer, RequestHolder>();
         pendingJSONRequest = new HashMap<Integer, JSONObject>();
         failedJSONRequest = new HashMap<Integer, JSONObject>();
-
 	}
 
 	/**
@@ -149,7 +148,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		Configuration config = getServerConfigurationFromDB();
 		String url = "https://" + config.getServerIP() + ":" + config.getServerPort() + config.getServerContextPath() + config.getServerServletPath();
 
-
 		connectionManager.connect(
 				url,
 				config.getServerCertificate(),
@@ -160,7 +158,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		);
 		/* No need to do now, but shall be done if it changes.. */
 		connectionManager.setPollTimeOuts(config.getPollTimeout(), config.getSleepPollTimeout());
-
 	}
 
 	private Configuration getServerConfigurationFromDB() {
@@ -576,7 +573,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				// identify the request type
 				String requestType = JSONManager.getRequestType(receivedData);
 				Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb(); requestType=" +requestType);
-				Log.d(APP_TAG, "UCEH - receiveCb(); requestType=" +requestType);
+				Log.d(APP_TAG, "UCEH - receiveCb(); requestType=" + requestType);
 
 				if(requestType.equals(RequestType.UPDATE_POLICIES)) {
 					RemotePolicyReceiver.getInstance().updateJSONPolicy(receivedData, context);
@@ -614,6 +611,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						sendConfigSyncRequest();
 					}
 					ActuatorController.getInstance(context).sendLoginResponse(isAuthenticatedRemotely, authMessage, -1);
+				}
+				else if(requestType.equals(RequestType.LOGOUT_RESPONSE)) {
+					String authMessage = JSONManager.getAuthMessage(receivedData);
+					ActuatorController.getInstance(context).sendLoginResponse(false, authMessage, -1);
 				}
 				else if(requestType.equals(RequestType.CONFIG_UPDATE)) {
                 	/*
