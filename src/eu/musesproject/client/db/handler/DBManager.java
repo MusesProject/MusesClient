@@ -59,6 +59,7 @@ import eu.musesproject.client.utils.MusesUtils;
 
 public class DBManager {
 	private static final String TAG = DBManager.class.getSimpleName();
+	private static final String APP_TAG = "APP_TAG";
 
 	public static final int DATABASE_VERSION = 1;
 	public static final String DATABASE_NAME = "muses_client_db";
@@ -469,22 +470,26 @@ public class DBManager {
 	}
 
 	public long insertCookie(Cookie cookie) {
-		String domain = "*";
-		String value = "*";
-		String path = "*";
-		String expired = "*";
+		String value = "";
+		String domain = "";
+		String path = "";
+		String expired = "";
+		String version = "";
 		String name = cookie.getName();
-		if (cookie.getValue() != null && !cookie.getValue().contentEquals(""))
+		if (cookie.getValue() != null){
 			value = cookie.getValue();
-		if (cookie.getDomain() != null)
+		}
+		if (cookie.getDomain() != null){
 			domain = cookie.getDomain();
-		if (cookie.getPath() != null)
+		}
+		if (cookie.getPath() != null) {
 			path = cookie.getPath();
+		}
 		int ver = cookie.getVersion();
-		String version = String.valueOf(ver);
-		if (cookie.getExpiryDate() != null
-				&& !cookie.getExpiryDate().toString().contentEquals(""))
+		version = String.valueOf(ver);
+		if (cookie.getExpiryDate() != null){
 			expired = cookie.getExpiryDate().toString();
+		}
 		
 		ContentValues values = new ContentValues();
 		values.put(COOKIE_NAME, name);
@@ -524,12 +529,11 @@ public class DBManager {
 				
 				cookies = new BasicClientCookie(name, value);
 				cookies.setDomain(domain);
-				if (value.contentEquals("*"))
-					cookies.setValue(null);
+				cookies.setValue(value);
 				cookies.setPath(path);
 				cookies.setVersion(Integer.valueOf(version));
 				cookies.setExpiryDate(getDate(expired));
-				
+				Log.d(APP_TAG, "Cookie retreived from DB with value: "+cookies.getValue()+" expiry: "+ cookies.getExpiryDate().toString());
 				cookieStore.addCookie(cookies);
 				return cookies;
 			}
@@ -549,11 +553,12 @@ public class DBManager {
 			dateExpired = dateFormattor.parse(expired);
 		} catch (ParseException e) {
 			e.printStackTrace();
+			Log.d(APP_TAG, e.getLocalizedMessage());
 		}
-		Log.d(TAG, "retreived cookie_store: " + dateExpired.toString());
+		Log.d(TAG, "retreived cookie date formatted: " + dateExpired.toString());
 		return dateExpired;
 	}
-
+	
 	public List<RequiredApp> getRequiredAppList() {
 		List<RequiredApp> appsList = new ArrayList<RequiredApp>();
 		if (sqLiteDatabase == null) {// Open database in case it is closed

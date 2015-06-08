@@ -1,4 +1,5 @@
 package eu.musesproject.client.connectionmanager;
+
 /*
  * #%L
  * MUSES Client
@@ -19,7 +20,6 @@ package eu.musesproject.client.connectionmanager;
  * #L%
  */
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -39,30 +39,29 @@ import android.util.Log;
 import eu.musesproject.client.db.handler.DBManager;
 
 /**
- * Helper class for connection Manager handles POST and GET request with the server
+ * Helper class for connection Manager handles POST and GET request with the
+ * server
  * 
  * @author Yasir Ali
  * @version Jan 27, 2014
  */
 
-
 public abstract class HttpConnectionsHelper {
-	public static Cookie current_cookie = null;
-	private static Date cookieExpiryDate = new Date();
+	private static final String TAG = HttpConnectionsHelper.class.getSimpleName();
+	private static String APP_TAG = "APP_TAG";
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
 	public static final String DISCONNECT = "disconnect";
 	public static int CONNECTION_TIMEOUT = 5500;
-	private static final int SOCKET_TIMEOUT = 5500; 
+	private static final int SOCKET_TIMEOUT = 5500;
 	private static final int MCC_TIMEOUT = 5500;
 	public static int POLLING_ENABLED = 1;
-	private static final String TAG = HttpConnectionsHelper.class.getSimpleName();
-	private static String APP_TAG = "APP_TAG"; 
+	public static Cookie retreivedCookie = null;
 	private DBManager dbManager;
-	
+
 	private BasicCookieStore cookieStore;
 	private BasicHttpContext localContext;
-	
+
 	/**
 	 * 
 	 * @param type
@@ -72,72 +71,119 @@ public abstract class HttpConnectionsHelper {
 	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	public synchronized HttpResponse doPost(String type ,String url, String data) throws ClientProtocolException, IOException {
+	public synchronized HttpResponseHandler doPost(Request request)
+			throws ClientProtocolException, IOException {
+
 		HttpResponse httpResponse = null;
-		HttpPost httpPost = new HttpPost(url);
-		HttpParams httpParameters = httpPost.getParams();  
-	    httpParameters.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 
-	            CONNECTION_TIMEOUT);
-	    httpParameters.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, SOCKET_TIMEOUT);
-	    httpParameters.setLongParameter(ConnManagerPNames.TIMEOUT, MCC_TIMEOUT);
-	    
-	    DefaultHttpClient httpclient = new DefaultHttpClient(httpParameters);
-        StringEntity s = new StringEntity(data.toString());
-        s.setContentEncoding("UTF-8");
-        s.setContentType("application/xml");
-        httpPost.addHeader("connection-type", type);
-        httpPost.setEntity(s);
-        httpPost.addHeader("accept", "application/xml");
-        
-        if (current_cookie == null || current_cookie.isExpired(new Date())) {
-        	try {
-        		httpResponse = httpclient.execute(httpPost);
-				List<Cookie> cookies = httpclient.getCookieStore().getCookies();
-		 	    if (cookies.isEmpty()) {
-		 	    	Log.d(TAG,"None");
-		 	    } else {
-		 	    	current_cookie = cookies.get(0);
-		 	        cookieExpiryDate = current_cookie.getExpiryDate();
-		 	        Log.d(TAG,"Curent cookie expiry : " + cookieExpiryDate);
-		 	    }
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-				Log.d(TAG,e.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-				Log.d(TAG,e.toString());
+		HttpResponseHandler serverResponse = new HttpResponseHandler(
+				request.getType(), request.getDataId());
+		HttpPost httpPost = null;
+		DefaultHttpClient httpclient = new DefaultHttpClient();
+
+		cookieStore = new BasicCookieStore();
+		localContext = new BasicHttpContext();
+		localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
+		if (httpclient != null) {
+			httpPost = new HttpPost(request.getUrl());
+
+			HttpParams httpParameters = httpPost.getParams();
+			httpParameters
+					.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
+							CONNECTION_TIMEOUT);
+			httpParameters.setIntParameter(CoreConnectionPNames.SO_TIMEOUT,
+					SOCKET_TIMEOUT);
+			httpParameters.setLongParameter(ConnManagerPNames.TIMEOUT,
+					MCC_TIMEOUT);
+
+			StringEntity s = new StringEntity(request.getData().toString());
+			s.setContentEncoding("UTF-8");
+			s.setContentType("application/xml");
+			httpPost.setEntity(s);
+			httpPost.addHeader("accept", "application/xml");
+			httpPost.addHeader("connection-type", request.getType());
+			httpPost.setHeader("poll-interval",
+					getInStringSeconds(request.getPollInterval()));
+		}
+
+		try {
+			if (retreivedCookie == null) {
+				// Updating cookie if present in DB
+				retreivedCookie = getCookieFromDB();
 			}
-		    
-        }else {
-	    	httpPost.addHeader("accept", "application/xml");
-	        httpclient.getCookieStore().addCookie(current_cookie);
-	        try {
-	        	httpResponse = httpclient.execute(httpPost);
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-				Log.d(TAG,e.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-				Log.d(TAG,e.toString());
+			boolean isCookieStoreEmpty = cookieStore.getCookies().size() == 0 ? true
+					: false;
+			httpResponse = httpclient.execute(httpPost, localContext);
+			serverResponse.setResponse(httpResponse);
+			boolean cookieFound = false;
+			if (!isCookieStoreEmpty) {
+				for (Cookie c : cookieStore.getCookies()) {
+					if (retreivedCookie != null) {
+						if (c.getValue().equals(retreivedCookie.getValue())) {
+							cookieFound = true;
+							serverResponse.setNewSession(false,
+									DetailedStatuses.SESSION_UPDATED);
+							Log.d(TAG + "_COOKIE",
+									"After doSecurePost, cookie updated from server "
+											+ retreivedCookie.toString());
+							Log.d(TAG, "After doSecurePost, Retreived cookie: "
+									+ retreivedCookie.getValue() + " expires: "
+									+ retreivedCookie.getExpiryDate());
+						}
+					}
+				}
+				if (!cookieFound) {
+					serverResponse.setNewSession(true,
+							DetailedStatuses.SUCCESS_NEW_SESSION);
+					if (cookieStore.getCookies().size() > 0) {
+						retreivedCookie = cookieStore.getCookies().get(0);
+						saveCookiesToDB();
+					}
+					Log.d(TAG + "_COOKIE",
+							" After doSecurePost, New cookie used: "
+									+ retreivedCookie.getValue());
+				}
+			} else {
+				serverResponse.setNewSession(true,
+						DetailedStatuses.SUCCESS_NEW_SESSION);
+				if (cookieStore.getCookies().size() > 0) {
+					retreivedCookie = cookieStore.getCookies().get(0);
+					saveCookiesToDB();
+				}
+				Log.d(TAG + "_COOKIE", " After doSecurePost, New cookie used: "
+						+ retreivedCookie.getValue());
 			}
-	    }
-        return httpResponse;
-    }
-	
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+			Log.e(APP_TAG, "doSecurePost" + e.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			Log.e(APP_TAG, "doSecurePost" + e.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			Log.e(APP_TAG, "doSecurePost" + e.toString());
+		}
+
+		return serverResponse;
+
+	}
 
 	/**
 	 * POST (HTTPS)
+	 * 
 	 * @param url
 	 * @param data
 	 * @return
 	 * @throws ClientProtocolException
 	 * @throws IOException
 	 */
-	
-	public HttpResponseHandler doSecurePost(Request request, String cert) throws ClientProtocolException, IOException {
+
+	public synchronized HttpResponseHandler doSecurePost(Request request, String cert)
+			throws ClientProtocolException, IOException {
 
 		HttpResponse httpResponse = null;
-		HttpResponseHandler serverResponse = new HttpResponseHandler(request.getType(), request.getDataId());
+		HttpResponseHandler serverResponse = new HttpResponseHandler(
+				request.getType(), request.getDataId());
 		HttpPost httpPost = null;
 		TLSManager tlsManager = new TLSManager(cert);
 		DefaultHttpClient httpclient = tlsManager.getTLSHttpClient();
@@ -146,71 +192,91 @@ public abstract class HttpConnectionsHelper {
 		localContext = new BasicHttpContext();
 		localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 
-		if (httpclient !=null) {
+		if (httpclient != null) {
 			httpPost = new HttpPost(request.getUrl());
-			
-			HttpParams httpParameters = httpPost.getParams();  
-		    httpParameters.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, CONNECTION_TIMEOUT);
-		    httpParameters.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, SOCKET_TIMEOUT);
-		    httpParameters.setLongParameter(ConnManagerPNames.TIMEOUT, MCC_TIMEOUT);
 
-		    StringEntity s = new StringEntity(request.getData().toString());
-	        s.setContentEncoding("UTF-8");
-	        s.setContentType("application/xml");
-	        httpPost.setEntity(s);
-	        httpPost.addHeader("accept", "application/xml");
-	        httpPost.addHeader("connection-type", request.getType());
-	        httpPost.setHeader("poll-interval", getInStringSeconds(request.getPollInterval()));
+			HttpParams httpParameters = httpPost.getParams();
+			httpParameters
+					.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,
+							CONNECTION_TIMEOUT);
+			httpParameters.setIntParameter(CoreConnectionPNames.SO_TIMEOUT,
+					SOCKET_TIMEOUT);
+			httpParameters.setLongParameter(ConnManagerPNames.TIMEOUT,
+					MCC_TIMEOUT);
+
+			StringEntity s = new StringEntity(request.getData().toString());
+			s.setContentEncoding("UTF-8");
+			s.setContentType("application/xml");
+			httpPost.setEntity(s);
+			httpPost.addHeader("accept", "application/xml");
+			httpPost.addHeader("connection-type", request.getType());
+			httpPost.setHeader("poll-interval",
+					getInStringSeconds(request.getPollInterval()));
 		}
 
-	    try {
-			Cookie retreivedCookie = getCookieFromDB();
-			boolean isCookieStoreEmpty = cookieStore.getCookies().size() == 0 ? true : false; 
-			httpResponse = httpclient.execute(httpPost,localContext);
-	        serverResponse.setResponse(httpResponse);
-		    boolean cookieFound = false;
-		    if (!isCookieStoreEmpty){
-		    	for (Cookie c : cookieStore.getCookies()){
-		    		if (retreivedCookie != null){
-		    			if (c.getValue().equals(retreivedCookie.getValue()) ){
-		    				cookieFound = true;
-		    				serverResponse.setNewSession(false,DetailedStatuses.SESSION_UPDATED);
-		    				Log.d(TAG+"_COOKIE","After doSecurePost, cookie updated from server "+retreivedCookie.toString());
-		    			    Log.d(TAG+"_COOKIE","After doSecurePost, Retreived cookie : "+ retreivedCookie.getValue());
-		    			}
-		    		}
-		    	}
-		    	if (!cookieFound) {
-		    		serverResponse.setNewSession(true,DetailedStatuses.SUCCESS_NEW_SESSION);
-		    		if (cookieStore.getCookies().size() > 0){
-		    			retreivedCookie = cookieStore.getCookies().get(0);
-		    			saveCookiesToDB();
-		    		}
-		    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
-		    	}
-		    } else {
-	    		serverResponse.setNewSession(true,DetailedStatuses.SUCCESS_NEW_SESSION);
-	    		if (cookieStore.getCookies().size() > 0){
-	    			retreivedCookie = cookieStore.getCookies().get(0);
-	    			saveCookiesToDB();
-	    		}
-	    		Log.d(TAG+"_COOKIE"," After doSecurePost, New cookie used: "+ retreivedCookie.getValue());
-		    }
+		try {
+			if (retreivedCookie == null) {
+				// Updating cookie if present in DB
+				retreivedCookie = getCookieFromDB();
+			} else {
+				cookieStore.addCookie(retreivedCookie);
+			}
+			boolean isCookieStoreEmpty = cookieStore.getCookies().size() == 0 ? true
+					: false;
+			httpResponse = httpclient.execute(httpPost, localContext);
+			serverResponse.setResponse(httpResponse);
+			boolean cookieFound = false;
+			if (!isCookieStoreEmpty) {
+				for (Cookie c : cookieStore.getCookies()) {
+					if (retreivedCookie != null) {
+						if (c.getValue().equals(retreivedCookie.getValue())) {
+							cookieFound = true;
+							serverResponse.setNewSession(false,
+									DetailedStatuses.SESSION_UPDATED);
+							Log.d(TAG + "_COOKIE",
+									"After doSecurePost, cookie updated from server "
+											+ retreivedCookie.toString());
+							Log.d(TAG, "After doSecurePost, Retreived cookie: "
+									+ retreivedCookie.getValue() + " expires: "
+									+ retreivedCookie.getExpiryDate());
+						}
+					}
+				}
+				if (!cookieFound) {
+					serverResponse.setNewSession(true,
+							DetailedStatuses.SUCCESS_NEW_SESSION);
+					if (cookieStore.getCookies().size() > 0) {
+						retreivedCookie = cookieStore.getCookies().get(0);
+						saveCookiesToDB();
+					}
+					Log.d(TAG + "_COOKIE",
+							" After doSecurePost, New cookie used: "
+									+ retreivedCookie.getValue());
+				}
+			} else {
+				serverResponse.setNewSession(true,
+						DetailedStatuses.SUCCESS_NEW_SESSION);
+				if (cookieStore.getCookies().size() > 0) {
+					retreivedCookie = cookieStore.getCookies().get(0);
+					saveCookiesToDB();
+				}
+				Log.d(TAG + "_COOKIE", " After doSecurePost, New cookie used: "
+						+ retreivedCookie.getValue());
+			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
-			Log.e(APP_TAG,"doSecurePost"+ e.toString());
+			Log.e(APP_TAG, "doSecurePost" + e.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
-			Log.e(APP_TAG, "doSecurePost"+e.toString());
+			Log.e(APP_TAG, "doSecurePost" + e.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.e(APP_TAG, "doSecurePost"+e.toString());
+			Log.e(APP_TAG, "doSecurePost" + e.toString());
 		}
-		
 
-        return serverResponse;
-		
-    }
+		return serverResponse;
+
+	}
 
 	public void saveCookiesToDB() {
 		List<Cookie> cookies = cookieStore.getCookies();
@@ -227,32 +293,34 @@ public abstract class HttpConnectionsHelper {
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				if (dbManager != null) dbManager.closeDB();
+				if (dbManager != null)
+					dbManager.closeDB();
 			}
 		}
 
 	}
-	
+
 	public Cookie getCookieFromDB() {
 		dbManager = new DBManager(ConnectionManager.context);
 		dbManager.openDB();
 
 		try {
-			if (dbManager.getCookie(cookieStore)!=null){
+			if (dbManager.getCookie(cookieStore) != null) {
 				Cookie cookie = dbManager.getCookie(cookieStore);
 				dbManager.closeDB();
 				return cookie;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally{
-			if (dbManager != null) dbManager.closeDB();
+		} finally {
+			if (dbManager != null)
+				dbManager.closeDB();
 		}
 		return null;
 	}
-	
+
 	private static String getInStringSeconds(String pollInterval) {
-		int pollIntervalInSeconds = (Integer.parseInt(pollInterval) / 1000) % 60 ;
+		int pollIntervalInSeconds = (Integer.parseInt(pollInterval) / 1000) % 60;
 		return Integer.toString(pollIntervalInSeconds);
 	}
 
