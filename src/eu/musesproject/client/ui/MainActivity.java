@@ -33,8 +33,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -42,6 +42,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import eu.musesproject.MUSESBackgroundService;
@@ -70,7 +71,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String PASSWORD = "password";
 	public static final String SAVE_CREDENTIALS = "save_credentials";
 	public static final String PREFERENCES_KEY = "eu.musesproject.client";
-	public static final String REGISTER_UI_CALLBACK = "eu.musesproject.client.action.CALLBACK";
 	private static final String TAG = MainActivity.class.getSimpleName();
 	private static final String IS_MUSES_SERVICE_INITIALIZED = "is_muses_service_initialized";
 	private static final String IS_LOGGED_IN = "is_logged_in";
@@ -78,6 +78,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	public static final String SELECTED_LAYOUT = "selected_layout";
 	private LinearLayout topLayout;
 	private Button loginListBtn, informationSecurityBehaviourListbtn, securityQuizListbtn, statisticsListButton;
+	private ScrollView mainScrollView;
 	private Context context;
 	private LoginView loginView;
 	private InformationSecurityBehaviourView informationSecurityBehaviourView;
@@ -116,6 +117,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		securityQuizListbtn = (Button) findViewById(R.id.security_quiz_list_button);
 		statisticsListButton = (Button) findViewById(R.id.statistics_list_button);
 		
+		mainScrollView = (ScrollView) findViewById(R.id.main_scroll_view);
+		
 		loginListBtn.setOnClickListener(this);
 		informationSecurityBehaviourListbtn.setOnClickListener(this);
 		securityQuizListbtn.setOnClickListener(this);
@@ -150,20 +153,64 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		
 		topLayout.removeAllViews();
 		topLayout.addView(loginView);
+
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		Log.d(MusesUtils.LOGIN_TAG, "onResume called in MainActivity");
+		DBManager dbManager = new DBManager(getApplicationContext());
+		dbManager.openDB();
+		boolean isActive = dbManager.isSilentModeActive();
+		dbManager.closeDB();
+		if (!isActive) {
+			// FIXME what should be done here??
+			
+//			topLayout.removeAllViews();
+//			topLayout.addView(loginView);
+//			topLayout.addView(securityQuizView);
+		}
+		
+		autoUpdate = new Timer();
+		autoUpdate.schedule(new TimerTask() {
+		   @Override
+		   public void run() {
+		    runOnUiThread(new Runnable() {
+		     public void run() {
+		    	 loginView.updateLoginWithNewServerStatus();
+		     }
+		    });
+		   }
+		}, 6000, 30000); // updates each 30 secs
+
+		if (loginView == null) {
+			Log.v(MusesUtils.LOGIN_TAG, "login view is null, creating new view");
+			loginView = new LoginView(context);
+		}
+		if (informationSecurityBehaviourView == null) {
+			Log.v(MusesUtils.LOGIN_TAG, "informationSecurityBehaviourView is null, creating new view");
+			informationSecurityBehaviourView = new InformationSecurityBehaviourView(context);
+		}
+
+		if (securityQuizView == null){
+			Log.v(MusesUtils.LOGIN_TAG, "security view is null, creating new view");
+			securityQuizView = new SecurityQuizView(context);
+		}
+		if (statisticsView == null){
+			Log.v(MusesUtils.LOGIN_TAG, "statistics view is null, creating new view");
+			statisticsView = new StatisticsView(context);
+		}
+
 		isLoggedIn = checkIfLoggedInPrefs();
 		Log.d(MusesUtils.LOGIN_TAG, "isloggedin: "+isLoggedIn);
 		Log.d(MusesUtils.LOGIN_TAG, "isloggedin in UserContextEventHandler: "+ UserContextEventHandler.getInstance().isUserAuthenticated());
+
+		updateViews();
+		  
 	}
 
-	public void setActionBarTitle(final String title) {
-		runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				getActionBar().setTitle(title);
-			}
-		});
-	}
+	
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -210,7 +257,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				statisticsListButton.setSelected(true);
 			}
 		}
-		updateViews();
 		super.onRestoreInstanceState(savedInstanceState);
 	}
 	
@@ -269,55 +315,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		}
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		Log.d(MusesUtils.LOGIN_TAG, "onResume called in MainActivity");
-		DBManager dbManager = new DBManager(getApplicationContext());
-		dbManager.openDB();
-		boolean isActive = dbManager.isSilentModeActive();
-		dbManager.closeDB();
-		if (!isActive) {
-			// FIXME what should be done here??
-			
-//			topLayout.removeAllViews();
-//			topLayout.addView(loginView);
-//			topLayout.addView(securityQuizView);
-		}
-		
-		autoUpdate = new Timer();
-		autoUpdate.schedule(new TimerTask() {
-		   @Override
-		   public void run() {
-		    runOnUiThread(new Runnable() {
-		     public void run() {
-		    	 loginView.updateLoginWithNewServerStatus();
-		     }
-		    });
-		   }
-		}, 6000, 30000); // updates each 30 secs
 
-		if (loginView == null) {
-			Log.v(MusesUtils.LOGIN_TAG, "login view is null, creating new view");
-			loginView = new LoginView(context);
-		}
-		if (informationSecurityBehaviourView == null) {
-			Log.v(MusesUtils.LOGIN_TAG, "informationSecurityBehaviourView is null, creating new view");
-			informationSecurityBehaviourView = new InformationSecurityBehaviourView(context);
-		}
-
-		if (securityQuizView == null){
-			Log.v(MusesUtils.LOGIN_TAG, "security view is null, creating new view");
-			securityQuizView = new SecurityQuizView(context);
-		}
-		if (statisticsView == null){
-			Log.v(MusesUtils.LOGIN_TAG, "statistics view is null, creating new view");
-			statisticsView = new StatisticsView(context);
-		}
-		updateViews();
-		  
-	}
-
+	/**
+	 * Update layouts with user actions
+	 */
+	
 	private void updateViews() {
 		loginView.updateLoginView();
 		informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
@@ -325,6 +327,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		statisticsView.updateStatisticsView();
 		
 	}
+	
 	private Handler callbackHandler = new Handler() {
 
 		@Override
@@ -335,12 +338,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				stopProgress();
 				isLoggedIn = true;
 				updateLoginInPrefs(true);
-				
-				loginView.updateLoginView();
-				informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
-				securityQuizView.updateSecurityQuizView();
-				statisticsView.updateStatisticsView();
-                
+
+				updateViews();
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
@@ -349,23 +348,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				isLoggedIn = false;
 				updateLoginInPrefs(false);
 				
-				loginView.updateLoginView();
-				informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
-				securityQuizView.updateSecurityQuizView();
-				statisticsView.updateStatisticsView();
-				
+				updateViews();
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			default:  // No need to handle all error code right now, as we will a fixed message, but can be used in future
+				Log.v(MusesUtils.LOGIN_TAG, "Unknown Error!, updating prefs..");
 				stopProgress();
 				isLoggedIn = false;
 				updateLoginInPrefs(false);
 				
-				loginView.updateLoginView();
-				informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
-				securityQuizView.updateSecurityQuizView();
-				statisticsView.updateStatisticsView();
-				
+				updateViews();
 				toastMessage(getResources().getString(R.string.unknown_error_toast_text));
 				break;
 			}
@@ -409,6 +401,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				musesUICallbacksHandler);
 	}
 
+
+	public void setActionBarTitle(final String title) {
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				getActionBar().setTitle(title);
+			}
+		});
+	}
+	
 	/**
 	 * Toast messages to UI
 	 * 
@@ -468,7 +471,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	
 	private void updateLoginInPrefs(boolean value) {
 		SharedPreferences.Editor prefEditor = prefs.edit();	
-		prefEditor.putBoolean(IS_LOGGED_IN,true);
+		prefEditor.putBoolean(IS_LOGGED_IN,value);
 		prefEditor.commit();
 		Log.d(MusesUtils.LOGIN_TAG, "IS_LOGGED_IN set in preferences with value: "+value);
 	}
@@ -526,27 +529,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			logoutBtn = (Button) findViewById(R.id.logout_button);
 			logoutBtn.setOnClickListener(this);
 			setUsernamePasswordIfSaved();
-			populateLoggedInView();
-		}
-
-		/**
-		 * Populate logged in view if user is successfully logged in.
-		 * 
-		 */
-
-		private void populateLoggedInView() {
-			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated()) {
-				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
-				Log.d(MusesUtils.LOGIN_TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
-				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
-			}
-			
-			if (isLoggedIn) {
-				loginLayout2.setVisibility(View.GONE);
-				logoutBtn.setVisibility(View.VISIBLE);
-				loginDetailTextView.setText(String.format("%s %s", getResources()
-						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
-			}
+			updateLoginView();
 		}
 
 		@Override
@@ -586,57 +569,60 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				if (isPrivacyPolicyAgreementChecked){
 					userName = userNameTxt.getText().toString();
 					password = passwordTxt.getText().toString();
+					hideKeyboard();
 					doLogin(userName, password);
+					saveUserPasswordInPrefs();
 				} else {
 					toastMessage(getResources().getString(R.string.make_sure_privacy_policy_read_txt));
 				}
 				break;
 			case R.id.logout_button:
 				UserContextEventHandler.getInstance().logout();
-				logoutBtn.setVisibility(View.GONE);
-				loginDetailTextView.setText(getResources().getString(
-						R.string.login_detail_view_txt));
-				loginLayout2.setVisibility(View.VISIBLE);
-				toastMessage(getResources().getString(
-						R.string.logout_successfully_msg));
-				isLoggedIn = false;
-				
-				informationSecurityBehaviourView.updateInformationSecurityBehaviourView();
-				securityQuizView.updateSecurityQuizView();
-				statisticsView.updateStatisticsView();
-				
-				setUsernamePasswordIfSaved();
 				break;
 			}
 
 		}
 
+//		/**
+//		 * Populate logged in view if user is successfully logged in.
+//		 * 
+//		 */
+//
+//		private void populateLoggedInView() {
+//			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated()) {
+//				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
+//				Log.d(MusesUtils.LOGIN_TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
+//				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
+//			}
+//			
+//			if (isLoggedIn) {
+//				loginLayout2.setVisibility(View.GONE);
+//				logoutBtn.setVisibility(View.VISIBLE);
+//				loginDetailTextView.setText(String.format("%s %s", getResources()
+//						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
+//			}
+//		}
+		
+		
 		public void updateLoginView() {
 			
 			if (isLoggedIn){
 				Log.v(MusesUtils.LOGIN_TAG, "login success in, updating login");
-				userName = userNameTxt.getText().toString();
-				password = passwordTxt.getText().toString();
-				SharedPreferences.Editor prefEditor = prefs.edit();	
-				if (isSaveCredentialsChecked){
-					prefEditor.putString(USERNAME, userName);
-					prefEditor.putString(PASSWORD, password);
-					prefEditor.putBoolean(SAVE_CREDENTIALS, isSaveCredentialsChecked);
-					prefEditor.commit();
-					
-				}
-				
 				loginLayout2.setVisibility(View.GONE);
 				logoutBtn.setVisibility(View.VISIBLE);
 				loginDetailTextView.setText(String.format("%s %s", getResources()
 						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
-				
-				
 				setServerStatus();
 				loginLabelTextView.setFocusable(true);
 				loginLabelTextView.requestFocus();
-			}
-			else {	
+			} else { // FIXME check below logs, why remote auth is checked here?	
+				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
+				Log.d(MusesUtils.LOGIN_TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
+				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
+				logoutBtn.setVisibility(View.GONE);
+				loginDetailTextView.setText(getResources().getString(
+						R.string.login_detail_view_txt));
+				loginLayout2.setVisibility(View.VISIBLE);
 				setUsernamePasswordIfSaved();
 			}
 			
@@ -663,6 +649,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			}
 		}
 
+		private void hideKeyboard(){
+            InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(logoutBtn.getWindowToken(), 
+                                      InputMethodManager.RESULT_UNCHANGED_SHOWN);
+            if (mainScrollView != null) {
+            	mainScrollView.scrollTo(0, mainScrollView.getBaseline());
+            }
+		}
+
+		private void saveUserPasswordInPrefs(){
+			userName = userNameTxt.getText().toString();
+			password = passwordTxt.getText().toString();
+			SharedPreferences.Editor prefEditor = prefs.edit();	
+			if (isSaveCredentialsChecked){
+				prefEditor.putString(USERNAME, userName);
+				prefEditor.putString(PASSWORD, password);
+				prefEditor.putBoolean(SAVE_CREDENTIALS, isSaveCredentialsChecked);
+				prefEditor.commit();
+				
+			}
+		}
 		
 		public void setUsernamePasswordIfSaved(){
 			if (prefs.contains(USERNAME)) {
@@ -682,7 +689,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			rememberCheckBox.setChecked(isSaveCredentialsChecked);
 			
 		}
-		
 		
 		
 	}
