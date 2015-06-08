@@ -205,10 +205,4 @@ public class FeedbackActuator implements IFeedbackActuator {
     public void unregisterCallback(IUICallback iUICallback) {
         callback = iUICallback;
     }
-
-    @Override
-    public void perform() {
-
-    }
-
 }
