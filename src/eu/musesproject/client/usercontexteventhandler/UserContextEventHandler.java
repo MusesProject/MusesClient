@@ -192,7 +192,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		if(decision != null) { // local decision found
 			Log.d(APP_TAG, "Info DC, Local decision found => " + decision.getName() +", now calling actuator to showFeedback");
 			Log.d(TAG_RQT, "Showing feedback for action: "+action.getActionType());
-			ActuatorController.getInstance(context).showFeedback(decision);
+			ActuatorController.getInstance(context).showFeedback(decision, action, properties);
             if(action.isRequestedByMusesAwareApp() && action.isMusesAwareAppRequiresResponse()) {
 			    ActuatorController.getInstance(context).sendFeedbackToMUSESAwareApp(decision);
             }
@@ -727,7 +727,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			if(detailedStatus == DetailedStatuses.UNKNOWN_ERROR) {
 				Log.d(MusesUtils.TEST_TAG, "UCEH - UNKNOWN_ERROR callback");
 				// fires the unknown error feedback
-				ActuatorController.getInstance(context).showFeedback(null);
+				ActuatorController.getInstance(context).showFeedback(null, null, null);
 			}
 
 			// if the user tries to login and the server responses with an error, this error code will be send in the

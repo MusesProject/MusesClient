@@ -23,8 +23,12 @@ package eu.musesproject.client.actuators;
 import android.content.Context;
 import android.util.Log;
 import eu.musesproject.client.db.handler.DBManager;
+import eu.musesproject.client.model.actuators.ActuationInformationHolder;
+import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
+
+import java.util.Map;
 
 /**
  * @author christophstanik
@@ -42,15 +46,16 @@ public class ActuatorController implements IActuatorController {
 
     private FeedbackActuator feedbackActuator;
     private ActuatorCommandAPI actuateCMD;
-    private IBlockActuator blockActuator;
-    
+    /** Integer = decisionId*/
+    private Map<Integer, ActuationInformationHolder> holderMap;
+
+
     private DBManager dbManager;
 
     public ActuatorController(Context context) {
         this.context = context;
         this.feedbackActuator = new FeedbackActuator(context);
         this.actuateCMD = new ActuatorCommandAPI(context);
-        this.blockActuator = new BlockActuator(uceHandler.getContext());
         this.dbManager = new DBManager(uceHandler.getContext());
     }
 
@@ -61,7 +66,7 @@ public class ActuatorController implements IActuatorController {
         return actuatorController;
     }
 
-    public void showFeedback(Decision decision) {
+    public void showFeedback(Decision decision, Action action, Map<String, String> properties) {
         Log.d(TAG, "called: showFeedback(Decision decision)");
 
         //check for silent mode
@@ -92,19 +97,6 @@ public class ActuatorController implements IActuatorController {
     public void sendLoginResponse(boolean loginResponse, String msg, int detailedStatus) {
         Log.d(TAG, "called: sendLoginResponse(boolean loginResponse)");
         feedbackActuator.sendLoginResponseToUI(loginResponse, msg, detailedStatus);
-    }
-
-    public ActuatorCommandAPI getActuateCMD() {
-        return actuateCMD;
-    }
-
-    /**
-     * Method to block a specific app by killing its process
-     * 
-     * @param packageName package name of the app that should be blocked
-     */
-    public void block(String packageName) {
-    	blockActuator.block(packageName);
     }
 
     @Override
