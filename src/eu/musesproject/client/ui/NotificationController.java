@@ -29,6 +29,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
 import eu.musesproject.client.R;
+import eu.musesproject.client.connectionmanager.Statuses;
+import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 public class NotificationController {
     public static final String EXTRA_NOTIFICATION = "EXTRA_NOTIFICATION";
@@ -42,6 +44,8 @@ public class NotificationController {
     public static final String PUSH_ACTION_MSG_UPDATE = "eu.parse.push.intent.MSGUPDATE";
     private NotificationManager notificationManager;
     private Builder notification;
+
+    private int dialogCounter = 0;
 
     private NotificationController(Context context) {
         this.context = context;
@@ -67,6 +71,8 @@ public class NotificationController {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void create(int dialogCounter) {
+        this.dialogCounter = dialogCounter;
+
         if(notificationManager == null) {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         }
@@ -92,13 +98,33 @@ public class NotificationController {
         Resources res = context.getResources();
         String msg = String.format(res.getString(R.string.unread_feedback_dialogs), dialogCounter);
 
+        // create the icon drawable
+        int icon;
+        boolean serverOnline = UserContextEventHandler.getInstance().getServerStatus() == Statuses.ONLINE;
+        if(serverOnline) {
+            if(dialogCounter > 0) {
+                icon = R.drawable.ic_online_message;
+            }
+            else {
+                icon = R.drawable.ic_online_no_message;
+            }
+        }
+        else {
+            if(dialogCounter > 0) {
+                icon = R.drawable.ic_offline_message;
+            }
+            else {
+                icon = R.drawable.ic_offline_no_message;
+            }
+        }
+
         // change notification
         notification = new Builder(context)
                 .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(msg)
                 .setPriority(Notification.PRIORITY_MAX)
                 .setOngoing(true)
-                .setSmallIcon(dialogCounter == 0 ? R.drawable.muses_logo_no_message : R.drawable.muses_logo_has_message)
+                .setSmallIcon(icon)
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(false);
 
@@ -106,5 +132,9 @@ public class NotificationController {
 
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, notification.build());
+    }
+
+    public void updateOnlineStatus() {
+        create(dialogCounter);
     }
 }

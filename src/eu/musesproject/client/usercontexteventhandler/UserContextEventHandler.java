@@ -50,6 +50,7 @@ import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.model.decisiontable.Resource;
 import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
 import eu.musesproject.client.ui.MainActivity;
+import eu.musesproject.client.ui.NotificationController;
 import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
 import org.json.JSONObject;
@@ -750,6 +751,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			}
 
 			serverDetailedStatus = detailedStatus;
+			NotificationController.getInstance(context).updateOnlineStatus();
 
 			return 0;
 		}
