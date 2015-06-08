@@ -73,6 +73,12 @@ public class NotificationController {
     public void create(int dialogCounter) {
         this.dialogCounter = dialogCounter;
 
+        // don't show notification if the user is not logged in
+        if(!UserContextEventHandler.getInstance().isUserAuthenticated()) {
+            removeNotification();
+            return;
+        }
+
         if(notificationManager == null) {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         }

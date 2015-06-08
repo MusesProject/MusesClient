@@ -407,6 +407,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		isUserAuthenticated = false;
         isAuthenticatedRemotely = false;
 		updateServerOnlineAndUserAuthenticated();
+
+		NotificationController.getInstance(context).removeNotification();
 	}
 
 	/**
