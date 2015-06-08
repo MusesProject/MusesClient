@@ -35,7 +35,8 @@ import java.io.File;
  * Created by Ahmed Saad on 6/5/15.
  * Modified by christophstanik
  */
-public class ActuatorCommandAPI implements IBlockActuator {
+public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, INavigationActuator,
+        IFIleEraserActuator, IPreferenceActuator {
     private static final String TAG = ActuatorCommandAPI.class.getSimpleName();
 
     private Context context;
@@ -44,16 +45,19 @@ public class ActuatorCommandAPI implements IBlockActuator {
         this.context = context;
     }
 
+    @Override
     public void enableWifi() {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(true);
     }
 
+    @Override
     public void disableWifi() {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(false);
     }
 
+    @Override
     public void disableBluetooth() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter != null) {
@@ -66,6 +70,7 @@ public class ActuatorCommandAPI implements IBlockActuator {
         }
     }
 
+    @Override
     public void enableBluetooth() {
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter != null) {
@@ -78,24 +83,22 @@ public class ActuatorCommandAPI implements IBlockActuator {
         }
     }
 
+    @Override
     public void setScreenTimeOut(int screenTimeout) {
         android.provider.Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, screenTimeout);
     }
 
-
-    public void navigateUserToAccessbilitySettings() {
+    @Override
+    public void navigateUserToAccessibilitySettings() {
         context.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
     }
 
+    @Override
     public void navigateUserToAirPlaneMode() {
         context.startActivity(new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS));
     }
 
-    /**
-     * Method to erase files from a given folder path.
-     * The folder structure (sub-folders) are not deleted, just the files itself
-     * @param folderPath
-     */
+    @Override
     public void eraseFolderContent(String folderPath) {
         try {
             File[] folder = new File(folderPath).listFiles();
