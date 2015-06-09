@@ -366,7 +366,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		updateServerOnlineAndUserAuthenticated();
 
-
         // decide, whether to start the context monitoring or to request for a proper configuration
 		if(sensorConfigExists) {
 			manageMonitoringComponent();
@@ -398,8 +397,14 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 */
 	public void logout() {
 		Log.d(MusesUtils.TEST_TAG, "UCEH - logout()");
-		JSONObject logoutJSON = JSONManager.createLogoutJSON(getUserName(), getImei());
-		sendRequestToServer(logoutJSON);
+		if(serverStatus == Statuses.ONLINE) {
+			JSONObject logoutJSON = JSONManager.createLogoutJSON(getUserName(), getImei());
+			sendRequestToServer(logoutJSON);
+		}
+		else {
+			// we cannot logout to the server, so send a logout response for the GUI immediately
+			ActuatorController.getInstance(context).sendLoginResponse(false, context.getString(R.string.logout_successfully_msg), -1);
+		}
 
 		isUserAuthenticated = false;
         isAuthenticatedRemotely = false;
@@ -474,7 +479,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			if (dbManager == null) {
 				dbManager = new DBManager(context);
 			}
-
 
 			// 3. get a list of all stored actions
             dbManager.openDB();
@@ -647,7 +651,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 	 */
 					// 2.1
 					boolean isSilentModeActivated = JSONManager.isSilentModeActivated(receivedData);
-
 
                 	/*
                 	 *  connection configuration
