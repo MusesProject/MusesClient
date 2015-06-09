@@ -240,21 +240,33 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				informationSecurityBehaviourListbtn.setSelected(false);
 				securityQuizListbtn.setSelected(false);
 				statisticsListButton.setSelected(false);
+				
+				topLayout.removeAllViews();
+				topLayout.addView(loginView);
 			}else if (selectedLayout.equals("info_sec_view")){
 				loginListBtn.setSelected(false);
 				informationSecurityBehaviourListbtn.setSelected(true);
 				securityQuizListbtn.setSelected(false);
 				statisticsListButton.setSelected(false);
+				
+				topLayout.removeAllViews();
+				topLayout.addView(informationSecurityBehaviourView);
 			} else if (selectedLayout.equals("sec_quiz_view")){
 				loginListBtn.setSelected(false);
 				informationSecurityBehaviourListbtn.setSelected(false);
 				securityQuizListbtn.setSelected(true);
 				statisticsListButton.setSelected(false);
+				
+				topLayout.removeAllViews();
+				topLayout.addView(securityQuizView);
 			}else if (selectedLayout.equals("stats_view")){
 				loginListBtn.setSelected(false);
 				informationSecurityBehaviourListbtn.setSelected(false);
 				securityQuizListbtn.setSelected(false);
 				statisticsListButton.setSelected(true);
+				
+				topLayout.removeAllViews();
+				topLayout.addView(statisticsView);
 			}
 		}
 		super.onRestoreInstanceState(savedInstanceState);
@@ -384,7 +396,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	 */
 	
 	private void stopProgress(){
-		if (progressDialog!=null){
+		if (progressDialog != null){
 			progressDialog.dismiss();
 		}
 	}
@@ -404,7 +416,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	public void setActionBarTitle(final String title) {
 		runOnUiThread(new Runnable() {
-
 			@Override
 			public void run() {
 				getActionBar().setTitle(title);
@@ -430,10 +441,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		if (checkLoginInputFields(userName, password)) {
 			startProgress();
 			userContextMonitoringController.login(userName, password);
-			
 		} else {
-			toastMessage(getResources().getString(
-					R.string.empty_login_fields_msg));
+			toastMessage(getResources().getString(R.string.empty_login_fields_msg));
 		}
 	}
 
@@ -501,7 +510,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			View.OnClickListener, OnCheckedChangeListener {
 
 		private EditText userNameTxt, passwordTxt;
-		private LinearLayout /*loginLayout1,*/ loginLayout2;
+		private LinearLayout loginLayout;
 		private Button loginBtn, logoutBtn;
 		private TextView loginLabelTextView, loginDetailTextView;
 		private CheckBox rememberCheckBox, agreeTermsCheckBox;
@@ -522,8 +531,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			rememberCheckBox.setOnCheckedChangeListener(this);
 			agreeTermsCheckBox = (CheckBox) findViewById(R.id.agree_terms_checkbox);
 			agreeTermsCheckBox.setOnCheckedChangeListener(this);
-			//loginLayout1 = (LinearLayout) findViewById(R.id.login_layout_1);
-			loginLayout2 = (LinearLayout) findViewById(R.id.login_layout_2);
+			loginLayout = (LinearLayout) findViewById(R.id.login_layout_2);
 			loginBtn = (Button) findViewById(R.id.login_button);
 			loginBtn.setOnClickListener(this);
 			logoutBtn = (Button) findViewById(R.id.logout_button);
@@ -549,7 +557,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			case R.id.agree_terms_checkbox:
 				if (isChecked){
 					isPrivacyPolicyAgreementChecked = true;
-				} else isPrivacyPolicyAgreementChecked = false;
+				} else {
+					isPrivacyPolicyAgreementChecked = false;
+				}
 				break;
 			}
 		}
@@ -583,32 +593,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 		}
 
-//		/**
-//		 * Populate logged in view if user is successfully logged in.
-//		 * 
-//		 */
-//
-//		private void populateLoggedInView() {
-//			if (isLoggedIn != UserContextEventHandler.getInstance().isUserAuthenticated()) {
-//				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
-//				Log.d(MusesUtils.LOGIN_TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
-//				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
-//			}
-//			
-//			if (isLoggedIn) {
-//				loginLayout2.setVisibility(View.GONE);
-//				logoutBtn.setVisibility(View.VISIBLE);
-//				loginDetailTextView.setText(String.format("%s %s", getResources()
-//						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
-//			}
-//		}
-		
-		
 		public void updateLoginView() {
 			
 			if (isLoggedIn){
 				Log.v(MusesUtils.LOGIN_TAG, "login success in, updating login");
-				loginLayout2.setVisibility(View.GONE);
+				loginLayout.setVisibility(View.GONE);
 				logoutBtn.setVisibility(View.VISIBLE);
 				loginDetailTextView.setText(String.format("%s %s", getResources()
 						.getString(R.string.logged_in_info_txt), userNameTxt.getText().toString()));
@@ -618,11 +607,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			} else { // FIXME check below logs, why remote auth is checked here?	
 				Log.d(TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
 				Log.d(MusesUtils.LOGIN_TAG, "isLoggedIn status mismatch, GUI: "+(isLoggedIn?"true":"false")+" Service: "+(UserContextEventHandler.getInstance().isUserAuthenticated()?"true":"false"));
-				isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
+				//isLoggedIn = UserContextEventHandler.getInstance().isUserAuthenticated();
 				logoutBtn.setVisibility(View.GONE);
 				loginDetailTextView.setText(getResources().getString(
 						R.string.login_detail_view_txt));
-				loginLayout2.setVisibility(View.VISIBLE);
+				loginLayout.setVisibility(View.VISIBLE);
 				setUsernamePasswordIfSaved();
 			}
 			
@@ -707,29 +696,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public InformationSecurityBehaviourView(Context context) {
 			super(context);
 			inflate(context, R.layout.info_sec_view, this);
-			infoSecurityBehaviourWebView = (WebView) findViewById(R.id.info_sec_webview);        
-
-	        final String mimeType = "text/html";
-	        final String encoding = "UTF-8";
-	        String html =getResources().getString(R.string.info_sec_txt_webview);
-	        infoSecurityBehaviourWebView.getSettings().setJavaScriptEnabled(true);
-	        infoSecurityBehaviourWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-	        infoSecurityBehaviourWebView.loadDataWithBaseURL("", html, mimeType, encoding, "");
-			
+			infoSecurityBehaviourWebView = (WebView) findViewById(R.id.info_sec_webview);
+			updateInformationSecurityBehaviourView();
 		}
 		
 		public void updateInformationSecurityBehaviourView() {
-			Log.d(TAG, "Nothing to update for timebeing in webview.");
-		}
-		
-		@JavascriptInterface
-		public void resize(final float height) {
-		    MainActivity.this.runOnUiThread(new Runnable() {
-		        @Override
-		        public void run() {
-		        	infoSecurityBehaviourWebView.setLayoutParams(new LinearLayout.LayoutParams(getResources().getDisplayMetrics().widthPixels, (int) (height * getResources().getDisplayMetrics().density)));
-		        }
-		    });
+			Log.d(TAG, "Nothing to update for time being in webview.");
+	        final String mimeType = "text/html";
+	        final String encoding = "UTF-8";
+	        String html =getResources().getString(R.string.info_sec_txt_webview);
+	        infoSecurityBehaviourWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+	        infoSecurityBehaviourWebView.loadDataWithBaseURL("", html, mimeType, encoding, "");
 		}
 		
 	}
@@ -745,21 +722,24 @@ public class MainActivity extends Activity implements View.OnClickListener {
 					View.OnClickListener {
 
 		private TextView securityQuizTextView;
-
+		private Button securityQuizButton;
+		
 		public SecurityQuizView(Context context) {
 			super(context);
 			inflate(context, R.layout.security_quiz, this);
 			securityQuizTextView = (TextView) findViewById(R.id.security_quiz_txtView);
-			securityQuizTextView.setOnClickListener(this);
+			securityQuizButton = (Button) findViewById(R.id.sec_quiz_button);
+			securityQuizButton.setOnClickListener(this);
 		}
 		
 		public void updateSecurityQuizView() {
 			
 			if (isLoggedIn) {
-				securityQuizTextView.setText(getResources().getString(R.string.security_quiz_button_txt));
-			}
-			else {	
-				securityQuizTextView.setText(getResources().getString(R.string.login_first_for_quiz_txt));
+				securityQuizTextView.setVisibility(View.GONE);
+				securityQuizButton.setVisibility(View.VISIBLE);
+			} else {
+				securityQuizTextView.setVisibility(View.VISIBLE);
+				securityQuizButton.setVisibility(View.GONE);
 			}
 			
 		}
@@ -767,7 +747,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
-			case R.id.security_quiz_txtView:
+			case R.id.sec_quiz_button:
 				startSecurityQuiz();
 				break;
 			}
