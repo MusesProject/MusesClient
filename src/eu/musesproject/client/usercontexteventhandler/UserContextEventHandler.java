@@ -26,6 +26,7 @@ package eu.musesproject.client.usercontexteventhandler;
  */
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -802,13 +803,17 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					userName = tmpUserName;
 				}
 				else {
-					userName = "unknown"; // TODO look in db too
+					// user name is unknown, start the MainActivity, so that the user can login again
+					context.startActivity(new Intent(context, MainActivity.class));
+					userName = "unknown";
 				}
 			}
 
 			return userName;
 		}
 		else {
+			// user name is unknown, start the MainActivity, so that the user can login again
+			context.startActivity(new Intent(context, MainActivity.class));
 			return "unknown";
 		}
 	}
