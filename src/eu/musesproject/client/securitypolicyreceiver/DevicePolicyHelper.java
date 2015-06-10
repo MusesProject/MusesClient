@@ -215,9 +215,20 @@ public class DevicePolicyHelper {
 		DBManager dbManager = new DBManager(context);
 	    dbManager.openDB();
 		try {
+			//Decision id generated at the server side
+			String serverDecisionId = actionJSON.getString("decision");
+			Log.d(TAG,"Server decision id:"+serverDecisionId);
+			decision.setDecision_id(serverDecisionId);
 			if (actionJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_ALLOW+"\"")){
 				String allowAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_ALLOW);
 				JSONObject allowActionJSON = new JSONObject(allowAction);
+				//Solving risk treatment
+				if (allowAction.contains("solving_risktreatment")){
+					String solvingRiskTreatment = allowActionJSON.getString("solving_risktreatment");
+					Log.d(TAG, "Server solving risk treatment:" + solvingRiskTreatment);
+					decision.setSolving_risktreatment(Integer.valueOf(solvingRiskTreatment));
+				}
+				
 				String idResourceAllowed = allowActionJSON.getString("id");//TODO Include in JSONIdentifiers
 				Log.d(TAG, "Allowed:" + idResourceAllowed);
 				decision.setName(JSONIdentifiers.POLICY_PROPERTY_ALLOW);
@@ -232,6 +243,12 @@ public class DevicePolicyHelper {
 			}else if (actionJSON.toString().contains("\""+JSONIdentifiers.POLICY_PROPERTY_DENY+"\"")){
 				String denyAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_DENY);
 				JSONObject denyActionJSON = new JSONObject(denyAction);
+				//Solving risk treatment
+				if (denyAction.contains("solving_risktreatment")){
+					String solvingRiskTreatment = denyActionJSON.getString("solving_risktreatment");
+					Log.d(TAG, "Server solving risk treatment:" + solvingRiskTreatment);
+					decision.setSolving_risktreatment(Integer.valueOf(solvingRiskTreatment));
+				}
 				String idResourceAllowed = denyActionJSON.getString("id");//TODO Include in JSONIdentifiers
 				Log.d(TAG, "Denied:" + idResourceAllowed);
 				String typeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_TYPE);
@@ -246,6 +263,12 @@ public class DevicePolicyHelper {
 			}else {
 				String maybeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_MAYBE);
 				JSONObject maybeActionJSON = new JSONObject(maybeAction);
+				//Solving risk treatment
+				if (maybeAction.contains("solving_risktreatment")){
+					String solvingRiskTreatment = maybeActionJSON.getString("solving_risktreatment");
+					Log.d(TAG, "Server solving risk treatment:" + solvingRiskTreatment);
+					decision.setSolving_risktreatment(Integer.valueOf(solvingRiskTreatment));
+				}
 				String idResourceAllowed = maybeActionJSON.getString("id");//TODO Include in JSONIdentifiers
 				Log.d(TAG, "Denied:" + idResourceAllowed);
 				String typeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_TYPE);

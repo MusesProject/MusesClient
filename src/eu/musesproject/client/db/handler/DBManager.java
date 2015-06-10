@@ -117,6 +117,8 @@ public class DBManager {
 	private static final String CREATE_DECISION_TABLE_QUERY = "CREATE TABLE decision ( "
 			+ "id INTEGER PRIMARY KEY,"
 			+ "name VARCHAR(45) NOT NULL,"
+			+ "decision_id VARCHAR(45),"
+			+ "solving_risktreatment INT,"
 			+ "condition VARCHAR(45)," + "modification TIMESTAMP NOT NULL);";
 	private static final String CREATE_SUBJECT_TABLE_QUERY = "CREATE TABLE subject ( "
 			+ "id INTEGER PRIMARY KEY,"
@@ -249,6 +251,7 @@ public class DBManager {
 	private static final String UNIQUE_NAME = "unique_name";
 	private static final String SEVERITY = "severity";
 	private static final String ACTION_TYPE = "action_type";
+	private static final String SOLVING_RISKTREATMENT = "solving_risktreatment"; 
 	
 	private static final String COOKIE_NAME = "name";
 	private static final String COOKIE_DOMAIN = "domain";
@@ -1755,7 +1758,7 @@ public class DBManager {
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String[] { ID,
-				NAME, CONDITION, MODIFICATION },
+				NAME, DECISION_ID, SOLVING_RISKTREATMENT, CONDITION, MODIFICATION },
 
 		ID + "=?", new String[] { String.valueOf(decision_id) }, null, null,
 				null);
@@ -1768,10 +1771,14 @@ public class DBManager {
 				decision.setId(Integer.valueOf(cursor.getString(0)));
 				Log.d(TAG, "name " + cursor.getString(1));
 				decision.setName(cursor.getString(1));
-				Log.d(TAG, "condition " + cursor.getString(2));
-				decision.setCondition(cursor.getString(2));
-				Log.d(TAG, "modification " + cursor.getString(3));
-				// decision.setModification(Long.valueOf(cursor.getString(2)));
+				Log.d(TAG, "decision_id " + cursor.getString(2));
+				decision.setDecision_id(cursor.getString(2));
+				Log.d(TAG, "solving_risktreatment " + cursor.getInt(3));
+				decision.setSolving_risktreatment(cursor.getInt(3));
+				Log.d(TAG, "condition " + cursor.getString(4));
+				decision.setCondition(cursor.getString(4));
+				Log.d(TAG, "modification " + cursor.getString(5));
+				// decision.setModification(Long.valueOf(cursor.getString(5)));
 				cursor.moveToNext();
 			}
 
@@ -1864,12 +1871,14 @@ public class DBManager {
 			openDB();
 		}
 		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String[] { ID,
-				NAME, MODIFICATION },
+				NAME, DECISION_ID, SOLVING_RISKTREATMENT,MODIFICATION },
 
 		NAME + " like '" + decision.getName() + "'", null, null, null, null);
 
 		ContentValues values = new ContentValues();
 		values.put(NAME, decision.getName());
+		values.put(DECISION_ID, decision.getDecision_id());
+		values.put(SOLVING_RISKTREATMENT, decision.getSolving_risktreatment());
 		values.put(CONDITION, decision.getCondition());
 		values.put(MODIFICATION, "09-08-2012");
 

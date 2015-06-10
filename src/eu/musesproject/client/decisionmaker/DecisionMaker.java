@@ -610,6 +610,12 @@ public class DecisionMaker {
 		eu.musesproject.server.risktrust.RiskTreatment[] arrayTreatment = null;
 		
 		if (decision != null){
+			if (decision.getDecision_id()!=null){
+				resultDecision.setDecision_id(decision.getDecision_id());
+				Logger.getLogger(TAG).log(Level.INFO, "Server decision id set to:"+decision.getDecision_id());
+			}
+			resultDecision.setSolving_risktreatment(decision.getSolving_risktreatment());
+			Logger.getLogger(TAG).log(Level.INFO, "Server solving risk treatment set to:"+decision.getSolving_risktreatment());
 			if (decision.getName() != null){
 				if (decision.getName().equals("deny")){
 					resultDecision.setName(Decision.STRONG_DENY_ACCESS);
