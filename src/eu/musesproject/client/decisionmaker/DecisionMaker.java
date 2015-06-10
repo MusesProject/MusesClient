@@ -108,9 +108,10 @@ public class DecisionMaker {
 						 String value = entry.getKey()
 									.substring(
 											entry.getKey()
-													.indexOf(":") + 1,
+													.indexOf(":") + 2,
 													entry.getKey()
-													.length() - 1);
+													.length() - 2);
+						 Log.d(TAG+"SZL","2.1 Value: "+value);
 						 if ((propKey.contains("installedapps"))&&(!propEntry.getValue().contains(value))){
 							Log.d(TAG+"SZL","3.installedapps Match!");
 							match = true;
