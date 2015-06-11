@@ -745,6 +745,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				// fires the unknown error feedback
 				ActuatorController.getInstance(context).showFeedback(new ActuationInformationHolder());
 			}
+			setServerStatus(status);
 
 			// if the user tries to login and the server responses with an error, this error code will be send in the
 			// login callback
