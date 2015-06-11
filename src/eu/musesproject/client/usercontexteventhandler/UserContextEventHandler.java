@@ -791,6 +791,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
     }
 
 	public String getUserName() {
+		// create an intent in case we have to restart the login view
+		Intent intent = new Intent(context, MainActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
 		if(isUserAuthenticated) {
 			if(userName == null || userName.equals("")) {
 				if(prefs == null) {
@@ -804,7 +808,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				}
 				else {
 					// user name is unknown, start the MainActivity, so that the user can login again
-					context.startActivity(new Intent(context, MainActivity.class));
+					context.startActivity(intent);
 					userName = "unknown";
 				}
 			}
@@ -813,7 +817,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 		else {
 			// user name is unknown, start the MainActivity, so that the user can login again
-			context.startActivity(new Intent(context, MainActivity.class));
+			context.startActivity(intent);
 			return "unknown";
 		}
 	}
