@@ -4,7 +4,14 @@
     <string name="app_name">MUSES</string>
     <string name="login_list_button_txt">L o g i n</string>
     <string name="security_info_button_txt">Mis políticas de seguridad</string>
-    <string name="security_points_button_txt">Puntos de seguridad</string>
+    <string name="statistics_info_button_txt">Estadísticas</string> <!-- new -->
+    <string name="no_statistics_available_txt">Estadísticas no disponibles, por favor, inténtelo más tarde.</string> <!-- new -->
+    <string name="no_info_sec_available_txt">No hay información disponible, por favor, inténtelo más tarde.</string> <!-- new -->
+    <string name="login_first_for_statictics_txt">Por favor, ejecúte el login desde el menú correspondiente para ver Estadísticas.</string> <!-- new -->
+    <string name="info_security_behaviour_button_txt">Información de comportamiento de seguridad</string> <!-- new -->
+    <string name="login_first_for_info_security_behaviour_txt">Por favor, ejecúte el login desde el menú correspondiente para ver información sobre comportamiento de seguridad.</string> <!-- new -->
+    <string name="security_points_button_txt">Test de seguridad</string> <!-- new -->
+    <string name="login_first_for_quiz_txt">Por favor, ejecúte el login desde el menú correspondiente para participar en el Test.</string> <!-- new -->
     <string name="action_settings">Configuración</string>
 
     <!-- Login view strings -->
@@ -12,6 +19,7 @@
     <string name="password_txt">Password:</string>
     <string name="login_button_txt">Login</string>
     <string name="logout_button_txt">Logout</string>
+    <string name="security_quiz_button_txt">Participar en el Test de Seguridad</string> <!-- new -->
     <string name="privacy_policy_view_txt">Política de privacidad</string>
     <string name="policy_info_button_txt">Información de política MUSES</string>
     <string name="settings_button_txt">Configuración</string>
@@ -48,7 +56,7 @@
     <string name="no_internet_connection_msg">No tiene conexión a Internet en su dispositivo, por favor compruebe su configuración Wi-Fi o 3G ..</string>
     <string name="logout_successfully_msg">Log out correcto ..</string>
     <string name="crash_toast_text">Enviando informe de errores..</string>
-    
+    <string name="unknown_error_toast_text">Error desconocido, por favor, inténtelo más tarde...</string> <!-- new -->
     
     <!-- Copied strings -->
     <string name="decent_protection"> Protección</string>

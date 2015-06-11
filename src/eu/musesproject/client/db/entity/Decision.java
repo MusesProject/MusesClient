@@ -24,6 +24,8 @@ public class Decision {
 	
 	private int id;
 	private String name;
+	private String decision_id;
+	private int solving_risktreatment;
 	private long modification;
 	private String condition;
 	
@@ -50,6 +52,18 @@ public class Decision {
 	}
 	public void setCondition(String condition) {
 		this.condition = condition;
+	}
+	public String getDecision_id() {
+		return decision_id;
+	}
+	public void setDecision_id(String decision_id) {
+		this.decision_id = decision_id;
+	}
+	public int getSolving_risktreatment() {
+		return solving_risktreatment;
+	}
+	public void setSolving_risktreatment(int solving_risktreatment) {
+		this.solving_risktreatment = solving_risktreatment;
 	}
 	
 	
