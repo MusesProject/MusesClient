@@ -40,11 +40,11 @@ import android.util.Log;
 public class AlarmReceiver extends BroadcastReceiver {
 	
 	private static final String TAG = "AlarmReceiver";
-	private static int POLL_INTERVAL = 10000; // Default value
-	private static int SLEEP_POLL_INTERVAL = 10000; // Default value
+	private static int POLL_INTERVAL = 60000; // Default value
+	private static int SLEEP_POLL_INTERVAL = 60000; // Default value
 	private static int exponentialCounter = 4;
-	private static int DEFAULT_POLL_INTERVAL = 10000;
-	private static int DEFAULT_SLEEP_POLL_INTERVAL = 10000;
+	private static int DEFAULT_POLL_INTERVAL = 60000;
+	private static int DEFAULT_SLEEP_POLL_INTERVAL = 60000;
 	private static int CURRENT_POLL_INTERVAL;
 	private static boolean POLL_INTERVAL_UPDATED = false;
 	private static boolean SLEEP_MODE_ACTIVE;
