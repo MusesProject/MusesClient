@@ -98,9 +98,7 @@ public class FeedbackActuator implements IFeedbackActuator {
     private void createFeedbackDialog(Decision decision) {
         Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
 
-        int dialogPolicy = -1;
         int decisionId = decision.hashCode();// todo add real id
-        String dialogTitle = "";
         String dialogBody = decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription();
 
         Intent dialogIntent = new Intent(context, DialogController.class);
