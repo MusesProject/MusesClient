@@ -98,13 +98,12 @@ public class FeedbackActuator implements IFeedbackActuator {
     private void createFeedbackDialog(Decision decision) {
         Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
 
-        int decisionId = decision.hashCode();// todo add real id
+        String decisionId = decision.getDecision_id();
         String dialogBody = decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription();
 
         Intent dialogIntent = new Intent(context, DialogController.class);
         dialogIntent.putExtra(DialogController.KEY_DECISION_ID, decisionId);
         dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
-        dialogIntent.putExtra(DialogController.KEY_DIALOG_CMD, -1);
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
                 | Intent.FLAG_ACTIVITY_MULTIPLE_TASK
                 | Intent.FLAG_ACTIVITY_NEW_TASK);

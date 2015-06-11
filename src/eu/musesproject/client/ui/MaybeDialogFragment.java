@@ -44,17 +44,16 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
     private Button actionButton; // help me, fix it, ok
     private Button cancelButton;
 
+    private String decisionId;
     private String title;
     private String[] splitBody;
     private String body;
 
-    private int actuationIdentifier;
-
-    public static MaybeDialogFragment newInstance(String title, String body, int decisionId, int actuationIdentifier) {
+    public static MaybeDialogFragment newInstance(String title, String body, String decisionId) {
         MaybeDialogFragment denyDialogFragment = new MaybeDialogFragment();
         denyDialogFragment.title = title;
         denyDialogFragment.body = body;
-        denyDialogFragment.actuationIdentifier = actuationIdentifier;
+        denyDialogFragment.decisionId = decisionId;
 
         return denyDialogFragment;
     }
@@ -100,10 +99,14 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.dialog_maybe_button_action:
+                ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
+                ActuatorController.getInstance(getActivity()).perform(decisionId);
+                getActivity().finish();
                 break;
             case R.id.dialog_maybe_button_cancel:
                 this.dismiss();
                 ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
+                ActuatorController.getInstance(getActivity()).perform(decisionId);
                 getActivity().finish();
                 break;
         }

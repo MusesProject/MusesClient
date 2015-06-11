@@ -271,7 +271,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 *
 	 * @param action
 	 */
-	public void sendUserBehavior(Action action, int decisionId) {
+	public void sendUserBehavior(Action action, String decisionId) {
         // display next Feedback dialog if there is any
         ActuatorController.getInstance(context).removeFeedbackFromQueue();
 

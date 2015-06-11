@@ -48,8 +48,8 @@ public class ActuatorController implements IActuatorController {
 
     private FeedbackActuator feedbackActuator;
     private ActuatorCommandAPI actuateCMD;
-    /** Integer = decisionId*/
-    private Map<Integer, ActuationInformationHolder> holderMap;
+    /** String = decisionId*/
+    private Map<String, ActuationInformationHolder> holderMap;
 
 
     private DBManager dbManager;
@@ -59,7 +59,7 @@ public class ActuatorController implements IActuatorController {
         this.feedbackActuator = new FeedbackActuator(context);
         this.actuateCMD = new ActuatorCommandAPI(context);
         this.dbManager = new DBManager(uceHandler.getContext());
-        this.holderMap = new HashMap<Integer, ActuationInformationHolder>();
+        this.holderMap = new HashMap<String, ActuationInformationHolder>();
     }
 
     public static ActuatorController getInstance(Context context) {
@@ -71,7 +71,7 @@ public class ActuatorController implements IActuatorController {
 
     public void showFeedback(ActuationInformationHolder holder) {
         Log.d(TAG, "called: showFeedback(Decision decision)");
-        holderMap.put(1/*holder.getDecision().getID()*/, holder);
+        holderMap.put(holder.getDecision().getDecision_id(), holder);
 
         //check for silent mode
         dbManager.closeDB();
@@ -117,22 +117,26 @@ public class ActuatorController implements IActuatorController {
     }
 
     @Override
-    public void perform(int decisionID) {
+    public void perform(String decisionID) {
+        Log.d(TAG, "1. perform("+decisionID+")");
         if(actuateCMD == null) {
             actuateCMD = new ActuatorCommandAPI(context);
         }
         ActuationInformationHolder holder = holderMap.get(decisionID);
         if(holder != null) {
+            Log.d(TAG, "2. holder exists");
             Decision decision = holder.getDecision();
             Action action = holder.getAction();
             Map<String, String> properties = holder.getActionProperties();
 
             if(decision != null && action != null && properties != null) {
-                switch (-1/*decision.getSolvingRiskTreatment()*/) {
+                Log.d(TAG, "3. decision != null && action != null && properties != null");
+                Log.d(TAG, "4. solving int="+ decision.getSolving_risktreatment());
+                switch (decision.getSolving_risktreatment()) {
                     case SolvingRiskTreatment.VIRUS_FOUND:
                         // 1. search for the installed trusted antivirus
                         // 2. start the trusted antivirus
-                        context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.example.appName"));
+                        context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
                         break;
                     case SolvingRiskTreatment.UNSECURE_NETWORK:
                         break;
@@ -141,13 +145,14 @@ public class ActuatorController implements IActuatorController {
                     case SolvingRiskTreatment.ANTIVIRUS_IS_NOT_RUNNING:
                         // 1. search for the installed trusted antivirus
                         // 2. start the trusted antivirus
-                        context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.example.appName"));
+                        context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
                         break;
                     case SolvingRiskTreatment.UNSECURE_WIFI_ENCRYPTION_WITHOUT_WPA2:
                         break;
                     case SolvingRiskTreatment.INSUFFICIENT_SCREEN_LOOK_TIMEOUT:
                         // 10 min hardcoded default value, since the information is not available from the server
-                        actuateCMD.setScreenTimeOut(600000);
+                        Log.d(TAG, "5. set screen timeout");
+                        actuateCMD.setScreenTimeOut(15000);
                         break;
                     case SolvingRiskTreatment.BLUETOOTH_ENABLED_MIGHT_TURN_INTO_LEAKAGE_PROBLEMS:
                         actuateCMD.disableBluetooth();

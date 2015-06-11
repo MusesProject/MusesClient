@@ -47,23 +47,22 @@ public class DialogController extends Activity {
 
         Bundle bundle = getIntent().getExtras();
         int policy = bundle.getInt(KEY_DIALOG);
-        int decisionId = bundle.getInt(KEY_DECISION_ID);
+        String decisionId = bundle.getString(KEY_DECISION_ID);
         String dialogTitle = bundle.getString(KEY_DIALOG_TITLE);
         String dialogBody = bundle.getString(KEY_DIALOG_BODY);
-        int actuationCommand = bundle.getInt(KEY_DIALOG_CMD);
 
         Log.d("FeedbackActuator", "policy:"+policy + " | title:"+dialogTitle + " | body:"+dialogBody);
 
         DialogFragment targetDialogFragment = null;
         switch (policy) {
             case DENY:
-                targetDialogFragment = createDenyDialog(dialogTitle, dialogBody, decisionId, actuationCommand);
+                targetDialogFragment = createDenyDialog(dialogTitle, dialogBody, decisionId);
                 break;
             case MAYBE:
-                targetDialogFragment = createMaybeDialog(dialogTitle, dialogBody, decisionId, actuationCommand);
+                targetDialogFragment = createMaybeDialog(dialogTitle, dialogBody, decisionId);
                 break;
             case UP_TO_USER:
-                targetDialogFragment = createUpToUserDialog(dialogTitle, dialogBody, decisionId, actuationCommand);
+                targetDialogFragment = createUpToUserDialog(dialogTitle, dialogBody, decisionId);
                 break;
         }
         if(targetDialogFragment != null) {
@@ -72,16 +71,16 @@ public class DialogController extends Activity {
         }
     }
 
-    private DialogFragment createDenyDialog(String title, String body, int decisionId, int actuationCommand) {
-        return DenyDialogFragment.newInstance(title, body, decisionId, actuationCommand);
+    private DialogFragment createDenyDialog(String title, String body, String decisionId) {
+        return DenyDialogFragment.newInstance(title, body, decisionId);
     }
 
-    private DialogFragment createMaybeDialog(String title, String body, int decisionId, int actuationCommand) {
-        return MaybeDialogFragment.newInstance(title,body, decisionId, actuationCommand);
+    private DialogFragment createMaybeDialog(String title, String body, String decisionId) {
+        return MaybeDialogFragment.newInstance(title,body, decisionId);
     }
 
-    private DialogFragment createUpToUserDialog(String title, String body, int decisionId, int actuationCommand) {
-        return UpToUserDialogFragment.newInstance(title, body, decisionId, actuationCommand);
+    private DialogFragment createUpToUserDialog(String title, String body, String decisionId) {
+        return UpToUserDialogFragment.newInstance(title, body, decisionId);
     }
 
     @Override

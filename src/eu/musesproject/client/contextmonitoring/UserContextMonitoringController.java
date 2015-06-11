@@ -91,7 +91,7 @@ public class UserContextMonitoringController implements
 
 
     @Override
-    public void sendUserBehavior(Action action, int decisionId) {
+    public void sendUserBehavior(Action action, String decisionId) {
         uceHandler.sendUserBehavior(action, decisionId);
     }
 

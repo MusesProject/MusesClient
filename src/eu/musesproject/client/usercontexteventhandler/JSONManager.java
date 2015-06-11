@@ -163,7 +163,7 @@ public class JSONManager {
 	 * @param userBehavior decision of the user from a muses dialog
 	 * @return {@link JSONObject}
 	 */
-	public static JSONObject createUserBehaviorJSON(String deviceId, String userName, String userBehavior, int decisionId) {
+	public static JSONObject createUserBehaviorJSON(String deviceId, String userName, String userBehavior, String decisionId) {
 		JSONObject rootJSONObject = new JSONObject();
 		try {
 			rootJSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.USER_ACTION);

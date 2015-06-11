@@ -64,7 +64,7 @@ public class JSONManagerTest extends AndroidTestCase {
     private String responseJSON;
     private String configUpdateJSON;
     private String policyCondition;
-    private int decisionId;
+    private String decisionId;
 
     @Override
     protected void setUp() throws Exception {
@@ -79,7 +79,7 @@ public class JSONManagerTest extends AndroidTestCase {
         userName = "muses";
         password = "muses";
 
-        decisionId = 1;
+        decisionId = "1";
 
         actionTimestamp = System.currentTimeMillis();
         actionType = ActionType.ACCESS;
@@ -153,7 +153,7 @@ public class JSONManagerTest extends AndroidTestCase {
         JSONObject userBehaviorJSON = resultJSON.getJSONObject(JSONIdentifiers.USER_BEHAVIOR);
         assertNotNull(userBehaviorJSON);
         assertEquals("user behavior", userBehavior, userBehaviorJSON.getString(JSONIdentifiers.ACTION_IDENTIFIER));
-        assertEquals("decision id", decisionId, resultJSON.getInt(JSONIdentifiers.DECISION_IDENTIFIER));
+        assertEquals("decision id", decisionId, resultJSON.getString(JSONIdentifiers.DECISION_IDENTIFIER));
     }
 
     public void testCreateLoginJSON() throws JSONException {

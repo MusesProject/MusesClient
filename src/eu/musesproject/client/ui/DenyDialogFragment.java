@@ -44,17 +44,18 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
     private Button detailsButton;
     private Button cancelButton;
 
+    private String decisionId;
     private String title;
     private String[] splitBody;
     private String body;
 
     private int actuationIdentifier;
 
-    public static DenyDialogFragment newInstance(String title, String body, int decisionId, int actuationIdentifier) {
+    public static DenyDialogFragment newInstance(String title, String body, String decisionId) {
         DenyDialogFragment denyDialogFragment = new DenyDialogFragment();
+        denyDialogFragment.decisionId = decisionId;
         denyDialogFragment.title = title;
         denyDialogFragment.body = body;
-        denyDialogFragment.actuationIdentifier = actuationIdentifier;
 
         return denyDialogFragment;
     }
@@ -114,6 +115,7 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
             case R.id.dialog_deny_button_cancel:
                 this.dismiss();
                 ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
+                ActuatorController.getInstance(getActivity()).perform(decisionId);
                 getActivity().finish();
                 break;
         }

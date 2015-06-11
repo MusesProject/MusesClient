@@ -44,17 +44,17 @@ public class UpToUserDialogFragment extends DialogFragment implements View.OnCli
     private Button proceedButton;
     private Button cancelButton;
 
+    private String decisionId;
     private String title;
     private String[] splitBody;
     private String body;
 
-    private int actuationIdentifier;
 
-    public static UpToUserDialogFragment newInstance(String title, String body, int decisionId, int actuationIdentifier) {
+    public static UpToUserDialogFragment newInstance(String title, String body, String decisionId) {
         UpToUserDialogFragment denyDialogFragment = new UpToUserDialogFragment();
         denyDialogFragment.title = title;
         denyDialogFragment.body = body;
-        denyDialogFragment.actuationIdentifier = actuationIdentifier;
+        denyDialogFragment.decisionId = decisionId;
 
         return denyDialogFragment;
     }
@@ -100,10 +100,13 @@ public class UpToUserDialogFragment extends DialogFragment implements View.OnCli
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.dialog_uptouser_button_proceed:
+                ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
+                getActivity().finish();
                 break;
             case R.id.dialog_uptouser_button_cancel:
                 this.dismiss();
                 ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
+                ActuatorController.getInstance(getActivity()).perform(decisionId);
                 getActivity().finish();
                 break;
         }
