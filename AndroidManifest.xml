@@ -32,9 +32,11 @@
         android:label="@string/app_name"
         android:theme="@style/AppBaseTheme" 
         android:name=".application.MusesApplication" >
-        <activity android:name="eu.musesproject.client.ui.MainActivity" >
+        <activity android:name="eu.musesproject.client.ui.MainActivity"
+            android:configChanges="orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

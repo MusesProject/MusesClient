@@ -21,6 +21,9 @@ package eu.musesproject.client.ui;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.http.util.EncodingUtils;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -32,6 +35,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import java.util.List;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.JavascriptInterface;
@@ -91,7 +95,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 	private ProgressDialog progressDialog;
 	private Timer autoUpdate;
 	private int serverStatus = -1;
-		
+    protected WebView webview;
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -831,10 +836,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 "document.body.appendChild(myForm) ;" +
                 "myForm.submit() ;" +
                 "document.body.removeChild(myForm) ;";
-        Intent browserIntent = new Intent(android.content.Intent.ACTION_VIEW,
-                Uri.parse(finalUrl));
-        startActivity(browserIntent);
-		
+
+        WebView webview = new WebView(this);
+        webview.getSettings().setJavaScriptEnabled(true);
+        setContentView(webview);
+        byte[] post = EncodingUtils.getBytes("j_username="+userName+"&j_password="+password, "BASE64");
+        webview.postUrl("https://muses-securityquizz.rhcloud.com/LoginServlet", post);
+
 	}
 
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, MainActivity.class));
+    }
 }
+
