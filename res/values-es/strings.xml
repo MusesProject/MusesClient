@@ -34,9 +34,9 @@
     <string name="test_string">Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eiripsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et acetet accusam </string>
 
     <!-- Feedback dialog strings -->
-    <string name="feedback_dialog_title_deny">Deny</string>
-    <string name="feedback_dialog_title_uptouser">Up to you</string>
-    <string name="feedback_dialog_title_maybe">Maybe</string>
+    <string name="feedback_dialog_title_deny">No permitido</string>
+    <string name="feedback_dialog_title_uptouser">Usted decide</string>
+    <string name="feedback_dialog_title_maybe">Permitido si realiza cambios</string>
     <string name="feedback_title_txt">MUSES Advertencia de política</string>
     <string name="details_btn_txt_deny">¡Quiero saber más!</string>
     <string name="details_btn_txt_maybe">¡Necesito ayuda!</string>
