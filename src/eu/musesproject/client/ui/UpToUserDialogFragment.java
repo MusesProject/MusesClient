@@ -32,6 +32,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
+import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
+import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.model.decisiontable.ActionType;
 
 /**
  * Created by christophstanik on 5/17/15.
@@ -98,12 +101,23 @@ public class UpToUserDialogFragment extends DialogFragment implements View.OnCli
 
     @Override
     public void onClick(View v) {
+        Action action = null;
         switch (v.getId()) {
             case R.id.dialog_uptouser_button_proceed:
+                // send the behavior to the server
+                action = new Action(ActionType.PROCEED_ANYWAY, System.currentTimeMillis());
+                UserContextMonitoringController.getInstance(getActivity()).sendUserBehavior(action, decisionId);
+
+                // remove the feedback and close the dialog
                 ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
                 getActivity().finish();
                 break;
             case R.id.dialog_uptouser_button_cancel:
+                // send the behavior to the server
+                action = new Action(ActionType.CANCEL, System.currentTimeMillis());
+                UserContextMonitoringController.getInstance(getActivity()).sendUserBehavior(action, decisionId);
+
+                // remove the feedback and close the dialog
                 this.dismiss();
                 ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
                 ActuatorController.getInstance(getActivity()).perform(decisionId);
