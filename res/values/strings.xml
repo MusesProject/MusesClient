@@ -41,6 +41,9 @@
     <!-- Notification strings -->
     <string name="unread_feedback_dialogs">You have %1$d unread messages</string>
     <!-- Feedback dialog strings -->
+    <string name="feedback_dialog_title_deny">Deny</string>
+    <string name="feedback_dialog_title_uptouser">Up to you</string>
+    <string name="feedback_dialog_title_maybe">Maybe</string>
     <string name="feedback_title_txt">Muses Policy Warning</string>
     <string name="details_btn_txt_deny">I want to know more!</string>
     <string name="details_btn_txt_maybe">I need help!</string>
