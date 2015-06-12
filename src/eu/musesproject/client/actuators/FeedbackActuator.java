@@ -23,6 +23,7 @@ package eu.musesproject.client.actuators;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import eu.musesproject.client.R;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
@@ -100,6 +101,7 @@ public class FeedbackActuator implements IFeedbackActuator {
 
         String decisionId = decision.getDecision_id();
         String dialogBody = decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription();
+        String dialogTitle = "";
 
         Intent dialogIntent = new Intent(context, DialogController.class);
         dialogIntent.putExtra(DialogController.KEY_DECISION_ID, decisionId);
@@ -123,16 +125,19 @@ public class FeedbackActuator implements IFeedbackActuator {
             return;
         }
         else if(decision.getName().equalsIgnoreCase(Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS)) {
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.MAYBE_ACCESS_WITH_RISKTREATMENTS);
+            dialogTitle = context.getString(R.string.feedback_dialog_title_maybe);
+            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, dialogTitle);
             dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.MAYBE);
         }
         else if(decision.getName().equalsIgnoreCase(Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION)) {
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.UPTOYOU_ACCESS_WITH_RISKCOMMUNICATION);
+            dialogTitle = context.getString(R.string.feedback_dialog_title_uptouser);
+            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, dialogTitle);
             dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.UP_TO_USER);
         }
         else if(decision.getName().equalsIgnoreCase(Decision.STRONG_DENY_ACCESS) ||
                 decision.getName().equalsIgnoreCase(Decision.DEFAULT_DENY_ACCESS)) {
-            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, Decision.STRONG_DENY_ACCESS);
+            dialogTitle = context.getString(R.string.feedback_dialog_title_deny);
+            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, dialogTitle);
             dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.DENY);
         }
 
