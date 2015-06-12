@@ -119,25 +119,18 @@ public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, 
     @Override
     public void block(String packageName) {
         /*
-		 * 1. check if the current foreground app is still the app that should be killed
-		 * 2. if so change to home screen, because currently visible apps cannot be killed
-		 * 3. kill the app while it is in the background
+		 * 1. Change to home screen, because currently visible apps cannot be killed
+		 * 2. Kill the app while it is in the background
 		 */
 
         // 1.
         final ActivityManager activityManager = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-        ActivityManager.RunningTaskInfo foregroundTaskInfo = activityManager.getRunningTasks(1).get(0);
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(startMain);
 
-        String foregroundTaskPackageName = foregroundTaskInfo.topActivity.getPackageName();
-        if(foregroundTaskPackageName.equals(packageName)) {
-            // 2.
-            Intent startMain = new Intent(Intent.ACTION_MAIN);
-            startMain.addCategory(Intent.CATEGORY_HOME);
-            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(startMain);
-
-            // 3.
-            activityManager.killBackgroundProcesses(foregroundTaskPackageName);
-        }
+        // 3.
+        activityManager.killBackgroundProcesses(packageName);
     }
 }
