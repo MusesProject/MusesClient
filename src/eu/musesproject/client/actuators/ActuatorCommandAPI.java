@@ -25,6 +25,8 @@ import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -96,6 +98,40 @@ public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, 
     @Override
     public void navigateUserToAirPlaneMode() {
         context.startActivity(new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS));
+    }
+
+    @Override
+    public void openOrInstallApp(String packageName) {
+        /*
+         * 1. Check if app is installed
+         * 1.1 if installed open
+         * 1.2 if not, open Market place
+         */
+        try {
+            //1
+            boolean isInstalled = false;
+            PackageManager pm = context.getPackageManager();
+
+            try {
+                pm.getPackageInfo(packageName, PackageManager.GET_META_DATA);
+                isInstalled = true;
+            } catch (PackageManager.NameNotFoundException e) {
+                // app is not installed
+            }
+
+            //1.1
+            if (isInstalled) {
+                context.startActivity(context.getPackageManager().getLaunchIntentForPackage(packageName));
+            }
+            // 1.2
+            else {
+                Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse("market://details?id="+packageName));
+                context.startActivity(goToMarket);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -26,4 +26,5 @@ package eu.musesproject.client.actuators;
 public interface INavigationActuator {
     void navigateUserToAccessibilitySettings();
     void navigateUserToAirPlaneMode();
+    void openOrInstallApp(String packageName);
 }

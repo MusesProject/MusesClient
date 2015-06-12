@@ -139,25 +139,19 @@ public class ActuatorController implements IActuatorController {
                 Log.d(TAG, "4. solving int="+ decision.getSolving_risktreatment());
                 int id = decision.getSolving_risktreatment();
                 if(id == SolvingRiskTreatment.VIRUS_FOUND) {
-                    // 1. search for the installed trusted antivirus
-                    // 2. start the trusted antivirus
-                    context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
+                    actuateCMD.openOrInstallApp("com.avast.android.mobilesecurity");
                 }
                 else if(id == SolvingRiskTreatment.UNSECURE_NETWORK) {
 
                 }
                 else if(id == SolvingRiskTreatment.VIRUS_FOUND) {
-                    // 1. search for the installed trusted antivirus
-                    // 2. start the trusted antivirus
-                    context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
+                    actuateCMD.openOrInstallApp("com.avast.android.mobilesecurity");
                 }
                 else if(id == SolvingRiskTreatment.ATTEMPT_TO_SAVE_A_FILE_IN_A_MONITORED_FOLDER) {
 
                 }
                 else if(id == SolvingRiskTreatment.ANTIVIRUS_IS_NOT_RUNNING) {
-                    // 1. search for the installed trusted antivirus
-                    // 2. start the trusted antivirus
-                    context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
+                    actuateCMD.openOrInstallApp("com.avast.android.mobilesecurity");
                 }
                 else if(id == SolvingRiskTreatment.UNSECURE_WIFI_ENCRYPTION_WITHOUT_WPA2) {
 
