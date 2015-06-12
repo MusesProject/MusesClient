@@ -22,6 +22,7 @@ package eu.musesproject.client.actuators;
 
 import android.content.Context;
 import android.util.Log;
+import eu.musesproject.client.contextmonitoring.sensors.AppSensor;
 import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.actuators.ActuationInformationHolder;
 import eu.musesproject.client.model.decisiontable.Action;
@@ -136,34 +137,50 @@ public class ActuatorController implements IActuatorController {
             if(decision != null && action != null && properties != null) {
                 Log.d(TAG, "3. decision != null && action != null && properties != null");
                 Log.d(TAG, "4. solving int="+ decision.getSolving_risktreatment());
-                switch (decision.getSolving_risktreatment()) {
-                    case SolvingRiskTreatment.VIRUS_FOUND:
-                        // 1. search for the installed trusted antivirus
-                        // 2. start the trusted antivirus
-                        context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
-                        break;
-                    case SolvingRiskTreatment.UNSECURE_NETWORK:
-                        break;
-                    case SolvingRiskTreatment.ATTEMPT_TO_SAVE_A_FILE_IN_A_MONITORED_FOLDER:
-                        break;
-                    case SolvingRiskTreatment.ANTIVIRUS_IS_NOT_RUNNING:
-                        // 1. search for the installed trusted antivirus
-                        // 2. start the trusted antivirus
-                        context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
-                        break;
-                    case SolvingRiskTreatment.UNSECURE_WIFI_ENCRYPTION_WITHOUT_WPA2:
-                        break;
-                    case SolvingRiskTreatment.INSUFFICIENT_SCREEN_LOOK_TIMEOUT:
-                        // 10 min hardcoded default value, since the information is not available from the server
-                        Log.d(TAG, "5. set screen timeout");
-                        actuateCMD.setScreenTimeOut(15000);
-                        break;
-                    case SolvingRiskTreatment.BLUETOOTH_ENABLED_MIGHT_TURN_INTO_LEAKAGE_PROBLEMS:
-                        actuateCMD.disableBluetooth();
-                        break;
-                    case SolvingRiskTreatment.ACCESSIBILITY:
-                        actuateCMD.navigateUserToAccessibilitySettings();
-                        break;
+                int id = decision.getSolving_risktreatment();
+                if(id == SolvingRiskTreatment.VIRUS_FOUND) {
+                    // 1. search for the installed trusted antivirus
+                    // 2. start the trusted antivirus
+                    context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
+                }
+                else if(id == SolvingRiskTreatment.UNSECURE_NETWORK) {
+
+                }
+                else if(id == SolvingRiskTreatment.VIRUS_FOUND) {
+                    // 1. search for the installed trusted antivirus
+                    // 2. start the trusted antivirus
+                    context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
+                }
+                else if(id == SolvingRiskTreatment.ATTEMPT_TO_SAVE_A_FILE_IN_A_MONITORED_FOLDER) {
+
+                }
+                else if(id == SolvingRiskTreatment.ANTIVIRUS_IS_NOT_RUNNING) {
+                    // 1. search for the installed trusted antivirus
+                    // 2. start the trusted antivirus
+                    context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.avast.android.mobilesecurity"));
+                }
+                else if(id == SolvingRiskTreatment.UNSECURE_WIFI_ENCRYPTION_WITHOUT_WPA2) {
+
+                }
+                else if(id == SolvingRiskTreatment.INSUFFICIENT_SCREEN_LOOK_TIMEOUT ||
+                        id == SolvingRiskTreatment.CHANGE_SECURITY_PROPERTY_SCREEN_TIMEOUT) {
+                    // 10 min hardcoded default value, since the information is not available from the server
+                    Log.d(TAG, "5. set screen timeout");
+                    actuateCMD.setScreenTimeOut(15000);
+                }
+                else if(id == SolvingRiskTreatment.BLUETOOTH_ENABLED_MIGHT_TURN_INTO_LEAKAGE_PROBLEMS) {
+                    actuateCMD.disableBluetooth();
+                }
+                else if(id == SolvingRiskTreatment.ACCESSIBILITY) {
+                    actuateCMD.navigateUserToAccessibilitySettings();
+                }
+                else if(id == SolvingRiskTreatment.BLACKLIST_GENERIC_OPEN ||
+                        id == SolvingRiskTreatment.BLACKLIST_APP_0001||
+                        id == SolvingRiskTreatment.BLACKLIST_APP_0002) {
+                    if(properties.containsKey(AppSensor.PROPERTY_KEY_PACKAGE_NAME)) {
+                        String pckName = properties.get(AppSensor.PROPERTY_KEY_PACKAGE_NAME);
+                        actuateCMD.block(pckName);
+                    }
                 }
             }
         }
