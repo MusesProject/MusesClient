@@ -71,6 +71,10 @@ public class ActuatorController implements IActuatorController {
 
     public void showFeedback(ActuationInformationHolder holder) {
         Log.d(TAG, "called: showFeedback(Decision decision)");
+        if(holder == null || holder.getDecision() == null) {
+            // the server responded with an unknown error and created an empty object
+            return;
+        }
         holderMap.put(holder.getDecision().getDecision_id(), holder);
 
         //check for silent mode
@@ -156,6 +160,9 @@ public class ActuatorController implements IActuatorController {
                         break;
                     case SolvingRiskTreatment.BLUETOOTH_ENABLED_MIGHT_TURN_INTO_LEAKAGE_PROBLEMS:
                         actuateCMD.disableBluetooth();
+                        break;
+                    case SolvingRiskTreatment.ACCESSIBILITY:
+                        actuateCMD.navigateUserToAccessibilitySettings();
                         break;
                 }
             }
