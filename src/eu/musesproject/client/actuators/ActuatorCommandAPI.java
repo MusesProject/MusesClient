@@ -34,8 +34,7 @@ import android.util.Log;
 import java.io.File;
 
 /**
- * Created by Ahmed Saad on 6/5/15.
- * Modified by christophstanik
+ * Created by Ahmed Saad and christophstanik on 6/5/15.
  */
 public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, INavigationActuator,
         IFIleEraserActuator, IPreferenceActuator {
