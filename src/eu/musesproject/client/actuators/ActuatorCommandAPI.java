@@ -91,12 +91,16 @@ public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, 
 
     @Override
     public void navigateUserToAccessibilitySettings() {
-        context.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     @Override
     public void navigateUserToAirPlaneMode() {
-        context.startActivity(new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS));
+        Intent intent = new Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 
     @Override
