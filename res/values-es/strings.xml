@@ -53,7 +53,7 @@
     <string name="current_com_status_1">Usted está</string>
     <string name="current_com_status_2">Conectado</string>
     <string name="current_com_status_3">Desconectado</string>
-
+	<string name="current_com_status_pre">Estado del servidor:</string>
 
     <!-- Toast msgs -->
     <string name="login_success_msg">Login Correcto..</string>
