@@ -845,9 +845,5 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 	}
 
-    @Override
-    public void onBackPressed() {
-        startActivity(new Intent(this, MainActivity.class));
-    }
 }
 
