@@ -98,6 +98,6 @@ Para cualquier aclaración respecto a esta política de privacidad, puede contac
 
 info@muses.com</string>
 
-    
+<string name="info_sec_txt_webview">file:///android_asset/MUSES_isb_ES.htm</string>
 
 </resources>

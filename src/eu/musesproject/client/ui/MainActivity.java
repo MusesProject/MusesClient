@@ -709,9 +709,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			Log.d(TAG, "Nothing to update for time being in webview.");
 	        final String mimeType = "text/html";
 	        final String encoding = "UTF-8";
-	        String html =getResources().getString(R.string.info_sec_txt_webview);
+	        //String html =getResources().getString(R.string.info_sec_txt_webview);
 	        infoSecurityBehaviourWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-	        infoSecurityBehaviourWebView.loadDataWithBaseURL("", html, mimeType, encoding, "");
+	        //infoSecurityBehaviourWebView.loadDataWithBaseURL("", html, mimeType, encoding, "");
+	        infoSecurityBehaviourWebView.loadUrl(getResources().getString(R.string.info_sec_txt_webview));
 		}
 		
 	}
