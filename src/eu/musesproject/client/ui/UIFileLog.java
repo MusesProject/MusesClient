@@ -2,7 +2,7 @@
  * #%L
  * MUSES Client
  * %%
- * Copyright (C) 2013 - 2014 Sweden Connectivity
+ * Copyright (C) 2013 - 2015 Sweden Connectivity
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * #L%
  */
 
-package eu.musesproject.client.connectionmanager;
+package eu.musesproject.client.ui;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class SweFileLog {
+public class UIFileLog {
 
 	private static BufferedWriter buf = null;
 	private static boolean fileOpen = false;
@@ -45,7 +45,7 @@ public class SweFileLog {
 			fileOpen = true;
 			try {
 				/* Open and append */
-				buf = new BufferedWriter(new FileWriter("/sdcard/SweFileLog.txt", true));
+				buf = new BufferedWriter(new FileWriter("/sdcard/MUSES_usage.log", true));
 				buf.write(currentTimeString+"Logfile reopened,,\n");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
