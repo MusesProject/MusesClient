@@ -1,0 +1,89 @@
+/*
+ * #%L
+ * MUSES Client
+ * %%
+ * Copyright (C) 2013 - 2015 Sweden Connectivity
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+package eu.musesproject.client.ui;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class UIFileLog {
+
+	private static BufferedWriter buf = null;
+	private static boolean fileOpen = false;
+	
+	private static boolean enableWrite = true;
+	
+	public synchronized static void write(String data)
+	{
+		if (!enableWrite)
+			return;
+
+		Date now=new Date();
+		String currentTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss-").format(now);
+		if (!fileOpen)
+		{
+			fileOpen = true;
+			try {
+				/* Open and append */
+				buf = new BufferedWriter(new FileWriter("/sdcard/MUSES_usage.log", true));
+				buf.write(currentTimeString+"Logfile reopened,,\n");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				fileOpen = false;
+				e.printStackTrace();
+				return;
+			}
+			
+		}
+
+		try {
+			buf.write(currentTimeString+data+"\n");
+			buf.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	public static void close()
+	{
+		if (fileOpen)
+		{
+			try {
+				buf.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			fileOpen = false;
+		}
+	}
+	
+}
+
+
+

@@ -38,6 +38,7 @@ public class MusesSplashScreen extends Activity{
            @Override
             public void run() {
                 Intent i = new Intent(MusesSplashScreen.this, MainActivity.class);
+                UIFileLog.write("Muses started");
                 startActivity(i);
                 finish();
             }

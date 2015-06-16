@@ -211,6 +211,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		Log.d(MusesUtils.LOGIN_TAG, "isloggedin: "+isLoggedIn);
 		Log.d(MusesUtils.LOGIN_TAG, "isloggedin in UserContextEventHandler: "+ UserContextEventHandler.getInstance().isUserAuthenticated());
 
+		UIFileLog.write("OnResume - activity resumed");
 		updateViews();
 		  
 	}
@@ -248,6 +249,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				
 				topLayout.removeAllViews();
 				topLayout.addView(loginView);
+				UIFileLog.write("Show login view");
 			}else if (selectedLayout.equals("info_sec_view")){
 				loginListBtn.setSelected(false);
 				informationSecurityBehaviourListbtn.setSelected(true);
@@ -256,6 +258,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				
 				topLayout.removeAllViews();
 				topLayout.addView(informationSecurityBehaviourView);
+				UIFileLog.write("Show security view");
 			} else if (selectedLayout.equals("sec_quiz_view")){
 				loginListBtn.setSelected(false);
 				informationSecurityBehaviourListbtn.setSelected(false);
@@ -264,6 +267,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				
 				topLayout.removeAllViews();
 				topLayout.addView(securityQuizView);
+				UIFileLog.write("Show Quiz view");
 			}else if (selectedLayout.equals("stats_view")){
 				loginListBtn.setSelected(false);
 				informationSecurityBehaviourListbtn.setSelected(false);
@@ -272,6 +276,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				
 				topLayout.removeAllViews();
 				topLayout.addView(statisticsView);
+				UIFileLog.write("Show Stat view");
 			}
 		}
 		super.onRestoreInstanceState(savedInstanceState);
@@ -282,6 +287,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		super.onPause();
 		autoUpdate.cancel();
 		Log.d(MusesUtils.LOGIN_TAG, "onPause called in MainActivity");
+		UIFileLog.write("onPause - activity paused");
 	}
 
 	@Override
@@ -301,6 +307,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			
 			topLayout.removeAllViews();
 			topLayout.addView(loginView);
+			UIFileLog.write("Show login view");
 			break;
 		case R.id.info_security_behaviour_list_button:
 			informationSecurityBehaviourListbtn.setSelected(true);
@@ -310,6 +317,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			
 			topLayout.removeAllViews();
 			topLayout.addView(informationSecurityBehaviourView);
+			UIFileLog.write("Show Security view");
 			break;
 		case R.id.security_quiz_list_button:
 			securityQuizListbtn.setSelected(true);
@@ -319,6 +327,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			
 			topLayout.removeAllViews();
 			topLayout.addView(securityQuizView);
+			UIFileLog.write("Show Quiz view");
 			break;
 		case R.id.statistics_list_button:
 			statisticsListButton.setSelected(true);
@@ -328,6 +337,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
 			topLayout.removeAllViews();
 			topLayout.addView(statisticsView);
+			UIFileLog.write("Show Stat view");
 			break;
 		}
 	}
@@ -709,9 +719,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 			Log.d(TAG, "Nothing to update for time being in webview.");
 	        final String mimeType = "text/html";
 	        final String encoding = "UTF-8";
-	        String html =getResources().getString(R.string.info_sec_txt_webview);
+	        //String html =getResources().getString(R.string.info_sec_txt_webview);
 	        infoSecurityBehaviourWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-	        infoSecurityBehaviourWebView.loadDataWithBaseURL("", html, mimeType, encoding, "");
+	        //infoSecurityBehaviourWebView.loadDataWithBaseURL("", html, mimeType, encoding, "");
+	        infoSecurityBehaviourWebView.loadUrl(getResources().getString(R.string.info_sec_txt_webview));
 		}
 		
 	}
