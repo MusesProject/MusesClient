@@ -21,20 +21,24 @@ package eu.musesproject.client.ui;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.apache.http.util.EncodingUtils;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import java.util.List;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -844,26 +848,20 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 "myForm.submit() ;" +
                 "document.body.removeChild(myForm) ;";
 
-        webview = new WebView(this);
+        WebView webview = new WebView(this);
         webview.getSettings().setJavaScriptEnabled(true);
         setContentView(webview);
         byte[] post = EncodingUtils.getBytes("j_username="+userName+"&j_password="+password, "BASE64");
         webview.postUrl("https://muses-securityquizz.rhcloud.com/LoginServlet", post);
 
 	}
-	
-	@Override
-	public void onBackPressed() {
-		Log.d(MusesUtils.LOGIN_TAG, "onBackPressed called in MainActivity");
-	    if (webview != null) {
-	    	if (webview.canGoBack()) {
-	    		webview.goBack();
-	    	} else {
-	    		super.onBackPressed();
-	    	}
-	    }
-	}
-	
 
+    @Override
+    public void onBackPressed()
+    {
+        Intent setIntent = new Intent(this,MainActivity.class);
+        startActivity(setIntent);
+        return;
+    }
 }
 
