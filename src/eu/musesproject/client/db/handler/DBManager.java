@@ -32,12 +32,15 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
 
+import android.app.AlarmManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import eu.musesproject.client.connectionmanager.AlarmReceiver;
+import eu.musesproject.client.connectionmanager.HttpConnectionsHelper;
 import eu.musesproject.client.contextmonitoring.sensors.ISensor;
 import eu.musesproject.client.db.entity.Action;
 import eu.musesproject.client.db.entity.ActionProperty;
@@ -164,14 +167,14 @@ public class DBManager {
 
 	private static final String CREATE_CONFIGURATION_TABLE_QUERY = "CREATE TABLE configuration	 ( "
 			+ "id INTEGER PRIMARY KEY,"
-			+ "server_ip VARCHAR(45) NOT NULL DEFAULT '192.168.44.101',"
+			+ "server_ip VARCHAR(45) NOT NULL DEFAULT 'sweoffice.mooo.com',"
 			+ "server_port VARCHAR(45) NOT NULL DEFAULT '8443',"
 			+ "server_context_path VARCHAR(45) NOT NULL DEFAULT '/server',"
 			+ "server_servlet_path VARCHAR(45) NOT NULL DEFAULT '/commain',"
 			+ "server_certificate VARCHAR(4500) NOT NULL,"
 			+ "client_certificate VARCHAR(4500) NOT NULL,"
 			+ "timeout INTEGER NOT NULL DEFAULT 5000,"
-			+ "poll_timeout INTEGER NOT NULL DEFAULT 10000,"
+			+ "poll_timeout INTEGER NOT NULL DEFAULT 60000,"
 			+ "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000,"
 			+ "polling_enabled INTEGER NOT NULL DEFAULT 1,"
 			+ "login_attempts INTEGER NOT NULL DEFAULT 5,"
@@ -639,16 +642,15 @@ public class DBManager {
 		ContentValues values = new ContentValues();
 		values.put(SERVER_IP, MusesUtils.getMusesConf());
 		values.put(SERVER_PORT, 8443);
-		values.put(SERVER_CONTEXT_PATH, "/server");
-		values.put(SERVER_SERVLET_PATH, "/commain");
-		values.put(SERVER_CERTIFICATE,
-				MusesUtils.getCertificateFromSDCard(context));
+		values.put(SERVER_CONTEXT_PATH, HttpConnectionsHelper.SERVER_CONTEXT_PATH);
+		values.put(SERVER_SERVLET_PATH, HttpConnectionsHelper.SERVER_SERVLET_PATH);
+		values.put(SERVER_CERTIFICATE, MusesUtils.getCertificateFromSDCard(context));
 		values.put(CLIENT_CERTIFICATE, "");
-		values.put(TIMEOUT, 5000);
-		values.put(POLL_TIMEOUT, 60000);
-		values.put(SLEEP_POLL_TIMEOUT, 60000);
-		values.put(POLLING_ENABLED, 1);
-		values.put(LOGIN_ATTEMPTS, 5);
+		values.put(TIMEOUT, HttpConnectionsHelper.CONNECTION_TIMEOUT);
+		values.put(POLL_TIMEOUT, AlarmReceiver.POLL_INTERVAL);
+		values.put(SLEEP_POLL_TIMEOUT, AlarmReceiver.SLEEP_POLL_INTERVAL);
+		values.put(POLLING_ENABLED, AlarmReceiver.POLLING_ENABLED);
+		values.put(LOGIN_ATTEMPTS, HttpConnectionsHelper.MAX_LOGIN_ATTEMPTS);
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
@@ -1378,7 +1380,7 @@ public class DBManager {
 
 		ContentValues values = new ContentValues();
 		values.put(NAME, resourceType.getName());
-		values.put(MODIFICATION, "03-09-2011");
+		values.put(MODIFICATION, resourceType.getModification());
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
@@ -1402,7 +1404,7 @@ public class DBManager {
 		values.put(PATH, resource.getPath());
 		values.put(RESOURCE_TYPE, resource.getResourcetype());
 		values.put(CONDITION, resource.getCondition());
-		values.put(MODIFICATION, "03-09-2011");
+		values.put(MODIFICATION, resource.getModification());
 		values.put(NAME, resource.getName());
 		values.put(SEVERITY, resource.getSeverity());
 		values.put(TYPE, resource.getType());
@@ -1526,7 +1528,7 @@ public class DBManager {
 		ContentValues values = new ContentValues();
 		values.put(DESCRIPTION, role.getDescription());
 		values.put(TIME_STAMP, role.getTimestamp());
-		values.put(MODIFICATION, "03-09-2011");
+		values.put(MODIFICATION, System.currentTimeMillis()); // FIXME no modifition in object
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
@@ -1545,7 +1547,7 @@ public class DBManager {
 		ContentValues values = new ContentValues();
 		values.put(DESCRIPTION, subject.getDescription());
 		values.put(ROLE_ID, subject.getRoleID());
-		values.put(MODIFICATION, "03-09-2011");
+		values.put(MODIFICATION, System.currentTimeMillis());   // FIXME no modifition in object
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
 		}
@@ -1880,7 +1882,7 @@ public class DBManager {
 		values.put(DECISION_ID, decision.getDecision_id());
 		values.put(SOLVING_RISKTREATMENT, decision.getSolving_risktreatment());
 		values.put(CONDITION, decision.getCondition());
-		values.put(MODIFICATION, "09-08-2012");
+		values.put(MODIFICATION, decision.getModification());
 
 		Decision decisionInDb = getDecisionFromNameAndCondition(
 				decision.getName(), decision.getCondition());

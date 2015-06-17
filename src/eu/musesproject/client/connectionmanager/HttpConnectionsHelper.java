@@ -52,10 +52,14 @@ public abstract class HttpConnectionsHelper {
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
 	public static final String DISCONNECT = "disconnect";
-	public static int CONNECTION_TIMEOUT = 5500;
-	private static final int SOCKET_TIMEOUT = 5500;
-	private static final int MCC_TIMEOUT = 5500;
+	public static int CONNECTION_TIMEOUT = 5000;
+	private static final int SOCKET_TIMEOUT = 5000;
+	private static final int MCC_TIMEOUT = 5000;
+	
+	public static final int MAX_LOGIN_ATTEMPTS = 5;
 	public static int POLLING_ENABLED = 1;
+	public static final String SERVER_CONTEXT_PATH = "/server";
+	public static final String SERVER_SERVLET_PATH = "/commain";
 	public static Cookie retreivedCookie = null;
 	private DBManager dbManager;
 
@@ -123,10 +127,9 @@ public abstract class HttpConnectionsHelper {
 							cookieFound = true;
 							serverResponse.setNewSession(false,
 									DetailedStatuses.SESSION_UPDATED);
-							Log.d(TAG + "_COOKIE",
-									"After doSecurePost, cookie updated from server "
+							Log.d(TAG,	"After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", cookie updated from server "
 											+ retreivedCookie.toString());
-							Log.d(TAG, "After doSecurePost, Retreived cookie: "
+							Log.d(TAG, "After doSecurePost=> requestType: " +request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", Retreived cookie: "
 									+ retreivedCookie.getValue() + " expires: "
 									+ retreivedCookie.getExpiryDate());
 						}
@@ -139,8 +142,7 @@ public abstract class HttpConnectionsHelper {
 						retreivedCookie = cookieStore.getCookies().get(0);
 						saveCookiesToDB();
 					}
-					Log.d(TAG + "_COOKIE",
-							" After doSecurePost, New cookie used: "
+					Log.d(TAG,"After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", New cookie used: "
 									+ retreivedCookie.getValue());
 				}
 			} else {
@@ -150,7 +152,7 @@ public abstract class HttpConnectionsHelper {
 					retreivedCookie = cookieStore.getCookies().get(0);
 					saveCookiesToDB();
 				}
-				Log.d(TAG + "_COOKIE", " After doSecurePost, New cookie used: "
+				Log.d(TAG, " After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", New cookie used: "
 						+ retreivedCookie.getValue());
 			}
 		} catch (ClientProtocolException e) {
@@ -233,10 +235,9 @@ public abstract class HttpConnectionsHelper {
 							cookieFound = true;
 							serverResponse.setNewSession(false,
 									DetailedStatuses.SESSION_UPDATED);
-							Log.d(TAG + "_COOKIE",
-									"After doSecurePost, cookie updated from server "
-											+ retreivedCookie.toString());
-							Log.d(TAG, "After doSecurePost, Retreived cookie: "
+							Log.d(TAG,	"After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", cookie updated from server "
+									+ retreivedCookie.toString());
+							Log.d(TAG, "After doSecurePost=> requestType: " +request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", Retreived cookie: "
 									+ retreivedCookie.getValue() + " expires: "
 									+ retreivedCookie.getExpiryDate());
 						}
@@ -249,9 +250,8 @@ public abstract class HttpConnectionsHelper {
 						retreivedCookie = cookieStore.getCookies().get(0);
 						saveCookiesToDB();
 					}
-					Log.d(TAG + "_COOKIE",
-							" After doSecurePost, New cookie used: "
-									+ retreivedCookie.getValue());
+					Log.d(TAG,"After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", New cookie used: "
+							+ retreivedCookie.getValue());
 				}
 			} else {
 				serverResponse.setNewSession(true,
@@ -260,8 +260,9 @@ public abstract class HttpConnectionsHelper {
 					retreivedCookie = cookieStore.getCookies().get(0);
 					saveCookiesToDB();
 				}
-				Log.d(TAG + "_COOKIE", " After doSecurePost, New cookie used: "
-						+ retreivedCookie.getValue());
+				Log.d(TAG, " After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", New cookie used: "
+							+ retreivedCookie.getValue());
+
 			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();

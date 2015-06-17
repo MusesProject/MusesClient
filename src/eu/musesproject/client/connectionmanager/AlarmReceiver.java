@@ -40,15 +40,15 @@ import android.util.Log;
 public class AlarmReceiver extends BroadcastReceiver {
 	
 	private static final String TAG = "AlarmReceiver";
-	private static int POLL_INTERVAL = 60000; // Default value
-	private static int SLEEP_POLL_INTERVAL = 60000; // Default value
+	public static int POLL_INTERVAL = 60000; // Default value
+	public static int SLEEP_POLL_INTERVAL = 60000; // Default value
 	private static int exponentialCounter = 4;
-	private static int DEFAULT_POLL_INTERVAL = 60000;
-	private static int DEFAULT_SLEEP_POLL_INTERVAL = 60000;
+	public static int DEFAULT_POLL_INTERVAL = 60000;
+	public static int DEFAULT_SLEEP_POLL_INTERVAL = 60000;
 	private static int CURRENT_POLL_INTERVAL;
 	private static boolean POLL_INTERVAL_UPDATED = false;
 	private static boolean SLEEP_MODE_ACTIVE;
-	
+	public static int POLLING_ENABLED = 1;
 	private static ConnectionManager CONNECTIONMANAGER= null;
 	
 	public static void setManager(ConnectionManager connectionManager) {
@@ -71,7 +71,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         
         /* Check if timeouts have changed, if so update */
         applyTimeoutChanges(context);
-        Log.d(TAG, "Alarm..");
+        Log.d(TAG, "After doSecurePost=> Alarm... current poll-interval: " +CURRENT_POLL_INTERVAL);
         wl.release();
 	}
 
@@ -81,15 +81,14 @@ public class AlarmReceiver extends BroadcastReceiver {
 	 */
 	
 	public static void increasePollTime(){
-		
 		if (exponentialCounter > 0) {
 			POLL_INTERVAL = POLL_INTERVAL*2;
 			SLEEP_POLL_INTERVAL = SLEEP_POLL_INTERVAL*2;
 			exponentialCounter--;
 			POLL_INTERVAL_UPDATED = true;
 		} 
-		
-		
+		Log.d(TAG, "Alarm... increasing poll timeout, current poll-interval now: "
+					+POLL_INTERVAL+" and sleep poll-interval: "+SLEEP_POLL_INTERVAL);
 	}
 	
 	/**
@@ -97,14 +96,15 @@ public class AlarmReceiver extends BroadcastReceiver {
 	 * @return void
 	 */
 	public static void resetExponentialPollTime(){
-		if (POLL_INTERVAL != DEFAULT_POLL_INTERVAL)
-		{
+		if (POLL_INTERVAL != DEFAULT_POLL_INTERVAL){
 			POLL_INTERVAL_UPDATED = true;
 		}
 		POLL_INTERVAL = DEFAULT_POLL_INTERVAL;
 		SLEEP_POLL_INTERVAL = DEFAULT_SLEEP_POLL_INTERVAL;
-		exponentialCounter = 3;
-		
+		exponentialCounter = 4;
+		Log.d(TAG, "Alarm... resetting poll timeout, current poll-interval now: "
+				+POLL_INTERVAL+" and sleep poll-interval: "+SLEEP_POLL_INTERVAL);
+
 	}
 	
 	/**
@@ -113,12 +113,13 @@ public class AlarmReceiver extends BroadcastReceiver {
 	 * @return void
 	 */
 	 private void applyTimeoutChanges(Context context){
-		 if (POLL_INTERVAL_UPDATED)
-		 {
+		 if (POLL_INTERVAL_UPDATED)	{
 			 POLL_INTERVAL_UPDATED = false;
 			 cancelAlarm(context);
 			 setAlarm(context);
 		 }
+		 Log.d(TAG, "Alarm... applying timeout changes..");
+
 	 }
 	 
 	 
@@ -142,6 +143,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         Intent wakeUpAlarmIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingintent = PendingIntent.getBroadcast(context, 0, wakeUpAlarmIntent, 0);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), CURRENT_POLL_INTERVAL, pendingintent); // Millisec * Second * Minute
+		Log.d(TAG, "Alarm... setting alarm with current poll-interval: "+CURRENT_POLL_INTERVAL);
+
     }
 
     /**
@@ -155,12 +158,15 @@ public class AlarmReceiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, wakeUpAlarmIntent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
+        Log.d(TAG, "Alarm... cancelling alarm.");
     }
 
 	public void setPollInterval(int pollInterval, int sleepPollInterval) {
 		POLL_INTERVAL = pollInterval;
 		SLEEP_POLL_INTERVAL = sleepPollInterval;
 		POLL_INTERVAL_UPDATED = true;
+		Log.d(TAG, "Alarm... setting poll timeout, current poll-interval now: "
+				+POLL_INTERVAL+" and sleep poll-interval: "+SLEEP_POLL_INTERVAL);
 	}
 
 	
@@ -169,16 +175,16 @@ public class AlarmReceiver extends BroadcastReceiver {
 			int sleepPollInterval) {
 		DEFAULT_POLL_INTERVAL = pollInterval;
 		DEFAULT_SLEEP_POLL_INTERVAL = sleepPollInterval;
+		Log.d(TAG, "Alarm... setting default poll interval.");
 		
 	}
 
 	public static int getCurrentPollInterval() {
-		
 		return CURRENT_POLL_INTERVAL;
 	}
 
 	public static void setPollMode(boolean sleepModeActive) {
-		
+		Log.d(TAG, "Alarm... resetting poll_mode, sleep_moed_active: "+sleepModeActive);
 		SLEEP_MODE_ACTIVE = sleepModeActive;
 		POLL_INTERVAL_UPDATED = true;
 	}

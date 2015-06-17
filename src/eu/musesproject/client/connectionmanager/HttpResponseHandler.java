@@ -39,7 +39,6 @@ public class HttpResponseHandler {
 
 	private static final String TAG = HttpResponseHandler.class.getSimpleName();
 	private static final String APP_TAG = "APP_TAG";
-	private static final int MINIMUM_POLL_AFTER_REQUEST = 10000;
 	private String receivedHttpResponseData = null;
 	private HttpResponse httpResponse = null;
 	private boolean isNewSession = false;
@@ -100,7 +99,7 @@ public class HttpResponseHandler {
 						sendDataToFunctionalLayer();
 					}
 
-					if (isMorePackets(httpResponse) || AlarmReceiver.getCurrentPollInterval()>MINIMUM_POLL_AFTER_REQUEST){
+					if (isMorePackets(httpResponse) || AlarmReceiver.getCurrentPollInterval()>AlarmReceiver.DEFAULT_POLL_INTERVAL){
 						doPollForAnExtraPacket();
 					}
 				} else if (isAckRequest(requestType)) {

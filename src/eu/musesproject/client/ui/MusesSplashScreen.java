@@ -24,7 +24,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import eu.musesproject.client.R;
+import eu.musesproject.client.utils.MusesUtils;
 
 public class MusesSplashScreen extends Activity{
 
@@ -39,6 +41,7 @@ public class MusesSplashScreen extends Activity{
             public void run() {
                 Intent i = new Intent(MusesSplashScreen.this, MainActivity.class);
                 UIFileLog.write("Muses started");
+                Log.d(MusesUtils.LOGIN_TAG, "Muses started");
                 startActivity(i);
                 finish();
             }
