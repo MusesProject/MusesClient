@@ -861,7 +861,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     {
         Intent setIntent = new Intent(this,MainActivity.class);
         startActivity(setIntent);
-        return;
+        finish();
     }
 }
 
