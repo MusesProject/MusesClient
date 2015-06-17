@@ -52,9 +52,9 @@ public abstract class HttpConnectionsHelper {
 	public static final String CONNECT = "connect";
 	public static final String POLL = "poll";
 	public static final String DISCONNECT = "disconnect";
-	public static int CONNECTION_TIMEOUT = 5000;
-	private static final int SOCKET_TIMEOUT = 5000;
-	private static final int MCC_TIMEOUT = 5000;
+	public static int CONNECTION_TIMEOUT = 10000;
+	private static final int SOCKET_TIMEOUT = 10000;
+	private static final int MCC_TIMEOUT = 10000;
 	
 	public static final int MAX_LOGIN_ATTEMPTS = 5;
 	public static int POLLING_ENABLED = 1;

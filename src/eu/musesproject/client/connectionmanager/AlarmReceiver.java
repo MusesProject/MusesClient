@@ -71,7 +71,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         
         /* Check if timeouts have changed, if so update */
         applyTimeoutChanges(context);
-        Log.d(TAG, "After doSecurePost=> Alarm... current poll-interval: " +CURRENT_POLL_INTERVAL);
+        Log.d(TAG, "Alarm... called from android system .. current poll-interval: " +CURRENT_POLL_INTERVAL);
         wl.release();
 	}
 
