@@ -554,7 +554,8 @@ public class DBManager {
 	private Date getDate(String expired) {
 		Date dateExpired = null;
 		SimpleDateFormat dateFormattor = new SimpleDateFormat(
-				"EEE MMM dd HH:mm:ss z yyyy");
+				// "EEE MMM dd HH:mm:ss z yyyy");  FIXME
+				"dow mon dd hh:mm:ss zzz yyyy");
 		try {
 			dateExpired = dateFormattor.parse(expired);
 		} catch (ParseException e) {
