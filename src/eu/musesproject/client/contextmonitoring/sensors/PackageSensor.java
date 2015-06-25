@@ -193,8 +193,6 @@ public class PackageSensor implements ISensor {
 			}
             installedAppsFormatted += appName + "," + packageName + "," + appVersion;
             installedAppsFormatted += ";";
-
-            Log.d(TAG, appName + "," + packageName + "," + appVersion);
         }
         // remove last separation item
         installedAppsFormatted = installedAppsFormatted.subSequence(0, installedAppsFormatted.length() - 1).toString();
