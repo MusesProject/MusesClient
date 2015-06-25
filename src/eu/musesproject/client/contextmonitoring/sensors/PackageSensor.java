@@ -51,11 +51,10 @@ import java.util.List;
 public class PackageSensor implements ISensor {
     private static final String TAG = PackageSensor.class.getSimpleName();
 
-
     // sensor identifier
     public static final String TYPE = "CONTEXT_SENSOR_PACKAGE";
 
-    private static final String INITIAL_STARTUP 				= "init";
+    private static final String INITIAL_STARTUP 				= "";
 
     // context property keys
     public static final String PROPERTY_KEY_ID 					= "id";
@@ -74,11 +73,9 @@ public class PackageSensor implements ISensor {
     private List<ContextEvent> contextEventHistory;
 
     // broadcast receiver fields
-    final PackageBroadcastReceiver packageReceiver = new PackageBroadcastReceiver();
-    final IntentFilter packageAddedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-    final IntentFilter packageRemovedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_REMOVED);
-    final IntentFilter packageUpdatedIntentFilter = new IntentFilter(Intent.ACTION_PACKAGE_REPLACED);
-    
+    final PackageBroadcastReceiver packageReceiver  = new PackageBroadcastReceiver();
+    private IntentFilter filter;
+
     private boolean initialContextEventFired;
 
 
@@ -91,6 +88,7 @@ public class PackageSensor implements ISensor {
         sensorEnabled = false;
         contextEventHistory = new ArrayList<ContextEvent>(CONTEXT_EVENT_HISTORY_SIZE);
         initialContextEventFired = false;
+        filter = new IntentFilter();
     }
 	
 	private void createInitialContextEvent() {
@@ -151,21 +149,12 @@ public class PackageSensor implements ISensor {
         ContextEvent contextEvent = new ContextEvent();
         contextEvent.setType(TYPE);
         contextEvent.setTimestamp(System.currentTimeMillis());
-        contextEvent.addProperty(PROPERTY_KEY_ID, String.valueOf(contextEventHistory != null ? (contextEventHistory.size() + 1) : -1));
         contextEvent.addProperty(PROPERTY_KEY_PACKAGE_STATUS, packageStatus);
         contextEvent.addProperty(PROPERTY_KEY_PACKAGE_NAME, packageName);
         contextEvent.addProperty(PROPERTY_KEY_APP_NAME, appName);
         contextEvent.addProperty(PROPERTY_KEY_APP_VERSION, appVersion);
         contextEvent.addProperty(PROPERTY_KEY_INSTALLED_APPS, getInstalledApps());
         contextEvent.generateId();
-        
-        // just for debugging/testing purpose
-//        Iterator it = contextEvent.getProperties().entrySet().iterator();
-//        while (it.hasNext()) {
-//            Map.Entry pairs = (Map.Entry)it.next();
-//            Log.d("TESt", "package sensor result: " + pairs.getKey() + " = " + pairs.getValue());
-//            it.remove(); // avoids a ConcurrentModificationException
-//        }
         
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
@@ -179,13 +168,13 @@ public class PackageSensor implements ISensor {
     }
 
     private void registerPackageBroadcastReceiver() {
-        packageAddedIntentFilter.addDataScheme("package");
-        packageRemovedIntentFilter.addDataScheme("package");
-        packageUpdatedIntentFilter.addDataScheme("package");
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
 
-        context.registerReceiver(packageReceiver, packageAddedIntentFilter);
-        context.registerReceiver(packageReceiver, packageRemovedIntentFilter);
-        context.registerReceiver(packageReceiver, packageUpdatedIntentFilter);
+        filter.addDataScheme("package");
+
+        context.registerReceiver(packageReceiver, filter);
     }
 
     private String getInstalledApps() {
@@ -204,6 +193,8 @@ public class PackageSensor implements ISensor {
 			}
             installedAppsFormatted += appName + "," + packageName + "," + appVersion;
             installedAppsFormatted += ";";
+
+            Log.d(TAG, appName + "," + packageName + "," + appVersion);
         }
         // remove last separation item
         installedAppsFormatted = installedAppsFormatted.subSequence(0, installedAppsFormatted.length() - 1).toString();
@@ -270,7 +261,6 @@ public class PackageSensor implements ISensor {
             }
         }
     }
-    
 
 	private class CreateContextEventAsync extends AsyncTask<String, Void, Void> {
 
