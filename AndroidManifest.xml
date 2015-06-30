@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="eu.musesproject.client"
-    android:versionCode="25"
-    android:versionName="Muses App version v1.25" >
+    android:versionCode="27"
+    android:versionName="Muses App version v1.27" >
 
     <uses-sdk
         android:minSdkVersion="16"
