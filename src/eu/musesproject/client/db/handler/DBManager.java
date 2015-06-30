@@ -32,9 +32,12 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
 
+import com.google.gson.Gson;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -58,6 +61,7 @@ import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.entity.Role;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.entity.Subject;
+import eu.musesproject.client.ui.MainActivity;
 import eu.musesproject.client.utils.MusesUtils;
 
 public class DBManager {
@@ -475,81 +479,108 @@ public class DBManager {
 
 	}
 
-	public long insertCookie(Cookie cookie) {
-		String value = "";
-		String domain = "";
-		String path = "";
-		String expired = "";
-		String version = "";
-		String name = cookie.getName();
-		if (cookie.getValue() != null){
-			value = cookie.getValue();
-		}
-		if (cookie.getDomain() != null){
-			domain = cookie.getDomain();
-		}
-		if (cookie.getPath() != null) {
-			path = cookie.getPath();
-		}
-		int ver = cookie.getVersion();
-		version = String.valueOf(ver);
-		if (cookie.getExpiryDate() != null){
-			expired = cookie.getExpiryDate().toString();
-		}
-		
-		ContentValues values = new ContentValues();
-		values.put(COOKIE_NAME, name);
-		values.put(COOKIE_DOMAIN, domain);
-		values.put(COOKIE_VALUE, value);
-		values.put(COOKIE_PATH, path);
-		values.put(COOKIE_VERSION, version);
-		values.put(COOKIE_EXPIRY, expired);
-		
+//	public long insertCookie(Cookie cookie) {
+//		String value = "";
+//		String domain = "";
+//		String path = "";
+//		String expired = "";
+//		String version = "";
+//		String name = cookie.getName();
+//		if (cookie.getValue() != null){
+//			value = cookie.getValue();
+//		}
+//		if (cookie.getDomain() != null){
+//			domain = cookie.getDomain();
+//		}
+//		if (cookie.getPath() != null) {
+//			path = cookie.getPath();
+//		}
+//		int ver = cookie.getVersion();
+//		version = String.valueOf(ver);
+//		if (cookie.getExpiryDate() != null){
+//			expired = cookie.getExpiryDate().toString();
+//		}
+//		
+//		ContentValues values = new ContentValues();
+//		values.put(COOKIE_NAME, name);
+//		values.put(COOKIE_DOMAIN, domain);
+//		values.put(COOKIE_VALUE, value);
+//		values.put(COOKIE_PATH, path);
+//		values.put(COOKIE_VERSION, version);
+//		values.put(COOKIE_EXPIRY, expired);
+//		
+//		Log.d(TAG, "insert cookie_store: " + cookie.getExpiryDate().toString());
+//
+//		if (sqLiteDatabase == null) {// Open database in case it is closed
+//			openDB();
+//		}
+//
+//		return sqLiteDatabase.insert(TABLE_COOKIE_STORE, null, values);
+//	}
+
+//	public Cookie getCookie(BasicCookieStore cookieStore) {
+//		BasicClientCookie cookies;
+//		
+//		if (sqLiteDatabase == null) {// Open database in case it is closed
+//			openDB();
+//		}
+//
+//		// Select All Query
+//		String selectQuery = "select  * from " + TABLE_COOKIE_STORE;
+//		try {
+//			Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+//			if (cursor.moveToFirst()) {
+//				String name = cursor.getString(1);
+//				String domain = cursor.getString(2);
+//				String value = cursor.getString(3);
+//				String path = cursor.getString(4);
+//				String version = cursor.getString(5);
+//				String expired = cursor.getString(6);
+//				
+//				cookies = new BasicClientCookie(name, value);
+//				cookies.setDomain(domain);
+//				cookies.setValue(value);
+//				cookies.setPath(path);
+//				cookies.setVersion(Integer.valueOf(version));
+//				cookies.setExpiryDate(getDate(expired));
+//				Log.d(APP_TAG, "Cookie retreived from DB with value: "+cookies.getValue()+" expiry: "+ cookies.getExpiryDate().toString());
+//				cookieStore.addCookie(cookies);
+//				return cookies;
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return null;
+//		}
+//		return null;
+//
+//	}
+	
+	@SuppressLint("CommitPrefEdits")
+	public long insertCookie(Cookie cookie) throws Exception {
+		SharedPreferences prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+				Context.MODE_PRIVATE);
+		SharedPreferences.Editor prefsEditor = prefs.edit();
+		Gson gson = new Gson();
+	    String json = gson.toJson(cookie);
+	    prefsEditor.putString("cookie", json);
+	    prefsEditor.commit();
 		Log.d(TAG, "insert cookie_store: " + cookie.getExpiryDate().toString());
+		return -1;
+    }
 
-		if (sqLiteDatabase == null) {// Open database in case it is closed
-			openDB();
+	public Cookie getCookie(BasicCookieStore cookieStore) throws Exception {
+		Gson gson = new Gson();
+		SharedPreferences prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
+				Context.MODE_PRIVATE);
+		String json = prefs.getString("cookie", "");
+		Cookie cookie = gson.fromJson(json, Cookie.class);
+		if (cookie != null){
+			Log.d(APP_TAG, "Cookie retreived from DB with value: "+cookie.getValue()+" expiry: "+ cookie.getExpiryDate().toString());
+			cookieStore.addCookie(cookie);			
 		}
-
-		return sqLiteDatabase.insert(TABLE_COOKIE_STORE, null, values);
+		return cookie;
 	}
-
-	public Cookie getCookie(BasicCookieStore cookieStore) {
-		BasicClientCookie cookies;
-		
-		if (sqLiteDatabase == null) {// Open database in case it is closed
-			openDB();
-		}
-
-		// Select All Query
-		String selectQuery = "select  * from " + TABLE_COOKIE_STORE;
-		try {
-			Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
-			if (cursor.moveToFirst()) {
-				String name = cursor.getString(1);
-				String domain = cursor.getString(2);
-				String value = cursor.getString(3);
-				String path = cursor.getString(4);
-				String version = cursor.getString(5);
-				String expired = cursor.getString(6);
-				
-				cookies = new BasicClientCookie(name, value);
-				cookies.setDomain(domain);
-				cookies.setValue(value);
-				cookies.setPath(path);
-				cookies.setVersion(Integer.valueOf(version));
-				cookies.setExpiryDate(getDate(expired));
-				Log.d(APP_TAG, "Cookie retreived from DB with value: "+cookies.getValue()+" expiry: "+ cookies.getExpiryDate().toString());
-				cookieStore.addCookie(cookies);
-				return cookies;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-		return null;
-
-	}
+	
 
 	private Date getDate(String expired) {
 		Date dateExpired = null;
