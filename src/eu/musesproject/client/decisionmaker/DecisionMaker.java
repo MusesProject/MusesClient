@@ -117,7 +117,7 @@ public class DecisionMaker {
 							match = true;
 						 }else if (propEntry.getValue().contains(value)){
 							 Log.d(TAG+"SZL","3.Match!");
-							 match = true;
+							 match = false;
 						 }
 					 }
 				}
