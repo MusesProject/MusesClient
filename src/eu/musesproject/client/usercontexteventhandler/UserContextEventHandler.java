@@ -195,6 +195,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
 
 		Decision decision = retrieveDecision(action, properties, contextEvents);
+		boolean onlineDecisionRequested = false;
 
 		if(decision != null) { // local decision found
 			Log.d(APP_TAG, "Info DC, Local decision found => " + decision.getName() +", now calling actuator to showFeedback");
@@ -225,6 +226,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.ONLINE_DECISION, action, properties, contextEvents);
 				Log.d(APP_TAG, "Info DC, No Local decision found, Server is ONLINE, sending user data JSON(actions,properties,contextevnts) to server");
 				sendRequestToServer(requestObject);
+
+				// flag that an online decision is requested
+				onlineDecisionRequested = true;
 			}
 			else if(serverStatus == Statuses.ONLINE && !isUserAuthenticated) {
 				storeContextEvent(action, properties, contextEvents);
@@ -237,6 +241,14 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			else if(serverStatus == Statuses.OFFLINE && !isUserAuthenticated) {
 				storeContextEvent(action, properties, contextEvents);
 			}
+		}
+
+		// update context events even if a local decision was found.
+		// Prevent sending context events again if they are already sent for a online decision
+		if((!onlineDecisionRequested) && (serverStatus == Statuses.ONLINE) && isUserAuthenticated) {
+			RequestHolder requestHolder = new RequestHolder(action, properties, contextEvents);
+			JSONObject requestObject = JSONManager.createJSON(getImei(), getUserName(), requestHolder.getId(), RequestType.LOCAL_DECISION, action, properties, contextEvents);
+			sendRequestToServer(requestObject);
 		}
 	}
 
