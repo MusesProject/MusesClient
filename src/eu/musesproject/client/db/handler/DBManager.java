@@ -539,7 +539,7 @@ public class DBManager {
                 cookies.setValue(value);
                 cookies.setPath(path);
                 cookies.setVersion(Integer.valueOf(version));
-                cookies.setExpiryDate(getDate(expired));
+                //cookies.setExpiryDate(getDate(expired)); FIXME not needed
                 Log.d(APP_TAG, "Cookie retreived from DB with value: "+cookies.getValue()+" expiry: "+ cookies.getExpiryDate().toString());
                 cookieStore.addCookie(cookies);
                 return cookies;
