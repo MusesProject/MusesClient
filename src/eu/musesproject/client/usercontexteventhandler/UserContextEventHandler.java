@@ -336,6 +336,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			isUserAuthenticated = dbManager.isUserAuthenticated(getImei(), tmpLoginUserName, tmpLoginPassword);
 			dbManager.closeDB();
 			ActuatorController.getInstance(context).sendLoginResponse(isUserAuthenticated, context.getString(R.string.default_msg_local_login), -1);
+			NotificationController.getInstance(context).updateOnlineStatus();
 			if (isUserAuthenticated){
 				sendConfigSyncRequest();
 			}
@@ -574,6 +575,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		prefEditor.putBoolean(PREF_KEY_USER_AUTHENTICATED, isUserAuthenticated);
 		prefEditor.putBoolean(PREF_KEY_USER_AUTHENTICATED_REMOTELY, isAuthenticatedRemotely);
 		prefEditor.commit();
+
+
+		NotificationController.getInstance(context).updateOnlineStatus();
 	}
 
 	private class ConnectionCallback implements IConnectionCallbacks {
