@@ -23,6 +23,7 @@ import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.decisiontable.ActionType;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -62,6 +63,7 @@ public class DecisionMaker {
 	}
 	public Decision manageDecision(Request request, List<ContextEvent> eventList, Map<String, String> properties){
 		Log.d(TAG, "called: manageDecision(Request request, List<ContextEvent> eventList)");
+		DebugFileLog.write("DecisionMaker- called: manageDecision(Request request, List<ContextEvent> eventList)");
 		Decision resultDecision = null;
 		Map<String,String> conditions = new HashMap<String,String>();
 		Map<String,String> eventProperties = new HashMap<String,String>();
@@ -78,11 +80,13 @@ public class DecisionMaker {
         //List<Resource> list = dbManager.getAllResourcesWithCondition();
         List<eu.musesproject.client.db.entity.Decision> list = dbManager.getAllDecisionsWithCondition();
         Log.d(TAG+"SZL","conditions:"+list.size());
+        DebugFileLog.write("DecisionMaker - conditions:"+list.size());
         //get all conditions for all current device policy decisions (only for elements that are meant to appear in the eventList, not properties)
         for (Iterator iterator = list.iterator(); iterator.hasNext();) {
         	eu.musesproject.client.db.entity.Decision decision = (eu.musesproject.client.db.entity.Decision) iterator.next();
         	condition = decision.getCondition();
         	Log.d(TAG+"SZL","	condition:"+condition);
+        	DebugFileLog.write("DecisionMaker- 	condition:"+condition);
         	if  (getConditionType(condition).equals("event")){
         		//conditions.put(decision.getCondition(), getConditionType(condition));
         		conditions.put(decision.getCondition(), String.valueOf(decision.getId()));
@@ -94,8 +98,10 @@ public class DecisionMaker {
         for (Map.Entry<String, String> entry : conditions.entrySet())
         {
             Log.d(TAG+"SZL","1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
+            DebugFileLog.write("DecisionMaker-1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
             Log.d(TAG+"SZL","Event List size:"+eventList.size());
-            //Iterate over eventList
+            DebugFileLog.write("DecisionMaker-Event List size:"+eventList.size());
+           	//Iterate over eventList
             for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
 				ContextEvent contextEvent = (ContextEvent) iterator.next();
 				//Get properties of such contextEvent
@@ -104,6 +110,7 @@ public class DecisionMaker {
 				for (Map.Entry<String, String> propEntry : eventProperties.entrySet()){
 					String propKey = propEntry.getKey();
 					 Log.d(TAG+"SZL","2. Property event to be checked: "+propEntry.getKey() + "/" + propEntry.getValue());
+				 		DebugFileLog.write("DecisionMaker-2. Property event to be checked: "+propEntry.getKey() + "/" + propEntry.getValue());
 					 if (entry.getKey().toLowerCase().contains(propKey.toLowerCase())){
 						 String value = entry.getKey()
 									.substring(
@@ -112,11 +119,14 @@ public class DecisionMaker {
 													entry.getKey()
 													.length() - 2);
 						 Log.d(TAG+"SZL","2.1 Value: "+value);
+						 DebugFileLog.write("DecisionMaker-2.1 Value: "+value);
 						 if ((propKey.contains("installedapps"))&&(!propEntry.getValue().contains(value))){
 							Log.d(TAG+"SZL","3.installedapps Match!");
+							DebugFileLog.write("DecisionMaker-3.installedapps Match!");
 							match = true;
 						 }else if (propEntry.getValue().contains(value)){
 							 Log.d(TAG+"SZL","3.Match!");
+							 DebugFileLog.write("DecisionMaker-3.Match!");
 							 match = false;
 						 }
 					 }
@@ -158,11 +168,14 @@ public class DecisionMaker {
 		Decision priorDecision = manageDecision(request, eventList, properties);
 		if (priorDecision != null){
 			Logger.getLogger(TAG).log(Level.WARNING, "Policy Device Decision: " + priorDecision.getName());
+			DebugFileLog.write("DecisionMaker-Policy Device Decision: " + priorDecision.getName());
 			return priorDecision;
 		}
 		
 		Log.d(APP_TAG, "Info DC, DecisionMaker=> Making decision with request and events");
+		DebugFileLog.write("DecisionMaker-Info DC, DecisionMaker=> Making decision with request and events");
         Log.d(TAG, "called: makeDecision(Request request, List<ContextEvent> eventList)");
+        DebugFileLog.write("DecisionMaker-called: makeDecision(Request request, List<ContextEvent> eventList)");
         String resourceCondition = null;
 
         eu.musesproject.client.db.entity.Decision decision = new eu.musesproject.client.db.entity.Decision();
@@ -176,11 +189,15 @@ public class DecisionMaker {
         DecisionTable decisionTable = null;
         
         Log.d(TAG, "Action type:"+request.getAction().getActionType());
+        DebugFileLog.write("DecisionMaker-Action type:"+request.getAction().getActionType());
         Log.d(TAG, "Action description:"+request.getAction().getDescription());
+        DebugFileLog.write("DecisionMaker-Action description:"+request.getAction().getDescription());
         Log.d(TAG, "Action id:"+request.getAction().getId());
+        DebugFileLog.write("DecisionMaker-Action id:"+request.getAction().getId());
         Log.d(TAG, "Action timestamp:"+request.getAction().getTimestamp());
-        
+        DebugFileLog.write("DecisionMaker-Action timestamp:"+request.getAction().getTimestamp());
         Log.d(TAG, "Resource description:"+request.getResource().getDescription());
+        DebugFileLog.write("DecisionMaker-Resource description:"+request.getResource().getDescription());
         
         //TODO Remove this tweak when the action and resources are not null:        
         /*if (request.getAction().getActionType()==null){
@@ -199,10 +216,13 @@ public class DecisionMaker {
         for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
 			ContextEvent contextEvent = (ContextEvent) iterator.next();
 			Log.d(TAG, "Event list:"+contextEvent.getType());
+			DebugFileLog.write("DecisionMaker-Event list:"+contextEvent.getType());
 		}
         
         Log.d(TAG, "Resource:"+request.getResource());
+        DebugFileLog.write("DecisionMaker-Resource:"+request.getResource());
         Log.d(TAG, "Resource path:"+request.getResource().getPath());
+        DebugFileLog.write("DecisionMaker-Resource path:"+request.getResource().getPath());
         
         DBManager dbManager = new DBManager(UserContextEventHandler.getInstance().getContext());
         dbManager.openDB();
@@ -214,17 +234,21 @@ public class DecisionMaker {
         		resourceInPolicy = dbManager.getResourceFromPath(request.getResource().getPath());
         	}else{SZL*/
         		Log.d(TAG, "Find resource by condition properties..." );
+        		DebugFileLog.write("DecisionMaker-Find resource by condition properties..." );
         		List<Resource> allConditionResources = dbManager.getAllResources();
         		Log.d(TAG, "Found..."+allConditionResources.size());
+        		DebugFileLog.write("DecisionMaker-Found..."+allConditionResources.size());
         		
         		for (Iterator iterator = allConditionResources.iterator(); iterator
 						.hasNext();) {
 					Resource resource = (Resource) iterator.next();
 					Log.d(TAG, "Id:"+resource.getId());
+					DebugFileLog.write("DecisionMaker-Id:"+resource.getId());
 					if (resource.getCondition()!=null){
 						Log.d(TAG, "Condition:"+resource.getCondition());
-						
+						DebugFileLog.write("DecisionMaker-Condition:"+resource.getCondition());
 						Log.d(TAG, "Resource properties:");
+						DebugFileLog.write("DecisionMaker-Resource properties:");
 		        		for (Map.Entry<String, String> entry : properties.entrySet())
 		                {        			
 		        			String comparisonString = null;
@@ -235,7 +259,7 @@ public class DecisionMaker {
 		        			}
 		        			
 		                    Log.d(TAG, "	"+comparisonString);
-		                    
+		                    DebugFileLog.write("DecisionMaker-	"+comparisonString);
 		                    
 		                    if(resource.getCondition().contains("\\/")){
 		                    	resourceCondition = resource.getCondition().replace("\\/","/");
@@ -244,14 +268,17 @@ public class DecisionMaker {
 		                    }
 		                    if (resourceCondition != null){
 		                    	Log.d(TAG, "	1:"+resourceCondition.toLowerCase()+"-- 2:"+comparisonString.toLowerCase()+"--");
+		                    	DebugFileLog.write("DecisionMaker-	1:"+resourceCondition.toLowerCase()+"-- 2:"+comparisonString.toLowerCase()+"--");
 		                    }
 		                    //if (resource.getCondition().toLowerCase().equals(comparisonString.toLowerCase())){
 		                    if (resourceCondition.toLowerCase().equals(comparisonString.toLowerCase())){
 		                    	 Log.d(TAG, "	Match!");
+		                    	 DebugFileLog.write("DecisionMaker-	Match!");
 		                    	resourceInPolicy = resource;//No break, since the last one should have priority over older ones
 		                    	break;
 							} else {
 								Log.d(TAG, "	No Match!" + comparisonString);
+								DebugFileLog.write("DecisionMaker-	No Match!" + comparisonString);
 
 								//
 								try{
@@ -263,6 +290,7 @@ public class DecisionMaker {
 													resourceCondition
 															.indexOf(":") - 1);
 									Log.d(TAG, "property:" + property);
+									DebugFileLog.write("DecisionMaker-property:" + property);
 									if (property.contains(entry.getKey())) {
 										int intValue = -1;
 										String value = resource
@@ -273,10 +301,13 @@ public class DecisionMaker {
 														resourceCondition
 																.length() - 1);
 										Log.d(TAG, "value:" + value);
+										DebugFileLog.write("DecisionMaker-value:" + value);
 										try {
 											intValue = Integer.valueOf(value);
 										} catch (NumberFormatException e) {
 											Log.d(TAG, "value " + value
+													+ " is not a number");
+											DebugFileLog.write("DecisionMaker-value " + value
 													+ " is not a number");
 										}
 
@@ -284,6 +315,8 @@ public class DecisionMaker {
 											int currentValue = -1;
 											Log.d(TAG,
 													"Current value:"
+															+ entry.getValue());
+											DebugFileLog.write("DecisionMaker-Current value:"
 															+ entry.getValue());
 											try {
 												currentValue = Integer
@@ -293,6 +326,9 @@ public class DecisionMaker {
 												Log.d(TAG, "current value "
 														+ entry.getValue()
 														+ " is not a number");
+												DebugFileLog.write("DecisionMaker-current value "
+														+ entry.getValue()
+														+ " is not a number");
 											}
 											if (currentValue != -1) {
 												if (currentValue < intValue) {
@@ -300,12 +336,21 @@ public class DecisionMaker {
 															+ currentValue
 															+ " is less than "
 															+ intValue);
+													DebugFileLog.write("DecisionMaker-Current value "
+															+ currentValue
+															+ " is less than "
+															+ intValue);
 													Log.d(TAG, "Allow");
+													DebugFileLog.write("DecisionMaker-Allow");
 													dbManager.closeDB();
 													return getConditionNotSatisfiedDecision();
 												} else {
 													Log.d(TAG,
 															"Current value "
+																	+ currentValue
+																	+ " is greater or equal than "
+																	+ intValue);
+													DebugFileLog.write("DecisionMaker-Current value "
 																	+ currentValue
 																	+ " is greater or equal than "
 																	+ intValue);
@@ -416,21 +461,28 @@ public class DecisionMaker {
         	
         	actionInPolicy = dbManager.getActionFromType(request.getAction().getActionType());        	
         	Log.d(TAG, "Resource in table:" + resourceInPolicy.getPath() + " Id:" +  resourceInPolicy.getId());
+        	DebugFileLog.write("DecisionMaker-Resource in table:" + resourceInPolicy.getPath() + " Id:" +  resourceInPolicy.getId());
         	Log.d(TAG, "Action in table:" + actionInPolicy.getDescription() + " Id:" +  actionInPolicy.getId());
+        	DebugFileLog.write("DecisionMaker-Action in table:" + actionInPolicy.getDescription() + " Id:" +  actionInPolicy.getId());
         	decisionTable = dbManager.getDecisionTableFromResourceId(String.valueOf(resourceInPolicy.getId()),String.valueOf(actionInPolicy.getId()));
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
+        	DebugFileLog.write("DecisionMaker-DT in table: Id:" +  decisionTable.getId());
         	if (decisionTable.getId()==0){
         		//return getDefaultDecision();
         		dbManager.closeDB();
         		return null;
         	}
         	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
+        	DebugFileLog.write("DecisionMaker-Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
         	riskCommInPolicy = dbManager.getRiskCommunicationFromID(String.valueOf(decisionTable.getRiskcommunication_id()));
         	Log.d(TAG, "RiskComm in table: Id:" +  riskCommInPolicy.getId());
+        	DebugFileLog.write("DecisionMaker-RiskComm in table: Id:" +  riskCommInPolicy.getId());
         	if (riskCommInPolicy != null){
         		Log.d(TAG, "Retrieving riskTreatment associated to id:" +  String.valueOf(riskCommInPolicy.getRisktreatment_id()));
+        		DebugFileLog.write("DecisionMaker-Retrieving riskTreatment associated to id:" +  String.valueOf(riskCommInPolicy.getRisktreatment_id()));
         		riskTreatInPolicy = dbManager.getRiskTreatmentFromID(String.valueOf(riskCommInPolicy.getRisktreatment_id()));
         		Log.d(TAG, "RiskTreat in table:" + riskTreatInPolicy.getTextualdescription() + " Id:" +  riskTreatInPolicy.getId());
+        		DebugFileLog.write("DecisionMaker-RiskTreat in table:" + riskTreatInPolicy.getTextualdescription() + " Id:" +  riskTreatInPolicy.getId());
         		
         	}
         }
