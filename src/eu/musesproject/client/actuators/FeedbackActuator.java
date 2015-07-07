@@ -29,6 +29,7 @@ import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.ui.DialogController;
 import eu.musesproject.client.ui.NotificationController;
 
@@ -92,6 +93,7 @@ public class FeedbackActuator implements IFeedbackActuator {
     }
 
     private void showNextFeedback(Decision decision) {
+        DebugFileLog.write(TAG + "| showNextFeedback " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
         Log.d(TAG, "showNextFeedback " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
         createFeedbackDialog(decision);
     }

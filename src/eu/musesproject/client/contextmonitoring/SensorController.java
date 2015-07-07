@@ -28,6 +28,7 @@ import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.contextmonitoring.InteractionObservedApps;
 import eu.musesproject.client.model.contextmonitoring.UISource;
 import eu.musesproject.client.model.decisiontable.Action;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.utils.MusesUtils;
 import eu.musesproject.contextmodel.ContextEvent;
 
@@ -74,6 +75,7 @@ public class SensorController {
     }
     
     public void startSensors() {
+        DebugFileLog.write(TAG+"| 1/3 check if sensors can be started");
         Log.d(MusesUtils.TEST_TAG, "SC - 1. start sensors");
         // just start the sensors if they are not already collecting data
         if(!isCollectingData) {
@@ -83,6 +85,7 @@ public class SensorController {
             dbManager.openDB();
             sensorConfigExists = dbManager.hasSensorConfig();
             dbManager.closeDB();
+            DebugFileLog.write(TAG+"| 2/3 sensor config exists : " + sensorConfigExists);
 
             // just start the sensors if there is a configuration for them
             if(sensorConfigExists) {
@@ -91,6 +94,7 @@ public class SensorController {
                 enabledSensor = dbManager.getAllEnabledSensorTypes();
                 dbManager.closeDB();
                 startAndConfigureSensors(enabledSensor);
+                DebugFileLog.write(TAG + "| 3/3 start sensors");
 
                 isCollectingData = true;
             }
