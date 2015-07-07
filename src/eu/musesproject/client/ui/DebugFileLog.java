@@ -29,7 +29,7 @@ import java.util.Date;
 
 import android.os.Environment;
 
-public class UIFileLog {
+public class DebugFileLog {
 
 	private static BufferedWriter buf = null;
 	private static boolean fileOpen = false;
@@ -49,7 +49,7 @@ public class UIFileLog {
 			try {
 				/* Open and append */
 				String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-				String filename = "MUSES_usage.log";
+				String filename = "MUSES_debug.log";
 				buf = new BufferedWriter(new FileWriter(baseDir+File.separator+filename, true));
 				buf.write(currentTimeString+"Logfile reopened,,\n");
 			} catch (IOException e) {
