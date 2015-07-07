@@ -47,6 +47,7 @@ public class MusesUICallbacksHandler implements IUICallback {
 	@Override
 	public void onLogin(boolean result, String detailedMsg, int errorCode) {
 		Log.d(TAG, "onLogin result: " + result);
+		DebugFileLog.write(TAG+ " onLogin result: " + result);
         Message msg;
 		if (result) {
 			msg = mHandler.obtainMessage(LOGIN_SUCCESSFUL);

@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.usercontexteventhandler.JSONManager;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -93,6 +94,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		if (cert.isEmpty() || cert.length() < 1000){
 			callBacks.statusCb(Statuses.CONNECTION_FAILED, DetailedStatuses.INCORRECT_CERTIFICATE, 0);
 			Log.d(TAG, "connect: Incorrect certificate!");
+			DebugFileLog.write(TAG+ " connect: Incorrect certificate!");
 			return;
 		}
 			
@@ -100,6 +102,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		PhoneModeReceiver phoneModeReceiver = new PhoneModeReceiver(cntext);
 		phoneModeReceiver.register();
 		Log.d(TAG, "Connecting to URL:"+url);
+		DebugFileLog.write(TAG+ " Connecting to URL:"+url);
 		
 		if (networkChecker.isInternetConnected()) {
 			Log.d(TAG, "InternetConnected");
@@ -128,6 +131,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		dataIdStr = Integer.toString(dataId);
 		setCommandOngoing();
 		Log.d(APP_TAG, "ConnManager=> send data to server with request type: "+JSONManager.getRequestType(data));
+		DebugFileLog.write(APP_TAG+ " ConnManager=> send data to server with request type: "+JSONManager.getRequestType(data));
 		startHttpThread(DATA, URL, 
 				Integer.toString(AlarmReceiver.getCurrentPollInterval()), data, dataIdStr); 
 	}
@@ -146,6 +150,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 		}
 		
 		Log.d(APP_TAG, "ConnManager=> disconnecting session to server");
+		DebugFileLog.write(APP_TAG+ " ConnManager=> disconnecting session to server");
 		startHttpThread(DISCONNECT, URL, 
 				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", "");
 			
@@ -225,6 +230,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 	
 	public void ack() {
 		Log.d(TAG, "Sending ack..");
+		DebugFileLog.write(TAG+ "Sending ack..");
 		startHttpThread(ACK, URL, 
 				Integer.toString(AlarmReceiver.getCurrentPollInterval()), "", "");
 
@@ -273,6 +279,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			else
 			{
 				Log.d(POLL_TAG,"doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
+				DebugFileLog.write(POLL_TAG+" doInBackground: parameters: "+params[0]+", "+params[1]+", "+params[2]+", "+params[3]);
 				try {
 					HttpResponseHandler httpResponseHandler = doSecurePost(request, params[4]);
 					if (httpResponseHandler != null){
@@ -297,6 +304,7 @@ public class ConnectionManager extends HttpConnectionsHelper implements IConnect
 			
 			setCommandNotOngoing();
 			Log.d(POLL_TAG,"doInBackground: doInBackground finished.");
+			DebugFileLog.write(POLL_TAG +" doInBackground: doInBackground finished.");
 			return null;
 
     	}
