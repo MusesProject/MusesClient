@@ -65,6 +65,7 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        DebugFileLog.write(TAG + "| onCreateDialog");
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View layout = inflater.inflate(R.layout.dialog_deny, null);
 

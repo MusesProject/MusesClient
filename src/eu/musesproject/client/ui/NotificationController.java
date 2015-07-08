@@ -28,11 +28,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
+import android.util.Log;
 import eu.musesproject.client.R;
 import eu.musesproject.client.connectionmanager.Statuses;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 
 public class NotificationController {
+    public static final String TAG = NotificationController.class.getSimpleName();
+
     public static final String EXTRA_NOTIFICATION = "EXTRA_NOTIFICATION";
 
     private static NotificationController mInstance;
@@ -59,6 +62,7 @@ public class NotificationController {
     }
 
     public void removeNotification() {
+        Log.d(TAG, "remove notification icon, user authenticated: " + UserContextEventHandler.getInstance().isUserAuthenticated());
         if (mNotificationManager == null) {
             mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         }
@@ -71,6 +75,7 @@ public class NotificationController {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void create(int dialogCounter) {
+        Log.d(TAG, "create(int dialogCounter=" +dialogCounter+")");
         this.dialogCounter = dialogCounter;
 
         // don't show notification if the user is not logged in
@@ -141,6 +146,7 @@ public class NotificationController {
     }
 
     public void updateOnlineStatus() {
+        Log.d(TAG, "updateOnlineStatus, server online: " +  (UserContextEventHandler.getInstance().getServerStatus() == Statuses.ONLINE));
         create(dialogCounter);
     }
 }

@@ -31,6 +31,8 @@ import eu.musesproject.client.actuators.ActuatorController;
  * Created by christophstanik on 5/17/15.
  */
 public class DialogController extends Activity {
+    public static final String TAG = DialogController.class.getSimpleName();
+
     public static final String KEY_DIALOG       = "dialog_policy";
     public static final String KEY_DECISION_ID  = "decision_id";
     public static final String KEY_DIALOG_TITLE = "dialog_title";
@@ -52,6 +54,7 @@ public class DialogController extends Activity {
         String dialogBody = bundle.getString(KEY_DIALOG_BODY);
 
         Log.d("FeedbackActuator", "policy:"+policy + " | title:"+dialogTitle + " | body:"+dialogBody);
+        DebugFileLog.write(TAG + "| policy:"+policy + " | title:"+dialogTitle + " | body:"+dialogBody);
 
         DialogFragment targetDialogFragment = null;
         switch (policy) {
