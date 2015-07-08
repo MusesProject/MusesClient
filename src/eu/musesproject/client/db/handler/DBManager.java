@@ -59,6 +59,7 @@ import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.entity.Role;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.entity.Subject;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.utils.MusesUtils;
 
 public class DBManager {
@@ -1172,6 +1173,8 @@ public class DBManager {
         Log.d(TAG, "action type: " + action.getActionType() + " description: "
                 + action.getDescription());
 
+        DebugFileLog.write(TAG+"action type: " + action.getActionType() + " description: "
+                + action.getDescription());
         if (sqLiteDatabase == null) {// Open database in case it is closed
             openDB();
         }
@@ -1955,6 +1958,7 @@ public class DBManager {
     }
 
     public Action getActionFromType(String type) {
+    	DebugFileLog.write(TAG+" called getActionFromType:"+ type);
         if (sqLiteDatabase == null) {// Open database in case it is closed
             openDB();
         }
@@ -1965,15 +1969,20 @@ public class DBManager {
 
         Action action = new Action();
         if (cursor != null) {
+        	DebugFileLog.write(TAG+" getActionFromType:cursor not null");
             cursor.moveToFirst();
             Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+                    + cursor.isAfterLast());
+            DebugFileLog.write(TAG+" getActionFromType:"+String.valueOf(cursor.getCount()) + " isAfterLast:"
                     + cursor.isAfterLast());
             while (!cursor.isAfterLast()) {
                 action.setId(cursor.getInt(0));
                 action.setDescription(cursor.getString(1));
                 action.setActionType(cursor.getString(2));
                 action.setTimestamp(cursor.getLong(3));
-                cursor.moveToNext();
+                DebugFileLog.write(TAG+" getActionFromType: action id:"+action.getId() + " type:" + action.getActionType() + " desc:"+action.getDescription());
+                return action;
+                //cursor.moveToNext();
             }
         }
         return action;
