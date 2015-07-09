@@ -165,7 +165,11 @@ public class DecisionMaker {
 	
 	public Decision makeDecision(Request request, List<ContextEvent> eventList, Map<String, String> properties){
 		
+		Decision resultDecision = new Decision();
+		try {
+		
 		boolean match = false;
+		String matchedCondition = "";
 		Decision priorDecision = manageDecision(request, eventList, properties);
 		if (priorDecision != null){
 			Logger.getLogger(TAG).log(Level.WARNING, "Policy Device Decision: " + priorDecision.getName());
@@ -186,7 +190,7 @@ public class DecisionMaker {
         Action actionInPolicy = new Action();
         RiskCommunication riskCommInPolicy = new RiskCommunication();
         RiskTreatment riskTreatInPolicy = new RiskTreatment();
-        Decision resultDecision = new Decision();
+        
         DecisionTable decisionTable = null;
         
         Log.d(TAG, "Action type:"+request.getAction().getActionType());
@@ -284,6 +288,7 @@ public class DecisionMaker {
 		                    	 Log.d(TAG, "	Match!");
 		                    	 DebugFileLog.write("DecisionMaker-	Match!");
 		                    	resourceInPolicy = resource;//No break, since the last one should have priority over older ones
+		                    	matchedCondition = resource.getCondition();
 		                    	match=true;
 		                    	break;
 							} else {
@@ -398,6 +403,7 @@ public class DecisionMaker {
 		                			        		if (resource.getPath().equals(request.getResource().getPath())){
 		                			        			Log.d(TAG, "	Path Match!");
 		                			        			resourceInPolicy = resource;
+		                			        			matchedCondition = resource.getCondition();
 		                			        			match=true;
 				                						break;
 		                			        		}else{
@@ -434,6 +440,7 @@ public class DecisionMaker {
 		                						
 		                						resourceInPolicy = resource;
 		                						Log.d(TAG, " resourceInPolicy:"+ resourceInPolicy.getPath());
+		                						matchedCondition = resource.getCondition();
 		                						match=true;
 		                						break;
 		                						
@@ -480,9 +487,29 @@ public class DecisionMaker {
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
         	DebugFileLog.write("DecisionMaker-DT in table: Id:" +  decisionTable.getId());
         	if (decisionTable.getId()==0){
-        		
-        		dbManager.closeDB();
-        		return null;
+        		// Find decision with such condition
+        		Log.d(TAG, "Find all decisions with conditions:");
+            	DebugFileLog.write("DecisionMaker-Find all decisions with conditions:");
+            	eu.musesproject.client.db.entity.Decision decisionInDB = null;
+        		List<eu.musesproject.client.db.entity.Decision> decisionsWithCondition = dbManager.getAllDecisionsWithCondition();
+        		for (Iterator iterator = decisionsWithCondition.iterator(); iterator
+						.hasNext();) {
+        			eu.musesproject.client.db.entity.Decision decision2 = (eu.musesproject.client.db.entity.Decision) iterator.next();
+        			Log.d(TAG, "matchedCondition:"+matchedCondition+"- current decision cond:"+decision2.getCondition()+"-");
+                	DebugFileLog.write("DecisionMaker-Find all decisions with conditions:");
+					if (matchedCondition.equals(decision2.getCondition())){
+						decisionInDB = decision2;
+					}
+					
+				}
+        		if (decisionInDB != null){
+        			Log.d(TAG, "Found decision with id :" + decisionInDB.getDecision_id());
+                	DebugFileLog.write("DecisionMaker-Found decision with id :" + decisionInDB.getDecision_id());
+            		decisionTable = dbManager.getDecisionTableFromDecisionId(decisionInDB.getDecision_id());
+        		}else{   		
+        			dbManager.closeDB();
+        			return null;
+        		}	
         	}
         	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
         	DebugFileLog.write("DecisionMaker-Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
@@ -660,6 +687,11 @@ public class DecisionMaker {
 
         
         dbManager.closeDB();
+		}catch (Throwable t){
+			DebugFileLog.write(t.getMessage());
+			t.printStackTrace();
+		}
+        
 		return resultDecision;
 
 	}	

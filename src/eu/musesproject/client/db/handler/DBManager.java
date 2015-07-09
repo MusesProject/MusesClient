@@ -1929,6 +1929,36 @@ public class DBManager {
         }
         return decision;
     }
+    
+	public Decision getDecisionFromCondition(
+			String condition) {
+		if (sqLiteDatabase == null) {// Open database in case it is closed
+			openDB();
+		}
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String[] { ID,
+				NAME, CONDITION, MODIFICATION },
+
+		//CONDITION + " LIKE '" + condition + "'", null, null, null, null);
+				CONDITION + "='" + condition+"'", null, null, null, null);
+		Log.d(TAG, "getDecisionFromCondition:"+condition);
+
+		Decision decision = new Decision();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
+				Log.d(TAG, cursor.getString(0));
+				decision.setId(Integer.parseInt(cursor.getString(0)));
+				decision.setName(cursor.getString(1));
+				decision.setCondition(cursor.getString(2));
+				return decision;
+			}
+		}else{
+			Log.d(TAG, "getDecisionFromCondition: cursor is null");
+		}
+		return decision;
+	}
 
     public Resource getResourceFromPath(String path) {
         if (sqLiteDatabase == null) {// Open database in case it is closed
@@ -2223,6 +2253,8 @@ public class DBManager {
         return resource;
 
     }
+
+
 
 }
 
