@@ -501,7 +501,9 @@ public class DecisionMaker {
 											+ "- current decision cond:"
 											+ decision2.getCondition() + "-");
 							DebugFileLog
-									.write("DecisionMaker-Find all decisions with conditions:");
+									.write("matchedCondition:" + matchedCondition
+											+ "- current decision cond:"
+											+ decision2.getCondition() + "-");
 							if (matchedCondition.equals(decision2.getCondition())) {
 								Log.d(TAG,
 										"setting decision with id:"+decision2.getId());
@@ -517,9 +519,9 @@ public class DecisionMaker {
 					
 				}
         		if (decisionInDB != null){
-        			Log.d(TAG, "Found decision with id :" + decisionInDB.getDecision_id());
-                	DebugFileLog.write("DecisionMaker-Found decision with id :" + decisionInDB.getDecision_id());
-            		decisionTable = dbManager.getDecisionTableFromDecisionId(decisionInDB.getDecision_id());
+        			Log.d(TAG, "Found decision with id :" + decisionInDB.getId());
+                	DebugFileLog.write("DecisionMaker-Found decision with id :" + decisionInDB.getId());
+            		decisionTable = dbManager.getDecisionTableFromDecisionId(String.valueOf(decisionInDB.getId()));
         		}else{   		
         			dbManager.closeDB();
         			return null;
