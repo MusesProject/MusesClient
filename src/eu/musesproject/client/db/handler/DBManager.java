@@ -1930,7 +1930,7 @@ public class DBManager {
         return decision;
     }
     
-	public Decision getDecisionFromCondition(
+	/*public Decision getDecisionFromCondition(
 			String condition) {
 		if (sqLiteDatabase == null) {// Open database in case it is closed
 			openDB();
@@ -1958,7 +1958,7 @@ public class DBManager {
 			Log.d(TAG, "getDecisionFromCondition: cursor is null");
 		}
 		return decision;
-	}
+	}*/
 
     public Resource getResourceFromPath(String path) {
         if (sqLiteDatabase == null) {// Open database in case it is closed

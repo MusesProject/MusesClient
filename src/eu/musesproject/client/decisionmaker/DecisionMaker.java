@@ -488,7 +488,7 @@ public class DecisionMaker {
         	DebugFileLog.write("DecisionMaker-DT in table: Id:" +  decisionTable.getId());
         	if (decisionTable.getId()==0){
         		// Find decision with such condition
-        		Log.d(TAG, "Find all decisions with conditions:");
+        		/*Log.d(TAG, "Find all decisions with conditions:");
             	DebugFileLog.write("DecisionMaker-Find all decisions with conditions:");
             	eu.musesproject.client.db.entity.Decision decisionInDB = null;
         		List<eu.musesproject.client.db.entity.Decision> decisionsWithCondition = dbManager.getAllDecisionsWithCondition();
@@ -506,10 +506,10 @@ public class DecisionMaker {
         			Log.d(TAG, "Found decision with id :" + decisionInDB.getDecision_id());
                 	DebugFileLog.write("DecisionMaker-Found decision with id :" + decisionInDB.getDecision_id());
             		decisionTable = dbManager.getDecisionTableFromDecisionId(decisionInDB.getDecision_id());
-        		}else{   		
+        		}else{   */		
         			dbManager.closeDB();
         			return null;
-        		}	
+        		//}	
         	}
         	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
         	DebugFileLog.write("DecisionMaker-Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
