@@ -2179,6 +2179,41 @@ public class DBManager {
         return decisionList;
 
     }
+    
+    public List<Decision> getAllDecisions() {
+
+        List<Decision> decisionList = new ArrayList<Decision>();
+        if (sqLiteDatabase == null) {// Open database in case it is closed
+            openDB();
+        }
+        String selectQuery = "SELECT id, name, condition FROM " + TABLE_DECISION;
+        if (sqLiteDatabase == null) {// Open database in case it is closed
+            openDB();
+        }
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+
+        Decision decision = new Decision();
+        if (cursor != null && cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+            	Log.d(TAG, "New decision");
+            	DebugFileLog.write(TAG+"New decision");                
+                decision.setId(Integer.parseInt(cursor.getString(0)));
+            	Log.d(TAG, "getAllDecisions id"+decision.getId());
+            	DebugFileLog.write(TAG+"getAllDecisions id"+decision.getId());
+                decision.setName(cursor.getString(1));
+                Log.d(TAG, "getAllDecisions name"+decision.getName());
+                DebugFileLog.write(TAG+"getAllDecisions id"+decision.getName());
+                decision.setCondition(cursor.getString(2));
+                Log.d(TAG, "getAllDecisions cond"+decision.getCondition());
+                DebugFileLog.write(TAG+"getAllDecisions id"+decision.getCondition());
+                decisionList.add(decision);
+                cursor.moveToNext();
+            }
+        }
+
+        return decisionList;
+
+    }
 
     public List<Resource> getAllResources() {
         List<Resource> resourceList = new ArrayList<Resource>();

@@ -488,28 +488,42 @@ public class DecisionMaker {
         	DebugFileLog.write("DecisionMaker-DT in table: Id:" +  decisionTable.getId());
         	if (decisionTable.getId()==0){
         		// Find decision with such condition
-        		/*Log.d(TAG, "Find all decisions with conditions:");
+        		Log.d(TAG, "Find all decisions with conditions:");
             	DebugFileLog.write("DecisionMaker-Find all decisions with conditions:");
             	eu.musesproject.client.db.entity.Decision decisionInDB = null;
-        		List<eu.musesproject.client.db.entity.Decision> decisionsWithCondition = dbManager.getAllDecisionsWithCondition();
+        		List<eu.musesproject.client.db.entity.Decision> decisionsWithCondition = dbManager.getAllDecisions();
         		for (Iterator iterator = decisionsWithCondition.iterator(); iterator
 						.hasNext();) {
         			eu.musesproject.client.db.entity.Decision decision2 = (eu.musesproject.client.db.entity.Decision) iterator.next();
-        			Log.d(TAG, "matchedCondition:"+matchedCondition+"- current decision cond:"+decision2.getCondition()+"-");
-                	DebugFileLog.write("DecisionMaker-Find all decisions with conditions:");
-					if (matchedCondition.equals(decision2.getCondition())){
-						decisionInDB = decision2;
-					}
+						if (decision2.getCondition() != null) {
+							Log.d(TAG,
+									"matchedCondition:" + matchedCondition
+											+ "- current decision cond:"
+											+ decision2.getCondition() + "-");
+							DebugFileLog
+									.write("DecisionMaker-Find all decisions with conditions:");
+							if (matchedCondition.equals(decision2.getCondition())) {
+								Log.d(TAG,
+										"setting decision with id:"+decision2.getId());
+								DebugFileLog
+										.write("DecisionMaker-setting decision id:"+decision2.getId());
+								decisionInDB = decision2;
+							}
+						}else{
+							Log.d(TAG, "null condition");
+							DebugFileLog
+									.write("DecisionMaker-null condition");
+						}
 					
 				}
         		if (decisionInDB != null){
         			Log.d(TAG, "Found decision with id :" + decisionInDB.getDecision_id());
                 	DebugFileLog.write("DecisionMaker-Found decision with id :" + decisionInDB.getDecision_id());
             		decisionTable = dbManager.getDecisionTableFromDecisionId(decisionInDB.getDecision_id());
-        		}else{   */		
+        		}else{   		
         			dbManager.closeDB();
         			return null;
-        		//}	
+        		}	
         	}
         	Log.d(TAG, "Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
         	DebugFileLog.write("DecisionMaker-Retrieving riskCommunication associated to id:" +  String.valueOf(decisionTable.getRiskcommunication_id()));
