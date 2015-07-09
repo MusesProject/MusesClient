@@ -165,6 +165,7 @@ public class DecisionMaker {
 	
 	public Decision makeDecision(Request request, List<ContextEvent> eventList, Map<String, String> properties){
 		
+		boolean match = false;
 		Decision priorDecision = manageDecision(request, eventList, properties);
 		if (priorDecision != null){
 			Logger.getLogger(TAG).log(Level.WARNING, "Policy Device Decision: " + priorDecision.getName());
@@ -242,6 +243,14 @@ public class DecisionMaker {
         		for (Iterator iterator = allConditionResources.iterator(); iterator
 						.hasNext();) {
 					Resource resource = (Resource) iterator.next();
+					if (match){
+						Log.d(TAG, "One condition matched, then break.");
+						DebugFileLog.write("DecisionMaker-One condition matched, then break from conditions iterator.");
+						break;
+					}else{
+						Log.d(TAG, "No match for previous condition");
+						DebugFileLog.write("DecisionMaker-No match for previous condition");
+					}
 					Log.d(TAG, "Id:"+resource.getId());
 					DebugFileLog.write("DecisionMaker-Id:"+resource.getId());
 					if (resource.getCondition()!=null){
@@ -275,6 +284,7 @@ public class DecisionMaker {
 		                    	 Log.d(TAG, "	Match!");
 		                    	 DebugFileLog.write("DecisionMaker-	Match!");
 		                    	resourceInPolicy = resource;//No break, since the last one should have priority over older ones
+		                    	match=true;
 		                    	break;
 							} else {
 								Log.d(TAG, "	No Match!" + comparisonString);
@@ -388,6 +398,7 @@ public class DecisionMaker {
 		                			        		if (resource.getPath().equals(request.getResource().getPath())){
 		                			        			Log.d(TAG, "	Path Match!");
 		                			        			resourceInPolicy = resource;
+		                			        			match=true;
 				                						break;
 		                			        		}else{
 		                			        			Log.d(TAG, "	No Path Match!");
@@ -423,6 +434,7 @@ public class DecisionMaker {
 		                						
 		                						resourceInPolicy = resource;
 		                						Log.d(TAG, " resourceInPolicy:"+ resourceInPolicy.getPath());
+		                						match=true;
 		                						break;
 		                						
 		                					} else {
@@ -468,7 +480,7 @@ public class DecisionMaker {
         	Log.d(TAG, "DT in table: Id:" +  decisionTable.getId());
         	DebugFileLog.write("DecisionMaker-DT in table: Id:" +  decisionTable.getId());
         	if (decisionTable.getId()==0){
-        		//return getDefaultDecision();
+        		
         		dbManager.closeDB();
         		return null;
         	}
