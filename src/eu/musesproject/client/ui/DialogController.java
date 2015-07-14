@@ -30,12 +30,12 @@ import eu.musesproject.client.actuators.ActuatorController;
 /**
  * Created by christophstanik on 5/17/15.
  */
-public class DialogController extends Activity {
-    public static final String KEY_DIALOG       = "dialog_policy";
-    public static final String KEY_DECISION_ID  = "decision_id";
-    public static final String KEY_DIALOG_TITLE = "dialog_title";
-    public static final String KEY_DIALOG_BODY  = "dialog_body";
-    public static final String KEY_DIALOG_CMD   = "dialog_actuation_command";
+public class DialogController extends Activity implements MaybeDialogFragment.IOpportunityDialog {
+    public static final String KEY_DIALOG           = "dialog_policy";
+    public static final String KEY_DECISION_ID      = "decision_id";
+    public static final String KEY_DIALOG_TITLE     = "dialog_title";
+    public static final String KEY_DIALOG_BODY      = "dialog_body";
+    public static final String KEY_DIALOG_RISK_INT  = "dialog_solving_riskt_treatment";
 
     public static final int DENY          = 0;
     public static final int MAYBE         = 1;
@@ -76,7 +76,7 @@ public class DialogController extends Activity {
     }
 
     private DialogFragment createMaybeDialog(String title, String body, String decisionId) {
-        return MaybeDialogFragment.newInstance(title,body, decisionId);
+        return MaybeDialogFragment.newInstance(this, title,body, decisionId);
     }
 
     private DialogFragment createUpToUserDialog(String title, String body, String decisionId) {
@@ -89,5 +89,10 @@ public class DialogController extends Activity {
         // user clicked on the notification. Therefore we show him the current notification of the notification stack
         ActuatorController.getInstance(this).showCurrentTopFeedback();
         finish();
+    }
+
+    @Override
+    public void show(String decisionId) {
+        DialogFragment opportunityDialogFragment = OpportunityDialogFragment.newInstance(decisionId);
     }
 }

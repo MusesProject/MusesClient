@@ -299,6 +299,21 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		}
 	}
 
+
+	/**
+	 * Method to send the opportunity to the server
+	 * @param decisionId relates the opportunity to a decision, that triggered the ooportunity
+	 * @param time
+	 * @param revenueLossInEuros
+	 * @param revenueLossDescription
+	 */
+	public void sendOpportunity(String decisionId, String time, String revenueLossInEuros, String revenueLossDescription) {
+		JSONObject opportunityJSON = JSONManager.createOpportunityJSON(decisionId, getImei(), time, revenueLossInEuros, revenueLossDescription);
+		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
+			sendRequestToServer(opportunityJSON);
+		}
+	}
+
 	/**
 	 * Method to log in to MUSES.
 	 * Necessary to establish server communication and for

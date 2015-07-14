@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingLeft="10dp"
+              android:paddingRight="10dp">
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+        <ImageView android:layout_width="40dp"
+                   android:layout_height="40dp"
+                   android:paddingLeft="10dp"
+                   android:layout_gravity="center_vertical"
+                   android:src="@drawable/muses_logo"/>
+        <TextView
+                android:id="@+id/dialog_op_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dialog_op_title"
+                style="@style/DialogHeader"/>
+    </LinearLayout>
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/dialog_op_text_time_to_work"/>
+    <EditText android:id="@+id/dialog_op_edit_time"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="@string/dialog_op_hint_enter_time"
+              android:paddingBottom="20dp"/>
+
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/dialog_op_text_time_to_work"/>
+    <EditText android:id="@+id/dialog_op_edit_revenue_loss_euros"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="@string/dialog_op_edit_revenue_loss_euros"/>
+    <EditText android:id="@+id/dialog_op_edit_revenue_loss_description"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="@string/dialog_op_edit_revenue_loss_description"
+              android:paddingBottom="20dp"/>
+    <Button android:id="@+id/dialog_op_button_send"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_op_button_send"/>
+</LinearLayout>

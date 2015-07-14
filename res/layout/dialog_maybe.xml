@@ -34,10 +34,10 @@
                 android:layout_weight="50"
                 android:text="@string/button_cancel"/>
         <Button
-                android:id="@+id/dialog_maybe_button_action"
+                android:id="@+id/dialog_opportunity_button_action"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="50"
-                android:text="@string/button_help_me"/>
+                android:text="@string/button_opportunity"/>
     </LinearLayout>
 </LinearLayout>

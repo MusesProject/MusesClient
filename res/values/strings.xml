@@ -155,6 +155,14 @@ info@muses.com</string>
 
 
 	    <string name="info_sec_txt_webview">file:///android_asset/MUSES_isb_EN.htm</string>
-    	
-    
+    <string name="button_opportunity">Opportunity</string>
+    <string name="dialog_op_text_time_to_work">How many hours do you think you have for working?</string>
+    <string name="dialog_op_hint_enter_time">Enter time: 00:00</string>
+    <string name="dialog_op_edit_revenue_loss_euros">Enter potential revenue loss in Euros</string>
+    <string name="dialog_op_edit_revenue_loss_description">Enter potential revenue loss description</string>
+    <string name="dialog_op_title">Your Opportunity</string>
+    <string name="dialog_op_button_send">send</string>
+    <string name="toast_enter_all_fields">Please fill all the fields in the dialog</string>
+
+
 </resources>

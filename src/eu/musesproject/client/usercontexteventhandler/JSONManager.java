@@ -243,6 +243,22 @@ public class JSONManager {
 		return configSyncSONObject;
 	}
 
+	public static JSONObject createOpportunityJSON(String decisionId, String deviceId, String time, String revenueLossInEuros, String revenueLossDescription) {
+		JSONObject opportunityJSONObject = new JSONObject();
+		try {
+			opportunityJSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.OPPORTUNITY);
+			opportunityJSONObject.put(JSONIdentifiers.DECISION_IDENTIFIER, decisionId);
+			opportunityJSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+			opportunityJSONObject.put(JSONIdentifiers.OPPORTUNITY_TIME, time);
+			opportunityJSONObject.put(JSONIdentifiers.OPPORTUNITY_LOSS_EUROS, revenueLossInEuros);
+			opportunityJSONObject.put(JSONIdentifiers.OPPORTUNITY_LOSS_DESCRIPTION, revenueLossDescription);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return opportunityJSONObject;
+	}
+
     /**
      * Method to get true or false, whether the login was successful
      * @return boolean. login successful
@@ -530,7 +546,4 @@ public class JSONManager {
 			return "";
 		}
 	}
-	
-	
-	
 }

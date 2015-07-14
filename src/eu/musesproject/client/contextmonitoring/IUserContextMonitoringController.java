@@ -56,4 +56,13 @@ public interface IUserContextMonitoringController {
      * @param password String. password
      */
     void login(String userName, String password);
+
+    /**
+     * Method to send an opportunity request to the server
+     * @param decisionId
+     * @param time format: HH:mm
+     * @param revenueLossInEuros
+     * @param revenueLossDescription
+     */
+    void sendOpportunity(String decisionId, String time, String revenueLossInEuros, String revenueLossDescription);
 }

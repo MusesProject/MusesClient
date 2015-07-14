@@ -42,6 +42,10 @@ import eu.musesproject.client.model.decisiontable.ActionType;
 public class MaybeDialogFragment extends DialogFragment implements View.OnClickListener {
     public static final String TAG = MaybeDialogFragment.class.getSimpleName();
 
+    public interface IOpportunityDialog {
+        void show(String decisionId);
+    }
+
     private TextView dialogHeader;
     private TextView dialogBody;
     private Button actionButton; // help me, fix it, ok
@@ -52,8 +56,11 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
     private String[] splitBody;
     private String body;
 
-    public static MaybeDialogFragment newInstance(String title, String body, String decisionId) {
+    private IOpportunityDialog opportunityDialog;
+
+    public static MaybeDialogFragment newInstance(IOpportunityDialog opportunityDialog, String title, String body, String decisionId) {
         MaybeDialogFragment denyDialogFragment = new MaybeDialogFragment();
+        denyDialogFragment.opportunityDialog = opportunityDialog;
         denyDialogFragment.title = title;
         denyDialogFragment.body = body;
         denyDialogFragment.decisionId = decisionId;
@@ -68,7 +75,7 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
 
         dialogHeader = (TextView) layout.findViewById(R.id.dialog_maybe_title);
         dialogBody = (TextView) layout.findViewById(R.id.dialog_maybe_body);
-        actionButton = (Button) layout.findViewById(R.id.dialog_maybe_button_action);
+        actionButton = (Button) layout.findViewById(R.id.dialog_opportunity_button_action);
         cancelButton = (Button) layout.findViewById(R.id.dialog_maybe_button_cancel);
 
         dialogHeader.setText(title);
@@ -102,15 +109,15 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
     public void onClick(View v) {
         Action action = null;
         switch (v.getId()) {
-            case R.id.dialog_maybe_button_action:
+            case R.id.dialog_opportunity_button_action:
                 // send the behavior to the server
-                action = new Action(ActionType.HELP_ME, System.currentTimeMillis());
+                action = new Action(ActionType.OPPORTUNITY, System.currentTimeMillis());
                 UserContextMonitoringController.getInstance(getActivity()).sendUserBehavior(action, decisionId);
 
                 // remove the feedback and close the dialog
                 ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
                 ActuatorController.getInstance(getActivity()).perform(decisionId);
-                getActivity().finish();
+                opportunityDialog.show(decisionId);
                 break;
             case R.id.dialog_maybe_button_cancel:
                 // send the behavior to the server

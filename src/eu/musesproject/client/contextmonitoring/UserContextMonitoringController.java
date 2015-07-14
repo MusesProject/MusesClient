@@ -105,4 +105,9 @@ public class UserContextMonitoringController implements
     public void login(String userName, String password) {
         uceHandler.login(userName, password);
     }
+
+    @Override
+    public void sendOpportunity(String decisionId, String time, String revenueLossInEuros, String revenueLossDescription) {
+        uceHandler.sendOpportunity(decisionId, time, revenueLossInEuros, revenueLossDescription);
+    }
 }
