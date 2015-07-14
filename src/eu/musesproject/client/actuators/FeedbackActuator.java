@@ -31,6 +31,7 @@ import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.ui.DialogController;
 import eu.musesproject.client.ui.NotificationController;
+import eu.musesproject.server.risktrust.SolvingRiskTreatment;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -102,10 +103,12 @@ public class FeedbackActuator implements IFeedbackActuator {
         String decisionId = decision.getDecision_id();
         String dialogBody = decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription();
         String dialogTitle = "";
+        boolean hasOpportunity = decision.getSolving_risktreatment() == SolvingRiskTreatment.OPPORTUNITY;
 
         Intent dialogIntent = new Intent(context, DialogController.class);
         dialogIntent.putExtra(DialogController.KEY_DECISION_ID, decisionId);
         dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
+        dialogIntent.putExtra(DialogController.KEY_DIALOG_HAS_OPPORTUNITY, hasOpportunity);
         dialogIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
                 | Intent.FLAG_ACTIVITY_MULTIPLE_TASK
                 | Intent.FLAG_ACTIVITY_NEW_TASK);

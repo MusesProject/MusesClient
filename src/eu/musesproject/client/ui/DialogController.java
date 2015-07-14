@@ -35,7 +35,7 @@ public class DialogController extends Activity implements MaybeDialogFragment.IO
     public static final String KEY_DECISION_ID      = "decision_id";
     public static final String KEY_DIALOG_TITLE     = "dialog_title";
     public static final String KEY_DIALOG_BODY      = "dialog_body";
-    public static final String KEY_DIALOG_RISK_INT  = "dialog_solving_riskt_treatment";
+    public static final String KEY_DIALOG_HAS_OPPORTUNITY = "dialog_has_opportunity";
 
     public static final int DENY          = 0;
     public static final int MAYBE         = 1;
@@ -50,6 +50,7 @@ public class DialogController extends Activity implements MaybeDialogFragment.IO
         String decisionId = bundle.getString(KEY_DECISION_ID);
         String dialogTitle = bundle.getString(KEY_DIALOG_TITLE);
         String dialogBody = bundle.getString(KEY_DIALOG_BODY);
+        boolean hasOpportunity = bundle.getBoolean(KEY_DIALOG_HAS_OPPORTUNITY, false);
 
         Log.d("FeedbackActuator", "policy:"+policy + " | title:"+dialogTitle + " | body:"+dialogBody);
 
@@ -59,7 +60,7 @@ public class DialogController extends Activity implements MaybeDialogFragment.IO
                 targetDialogFragment = createDenyDialog(dialogTitle, dialogBody, decisionId);
                 break;
             case MAYBE:
-                targetDialogFragment = createMaybeDialog(dialogTitle, dialogBody, decisionId);
+                targetDialogFragment = createMaybeDialog(hasOpportunity, dialogTitle, dialogBody, decisionId);
                 break;
             case UP_TO_USER:
                 targetDialogFragment = createUpToUserDialog(dialogTitle, dialogBody, decisionId);
@@ -75,8 +76,8 @@ public class DialogController extends Activity implements MaybeDialogFragment.IO
         return DenyDialogFragment.newInstance(title, body, decisionId);
     }
 
-    private DialogFragment createMaybeDialog(String title, String body, String decisionId) {
-        return MaybeDialogFragment.newInstance(this, title,body, decisionId);
+    private DialogFragment createMaybeDialog(boolean hasOpportunity, String title, String body, String decisionId) {
+        return MaybeDialogFragment.newInstance(this, hasOpportunity, title,body, decisionId);
     }
 
     private DialogFragment createUpToUserDialog(String title, String body, String decisionId) {
@@ -94,5 +95,9 @@ public class DialogController extends Activity implements MaybeDialogFragment.IO
     @Override
     public void show(String decisionId) {
         DialogFragment opportunityDialogFragment = OpportunityDialogFragment.newInstance(decisionId);
+        if(opportunityDialogFragment != null) {
+            opportunityDialogFragment.setCancelable(false);
+            opportunityDialogFragment.show(getFragmentManager(), "dialog");
+        }
     }
 }

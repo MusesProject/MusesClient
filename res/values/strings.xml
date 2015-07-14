@@ -163,6 +163,7 @@ info@muses.com</string>
     <string name="dialog_op_title">Your Opportunity</string>
     <string name="dialog_op_button_send">send</string>
     <string name="toast_enter_all_fields">Please fill all the fields in the dialog</string>
+    <string name="dialog_op_no_opportunity">There is no opportunity</string>
 
 
 </resources>

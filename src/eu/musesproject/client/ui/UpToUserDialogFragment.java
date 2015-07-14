@@ -54,12 +54,12 @@ public class UpToUserDialogFragment extends DialogFragment implements View.OnCli
 
 
     public static UpToUserDialogFragment newInstance(String title, String body, String decisionId) {
-        UpToUserDialogFragment denyDialogFragment = new UpToUserDialogFragment();
-        denyDialogFragment.title = title;
-        denyDialogFragment.body = body;
-        denyDialogFragment.decisionId = decisionId;
+        UpToUserDialogFragment upToUserDialogFragment = new UpToUserDialogFragment();
+        upToUserDialogFragment.title = title;
+        upToUserDialogFragment.body = body;
+        upToUserDialogFragment.decisionId = decisionId;
 
-        return denyDialogFragment;
+        return upToUserDialogFragment;
     }
 
     @Override

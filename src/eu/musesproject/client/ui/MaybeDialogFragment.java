@@ -30,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
@@ -46,6 +47,8 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
         void show(String decisionId);
     }
 
+    private boolean hasOpportunity;
+
     private TextView dialogHeader;
     private TextView dialogBody;
     private Button actionButton; // help me, fix it, ok
@@ -58,14 +61,15 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
 
     private IOpportunityDialog opportunityDialog;
 
-    public static MaybeDialogFragment newInstance(IOpportunityDialog opportunityDialog, String title, String body, String decisionId) {
-        MaybeDialogFragment denyDialogFragment = new MaybeDialogFragment();
-        denyDialogFragment.opportunityDialog = opportunityDialog;
-        denyDialogFragment.title = title;
-        denyDialogFragment.body = body;
-        denyDialogFragment.decisionId = decisionId;
+    public static MaybeDialogFragment newInstance(IOpportunityDialog opportunityDialog, boolean hasOpportunity, String title, String body, String decisionId) {
+        MaybeDialogFragment maybeDialogFragment = new MaybeDialogFragment();
+        maybeDialogFragment.hasOpportunity = hasOpportunity;
+        maybeDialogFragment.opportunityDialog = opportunityDialog;
+        maybeDialogFragment.title = title;
+        maybeDialogFragment.body = body;
+        maybeDialogFragment.decisionId = decisionId;
 
-        return denyDialogFragment;
+        return maybeDialogFragment;
     }
 
     @Override
@@ -100,6 +104,12 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
         actionButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
 
+        if(!hasOpportunity) {
+            actionButton.setEnabled(false);
+            actionButton.setClickable(false);
+        }
+
+        // dialog design theme
         ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo_Light_Dialog_NoActionBar);
 
         return new AlertDialog.Builder(context).setView(layout).create();
@@ -110,14 +120,23 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
         Action action = null;
         switch (v.getId()) {
             case R.id.dialog_opportunity_button_action:
-                // send the behavior to the server
-                action = new Action(ActionType.OPPORTUNITY, System.currentTimeMillis());
-                UserContextMonitoringController.getInstance(getActivity()).sendUserBehavior(action, decisionId);
+                if(hasOpportunity) {
+                    // send the behavior to the server
+                    action = new Action(ActionType.OPPORTUNITY, System.currentTimeMillis());
+                    UserContextMonitoringController.getInstance(getActivity()).sendUserBehavior(action, decisionId);
 
-                // remove the feedback and close the dialog
-                ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
-                ActuatorController.getInstance(getActivity()).perform(decisionId);
-                opportunityDialog.show(decisionId);
+                    // remove the feedback and close the dialog
+                    ActuatorController.getInstance(getActivity()).removeFeedbackFromQueue();
+                    ActuatorController.getInstance(getActivity()).perform(decisionId);
+                    opportunityDialog.show(decisionId);
+                }
+                else {
+                    try {
+                        Toast.makeText(getActivity(), R.string.dialog_op_no_opportunity, Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.e(TAG, "cannot show the toast messsage");
+                    }
+                }
                 break;
             case R.id.dialog_maybe_button_cancel:
                 // send the behavior to the server
