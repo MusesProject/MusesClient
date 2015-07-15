@@ -308,7 +308,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param revenueLossDescription
 	 */
 	public void sendOpportunity(String decisionId, String time, String revenueLossInEuros, String revenueLossDescription) {
-		JSONObject opportunityJSON = JSONManager.createOpportunityJSON(decisionId, getImei(), time, revenueLossInEuros, revenueLossDescription);
+		JSONObject opportunityJSON = JSONManager.createOpportunityJSON(decisionId, getImei(), getUserName(), time, revenueLossInEuros, revenueLossDescription);
 		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
 			sendRequestToServer(opportunityJSON);
 		}

@@ -243,12 +243,13 @@ public class JSONManager {
 		return configSyncSONObject;
 	}
 
-	public static JSONObject createOpportunityJSON(String decisionId, String deviceId, String time, String revenueLossInEuros, String revenueLossDescription) {
+	public static JSONObject createOpportunityJSON(String decisionId, String deviceId, String userName, String time, String revenueLossInEuros, String revenueLossDescription) {
 		JSONObject opportunityJSONObject = new JSONObject();
 		try {
 			opportunityJSONObject.put(JSONIdentifiers.REQUEST_TYPE_IDENTIFIER, RequestType.OPPORTUNITY);
 			opportunityJSONObject.put(JSONIdentifiers.DECISION_IDENTIFIER, decisionId);
 			opportunityJSONObject.put(JSONIdentifiers.AUTH_DEVICE_ID, deviceId);
+			opportunityJSONObject.put(JSONIdentifiers.AUTH_USERNAME, userName);
 			opportunityJSONObject.put(JSONIdentifiers.OPPORTUNITY_TIME, time);
 			opportunityJSONObject.put(JSONIdentifiers.OPPORTUNITY_LOSS_EUROS, revenueLossInEuros);
 			opportunityJSONObject.put(JSONIdentifiers.OPPORTUNITY_LOSS_DESCRIPTION, revenueLossDescription);
