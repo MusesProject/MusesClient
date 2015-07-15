@@ -52,8 +52,6 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
     private String[] splitBody;
     private String body;
 
-    private int actuationIdentifier;
-
     public static DenyDialogFragment newInstance(String title, String body, String decisionId) {
         DenyDialogFragment denyDialogFragment = new DenyDialogFragment();
         denyDialogFragment.decisionId = decisionId;
