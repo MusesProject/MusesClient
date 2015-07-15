@@ -361,7 +361,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MusesUICallbacksHandler.LOGIN_SUCCESSFUL:
-                Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
+                Log.v(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
+                DebugFileLog.write(TAG+ msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
 				isLoggedIn = true;
 				updateLoginInPrefs(true);
@@ -370,7 +371,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				toastMessage(msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				break;
 			case MusesUICallbacksHandler.LOGIN_UNSUCCESSFUL:
-                Log.e(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
+                Log.v(TAG, msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
+                DebugFileLog.write(TAG+ msg.getData().get(JSONIdentifiers.AUTH_MESSAGE).toString());
 				stopProgress();
 				isLoggedIn = false;
 				updateLoginInPrefs(false);
@@ -380,6 +382,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 				break;
 			default:  // No need to handle all error code right now, as we will a fixed message, but can be used in future
 				Log.v(MusesUtils.LOGIN_TAG, "Unknown Error!, updating prefs..");
+				DebugFileLog.write(MusesUtils.LOGIN_TAG+ "Unknown Error!, updating prefs..");
 				stopProgress();
 				isLoggedIn = false;
 				updateLoginInPrefs(false);

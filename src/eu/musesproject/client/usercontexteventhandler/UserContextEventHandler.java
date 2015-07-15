@@ -50,6 +50,7 @@ import eu.musesproject.client.model.decisiontable.Decision;
 import eu.musesproject.client.model.decisiontable.Request;
 import eu.musesproject.client.model.decisiontable.Resource;
 import eu.musesproject.client.securitypolicyreceiver.RemotePolicyReceiver;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.ui.MainActivity;
 import eu.musesproject.client.ui.NotificationController;
 import eu.musesproject.client.utils.MusesUtils;
@@ -190,7 +191,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param contextEvents {@link ContextEvent}
 	 */
 	public void send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents) {
-		Log.d(MusesUtils.TEST_TAG, "UCEH - send(action, prop, context_events)");
+		DebugFileLog.write(TAG + "| send(action, prop, contextEvents) with actionType => " + action.getActionType());
 		Log.d(APP_TAG, "UCEH - send(action, prop, context_events) with actionType=>" + action.getActionType());
 		Log.d(TAG, "called: send(Action action, Map<String, String> properties, List<ContextEvent> contextEvents)");
 
@@ -198,7 +199,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		boolean onlineDecisionRequested = false;
 
 		if(decision != null) { // local decision found
-			Log.d(APP_TAG, "Info DC, Local decision found => " + decision.getName() +", now calling actuator to showFeedback");
+			DebugFileLog.write(TAG + "| Info DC, Local decision found => " + decision.getName() + ", now calling actuator to showFeedback");
+			Log.d(APP_TAG, "Info DC, Local decision found => " + decision.getName() + ", now calling actuator to showFeedback");
 			Log.d(TAG_RQT, "Showing feedback for action: "+action.getActionType());
 			ActuatorController.getInstance(context).showFeedback(new ActuationInformationHolder(decision, action, properties));
             if(action.isRequestedByMusesAwareApp() && action.isMusesAwareAppRequiresResponse()) {
@@ -323,7 +325,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param password
 	 */
 	public void login(String userName, String password) {
-		Log.d(MusesUtils.TEST_TAG, "UCEH - login(String userName, String password)");
+		DebugFileLog.write(TAG + "| login");
 		Log.d(TAG, "called: login(String userName, String password)");
 		this.userName = userName;
 		tmpLoginUserName = userName;
@@ -365,7 +367,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to try to login with existing credentials in the database
 	 */
 	public void autoLogin() {
-		Log.d(MusesUtils.LOGIN_TAG, "UCEH - autoLogin()");
+		DebugFileLog.write(TAG + "| autologin");
+	 	Log.d(MusesUtils.LOGIN_TAG, "UCEH - autoLogin()");
 		if(prefs == null) {
 			prefs = context.getSharedPreferences(MainActivity.PREFERENCES_KEY,
 					Context.MODE_PRIVATE);
@@ -425,6 +428,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * Method to logout the user, so that no more events are send to the server in his/her name
 	 */
 	public void logout() {
+		DebugFileLog.write(TAG + "| logout");
 		Log.d(MusesUtils.TEST_TAG, "UCEH - logout()");
 		if(serverStatus == Statuses.ONLINE) {
 			JSONObject logoutJSON = JSONManager.createLogoutJSON(getUserName(), getImei());
@@ -550,7 +554,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param requestJSON {@link org.json.JSONObject}
 	 */
 	public void sendRequestToServer(JSONObject requestJSON) {
-		Log.d(MusesUtils.TEST_TAG, "UCEH - sendRequestToServer(JSONObject requestJSON)");
+		DebugFileLog.write(TAG + "| sendRequestToServer with JSON = " + requestJSON.toString());
 		Log.d(TAG, "called: sendRequestToServer(JSONObject requestJSON)");
 		if (requestJSON != null && !requestJSON.toString().isEmpty()) {
 			if(serverStatus == Statuses.ONLINE) {
@@ -608,7 +612,8 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 				// identify the request type
 				String requestType = JSONManager.getRequestType(receivedData);
-				Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb(); requestType=" +requestType);
+				DebugFileLog.write(TAG + "| receiveCb for RequestType="+ requestType);
+				Log.d(MusesUtils.TEST_TAG, "UCEH - receiveCb(); requestType=" + requestType);
 				Log.d(APP_TAG, "UCEH - receiveCb(); requestType=" + requestType);
 
 				if(requestType.equals(RequestType.UPDATE_POLICIES)) {
@@ -711,6 +716,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		@Override
 		public int statusCb(int status, int detailedStatus, int dataId) {
+			DebugFileLog.write(TAG + "| statusCb status="+ status + ", detailedStatus="+detailedStatus + ", dataId"+dataId);
 			Log.d(TAG, "called: statusCb(int status, int detailedStatus)"+status+", "+detailedStatus);
 			// detect if server is back online after an offline status
 			if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS) {
@@ -865,6 +871,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	@Override
 	public void handleRequestTimeout(int requestId) {
+		DebugFileLog.write(TAG + "| request with id="+requestId+" timed out");
 		Log.d(TAG_RQT, "5. handleRequestTimeout to id: " + requestId);
 		// 1. store object temporary
 		// 2. remove object from the map that holds all RequestHolder

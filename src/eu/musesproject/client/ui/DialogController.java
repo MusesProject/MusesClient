@@ -37,6 +37,8 @@ public class DialogController extends Activity implements MaybeDialogFragment.IO
     public static final String KEY_DIALOG_BODY      = "dialog_body";
     public static final String KEY_DIALOG_HAS_OPPORTUNITY = "dialog_has_opportunity";
 
+    public static final String TAG = DialogController.class.getSimpleName();
+
     public static final int DENY          = 0;
     public static final int MAYBE         = 1;
     public static final int UP_TO_USER    = 2;
@@ -53,6 +55,7 @@ public class DialogController extends Activity implements MaybeDialogFragment.IO
         boolean hasOpportunity = bundle.getBoolean(KEY_DIALOG_HAS_OPPORTUNITY, false);
 
         Log.d("FeedbackActuator", "policy:"+policy + " | title:"+dialogTitle + " | body:"+dialogBody);
+        DebugFileLog.write(TAG + "| policy:"+policy + " | title:"+dialogTitle + " | body:"+dialogBody);
 
         DialogFragment targetDialogFragment = null;
         switch (policy) {

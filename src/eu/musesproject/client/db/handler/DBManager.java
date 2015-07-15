@@ -59,6 +59,7 @@ import eu.musesproject.client.db.entity.RiskTreatment;
 import eu.musesproject.client.db.entity.Role;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.db.entity.Subject;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.utils.MusesUtils;
 
 public class DBManager {
@@ -1034,6 +1035,49 @@ public class DBManager {
 
         return decisionTable;
     }
+    
+    
+    public DecisionTable getDecisionTableFromId(String id) {
+
+        DecisionTable decisionTable = new DecisionTable();
+        if (sqLiteDatabase == null) {// Open database in case it is closed
+            openDB();
+        }
+        Cursor cursor = sqLiteDatabase.query(TABLE_DECISIONTABLE,
+                new String[] { ID, ACTION_ID, RESOURCE_ID, DECISION_ID,
+                        SUBJECT_ID, RISKCOMMUNICATION_ID, MODIFICATION },
+                 ID + "=?",
+                // RESOURCE_ID + "=?",
+                //DECISION_ID + "=?",
+                new String[] { String.valueOf(id) },
+                // null,
+                null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+            Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+                    + cursor.isAfterLast());
+            while (!cursor.isAfterLast()) {
+                // Now create the decision object from the cursor
+                decisionTable = new DecisionTable();
+ decisionTable.setId(Integer.parseInt(cursor.getString(0)));
+                decisionTable
+ .setAction_id(Integer.parseInt(cursor.getString(1)));
+                decisionTable.setResource_id(Integer.parseInt(cursor
+                        .getString(2)));
+                decisionTable.setDecision_id(Integer.parseInt(cursor
+                        .getString(3)));
+                decisionTable.setSubject_id(Integer.parseInt(cursor
+                        .getString(4)));
+ decisionTable.setRiskcommunication_id(Integer.parseInt(cursor
+                        .getString(5)));
+                cursor.moveToNext();
+            }
+
+        }
+
+        return decisionTable;
+    }
 
     public DecisionTable getDecisionTableFromID(String decisiontable_id) {
 
@@ -1172,6 +1216,8 @@ public class DBManager {
         Log.d(TAG, "action type: " + action.getActionType() + " description: "
                 + action.getDescription());
 
+        DebugFileLog.write(TAG+"action type: " + action.getActionType() + " description: "
+                + action.getDescription());
         if (sqLiteDatabase == null) {// Open database in case it is closed
             openDB();
         }
@@ -1926,6 +1972,36 @@ public class DBManager {
         }
         return decision;
     }
+    
+	/*public Decision getDecisionFromCondition(
+			String condition) {
+		if (sqLiteDatabase == null) {// Open database in case it is closed
+			openDB();
+		}
+		Cursor cursor = sqLiteDatabase.query(TABLE_DECISION, new String[] { ID,
+				NAME, CONDITION, MODIFICATION },
+
+		//CONDITION + " LIKE '" + condition + "'", null, null, null, null);
+				CONDITION + "='" + condition+"'", null, null, null, null);
+		Log.d(TAG, "getDecisionFromCondition:"+condition);
+
+		Decision decision = new Decision();
+		if (cursor != null) {
+			cursor.moveToFirst();
+			Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+					+ cursor.isAfterLast());
+			while (!cursor.isAfterLast()) {
+				Log.d(TAG, cursor.getString(0));
+				decision.setId(Integer.parseInt(cursor.getString(0)));
+				decision.setName(cursor.getString(1));
+				decision.setCondition(cursor.getString(2));
+				return decision;
+			}
+		}else{
+			Log.d(TAG, "getDecisionFromCondition: cursor is null");
+		}
+		return decision;
+	}*/
 
     public Resource getResourceFromPath(String path) {
         if (sqLiteDatabase == null) {// Open database in case it is closed
@@ -1955,6 +2031,7 @@ public class DBManager {
     }
 
     public Action getActionFromType(String type) {
+    	DebugFileLog.write(TAG+" called getActionFromType:"+ type);
         if (sqLiteDatabase == null) {// Open database in case it is closed
             openDB();
         }
@@ -1965,15 +2042,20 @@ public class DBManager {
 
         Action action = new Action();
         if (cursor != null) {
+        	DebugFileLog.write(TAG+" getActionFromType:cursor not null");
             cursor.moveToFirst();
             Log.d(TAG, String.valueOf(cursor.getCount()) + " isAfterLast:"
+                    + cursor.isAfterLast());
+            DebugFileLog.write(TAG+" getActionFromType:"+String.valueOf(cursor.getCount()) + " isAfterLast:"
                     + cursor.isAfterLast());
             while (!cursor.isAfterLast()) {
                 action.setId(cursor.getInt(0));
                 action.setDescription(cursor.getString(1));
                 action.setActionType(cursor.getString(2));
                 action.setTimestamp(cursor.getLong(3));
-                cursor.moveToNext();
+                DebugFileLog.write(TAG+" getActionFromType: action id:"+action.getId() + " type:" + action.getActionType() + " desc:"+action.getDescription());
+                return action;
+                //cursor.moveToNext();
             }
         }
         return action;
@@ -2140,6 +2222,41 @@ public class DBManager {
         return decisionList;
 
     }
+    
+    public List<Decision> getAllDecisions() {
+
+        List<Decision> decisionList = new ArrayList<Decision>();
+        if (sqLiteDatabase == null) {// Open database in case it is closed
+            openDB();
+        }
+        String selectQuery = "SELECT id, name, condition FROM " + TABLE_DECISION;
+        if (sqLiteDatabase == null) {// Open database in case it is closed
+            openDB();
+        }
+        Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
+
+        Decision decision = new Decision();
+        if (cursor != null && cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+            	Log.d(TAG, "New decision");
+            	DebugFileLog.write(TAG+"New decision");                
+                decision.setId(Integer.parseInt(cursor.getString(0)));
+            	Log.d(TAG, "getAllDecisions id"+decision.getId());
+            	DebugFileLog.write(TAG+"getAllDecisions id"+decision.getId());
+                decision.setName(cursor.getString(1));
+                Log.d(TAG, "getAllDecisions name"+decision.getName());
+                DebugFileLog.write(TAG+"getAllDecisions id"+decision.getName());
+                decision.setCondition(cursor.getString(2));
+                Log.d(TAG, "getAllDecisions cond"+decision.getCondition());
+                DebugFileLog.write(TAG+"getAllDecisions id"+decision.getCondition());
+                decisionList.add(decision);
+                cursor.moveToNext();
+            }
+        }
+
+        return decisionList;
+
+    }
 
     public List<Resource> getAllResources() {
         List<Resource> resourceList = new ArrayList<Resource>();
@@ -2214,6 +2331,8 @@ public class DBManager {
         return resource;
 
     }
+
+
 
 }
 
