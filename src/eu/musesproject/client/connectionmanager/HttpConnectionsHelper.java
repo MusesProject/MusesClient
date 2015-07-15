@@ -37,6 +37,7 @@ import org.apache.http.protocol.BasicHttpContext;
 
 import android.util.Log;
 import eu.musesproject.client.db.handler.DBManager;
+import eu.musesproject.client.ui.DebugFileLog;
 
 /**
  * Helper class for connection Manager handles POST and GET request with the
@@ -235,11 +236,13 @@ public abstract class HttpConnectionsHelper {
 							cookieFound = true;
 							serverResponse.setNewSession(false,
 									DetailedStatuses.SESSION_UPDATED);
-							Log.d(TAG,	"After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", cookie updated from server "
-									+ retreivedCookie.toString());
 							Log.d(TAG, "After doSecurePost=> requestType: " +request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", Retreived cookie: "
 									+ retreivedCookie.getValue() + " expires: "
 									+ retreivedCookie.getExpiryDate());
+							DebugFileLog.write(TAG+ " After doSecurePost=> requestType: " +request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", Retreived cookie: "
+									+ retreivedCookie.getValue() + " expires: "
+									+ retreivedCookie.getExpiryDate());
+
 						}
 					}
 				}
@@ -252,6 +255,8 @@ public abstract class HttpConnectionsHelper {
 					}
 					Log.d(TAG,"After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", New cookie used: "
 							+ retreivedCookie.getValue());
+					DebugFileLog.write(TAG+" After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", New cookie used: "
+							+ retreivedCookie.getValue());
 				}
 			} else {
 				serverResponse.setNewSession(true,
@@ -262,17 +267,22 @@ public abstract class HttpConnectionsHelper {
 				}
 				Log.d(TAG, " After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", New cookie used: "
 							+ retreivedCookie.getValue());
+				DebugFileLog.write(TAG+ " After doSecurePost=> requestType: "+request.getType()+", poll-interval: "+request.getPollIntervalInSeconds()+ ", New cookie used: "
+						+ retreivedCookie.getValue());
 
 			}
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 			Log.e(APP_TAG, "doSecurePost" + e.toString());
+			DebugFileLog.write(APP_TAG+ " doSecurePost" + e.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 			Log.e(APP_TAG, "doSecurePost" + e.toString());
+			DebugFileLog.write(APP_TAG+ " doSecurePost" + e.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(APP_TAG, "doSecurePost" + e.toString());
+			DebugFileLog.write(APP_TAG+ " doSecurePost" + e.toString());
 		}
 
 		return serverResponse;
@@ -283,6 +293,7 @@ public abstract class HttpConnectionsHelper {
 		List<Cookie> cookies = cookieStore.getCookies();
 		if (cookies.isEmpty()) {
 			Log.d(TAG, "No cookies");
+			DebugFileLog.write(TAG+" No cookies");
 		} else {
 			dbManager = new DBManager(ConnectionManager.context);
 			dbManager.openDB();

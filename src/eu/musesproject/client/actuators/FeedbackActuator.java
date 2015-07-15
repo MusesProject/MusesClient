@@ -29,6 +29,7 @@ import eu.musesproject.client.contextmonitoring.service.aidl.DummyCommunication;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.ui.DialogController;
 import eu.musesproject.client.ui.NotificationController;
 
@@ -63,6 +64,7 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     @Override
     public void showFeedback(Decision decision) {
+        DebugFileLog.write(TAG + "| called: showFeedback(Decision decision)");
         Log.d(TAG, "called: showFeedback(Decision decision)");
         if(decision != null && decision.getName() != null) {
             try {
@@ -72,6 +74,7 @@ public class FeedbackActuator implements IFeedbackActuator {
                     if(bufferedDecision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription().equals(
                             decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription())) {
                         Log.d(TAG, "duplicate found");
+                        DebugFileLog.write(TAG + "| duplicate found");
                         return; // do not add a duplicate feedback
                     }
                 }
@@ -80,6 +83,7 @@ public class FeedbackActuator implements IFeedbackActuator {
             }
             decisionQueue.add(decision);
             Log.d(TAG, "new feedback dialog request; queue size:" + decisionQueue.size() + " " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
+            DebugFileLog.write(TAG + "| new feedback dialog request; queue size:" + decisionQueue.size() + " " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
 
             // just show a new dialog if there is no other currently displayed
             if (decisionQueue.size() == 1) {
@@ -92,12 +96,14 @@ public class FeedbackActuator implements IFeedbackActuator {
     }
 
     private void showNextFeedback(Decision decision) {
+        DebugFileLog.write(TAG + "| showNextFeedback " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
         Log.d(TAG, "showNextFeedback " + decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription());
         createFeedbackDialog(decision);
     }
 
     private void createFeedbackDialog(Decision decision) {
         Log.d(TAG, "Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
+        DebugFileLog.write(TAG + "| Info U, Actuator -> FeedbackActuator showing feedback with decision:  " + decision.getName());
 
         String decisionId = decision.getDecision_id();
         String dialogBody = decision.getRiskCommunication().getRiskTreatment()[0].getTextualDescription();
@@ -165,19 +171,21 @@ public class FeedbackActuator implements IFeedbackActuator {
 
     @Override
     public void removeFeedbackFromQueue() {
-        Log.d(TAG, "1 . remove feedback from queue");
+        DebugFileLog.write(TAG + "| removeFeedbackFromQueue");
+        Log.d(TAG, "1. remove feedback from queue");
         // removes the last feedback dialog
         if(decisionQueue != null) {
             try {
                 decisionQueue.remove();
             } catch (Exception e) {
-                Log.d(TAG, "no more entries in the queue");
+                Log.d(TAG, "1.1 no more entries in the queue");
+                DebugFileLog.write(TAG + "| no more entries in the queue");
             }
             if(!decisionQueue.isEmpty()) {
                 // triggers to show the next feedback dialog if there is any
                 Log.d(TAG, "2. Decision queue size is (after removal): " + decisionQueue.size());
+                DebugFileLog.write(TAG + "| Decision queue size is (after removal): " + decisionQueue.size());
                 showNextFeedback(decisionQueue.element());
-
             }
 
             // update the notification bar to visualize if there are dialogs/messages or not
@@ -188,6 +196,7 @@ public class FeedbackActuator implements IFeedbackActuator {
     @Override
     public void showCurrentTopFeedback() {
         if(decisionQueue != null && decisionQueue.size() > 0) {
+            DebugFileLog.write(TAG + "| showCurrentTopFeedback");
             createFeedbackDialog(decisionQueue.peek());
         }
     }

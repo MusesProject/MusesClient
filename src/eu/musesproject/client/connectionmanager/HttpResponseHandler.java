@@ -20,6 +20,8 @@ package eu.musesproject.client.connectionmanager;
  */
 
 import android.util.Log;
+import eu.musesproject.client.ui.DebugFileLog;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
@@ -85,6 +87,7 @@ public class HttpResponseHandler {
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Poll request=>Server responded with JSON: " + receivedHttpResponseData);
+						DebugFileLog.write(APP_TAG+ " ConnManager=> Poll request=>Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
 						sendAcktoServer();
 					}
@@ -96,6 +99,7 @@ public class HttpResponseHandler {
 					setServerStatusAndCallBack(Statuses.DATA_SEND_OK, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> SendData request=> Server responded with JSON: " + receivedHttpResponseData);
+						DebugFileLog.write(APP_TAG+ " ConnManager=> SendData request=> Server responded with JSON: " + receivedHttpResponseData);
 						sendDataToFunctionalLayer();
 					}
 
@@ -105,11 +109,13 @@ public class HttpResponseHandler {
 				} else if (isAckRequest(requestType)) {
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					Log.d(APP_TAG, "Ack by the server");
+					DebugFileLog.write(APP_TAG+ " Ack by the server");
 				} else if (isConnectRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Connect request=> Server responded with JSON: " + receivedHttpResponseData);
+						DebugFileLog.write(APP_TAG+ " ConnManager=> Connect request=> Server responded with JSON: " + receivedHttpResponseData);
 
 						//sendDataToFunctionalLayer();
 					} 
@@ -117,7 +123,7 @@ public class HttpResponseHandler {
 					setServerStatusAndCallBack(Statuses.DISCONNECTED, DetailedStatuses.SUCCESS, dataId);
 					if (isPayloadInData(httpResponse)) {
 						Log.d(APP_TAG, "ConnManager=> Disconnect request=> Server responded with JSON: " + receivedHttpResponseData);
-
+						DebugFileLog.write(APP_TAG+ " ConnManager=> Disconnect request=> Server responded with JSON: " + receivedHttpResponseData);
 						//sendDataToFunctionalLayer();
 					} 
 				}
@@ -139,6 +145,7 @@ public class HttpResponseHandler {
 			case DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Request not allowed from Server..");
+				DebugFileLog.write(APP_TAG+ " Server is OFFLINE .. Request not allowed from Server..");
 				
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED, dataId);
@@ -150,7 +157,7 @@ public class HttpResponseHandler {
 			case DetailedStatuses.NOT_FOUND:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Error: Not found");
-				
+				DebugFileLog.write(APP_TAG+ " Server is OFFLINE .. Error: Not found");
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.NOT_FOUND, dataId);
 				}
@@ -161,6 +168,7 @@ public class HttpResponseHandler {
 			case DetailedStatuses.INTERNAL_SERVER_ERROR:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Internal Server Error");
+				DebugFileLog.write(APP_TAG+ " Server is OFFLINE .. Internal Server Error");
 				
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.INTERNAL_SERVER_ERROR, dataId);
@@ -172,6 +180,7 @@ public class HttpResponseHandler {
 			case DetailedStatuses.SERVER_NOT_AVAIABLE:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Server not available");
+				DebugFileLog.write(APP_TAG+ " Server is OFFLINE .. Server not available");
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.SERVER_NOT_AVAIABLE, dataId);
 				}
@@ -182,6 +191,7 @@ public class HttpResponseHandler {
 			default:
 				Statuses.CURRENT_STATUS = Statuses.OFFLINE;
 				Log.d(APP_TAG, "Server is OFFLINE .. Unknown Error:"+getStatusCodeResponse(httpResponse));
+				DebugFileLog.write(APP_TAG+ " Server is OFFLINE .. Unknown Error:"+getStatusCodeResponse(httpResponse));
 				if (isSendDataRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DATA_SEND_FAILED, DetailedStatuses.UNKNOWN_ERROR, dataId);
 				}
@@ -202,6 +212,7 @@ public class HttpResponseHandler {
 				/* Depending on error Polling shall be stopped, but difficult to know if error is recoverable */
 			}
 			Log.d(APP_TAG, "Server is OFFLINE, HttpResponse is null, check network connectivity or address of server!");
+			DebugFileLog.write(APP_TAG+ " Server is OFFLINE, HttpResponse is null, check network connectivity or address of server!");
 		}
 	}
 	
@@ -232,6 +243,7 @@ public class HttpResponseHandler {
 	
 	private void sendDataToFunctionalLayer(){
 		Log.d(APP_TAG, "Info SS, Sending JSON to MusACS");
+		DebugFileLog.write(APP_TAG+ " Info SS, Sending JSON to MusACS");
 		ConnectionManager.callBacks.receiveCb(receivedHttpResponseData);
 	}
 	
@@ -411,6 +423,7 @@ public class HttpResponseHandler {
 			if (header!=null){
 				if (header.getValue().contains("sensor-config")) {
 					Log.d(APP_TAG, "Sensor-Config");
+					DebugFileLog.write(APP_TAG+ " Sensor-Config");
 					dataLength = Integer.toString(header.getValue().length());
 				}
 			}

@@ -27,6 +27,7 @@ import eu.musesproject.client.db.handler.DBManager;
 import eu.musesproject.client.model.actuators.ActuationInformationHolder;
 import eu.musesproject.client.model.decisiontable.Action;
 import eu.musesproject.client.model.decisiontable.Decision;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.client.usercontexteventhandler.UserContextEventHandler;
 import eu.musesproject.server.risktrust.SolvingRiskTreatment;
 
@@ -71,6 +72,7 @@ public class ActuatorController implements IActuatorController {
     }
 
     public void showFeedback(ActuationInformationHolder holder) {
+        DebugFileLog.write(TAG + "| called: showFeedback(Decision decision)");
         Log.d(TAG, "called: showFeedback(Decision decision)");
         if(holder == null || holder.getDecision() == null) {
             // the server responded with an unknown error and created an empty object
@@ -84,6 +86,7 @@ public class ActuatorController implements IActuatorController {
         boolean isSilentModeActive = dbManager.isSilentModeActive();
         dbManager.closeDB();
 		if(holder.getDecision() != null) {
+            DebugFileLog.write(TAG + "| isSilentModeActive="+isSilentModeActive);
             if(isSilentModeActive) {
                 holder.getDecision().setName(Decision.GRANTED_ACCESS);
             }
