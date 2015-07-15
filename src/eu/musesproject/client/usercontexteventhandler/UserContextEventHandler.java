@@ -286,9 +286,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	 * @param action
 	 */
 	public void sendUserBehavior(Action action, String decisionId) {
-        // display next Feedback dialog if there is any
-        ActuatorController.getInstance(context).removeFeedbackFromQueue();
-
         // send the current user feedback to the server
 		if(serverStatus == Statuses.ONLINE && isUserAuthenticated) {
 			Log.d(MusesUtils.TEST_TAG, "UCEH - sendUserBehavior(Action action)");
