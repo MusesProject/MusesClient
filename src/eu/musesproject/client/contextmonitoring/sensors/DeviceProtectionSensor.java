@@ -134,7 +134,7 @@ public class DeviceProtectionSensor implements ISensor {
 		if(contextEventHistory.size() > 0) {
 			ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
 			// fire new context event if a connectivity context field changed
-			if(!identicalContextEvent(previousContext, contextEvent)) {
+			if(!identicalContextEvent(previousContext, contextEvent) || contextEventHistory.size() <= 1) {
 				// add context event to the context event history
 				contextEventHistory.add(contextEvent);
 				if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
@@ -142,7 +142,7 @@ public class DeviceProtectionSensor implements ISensor {
 				}
 
 				if (contextEvent != null && listener != null) {
-					debug(contextEvent);
+//					debug(contextEvent);
 					listener.onEvent(contextEvent);
 				}
 			}
@@ -150,7 +150,7 @@ public class DeviceProtectionSensor implements ISensor {
 		else {
 			contextEventHistory.add(contextEvent);
 			if (contextEvent != null && listener != null) {
-				debug(contextEvent);
+//				debug(contextEvent);
 				listener.onEvent(contextEvent);
 			}
 		}
