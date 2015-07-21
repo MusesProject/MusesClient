@@ -619,11 +619,15 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 					// look for the related request
 					int requestId = JSONManager.getRequestId(receivedData);
 					Log.d(TAG_RQT, "request_id from the json is " + requestId);
-					if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) { // this should ne
+					DebugFileLog.write(TAG + "| POLICY RECEIVED 1/4 |request_id from the json is " + requestId);
+					if(mapOfPendingRequests != null && mapOfPendingRequests.containsKey(requestId)) {
+						DebugFileLog.write(TAG + "| POLICY RECEIVED 2/4 |found request in the map of pending requests");
 						RequestHolder requestHolder = mapOfPendingRequests.get(requestId);
 						requestHolder.getRequestTimeoutTimer().cancel();
 						mapOfPendingRequests.remove(requestId);
-						Log.d(TAG_RQT2, "Removing action: " +JSONManager.getActionType(receivedData));
+						Log.d(TAG_RQT2, "Removing action: " + JSONManager.getActionType(receivedData));
+						DebugFileLog.write(TAG + "| POLICY RECEIVED 3/4 |Removing action from pending requests: " + JSONManager.getActionType(receivedData));
+						DebugFileLog.write(TAG + "| POLICY RECEIVED 4/4 |Now calling send in UCEH for action: " + JSONManager.getActionType(receivedData) + " and requestId: " + JSONManager.getRequestId(receivedData));
 						send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
                         Log.d(APP_TAG, "UCEH - receiveCb(); Condition is" + JSONManager.getPolicyCondition(receivedData) + " for request id:" + JSONManager.getRequestId(receivedData) + " for action:" + requestHolder.getAction().getActionType());
 					}
@@ -868,7 +872,11 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 	@Override
 	public void handleRequestTimeout(int requestId) {
-		DebugFileLog.write(TAG + "| request with id="+requestId+" timed out");
+		try {
+			DebugFileLog.write(TAG + "| request with id=" + requestId + " timed out for action: " + mapOfPendingRequests.get(requestId).getAction().getActionType());
+		} catch (Exception e) {
+			DebugFileLog.write(TAG + "| tried to handle the request timeout, but couldn't find the requestID in the pending requests");
+		}
 		Log.d(TAG_RQT, "5. handleRequestTimeout to id: " + requestId);
 		// 1. store object temporary
 		// 2. remove object from the map that holds all RequestHolder
