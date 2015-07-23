@@ -58,7 +58,8 @@ public class DeviceProtectionSensor implements ISensor {
 	public static final String TYPE = "CONTEXT_SENSOR_DEVICE_PROTECTION";
 
 	// time in milliseconds when the sensor polls information
-	private static int OBSERVATION_INTERVALL = 10000;
+	private static long OBSERVATION_INTERVALL = TimeUnit.SECONDS.toMillis(10);
+	private static long OBSERVATION_INTERVALL_OVERALL_DEVICE_STATE = TimeUnit.MINUTES.toMillis(5);
 
 	// context property keys
 	public static final String PROPERTY_KEY_ID 							= "id";
@@ -111,6 +112,7 @@ public class DeviceProtectionSensor implements ISensor {
 			sensorEnabled = true;
 
 			new CreateContextEventAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			new DeviceStateCheckAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 	}
 
@@ -125,7 +127,7 @@ public class DeviceProtectionSensor implements ISensor {
 				props.get(PROPERTY_KEY_ACCESSIBILITY_ENABLED).equals("true");
 	}
 
-	private void createContextEvent() {
+	private void createContextEvent(boolean forcedEvent) {
 		// create context event
 		ContextEvent contextEvent = new ContextEvent();
 		contextEvent.setType(TYPE);
@@ -145,7 +147,7 @@ public class DeviceProtectionSensor implements ISensor {
 		if(contextEventHistory.size() > 0) {
 			ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
 			// fire new context event if a connectivity context field changed
-			if(!identicalContextEvent(previousContext, contextEvent) || !hasSafeSystemState(contextEvent)) {
+			if(!identicalContextEvent(previousContext, contextEvent) || forcedEvent) {
 				// add context event to the context event history
 				contextEventHistory.add(contextEvent);
 				if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
@@ -351,10 +353,31 @@ public class DeviceProtectionSensor implements ISensor {
 		@Override
 		protected Void doInBackground(Void... params) {
 			while (sensorEnabled) {
-				createContextEvent();
+				createContextEvent(false);
 
 				try {
 					TimeUnit.MILLISECONDS.sleep(OBSERVATION_INTERVALL);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			return null;
+		}
+	}
+
+	private class DeviceStateCheckAsync extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			while (sensorEnabled) {
+				ContextEvent contextEvent = getLastFiredContextEvent();
+				if(contextEvent != null) {
+					if (!hasSafeSystemState(getLastFiredContextEvent())) {
+						createContextEvent(true);
+					}
+				}
+				try {
+					TimeUnit.MILLISECONDS.sleep(OBSERVATION_INTERVALL_OVERALL_DEVICE_STATE);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
