@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.util.Log;
+import eu.musesproject.client.ui.DebugFileLog;
 
 import java.io.File;
 
@@ -118,19 +119,23 @@ public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, 
             try {
                 pm.getPackageInfo(packageName, PackageManager.GET_META_DATA);
                 isInstalled = true;
+                Log.d(TAG, "isInstalled="+isInstalled);
             } catch (PackageManager.NameNotFoundException e) {
                 // app is not installed
+                Log.d(TAG, "NameNotFoundException");
             }
 
             //1.1
             if (isInstalled) {
                 context.startActivity(context.getPackageManager().getLaunchIntentForPackage(packageName));
+                Log.d(TAG, "app is installed, open it");
             }
             // 1.2
             else {
                 Intent goToMarket = new Intent(Intent.ACTION_VIEW)
                         .setData(Uri.parse("market://details?id="+packageName));
                 context.startActivity(goToMarket);
+                Log.d(TAG, "start play store activity");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -164,11 +169,13 @@ public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, 
 
         // 1.
         final ActivityManager activityManager = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-        Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(startMain);
-
+        try {
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            context.startActivity(startMain);
+        } catch (Exception e) {
+            DebugFileLog.write(TAG + "| couldn't launch the home screen");
+        }
         // 3.
         activityManager.killBackgroundProcesses(packageName);
     }
