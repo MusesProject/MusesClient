@@ -114,6 +114,17 @@ public class DeviceProtectionSensor implements ISensor {
 		}
 	}
 
+	private boolean hasSafeSystemState(ContextEvent event) {
+		Map<String, String> props = event.getProperties();
+		return props.get(PROPERTY_KEY_IS_ROOTED).equals("false") &&
+				props.get(PROPERTY_KEY_IS_PASSWORD_PROTECTED).equals("true") &&
+				Integer.valueOf(props.get(PROPERTY_KEY_SCREEN_TIMEOUT_IN_SECONDS)) >= 30 &&
+				props.get(PROPERTY_KEY_IS_TRUSTED_AV_INSTALLED).equals("true") &&
+				props.get(PROPERTY_KEY_MUSES_DATABASE_EXISTS).equals("true") &&
+				props.get(PROPERTY_KEY_MUSES_DATABASE_CONTAINS_CFG).equals("true") &&
+				props.get(PROPERTY_KEY_ACCESSIBILITY_ENABLED).equals("true");
+	}
+
 	private void createContextEvent() {
 		// create context event
 		ContextEvent contextEvent = new ContextEvent();
@@ -134,7 +145,7 @@ public class DeviceProtectionSensor implements ISensor {
 		if(contextEventHistory.size() > 0) {
 			ContextEvent previousContext = contextEventHistory.get(contextEventHistory.size() - 1);
 			// fire new context event if a connectivity context field changed
-			if(!identicalContextEvent(previousContext, contextEvent) || contextEventHistory.size() <= 1) {
+			if(!identicalContextEvent(previousContext, contextEvent) || !hasSafeSystemState(contextEvent)) {
 				// add context event to the context event history
 				contextEventHistory.add(contextEvent);
 				if(contextEventHistory.size() > CONTEXT_EVENT_HISTORY_SIZE) {
