@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.util.Log;
-import eu.musesproject.client.ui.DebugFileLog;
 
 import java.io.File;
 
@@ -169,13 +168,12 @@ public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, 
 
         // 1.
         final ActivityManager activityManager = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-        try {
-            Intent startMain = new Intent(Intent.ACTION_MAIN);
-            startMain.addCategory(Intent.CATEGORY_HOME);
-            context.startActivity(startMain);
-        } catch (Exception e) {
-            DebugFileLog.write(TAG + "| couldn't launch the home screen");
-        }
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK |
+                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        context.startActivity(startMain);
+
         // 3.
         activityManager.killBackgroundProcesses(packageName);
     }
