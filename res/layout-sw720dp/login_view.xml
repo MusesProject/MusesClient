@@ -202,7 +202,8 @@
                 android:text="@string/login_button_txt"
                 android:textColor="#ffffff"
                 android:textStyle="bold"
-                android:textSize="25sp" />
+                android:textSize="25sp"
+                android:contentDescription="login main button" />
         </LinearLayout>
 
         <LinearLayout

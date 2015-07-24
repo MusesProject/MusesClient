@@ -27,7 +27,8 @@
             android:text="@string/login_list_button_txt"
             android:textColor="#ffffff"
             android:textSize="25sp"
-            android:textStyle="bold" />
+            android:textStyle="bold" 
+            android:contentDescription="login list button"/>
 
         <Button
             android:id="@+id/info_security_behaviour_list_button"
