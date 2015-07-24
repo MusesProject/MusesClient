@@ -717,7 +717,9 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		@Override
 		public int statusCb(int status, int detailedStatus, int dataId) {
-			DebugFileLog.write(TAG + "| statusCb status="+ status + ", detailedStatus="+detailedStatus + ", dataId"+dataId);
+			DebugFileLog.write(TAG + "| statusCb status="+ Statuses.getStatusString(status) 
+					+ ", detailedStatus="+DetailedStatuses.getDetailedStatusString(detailedStatus) 
+					+ ", dataId="+dataId);
 			Log.d(TAG, "called: statusCb(int status, int detailedStatus)"+status+", "+detailedStatus);
 			// detect if server is back online after an offline status
 			if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS) {

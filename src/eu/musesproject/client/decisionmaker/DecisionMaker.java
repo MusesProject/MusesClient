@@ -177,10 +177,9 @@ public class DecisionMaker {
 			return priorDecision;
 		}
 		
-		Log.d(APP_TAG, "Info DC, DecisionMaker=> Making decision with request and events");
-		DebugFileLog.write("DecisionMaker-Info DC, DecisionMaker=> Making decision with request and events");
+		Log.d(APP_TAG, "DecisionMaker=> Making decision with request and events");
         Log.d(TAG, "called: makeDecision(Request request, List<ContextEvent> eventList)");
-        DebugFileLog.write("DecisionMaker-called: makeDecision(Request request, List<ContextEvent> eventList)");
+        DebugFileLog.write("DecisionMaker: makeDecision(Request request, List<ContextEvent> eventList)");
         String resourceCondition = null;
 
         eu.musesproject.client.db.entity.Decision decision = new eu.musesproject.client.db.entity.Decision();
@@ -225,7 +224,7 @@ public class DecisionMaker {
 		}
         
         Log.d(TAG, "Resource:"+request.getResource());
-        DebugFileLog.write("DecisionMaker-Resource:"+request.getResource());
+        DebugFileLog.write("DecisionMaker-Resource:"+request.getResource().getName());
         Log.d(TAG, "Resource path:"+request.getResource().getPath());
         DebugFileLog.write("DecisionMaker-Resource path:"+request.getResource().getPath());
         
