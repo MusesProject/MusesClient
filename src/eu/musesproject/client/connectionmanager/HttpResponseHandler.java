@@ -113,19 +113,10 @@ public class HttpResponseHandler {
 				} else if (isConnectRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.ONLINE, detailedOnlineStatus, dataId);
 					setServerStatusAndCallBack(Statuses.CONNECTION_OK, DetailedStatuses.SUCCESS, dataId);
-					if (isPayloadInData(httpResponse)) {
-						Log.d(APP_TAG, "ConnManager=> Connect request=> Server responded with JSON: " + receivedHttpResponseData);
-						DebugFileLog.write(APP_TAG+ " ConnManager=> Connect request=> Server responded with JSON: " + receivedHttpResponseData);
-
-						//sendDataToFunctionalLayer();
-					} 
 				} else if (isDisonnectRequest(requestType)){
 					setServerStatusAndCallBack(Statuses.DISCONNECTED, DetailedStatuses.SUCCESS, dataId);
-					if (isPayloadInData(httpResponse)) {
-						Log.d(APP_TAG, "ConnManager=> Disconnect request=> Server responded with JSON: " + receivedHttpResponseData);
-						DebugFileLog.write(APP_TAG+ " ConnManager=> Disconnect request=> Server responded with JSON: " + receivedHttpResponseData);
-						//sendDataToFunctionalLayer();
-					} 
+					Log.d(APP_TAG, "ConnManager=> Disconnect request=> Server responded with JSON: " + receivedHttpResponseData != null ? receivedHttpResponseData : "empty");
+					DebugFileLog.write(APP_TAG+ " ConnManager=> Disconnect request=> Server responded with JSON: " + receivedHttpResponseData != null ? receivedHttpResponseData : "empty");
 				}
 
 				AlarmReceiver.resetExponentialPollTime();
@@ -242,8 +233,6 @@ public class HttpResponseHandler {
 	 */
 	
 	private void sendDataToFunctionalLayer(){
-		Log.d(APP_TAG, "Info SS, Sending JSON to MusACS");
-		DebugFileLog.write(APP_TAG+ " Info SS, Sending JSON to MusACS");
 		ConnectionManager.callBacks.receiveCb(receivedHttpResponseData);
 	}
 	

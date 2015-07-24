@@ -37,4 +37,33 @@ public class DetailedStatuses {
 	public static final int INCORRECT_CERTIFICATE = 109;
 	public static final int SUCCESS_NEW_SESSION = 110;
 	public static final int SESSION_UPDATED = 111;
+	
+	public static String getDetailedStatusString(int statusCode){
+		switch (statusCode)	 {
+		case SUCCESS:
+			return "SUCCESS";
+		case INCORRECT_URL:
+			return "INCORRECT_URL";
+		case NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED:
+			return "NOT_ALLOWED_FROM_SERVER_UNAUTHORIZED";
+		case NOT_FOUND:
+			return "NOT_FOUND";
+		case INTERNAL_SERVER_ERROR:
+			return "INTERNAL_SERVER_ERROR";
+		case UNKNOWN_ERROR:
+			return "UNKNOWN_ERROR";
+		case SERVER_NOT_AVAIABLE:
+			return "SERVER_NOT_AVAIABLE";
+		case NO_INTERNET_CONNECTION:
+			return "NO_INTERNET_CONNECTION";
+		case INCORRECT_CERTIFICATE:
+			return "INCORRECT_CERTIFICATE";
+		case SUCCESS_NEW_SESSION:
+			return "SUCCESS_NEW_SESSION";
+		case SESSION_UPDATED:
+			return "SESSION_UPDATED";
+		}
+		return "UNKNOWN_DETAILED_STATUS";
+	}
+	
 }

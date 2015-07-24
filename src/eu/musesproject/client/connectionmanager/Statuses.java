@@ -37,4 +37,26 @@ public final class Statuses {
 	public static final int CONNECTION_OK = 6;
 	public static final int DISCONNECTED = 7;
 	public static final int NEW_SESSION_CREATED = 8;
+	
+	public static String getStatusString(int statusCode){
+		switch (statusCode)	 {
+		case OFFLINE:
+			return "OFFLINE";
+		case ONLINE:
+			return "ONLINE";
+		case DATA_SEND_FAILED:
+			return "DATA_SEND_FAILED";
+		case DATA_SEND_OK:
+			return "DATA_SEND_OK";
+		case CONNECTION_FAILED:
+			return "CONNECTION_FAILED";
+		case CONNECTION_OK:
+			return "CONNECTION_OK";
+		case DISCONNECTED:
+			return "DISCONNECTED";
+		case NEW_SESSION_CREATED:
+			return "NEW_SESSION_CREATED";
+		}
+		return "UNKNOWN_STATUS";
+	}
 }
