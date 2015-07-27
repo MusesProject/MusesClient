@@ -52,6 +52,7 @@
             android:excludeFromRecents="false"
             android:launchMode="singleTop"
             android:theme="@android:style/Theme.NoDisplay" />
+        <activity android:name=".actuators.BlockActuatorActivity"/>
 
         <service android:name="eu.musesproject.MUSESBackgroundService" >
         </service>

@@ -96,7 +96,6 @@ public class DenyDialogFragment extends DialogFragment implements View.OnClickLi
         cancelButton.setOnClickListener(this);
 
         ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), android.R.style.Theme_Holo_Light_Dialog_NoActionBar);
-
         return new AlertDialog.Builder(context).setView(layout).create();
     }
 

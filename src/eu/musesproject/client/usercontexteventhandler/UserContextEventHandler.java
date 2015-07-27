@@ -812,7 +812,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 	}
 
     private void resendFailedJSONRequests() {
-        Log.d(MusesUtils.TEST_TAG, "resendFailedJSONRequests failedJSONRequest, size=" + failedJSONRequest.size());
+        Log.d(MusesUtils.TEST_TAG, "resendFailedJSONRequests failedJSONRequest, jsize=" + failedJSONRequest.size());
         List<JSONObject> tmpList = new ArrayList<JSONObject>(failedJSONRequest.values());
         failedJSONRequest.clear();
         for (JSONObject jsonObject : tmpList) {
