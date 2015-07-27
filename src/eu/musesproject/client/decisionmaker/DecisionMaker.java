@@ -381,40 +381,50 @@ public class DecisionMaker {
 		                    
 		                    //Connectivity condition
 		                    
-		                    if (resourceCondition.contains("wifi")){
+ 		                    if ((resourceCondition.contains("wifi"))||(resourceCondition.contains("bluetooth"))){
+		                    	DebugFileLog.write("DecisionMaker-contains is true ");
 		                    	for (Iterator iterator1 = eventList.iterator(); iterator1.hasNext();) {
 		                			ContextEvent contextEvent = (ContextEvent) iterator1.next();
 		                			Log.d(TAG, "Event list:"+contextEvent.getType());
+		                			DebugFileLog.write("DecisionMaker-Event list:"+contextEvent.getType());
 		                			if (contextEvent.getType().equals(ConnectivitySensor.TYPE)){
 		                				Log.d(TAG, "resourcecondition:"+resourceCondition);
-		                				
+		                				DebugFileLog.write("DecisionMaker-resourcecondition:"+resourceCondition);
 		                				for (Map.Entry<String, String> connEntry : contextEvent.getProperties().entrySet())
 		        		                { 
 		                					String currentProperty = "{\""+connEntry.getKey()+"\":\""+connEntry.getValue()+"\"}";
 		                					Log.d(TAG,"WIFI     "+currentProperty);
+		                					DebugFileLog.write("DecisionMaker-WIFI     "+currentProperty);
 		                					
 		                					if (resourceCondition.toLowerCase().equals(currentProperty.toLowerCase())){		                						
 		                						Log.d(TAG, "	Environment Match!");
+		                						DebugFileLog.write("DecisionMaker-Environment Match!");
 		                						
 		                						if (request.getResource().getPath()!=null){
 		                			        		Log.d(TAG, "Request path:" + request.getResource().getPath() );
+		                			        		DebugFileLog.write("DecisionMaker-Request path:" + request.getResource().getPath() );
 		                			        		Log.d(TAG, "Resource:" + resource.getPath() );
+		                			        		DebugFileLog.write("DecisionMaker-Resource:" + resource.getPath() );
 		                			        		if (resource.getPath().equals(request.getResource().getPath())){
 		                			        			Log.d(TAG, "	Path Match!");
+		                			        			DebugFileLog.write("DecisionMaker-Path Match!");
 		                			        			resourceInPolicy = resource;
 		                			        			matchedCondition = resource.getCondition();
 		                			        			match=true;
 				                						break;
 		                			        		}else{
 		                			        			Log.d(TAG, "	No Path Match!");
+		                			        			DebugFileLog.write("DecisionMaker-No Path Match!");
 		                			        		}
 		                			        		
 		                						}else{
 		                							Log.d(TAG, "	Path for resource is null!");
+		                							DebugFileLog.write("DecisionMaker-Path for resource is null!");
 		                						}
 		                						
 		                					} else {
 		                						Log.d(TAG, "	No EnvironmentMatch!" + currentProperty);
+		                						DebugFileLog.write("DecisionMaker-No EnvironmentMatch!" + currentProperty);
 		                					}
 		        		                }
 		                				
