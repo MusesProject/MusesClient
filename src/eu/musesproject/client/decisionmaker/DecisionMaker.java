@@ -382,7 +382,7 @@ public class DecisionMaker {
 		                    
 		                    //Connectivity condition
 		                    
-		                    if (resourceCondition.contains("wifi")){
+		                    if ((resourceCondition.contains("wifi"))||(resourceCondition.contains("bluetooth"))){
 		                    	for (Iterator iterator1 = eventList.iterator(); iterator1.hasNext();) {
 		                			ContextEvent contextEvent = (ContextEvent) iterator1.next();
 		                			Log.d(TAG, "Event list:"+contextEvent.getType());
