@@ -159,19 +159,10 @@ public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, 
 
     @Override
     public void block(String packageName) {
-        /*
-		 * 1. Change to home screen, because currently visible apps cannot be killed
-		 * 2. Kill the app while it is in the background
-		 */
-        // 1.
-//        Intent startMain = new Intent(Intent.ACTION_MAIN);
-//        startMain.addCategory(Intent.CATEGORY_HOME);
-//        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK |
-//                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-//        Log.d(TAG, "packageName="+packageName+", intent null="+(startMain==null));
-//        context.startActivity(startMain);
         Intent intent = new Intent(context, BlockActuatorActivity.class);
         intent.putExtra(BlockActuatorActivity.KEY_PACKAGE_NAME, packageName);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK |
+                Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         context.startActivity(intent);
     }
 }
