@@ -26,6 +26,7 @@ import eu.musesproject.contextmodel.ContextEvent;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class RequestHolder {
 	private int id;
@@ -47,7 +48,7 @@ public class RequestHolder {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = new Random().nextInt(Integer.MAX_VALUE);
 		result = prime * result + ((action == null) ? 0 : action.hashCode());
 		result = prime
 				* result
