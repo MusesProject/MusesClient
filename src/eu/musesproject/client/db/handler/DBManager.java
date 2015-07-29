@@ -2235,9 +2235,10 @@ public class DBManager {
         }
         Cursor cursor = sqLiteDatabase.rawQuery(selectQuery, null);
 
-        Decision decision = new Decision();
+        Decision decision = null;
         if (cursor != null && cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
+            	decision = new Decision();
             	Log.d(TAG, "New decision");
             	DebugFileLog.write(TAG+"New decision");                
                 decision.setId(Integer.parseInt(cursor.getString(0)));
