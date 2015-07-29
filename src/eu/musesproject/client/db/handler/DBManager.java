@@ -176,7 +176,7 @@ public class DBManager {
             + "server_certificate VARCHAR(4500) NOT NULL,"
             + "client_certificate VARCHAR(4500) NOT NULL,"
             + "timeout INTEGER NOT NULL DEFAULT 5000,"
-            + "poll_timeout INTEGER NOT NULL DEFAULT 60000,"
+            + "poll_timeout INTEGER NOT NULL DEFAULT 5000,"
             + "sleep_poll_timeout INTEGER NOT NULL DEFAULT 60000,"
             + "polling_enabled INTEGER NOT NULL DEFAULT 1,"
             + "login_attempts INTEGER NOT NULL DEFAULT 5,"

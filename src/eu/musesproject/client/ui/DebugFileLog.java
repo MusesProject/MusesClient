@@ -31,7 +31,7 @@ import android.os.Environment;
 
 public class DebugFileLog {
 
-	private static BufferedWriter buf = null;
+	private static FileWriter fWriter = null;
 	private static boolean fileOpen = false;
 	
 	private static boolean enableWrite = true;
@@ -50,8 +50,9 @@ public class DebugFileLog {
 				/* Open and append */
 				String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
 				String filename = "MUSES_debug.log";
-				buf = new BufferedWriter(new FileWriter(baseDir+File.separator+filename, true));
-				buf.write(currentTimeString+"Logfile reopened,,\n");
+				fWriter = new FileWriter(baseDir+File.separator+filename, true);
+				fWriter.write("");
+				fWriter.write(currentTimeString+"Logfile reopened,,\n");
 			} catch (IOException e) {
 				fileOpen = false;
 				e.printStackTrace();
@@ -59,10 +60,10 @@ public class DebugFileLog {
 			}
 			
 		}
-
+		
 		try {
-			buf.write(currentTimeString+data+"\n");
-			buf.flush();
+			fWriter.write(currentTimeString+data+"\n");
+			fWriter.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -76,7 +77,7 @@ public class DebugFileLog {
 		if (fileOpen)
 		{
 			try {
-				buf.close();
+				fWriter.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
