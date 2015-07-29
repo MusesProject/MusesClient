@@ -32,7 +32,7 @@ public class RequestTimeoutTimer extends CountDownTimer {
 		void handleRequestTimeout(int requestId);
 	}
 	
-	private static final int REQUEST_TIMEOUT_SECONDS = (int) TimeUnit.SECONDS.toMillis(10);
+	private static final int REQUEST_TIMEOUT_SECONDS = (int) TimeUnit.SECONDS.toMillis(30);
 	
 	private RequestTimeoutHandler requestTimeoutHandler;
 	private int requestId;
