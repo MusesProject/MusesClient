@@ -393,6 +393,9 @@ public class DecisionMaker {
 		                				for (Map.Entry<String, String> connEntry : contextEvent.getProperties().entrySet())
 		        		                { 
 		                					String currentProperty = "{\""+connEntry.getKey()+"\":\""+connEntry.getValue()+"\"}";
+		                					if (connEntry.getKey().contains("bluetooth")){
+		                						currentProperty = "{\""+connEntry.getKey()+"\":"+connEntry.getValue()+"}";
+		                					}
 		                					Log.d(TAG,"WIFI     "+currentProperty);
 		                					DebugFileLog.write("DecisionMaker-WIFI     "+currentProperty);
 		                					
