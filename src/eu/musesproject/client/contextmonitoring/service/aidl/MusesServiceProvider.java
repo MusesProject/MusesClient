@@ -31,6 +31,7 @@ import eu.musesproject.client.contextmonitoring.UserActionGenerator;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
 import eu.musesproject.client.model.actuators.ResponseInfoAP;
 import eu.musesproject.client.model.contextmonitoring.UISource;
+import eu.musesproject.client.ui.DebugFileLog;
 
 import java.util.Map;
 
@@ -69,12 +70,14 @@ public class MusesServiceProvider extends Service {
 				throws RemoteException {
 			MusesServiceProvider.this.callback = callback;
 			Log.v(TAG, "callback unregistered");
+			DebugFileLog.write(TAG+ " callback unregistered");
 		}	
 		
 		@Override
 		public void sendUserAction(Action action, Map properties)
 				throws RemoteException {
             Log.v(TAG, "called: sendUserAction(Action action, Map properties)");
+            DebugFileLog.write(TAG+ " called: sendUserAction(Action action, Map properties)");
 			ServiceModel.getInstance().setServiceObject(MusesServiceProvider.this);
             eu.musesproject.client.model.decisiontable.Action userAction = UserActionGenerator.transformUserAction(action);
 			UserContextMonitoringController.getInstance(MusesServiceProvider.this)
@@ -100,6 +103,7 @@ public class MusesServiceProvider extends Service {
 				super.onTransact(code, data, reply, flags);
 			}catch(RuntimeException re){
 		        Log.v(TAG, "Unexpected remote exception", re);
+		        DebugFileLog.write(TAG+ " Unexpected remote exception: "+ re.getMessage());
 		        throw re;
 			}
 			return false;
@@ -119,6 +123,7 @@ public class MusesServiceProvider extends Service {
 	 */
 	public void sendResponseToMusesAwareApp(ResponseInfoAP response, String message) throws RemoteException {
 		Log.d(TAG, "response: " + response + " received");
+		DebugFileLog.write(TAG+ " response: " + response.toString() + " received with msg: "+message);
 		switch (response) {
 		case ACCEPT:
 			callback.onAccept(message);

@@ -50,7 +50,7 @@ public class DebugFileLog {
 				/* Open and append */
 				String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
 				String filename = "MUSES_debug.log";
-				buf = new BufferedWriter(new FileWriter(baseDir+File.separator+filename, true));
+				buf = new BufferedWriter(new FileWriter(baseDir+File.separator+filename, false));
 				buf.write(currentTimeString+"Logfile reopened,,\n");
 
 			} catch (IOException e) {
