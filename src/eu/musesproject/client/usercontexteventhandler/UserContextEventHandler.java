@@ -893,10 +893,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 			decisionMaker = new DecisionMaker();
 		}
         // TODO do not show the default policies at this point
-//		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
+		Decision decision =  decisionMaker.getDefaultDecision(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
 //		ActuatorController.getInstance(context).showFeedback(decision);
-//		if(requestHolder.getAction().isRequestedByMusesAwareApp()) {
-//			ActuatorController.getInstance(context).sendFeedbackToMUSESAwareApp(decision);
-//		}
+		if(requestHolder.getAction().isRequestedByMusesAwareApp() && requestHolder.getAction().isMusesAwareAppRequiresResponse()) {
+			ActuatorController.getInstance(context).sendFeedbackToMUSESAwareApp(decision);
+		}
 	}
 }
