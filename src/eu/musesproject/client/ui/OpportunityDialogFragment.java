@@ -77,7 +77,7 @@ public class OpportunityDialogFragment extends DialogFragment implements View.On
     public void onClick(View v) {
         Action action = null;
         switch (v.getId()) {
-            case R.id.dialog_opportunity_button_action:
+            case R.id.dialog_op_button_send:
                 String time = "";
                 String euros = "";
                 String description = "";
