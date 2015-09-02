@@ -61,28 +61,24 @@ public class NotificationController {
         return mInstance;
     }
 
+
+    /* do not remove the notification anymore for now*/
     public void removeNotification() {
-        Log.d(TAG, "remove notification icon, user authenticated: " + UserContextEventHandler.getInstance().isUserAuthenticated());
-        if (mNotificationManager == null) {
-            mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        }
-        try {
-            mNotificationManager.cancel(NOTIFICATION_ID);
-        } catch (Exception e) {
-            // ignore
-        }
+//        Log.d(TAG, "remove notification icon, user authenticated: " + UserContextEventHandler.getInstance().isUserAuthenticated());
+//        if (mNotificationManager == null) {
+//            mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+//        }
+//        try {
+//            mNotificationManager.cancel(NOTIFICATION_ID);
+//        } catch (Exception e) {
+//            // ignore
+//        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void create(int dialogCounter) {
         Log.d(TAG, "create(int dialogCounter=" +dialogCounter+")");
         this.dialogCounter = dialogCounter;
-
-        // don't show notification if the user is not logged in
-        if(!UserContextEventHandler.getInstance().isUserAuthenticated()) {
-            removeNotification();
-            return;
-        }
 
         if(notificationManager == null) {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
