@@ -29,6 +29,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:hint="@string/dialog_op_hint_enter_time"
+              android:inputType="number"
               android:paddingBottom="20dp"/>
 
     <TextView android:layout_width="match_parent"
@@ -37,6 +38,7 @@
     <EditText android:id="@+id/dialog_op_edit_revenue_loss_euros"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:inputType="numberDecimal"
               android:hint="@string/dialog_op_edit_revenue_loss_euros"/>
     <EditText android:id="@+id/dialog_op_edit_revenue_loss_description"
               android:layout_width="match_parent"
