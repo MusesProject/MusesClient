@@ -33,7 +33,7 @@
 
     <TextView android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="@string/dialog_op_text_time_to_work"/>
+              android:text="@string/dialog_op_text_describe_loss"/>
     <EditText android:id="@+id/dialog_op_edit_revenue_loss_euros"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
