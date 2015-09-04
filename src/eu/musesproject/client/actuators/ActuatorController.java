@@ -163,7 +163,7 @@ public class ActuatorController implements IActuatorController {
                         id == SolvingRiskTreatment.CHANGE_SECURITY_PROPERTY_SCREEN_TIMEOUT) {
                     // 10 min hardcoded default value, since the information is not available from the server
                     Log.d(TAG, "5. set screen timeout");
-                    actuateCMD.setScreenTimeOut(15000);
+                    actuateCMD.setScreenTimeOut(60000);
                 }
                 else if(id == SolvingRiskTreatment.BLUETOOTH_ENABLED_MIGHT_TURN_INTO_LEAKAGE_PROBLEMS) {
                     actuateCMD.disableBluetooth();
