@@ -157,7 +157,7 @@ info@muses.com</string>
 	    <string name="info_sec_txt_webview">file:///android_asset/MUSES_isb_EN.htm</string>
     <string name="button_opportunity">Opportunity</string>
     <string name="dialog_op_text_time_to_work">How many hours do you think you have for working?</string>
-    <string name="dialog_op_text_describe_loss">How would you describe your revenue loss?</string>
+    <string name="dialog_op_text_describe_loss">If you cannot work right now,do you lose potential extra revenues</string>
     <string name="dialog_op_hint_enter_time">Enter time: 00:00</string>
     <string name="dialog_op_edit_revenue_loss_euros">Enter potential revenue loss in Euros</string>
     <string name="dialog_op_edit_revenue_loss_description">Enter potential revenue loss description</string>
