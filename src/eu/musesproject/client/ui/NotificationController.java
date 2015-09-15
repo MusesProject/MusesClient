@@ -108,12 +108,21 @@ public class NotificationController {
         // create the icon drawable
         int icon;
         boolean serverOnline = UserContextEventHandler.getInstance().getServerStatus() == Statuses.ONLINE;
+        boolean badResponse = UserContextEventHandler.getInstance().getMostRecentServerResponseStatus();
         if(serverOnline) {
             if(dialogCounter > 0) {
                 icon = R.drawable.ic_online_message;
             }
             else {
                 icon = R.drawable.ic_online_no_message;
+            }
+        }
+        else if(badResponse && serverOnline) {
+            if(dialogCounter > 0) {
+                icon = R.drawable.ic_badconnection_message;
+            }
+            else {
+                icon = R.drawable.ic_badconnection_no_message;
             }
         }
         else {

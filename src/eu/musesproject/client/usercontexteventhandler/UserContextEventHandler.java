@@ -91,6 +91,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
     private boolean isAuthenticatedRemotely;
     private boolean isUserAuthenticated;
+    private boolean badServerResponse;
 
 	private DecisionMaker decisionMaker;
 
@@ -110,6 +111,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 
 		serverStatus = Statuses.CURRENT_STATUS;
 		serverDetailedStatus = Statuses.OFFLINE;
+		badServerResponse = false;
 		isAuthenticatedRemotely = false;
 		isUserAuthenticated = false;
 
@@ -596,6 +598,10 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 		NotificationController.getInstance(context).updateOnlineStatus();
 	}
 
+	public boolean getMostRecentServerResponseStatus() {
+		return badServerResponse;
+	}
+
 	private class ConnectionCallback implements IConnectionCallbacks {
 
 
@@ -732,6 +738,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 }
 			}
             else if(status == Statuses.ONLINE && detailedStatus == DetailedStatuses.SUCCESS_NEW_SESSION) {
+				badServerResponse = false;
 				if(serverStatus == Statuses.OFFLINE) {
 					Log.d(APP_TAG, "Server back to ONLINE, sending offline stored events to server");
 					setServerStatus(status);
@@ -748,6 +755,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 				updateServerOnlineAndUserAuthenticated();
 			}
             else if(status == Statuses.DATA_SEND_OK) {
+				badServerResponse = false;
                 if(detailedStatus == DetailedStatuses.SUCCESS) {
                     dbManager.openDB();
                     dbManager.resetStoredContextEventTables();
@@ -758,6 +766,7 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
                 }
             }
             else if(status == Statuses.DATA_SEND_FAILED) {
+				badServerResponse = true;
                 failedJSONRequest.put(dataId, pendingJSONRequest.get(dataId));
                 Log.d(MusesUtils.TEST_TAG, "data send failed.failedJSONRequest size=" + failedJSONRequest.size());
             }
