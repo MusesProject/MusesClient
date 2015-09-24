@@ -539,7 +539,9 @@ public class JSONManager {
 	public static String getActionType(String jsonString){
 		try {
 			JSONObject requestJSON = new JSONObject(jsonString);
-			JSONObject actionJSON = requestJSON.getJSONObject("action");
+			JSONObject policyJSON = requestJSON.getJSONObject("muses-device-policy");
+			JSONObject fileJSON = policyJSON.getJSONObject("files");
+			JSONObject actionJSON = fileJSON.getJSONObject("action");
 			String actionType = actionJSON.getString("type");
 			return actionType;
 		} catch (JSONException e) {
