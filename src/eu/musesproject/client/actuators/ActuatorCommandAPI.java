@@ -132,11 +132,13 @@ public class ActuatorCommandAPI implements IBlockActuator, IConnectionActuator, 
                 try {
                     Intent goToMarket = new Intent(Intent.ACTION_VIEW)
                             .setData(Uri.parse("market://details?id="+packageName));
+                    goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     goToMarket.addFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME);
                     context.startActivity(goToMarket);
                 } catch (android.content.ActivityNotFoundException anfe) {
                     Intent goToMarket = new Intent(Intent.ACTION_VIEW)
                             .setData(Uri.parse("http://play.google.com/store/apps/details?id=\""+packageName));
+                    goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     goToMarket.addFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME);
                     context.startActivity(goToMarket);
                 }
