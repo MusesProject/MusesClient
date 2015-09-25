@@ -635,7 +635,6 @@ public class UserContextEventHandler implements RequestTimeoutTimer.RequestTimeo
 						DebugFileLog.write(TAG + "| POLICY RECEIVED 3/4 |Removing action from pending requests: " + JSONManager.getActionType(receivedData));
 						DebugFileLog.write(TAG + "| POLICY RECEIVED 4/4 |Now calling send in UCEH for action: " + JSONManager.getActionType(receivedData) + " and requestId: " + JSONManager.getRequestId(receivedData));
 						send(requestHolder.getAction(), requestHolder.getActionProperties(), requestHolder.getContextEvents());
-                        Log.d(APP_TAG, "UCEH - receiveCb(); Condition is" + JSONManager.getPolicyCondition(receivedData) + " for request id:" + JSONManager.getRequestId(receivedData) + " for action:" + requestHolder.getAction().getActionType());
 					}
 				}
 				else if(requestType.equals(RequestType.AUTH_RESPONSE)) {
