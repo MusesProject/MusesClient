@@ -55,7 +55,7 @@ public class DecisionMaker {
 	
 	}	
 	private String getConditionType(String condition) {
-		if (condition.contains("installedApps")){
+		if ((condition.contains("installedApps"))||(condition.contains("resource"))){
 			return "event";
 		}else{
 			return "property";
@@ -121,9 +121,13 @@ public class DecisionMaker {
 						 Log.d(TAG+"SZL","2.1 Value: "+value);
 						 DebugFileLog.write("DecisionMaker-2.1 Value: "+value);
 						 if ((propKey.contains("installedapps"))&&(!propEntry.getValue().contains(value))){
-							Log.d(TAG+"SZL","3.installedapps Match!");
-							DebugFileLog.write("DecisionMaker-3.installedapps Match!");
+							Log.d(TAG+"SZL","3.installedapps  Match!");
+							DebugFileLog.write("DecisionMaker-3.installedapps  Match!");
 							match = true;
+						 }else if ((propKey.contains("resourceName"))&&(propEntry.getValue().contains(value))){
+								Log.d(TAG+"SZL","3. resourcename Match!");
+								DebugFileLog.write("DecisionMaker-3.resourcename Match!");
+								match = true;
 						 }else if (propEntry.getValue().contains(value)){
 							 Log.d(TAG+"SZL","3.Match!");
 							 DebugFileLog.write("DecisionMaker-3.Match!");

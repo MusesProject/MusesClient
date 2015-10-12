@@ -115,6 +115,17 @@ public class DevicePolicyHelper {
 				}else{
 					riskTreatment.setTextualdescription("The action is not allowed ");
 				}
+			}else if (commJSON.toString().contains("\"up-to-you\"")) {
+				String uptoyouAction = commJSON.getString("up-to-you");
+				JSONObject uptoyouActionJSON = new JSONObject(uptoyouAction);
+				if (uptoyouAction.contains(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT)){
+					String riskTreatmentAction = uptoyouActionJSON.getString(JSONIdentifiers.POLICY_SECTION_RISKTREATMENT);
+					riskTreatment.setTextualdescription(riskTreatmentAction);
+					Log.d(TAG, "RiskTreatment:" + riskTreatment.getTextualdescription());
+					DebugFileLog.write(TAG+" RiskTreatment:" + riskTreatment.getTextualdescription());
+				}else{
+					riskTreatment.setTextualdescription("The action is not allowed, unless you make some changes");
+				}
 			}else{
 				String maybeAction = commJSON.getString(JSONIdentifiers.POLICY_PROPERTY_MAYBE);
 				JSONObject maybeActionJSON = new JSONObject(maybeAction);
@@ -279,6 +290,30 @@ public class DevicePolicyHelper {
 				DebugFileLog.write(TAG+" Action type:" + typeAction);
 				if (denyAction.contains(JSONIdentifiers.POLICY_CONDITION)){
 					String conditionAction = denyActionJSON.getString(JSONIdentifiers.POLICY_CONDITION);
+					decision.setCondition(conditionAction);
+					Log.d(TAG, "Decision condition:" + conditionAction);
+					DebugFileLog.write(TAG+" Decision condition:" + conditionAction);
+				}
+			}else if (actionJSON.toString().contains("\"up-to-you\"")){
+				String upToYouAction = actionJSON.getString("up-to-you");
+				JSONObject upToYouActionJSON = new JSONObject(upToYouAction);
+				//Solving risk treatment
+				if (upToYouAction.contains("solving_risktreatment")){
+					String solvingRiskTreatment = upToYouActionJSON.getString("solving_risktreatment");
+					Log.d(TAG, "Server solving risk treatment:" + solvingRiskTreatment);
+					DebugFileLog.write(TAG+" Server solving risk treatment:" + solvingRiskTreatment);
+					decision.setSolving_risktreatment(Integer.valueOf(solvingRiskTreatment));
+				}
+				String idResourceAllowed = upToYouActionJSON.getString("id");//TODO Include in JSONIdentifiers
+				Log.d(TAG, "Up to you:" + idResourceAllowed);
+				DebugFileLog.write(TAG+" Up to you:" + idResourceAllowed);
+				String typeAction = actionJSON.getString(JSONIdentifiers.POLICY_PROPERTY_TYPE);
+				action.setDescription(typeAction);
+				decision.setName("up-to-you");
+				Log.d(TAG, "Action type:" + typeAction);
+				DebugFileLog.write(TAG+" Action type:" + typeAction);
+				if (upToYouAction.contains(JSONIdentifiers.POLICY_CONDITION)){
+					String conditionAction = upToYouActionJSON.getString(JSONIdentifiers.POLICY_CONDITION);
 					decision.setCondition(conditionAction);
 					Log.d(TAG, "Decision condition:" + conditionAction);
 					DebugFileLog.write(TAG+" Decision condition:" + conditionAction);
