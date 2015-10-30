@@ -2207,9 +2207,10 @@ public class DBManager {
                 + " IS NOT NULL",
                 null, null, null, null);
 
-        Decision decision = new Decision();
+        Decision decision = null;
         if (cursor != null && cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
+            	decision = new Decision();
                 Log.d(TAG, cursor.getString(0));
  decision.setId(Integer.parseInt(cursor.getString(0)));
                 decision.setName(cursor.getString(1));
