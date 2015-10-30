@@ -236,6 +236,9 @@ public class SensorController {
         @Override
         public void onEvent(ContextEvent contextEvent) {
             Log.d(MusesUtils.TEST_TAG, "SC - onEvent(ContextEvent contextEvent)");
+            if(contextEvent != null && contextEvent.getType().equals(LocationSensor.TYPE)) {
+                DebugFileLog.write(TAG + "| sensor controller received location event");
+            }
         	// if an app is active that should be observed inform the interaction sensor
         	if(contextEvent != null && contextEvent.getType().equals(AppSensor.TYPE)) {
         		// if the app is gmail in this case //TODO must be configurable

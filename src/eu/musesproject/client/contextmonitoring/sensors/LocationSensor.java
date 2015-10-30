@@ -30,6 +30,7 @@ import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
 import eu.musesproject.client.model.contextmonitoring.Zone;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.contextmodel.ContextEvent;
 
 import java.util.ArrayList;
@@ -95,6 +96,7 @@ public class LocationSensor implements ISensor, LocationListener {
 
     public Location getCurrentLocation() {
         Log.d(TAG, "getCurrentLocation called");
+        DebugFileLog.write(TAG + "| getCurrentLocation called");
         // Get the location manager
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
@@ -130,6 +132,7 @@ public class LocationSensor implements ISensor, LocationListener {
         if (!sensorEnabled) {
             sensorEnabled = true;
             Log.d(TAG, "ENABLE");
+            DebugFileLog.write(TAG + "| enable");
 
             getCurrentLocation();
         }
@@ -138,6 +141,7 @@ public class LocationSensor implements ISensor, LocationListener {
     @Override
     public void disable() {
         Log.d(TAG, "DISABLE");
+        DebugFileLog.write(TAG + "| disable");
         if (sensorEnabled) {
             sensorEnabled = false;
             locationManager.removeUpdates(this);
@@ -167,6 +171,7 @@ public class LocationSensor implements ISensor, LocationListener {
                     zone.setLatitude(Double.parseDouble(configItems[CONFIG_KEY_LATITUDE_POS]));
                     zone.setLongitude(Double.parseDouble(configItems[CONFIG_KEY_LONGITUDE_POS]));
 
+                    DebugFileLog.write(TAG + "| " + configItems[CONFIG_KEY_DESCRIPTION_POS] + " lat=" + configItems[CONFIG_KEY_LATITUDE_POS] + " long=" + configItems[CONFIG_KEY_LONGITUDE_POS] + " radius=" +configItems[CONFIG_KEY_RADIUS_POS]);
                     Log.d(TAG, configItems[CONFIG_KEY_DESCRIPTION_POS] + " lat=" + configItems[CONFIG_KEY_LATITUDE_POS] + " long=" + configItems[CONFIG_KEY_LONGITUDE_POS] + " radius=" +configItems[CONFIG_KEY_RADIUS_POS]);
                     zones.add(zone);
                 } catch (Exception e) {
@@ -179,6 +184,7 @@ public class LocationSensor implements ISensor, LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         Log.d(TAG, "onLocationChanged");
+        DebugFileLog.write(TAG + "| onLocationChanged");
         currentLocation = location;
         createContextEvent();
     }
@@ -192,6 +198,7 @@ public class LocationSensor implements ISensor, LocationListener {
                 location.setLatitude(zone.getLatitude());
 
                 Log.d(TAG, "distance to " + zone.getDescription() + " is " + currentLocation.distanceTo(location) + "m");
+                DebugFileLog.write(TAG + "| distance to " + zone.getDescription() + " is " + currentLocation.distanceTo(location) + "m");
                 if(currentLocation.distanceTo(location) <= zone.getRadius()) {
                     isInZones += zone.getZoneId() + ",";
                 }
@@ -206,6 +213,8 @@ public class LocationSensor implements ISensor, LocationListener {
                 }
             }
             Log.d(TAG, "is in zones: " + isInZones);
+            DebugFileLog.write(TAG + "| is in zones: " + isInZones);
+
 
             ContextEvent contextEvent = new ContextEvent();
             contextEvent.setType(TYPE);
