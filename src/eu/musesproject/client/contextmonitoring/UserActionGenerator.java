@@ -107,6 +107,7 @@ public class UserActionGenerator {
         else if(contextEventTrigger.getType().equals(PeripheralSensor.TYPE)) {
             action.setTimestamp(contextEventTrigger.getTimestamp());
             action.setActionType(ActionType.USB_DEVICE_CONNECTED);
+            return action;
         }
 
         return null;
