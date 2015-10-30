@@ -89,7 +89,7 @@ public class DecisionMaker {
         	DebugFileLog.write("DecisionMaker- 	condition:"+condition);
         	if  (getConditionType(condition).equals("event")){
         		//conditions.put(decision.getCondition(), getConditionType(condition));
-        		conditions.put(decision.getCondition(), String.valueOf(decision.getId()));
+        		conditions.put(new String(decision.getCondition()), String.valueOf(decision.getId()));
         	}			
 		}
         
