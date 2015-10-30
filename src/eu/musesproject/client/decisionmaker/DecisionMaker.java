@@ -88,21 +88,7 @@ public class DecisionMaker {
         	condition = decision.getCondition();
         	Log.d(TAG+"SZL","	condition:"+condition);
         	DebugFileLog.write("DecisionMaker- 	condition:"+condition);
-        	/*if  (getConditionType(condition).equals("event")){
-        		//conditions.put(decision.getCondition(), getConditionType(condition));
-        		conditions.put(new String(decision.getCondition()), String.valueOf(decision.getId()));
-        	}*/			
-		//}
-        
-        // Now, check if any ContextEvent in the eventList satisfies such conditions
-        
-        //for (Map.Entry<String, String> entry : conditions.entrySet())
-        //{
-        	
-        
-        	
-            //Log.d(TAG+"SZL","1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
-            //DebugFileLog.write("DecisionMaker-1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
+
         	Log.d(TAG+"SZL","1. Decision condition to be checked: "+condition );
             DebugFileLog.write("DecisionMaker-1. Decision condition to be checked: "+condition);
             
@@ -131,12 +117,16 @@ public class DecisionMaker {
 							Log.d(TAG+"SZL","3.installedapps  Match!");
 							DebugFileLog.write("DecisionMaker-3.installedapps  Match!");
 							match = true;
-						 }else if ((propKey.contains("resourceName"))&&(propEntry.getValue().contains(value))){
+						 //}else if ((propKey.contains("resourceName"))&&(propEntry.getValue().contains(value))){
+						 }else if (propKey.contains("resourceName")){
+							 DebugFileLog.write("Resource Name check:"+request.getResource().getDescription());
+							 if ((request.getResource().getDescription()!=null)&&(request.getResource().getDescription().contains(value))){
 								Log.d(TAG+"SZL","3. resourcename Match!");
-								DebugFileLog.write("DecisionMaker-3.resourcename Match!");
+								DebugFileLog.write("DecisionMaker-3.resourcename Match!-Action type:"+request.getAction().getActionType());
 								if ((request.getAction().getActionType().contains(ActionType.OPEN_ASSET))||(request.getAction().getActionType().contains(ActionType.SAVE_ASSET))){
 									match = true;
-								}	
+								}
+							 }	
 						 }else if (propEntry.getValue().contains(value)){
 							 Log.d(TAG+"SZL","3.Match!");
 							 DebugFileLog.write("DecisionMaker-3.Match!");
