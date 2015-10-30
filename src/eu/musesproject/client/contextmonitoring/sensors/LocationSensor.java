@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocationSensor implements ISensor, LocationListener {
-    private static final String TAG = LocationSensor.class.getSimpleName();
+    public static final String TAG = LocationSensor.class.getSimpleName();
 
     // sensor identifier
     public static final String TYPE = "CONTEXT_SENSOR_LOCATION";

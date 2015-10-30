@@ -210,11 +210,8 @@ public class SensorController {
     public List<ContextEvent> getLastFiredEvents() {
         List<ContextEvent> contextEvents = new ArrayList<ContextEvent>();
         if (activeSensors != null) {
-            for (ISensor sensor : activeSensors.values()) {
-                ContextEvent contextEvent = sensor.getLastFiredContextEvent();
-                if(contextEvent != null) { // just add the context event if there is already one fired
-                    contextEvents.add(contextEvent);
-                }
+            for (ContextEvent contextEvent : lastFiredContextEvents.values()) {
+                contextEvents.add(contextEvent);
             }
         }
 
@@ -224,6 +221,11 @@ public class SensorController {
     public Map<String, ISensor> getActiveSensors() {
 		return activeSensors;
 	}
+
+
+    public ContextEventBus getContextEventBus() {
+        return contextEventBus;
+    }
 
 	/**
      * Inner class that gets notified when a new {@link ContextEvent}

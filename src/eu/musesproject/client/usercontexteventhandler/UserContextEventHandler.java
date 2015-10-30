@@ -35,6 +35,7 @@ import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.connectionmanager.*;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
+import eu.musesproject.client.contextmonitoring.sensors.LocationSensor;
 import eu.musesproject.client.contextmonitoring.sensors.SettingsSensor;
 import eu.musesproject.client.db.entity.ActionProperty;
 import eu.musesproject.client.db.entity.Configuration;
