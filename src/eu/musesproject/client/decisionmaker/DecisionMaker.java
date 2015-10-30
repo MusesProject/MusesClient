@@ -73,6 +73,7 @@ public class DecisionMaker {
 		eu.musesproject.client.db.entity.RiskCommunication comm = null;
 		eu.musesproject.client.db.entity.RiskTreatment treatment = null;
 		boolean match = false;
+		String entry = null;
 		
 		DBManager dbManager = new DBManager(UserContextEventHandler.getInstance().getContext());
         dbManager.openDB();
@@ -87,23 +88,29 @@ public class DecisionMaker {
         	condition = decision.getCondition();
         	Log.d(TAG+"SZL","	condition:"+condition);
         	DebugFileLog.write("DecisionMaker- 	condition:"+condition);
-        	if  (getConditionType(condition).equals("event")){
+        	/*if  (getConditionType(condition).equals("event")){
         		//conditions.put(decision.getCondition(), getConditionType(condition));
         		conditions.put(new String(decision.getCondition()), String.valueOf(decision.getId()));
-        	}			
-		}
+        	}*/			
+		//}
         
         // Now, check if any ContextEvent in the eventList satisfies such conditions
         
-        for (Map.Entry<String, String> entry : conditions.entrySet())
-        {
-            Log.d(TAG+"SZL","1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
-            DebugFileLog.write("DecisionMaker-1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
+        //for (Map.Entry<String, String> entry : conditions.entrySet())
+        //{
+        	
+        
+        	
+            //Log.d(TAG+"SZL","1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
+            //DebugFileLog.write("DecisionMaker-1. Decision condition to be checked: "+entry.getKey() + "/" + entry.getValue());
+        	Log.d(TAG+"SZL","1. Decision condition to be checked: "+condition );
+            DebugFileLog.write("DecisionMaker-1. Decision condition to be checked: "+condition);
+            
             Log.d(TAG+"SZL","Event List size:"+eventList.size());
             DebugFileLog.write("DecisionMaker-Event List size:"+eventList.size());
            	//Iterate over eventList
-            for (Iterator iterator = eventList.iterator(); iterator.hasNext();) {
-				ContextEvent contextEvent = (ContextEvent) iterator.next();
+            for (Iterator iterator1 = eventList.iterator(); iterator.hasNext();) {
+				ContextEvent contextEvent = (ContextEvent) iterator1.next();
 				//Get properties of such contextEvent
 				eventProperties= contextEvent.getProperties();
 				//Iterate over the event properties to check if the condition is in place
@@ -111,12 +118,12 @@ public class DecisionMaker {
 					String propKey = propEntry.getKey();
 					 Log.d(TAG+"SZL","2. Property event to be checked: "+propEntry.getKey() + "/" + propEntry.getValue());
 				 		DebugFileLog.write("DecisionMaker-2. Property event to be checked: "+propEntry.getKey() + "/" + propEntry.getValue());
-					 if (entry.getKey().toLowerCase().contains(propKey.toLowerCase())){
-						 String value = entry.getKey()
+					 if (condition.toLowerCase().contains(propKey.toLowerCase())){
+						 String value = condition
 									.substring(
-											entry.getKey()
+											condition
 													.indexOf(":") + 2,
-													entry.getKey()
+													condition
 													.length() - 2);
 						 Log.d(TAG+"SZL","2.1 Value: "+value);
 						 DebugFileLog.write("DecisionMaker-2.1 Value: "+value);
@@ -139,7 +146,7 @@ public class DecisionMaker {
 				}
 			}
             if (match){
-            	entityDecision = dbManager.getDecisionFromID(entry.getValue());
+            	entityDecision = dbManager.getDecisionFromID(String.valueOf(decision.getId()));
 				dt = dbManager.getDecisionTableFromDecisionId(String.valueOf(entityDecision.getId()));
 				comm= dbManager.getRiskCommunicationFromID(String.valueOf(dt.getRiskcommunication_id()));
 		        	if (comm != null){
