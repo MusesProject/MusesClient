@@ -127,7 +127,9 @@ public class DecisionMaker {
 						 }else if ((propKey.contains("resourceName"))&&(propEntry.getValue().contains(value))){
 								Log.d(TAG+"SZL","3. resourcename Match!");
 								DebugFileLog.write("DecisionMaker-3.resourcename Match!");
-								match = true;
+								if ((request.getAction().getActionType().contains(ActionType.OPEN_ASSET))||(request.getAction().getActionType().contains(ActionType.SAVE_ASSET))){
+									match = true;
+								}	
 						 }else if (propEntry.getValue().contains(value)){
 							 Log.d(TAG+"SZL","3.Match!");
 							 DebugFileLog.write("DecisionMaker-3.Match!");
