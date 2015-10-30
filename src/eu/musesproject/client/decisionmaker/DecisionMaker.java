@@ -109,7 +109,7 @@ public class DecisionMaker {
             Log.d(TAG+"SZL","Event List size:"+eventList.size());
             DebugFileLog.write("DecisionMaker-Event List size:"+eventList.size());
            	//Iterate over eventList
-            for (Iterator iterator1 = eventList.iterator(); iterator.hasNext();) {
+            for (Iterator iterator1 = eventList.iterator(); iterator1.hasNext();) {
 				ContextEvent contextEvent = (ContextEvent) iterator1.next();
 				//Get properties of such contextEvent
 				eventProperties= contextEvent.getProperties();
