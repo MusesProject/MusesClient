@@ -145,7 +145,6 @@ public class DecisionMaker {
 					 }
 				}
 			}
-        }
             if (match){
             	entityDecision = dbManager.getDecisionFromID(String.valueOf(decision.getId()));
 				dt = dbManager.getDecisionTableFromDecisionId(String.valueOf(entityDecision.getId()));
@@ -155,9 +154,8 @@ public class DecisionMaker {
 		        	}
 		        	resultDecision = composeDecision(entityDecision, comm, treatment);
 				 return resultDecision;
-            }else{
-            	return null;
             }
+        }
         //}
  
 		
