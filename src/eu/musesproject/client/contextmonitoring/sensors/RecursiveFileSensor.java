@@ -237,9 +237,9 @@ public class RecursiveFileSensor implements ISensor {
 	public class FileSensor extends FileObserver {
 		 // these variables are needed to prevent the context event creation multiple times a second.
         // this is necessary because the FileObserver fires the same event multiple times
-        int oldEvent = - 1;
+        String oldEventText = "";
         long lastEventTimestamp = System.currentTimeMillis();
-        long threshold = 1000;
+        long threshold = 1500;
         String rootPath;
 
 		public FileSensor(String path) {
@@ -251,38 +251,29 @@ public class RecursiveFileSensor implements ISensor {
 
 		@Override
 		public void onEvent(int event, String name) {
-			 long eventTimeStamp = System.currentTimeMillis();
+            long eventTimeStamp = System.currentTimeMillis();
 
-             // add ALL_EVENTS to erase high bit values
-             event &= ALL_EVENTS;
-             String eventText = null;
+            // add ALL_EVENTS to erase high bit values
+            event &= ALL_EVENTS;
+            String eventText = null;
 
-             if((oldEvent != event) || ((eventTimeStamp - lastEventTimestamp) >= threshold)) {
-                 oldEvent = event;
-                 lastEventTimestamp = eventTimeStamp;
+            switch(event) {
+                case FileObserver.OPEN			: eventText = RecursiveFileSensor.OPEN; 		break;
+                case FileObserver.CLOSE_WRITE	: eventText = RecursiveFileSensor.CLOSE_WRITE;  break;
+                default: break;
+            }
 
-                 switch(event){
-                     case FileObserver.OPEN			: eventText = RecursiveFileSensor.OPEN; 		break;
-                     case FileObserver.ATTRIB		: eventText = RecursiveFileSensor.ATTRIB;  	   	break;
-                     case FileObserver.ACCESS		: eventText = RecursiveFileSensor.ACCESS; 	   	break;
-                     case FileObserver.CREATE		: eventText = RecursiveFileSensor.CREATE; 	   	break;
-                     case FileObserver.DELETE		: eventText = RecursiveFileSensor.DELETE;	   	break;
-                     case FileObserver.MODIFY		: eventText = RecursiveFileSensor.MODIFY;	   	break;
-                     case FileObserver.MOVED_FROM	: eventText = RecursiveFileSensor.MOVED_FROM;   break;
-                     case FileObserver.MOVED_TO		: eventText = RecursiveFileSensor.MOVED_TO;     break;
-                     case FileObserver.MOVE_SELF	: eventText = RecursiveFileSensor.MOVE_SELF;    break;
-                     case FileObserver.CLOSE_WRITE	: eventText = RecursiveFileSensor.CLOSE_WRITE;  break;
-                     case FileObserver.CLOSE_NOWRITE: eventText = RecursiveFileSensor.CLOSE_NOWRITE;break;
-                     default: break;
-                 }
-                 if((eventText != null) && (name != null)) {
-                	 String path = rootPath + "/" + name;
-                	 File file = new File(path);
-                	 if(file.isFile()) {
-                		 createContextEvent(eventText, rootPath, name);
-                	 }
-                 }
-             }
+            if((!oldEventText.equals(eventText)) || ((eventTimeStamp - lastEventTimestamp) >= threshold)) {
+                lastEventTimestamp = eventTimeStamp;
+                if((eventText != null) && (name != null)) {
+                    oldEventText = eventText;
+                    String path = rootPath + "/" + name;
+                    File file = new File(path);
+                    if(file.isFile()) {
+                        createContextEvent(eventText, rootPath, name);
+                    }
+                }
+            }
 		}
 	}
 }
