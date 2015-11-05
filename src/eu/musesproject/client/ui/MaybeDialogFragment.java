@@ -30,7 +30,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import eu.musesproject.client.R;
 import eu.musesproject.client.actuators.ActuatorController;
 import eu.musesproject.client.contextmonitoring.UserContextMonitoringController;
@@ -106,8 +105,7 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
         cancelButton.setOnClickListener(this);
 
         if(!hasOpportunity) {
-            actionButton.setEnabled(false);
-            actionButton.setClickable(false);
+            actionButton.setText(getString(R.string.button_details));
         }
 
         // dialog design theme
@@ -133,7 +131,8 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
                 }
                 else {
                     try {
-                        Toast.makeText(getActivity(), R.string.dialog_op_no_opportunity, Toast.LENGTH_LONG).show();
+                        dialogBody.setText(splitBody[1]);
+                        actionButton.setVisibility(View.INVISIBLE);
                     } catch (Exception e) {
                         Log.e(TAG, "cannot show the toast messsage");
                     }
