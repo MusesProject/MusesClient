@@ -134,7 +134,7 @@ public class MaybeDialogFragment extends DialogFragment implements View.OnClickL
                         dialogBody.setText(splitBody[1]);
                         actionButton.setVisibility(View.INVISIBLE);
                     } catch (Exception e) {
-                        Log.e(TAG, "cannot show the toast messsage");
+                        Log.e(TAG, "cannot handle the detail button. Text might be missing");
                     }
                 }
                 break;
