@@ -23,6 +23,7 @@ package eu.musesproject.client.ui;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -101,6 +102,25 @@ public class OpportunityDialogFragment extends DialogFragment implements View.On
                     action = new Action(ActionType.OPPORTUNITY, System.currentTimeMillis());
                     UserContextMonitoringController.getInstance(getActivity()).sendUserBehavior(action, decisionId);
                     UserContextMonitoringController.getInstance(getActivity()).sendOpportunity(decisionId, time, euros, description);
+                    try {
+                        if (Integer.valueOf(euros) <= 10000) {
+                            String dialogTitle = getActivity().getString(R.string.feedback_dialog_title_deny);
+                            String dialogBody = "";
+                            Intent dialogIntent = new Intent(getActivity(), DialogController.class);
+                            dialogIntent.putExtra(DialogController.KEY_DECISION_ID, -1);
+                            dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
+                            dialogIntent.putExtra(DialogController.KEY_DIALOG_HAS_OPPORTUNITY, false);
+                            dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, dialogTitle);
+                            dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.DENY);
+                            dialogIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                    | Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                                    | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(dialogIntent);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "can't cast euros to string");
+                    }
+
                     this.dismiss();
                     getActivity().finish();
                 }
