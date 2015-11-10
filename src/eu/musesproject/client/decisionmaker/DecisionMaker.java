@@ -123,8 +123,15 @@ public class DecisionMaker {
 							 if ((request.getResource().getDescription()!=null)&&(request.getResource().getDescription().contains(value))){
 								Log.d(TAG+"SZL","3. resourcename Match!");
 								DebugFileLog.write("DecisionMaker-3.resourcename Match!-Action type:"+request.getAction().getActionType());
-								if ((request.getAction().getActionType().contains(ActionType.OPEN_ASSET))||(request.getAction().getActionType().contains(ActionType.SAVE_ASSET))){
-									match = true;
+								if (request.getAction().getActionType().contains(ActionType.OPEN_ASSET)){
+									if (!request.getResource().getDescription().contains("up")){
+										match = true;
+									}
+								} else if (request.getAction().getActionType().contains(ActionType.SAVE_ASSET){
+									if (request.getResource().getDescription().contains("up")){
+										match = true;
+									}
+									
 								}
 							 }	
 						 }else if (propEntry.getValue().contains(value)){
