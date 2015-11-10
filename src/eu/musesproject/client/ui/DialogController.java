@@ -90,9 +90,21 @@ public class DialogController extends Activity implements MaybeDialogFragment.IO
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        // user clicked on the notification. Therefore we show him the current notification of the notification stack
-        ActuatorController.getInstance(this).showCurrentTopFeedback();
-        finish();
+        Bundle bundle = intent.getExtras();
+        String decisionId = bundle.getString(KEY_DECISION_ID);
+        String dialogTitle = bundle.getString(KEY_DIALOG_TITLE);
+        String dialogBody = bundle.getString(KEY_DIALOG_BODY);
+        boolean isTemp = bundle.getBoolean("TEMP_DIALOG", false);
+        if (isTemp){
+        	DialogFragment df = createDenyDialog(dialogTitle, dialogBody, decisionId);
+            df.setCancelable(false);
+            df.show(getFragmentManager(), "dialog");
+
+        }else{
+            // user clicked on the notification. Therefore we show him the current notification of the notification stack
+            ActuatorController.getInstance(this).showCurrentTopFeedback();
+            finish();
+        }
     }
 
     @Override

@@ -105,13 +105,14 @@ public class OpportunityDialogFragment extends DialogFragment implements View.On
                     try {
                         if (Integer.valueOf(euros) <= 10000) {
                             String dialogTitle = getActivity().getString(R.string.feedback_dialog_title_deny);
-                            String dialogBody = "";
+                            String dialogBody = "You are advised not to continue opening this file. \n Due to current context and company policy, company data can be compromised.";
                             Intent dialogIntent = new Intent(getActivity(), DialogController.class);
                             dialogIntent.putExtra(DialogController.KEY_DECISION_ID, -1);
                             dialogIntent.putExtra(DialogController.KEY_DIALOG_BODY, dialogBody);
                             dialogIntent.putExtra(DialogController.KEY_DIALOG_HAS_OPPORTUNITY, false);
                             dialogIntent.putExtra(DialogController.KEY_DIALOG_TITLE, dialogTitle);
                             dialogIntent.putExtra(DialogController.KEY_DIALOG, DialogController.DENY);
+                            dialogIntent.putExtra("TEMP_DIALOG", true);
                             dialogIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
                                     | Intent.FLAG_ACTIVITY_MULTIPLE_TASK
                                     | Intent.FLAG_ACTIVITY_NEW_TASK);
