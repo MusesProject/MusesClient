@@ -25,6 +25,7 @@ import android.os.FileObserver;
 import android.util.Log;
 import eu.musesproject.client.contextmonitoring.ContextListener;
 import eu.musesproject.client.db.entity.SensorConfiguration;
+import eu.musesproject.client.ui.DebugFileLog;
 import eu.musesproject.contextmodel.ContextEvent;
 
 import java.io.File;
@@ -159,6 +160,8 @@ public class RecursiveFileSensor implements ISensor {
         contextEvent.addProperty(PROPERTY_KEY_NAME, name);
         contextEvent.generateId();
         Log.d(TAG, "event received: " + eventText + " path: " +path + " name: " + name);
+        DebugFileLog.write(TAG + "| event received: " + eventText + " path: " +path + " name: " + name);
+
 
         // add context event to the context event history
         contextEventHistory.add(contextEvent);
@@ -262,6 +265,8 @@ public class RecursiveFileSensor implements ISensor {
                 case FileObserver.CLOSE_WRITE	: eventText = RecursiveFileSensor.CLOSE_WRITE;  break;
                 default: break;
             }
+
+            DebugFileLog.write(TAG + "| onEvent: " + eventText + " event: " +event + " name: " + name);
 
             if((!oldEventText.equals(eventText)) || ((eventTimeStamp - lastEventTimestamp) >= threshold)) {
                 lastEventTimestamp = eventTimeStamp;
