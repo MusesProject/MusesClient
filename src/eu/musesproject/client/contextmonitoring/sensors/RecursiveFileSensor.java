@@ -268,13 +268,18 @@ public class RecursiveFileSensor implements ISensor {
 
             DebugFileLog.write(TAG + "| onEvent: " + eventText + " event: " +event + " name: " + name);
 
+            DebugFileLog.write(TAG + "| (!oldEventText.equals(eventText))="+(!oldEventText.equals(eventText)));
+            DebugFileLog.write(TAG + "| (!oldEventText.equals(eventText))="+(!oldEventText.equals(eventText)));
+            DebugFileLog.write(TAG + "| (!oldEventText.equals(eventText)) || ((eventTimeStamp - lastEventTimestamp) >= threshold)="+((!oldEventText.equals(eventText)) || ((eventTimeStamp - lastEventTimestamp) >= threshold)));
             if((!oldEventText.equals(eventText)) || ((eventTimeStamp - lastEventTimestamp) >= threshold)) {
                 lastEventTimestamp = eventTimeStamp;
                 if((eventText != null) && (name != null)) {
                     oldEventText = eventText;
                     String path = rootPath + "/" + name;
                     File file = new File(path);
+                    DebugFileLog.write(TAG + "| " + rootPath + "/" + name + " is a file?=" +file.isFile());
                     if(file.isFile()) {
+                        DebugFileLog.write(TAG + "| try to create a context event");
                         createContextEvent(eventText, rootPath, name);
                     }
                 }
