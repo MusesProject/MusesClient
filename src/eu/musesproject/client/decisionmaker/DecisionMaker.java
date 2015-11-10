@@ -127,7 +127,7 @@ public class DecisionMaker {
 									if (!request.getResource().getDescription().contains("up")){
 										match = true;
 									}
-								} else if (request.getAction().getActionType().contains(ActionType.SAVE_ASSET){
+								} else if (request.getAction().getActionType().contains(ActionType.SAVE_ASSET)){
 									if (request.getResource().getDescription().contains("up")){
 										match = true;
 									}
