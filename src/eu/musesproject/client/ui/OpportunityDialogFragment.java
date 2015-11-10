@@ -107,13 +107,16 @@ public class OpportunityDialogFragment extends DialogFragment implements View.On
                             String dialogBody = "You are advised not to continue opening this file. \n Due to current context and company policy, company data can be compromised.";
                             DialogFragment targetDialogFragment = DenyDialogFragment.newInstance(dialogTitle, dialogBody, "-1");
                             targetDialogFragment.show(getFragmentManager(), "dialog");
+
+                            this.dismiss();
+                        }
+                        else {
+                            this.dismiss();
+                            getActivity().finish();
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "can't cast euros to string");
                     }
-
-                    this.dismiss();
-                    getActivity().finish();
                 }
                 break;
         }
